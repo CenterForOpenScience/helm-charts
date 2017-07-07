@@ -1,4 +1,4 @@
-# charts
+# helm-charts
 Kubernetes Helm Charts for the Open Science Framework
 
 ## nginx-ingress
