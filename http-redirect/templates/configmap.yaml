@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "fullname" . }}
+data:
+  nginx.conf: |-
+    worker_processes  1;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       mime.types;
+        default_type  application/octet-stream;
+
+        sendfile        on;
+
+        keepalive_timeout  65;
+
+        server {
+            listen 8080 default_server;
+            listen [::]:8080 default_server;
+            server_name _;
+
+            location = /healthz {
+                access_log off;
+                return 200;
+            }
+
+            location / {
+                # glbc health check (https://github.com/kubernetes/ingress/blob/master/controllers/gce/README.md#health-checks)
+                if ($http_user_agent ~* "googlehc") {
+                    access_log off;
+                    return 200 '';
+                }
+
+                return 301 https://$host$request_uri;
+            }
+        }
+    }

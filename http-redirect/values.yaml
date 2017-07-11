@@ -1,0 +1,28 @@
+## http-redirect configuration
+## Ref: https://github.com/CenterForOpenScience/helm-charts/blob/master/http-redirect/README.md
+##
+image:
+  repository: gcr.io/google_containers/nginx-slim-amd64
+  tag: "0.18"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 10m
+    memory: 20Mi
+  requests:
+    cpu: 10m
+    memory: 20Mi
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: gce
+    # kubernetes.io/ingress.global-static-ip-name: my-static-ip-name
+
+service:
+  clusterIP: ""
+  servicePort: 80
+  type: NodePort
