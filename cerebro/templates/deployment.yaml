@@ -1,0 +1,37 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "fullname" . }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: cerebro
+        env:
+        - name: JAVA_OPTS
+          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.heapSize }} -Xmx{{ .Values.heapSize }}"
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
+        ports:
+        - containerPort: 9000
+          name: http
+        volumeMounts:
+        - mountPath: /opt/cerebro/conf/application.conf
+          name: config
+          subPath: application.conf
+      volumes:
+      - configMap:
+          name: {{ template "fullname" . }}
+        name: config
