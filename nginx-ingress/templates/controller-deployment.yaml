@@ -13,8 +13,9 @@ spec:
   replicas: {{ .Values.controller.replicaCount }}
   template:
     metadata:
-    {{- if .Values.controller.podAnnotations }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/controller-configmap.yaml") . | sha256sum }}
+    {{- if .Values.controller.podAnnotations }}
 {{ toYaml .Values.controller.podAnnotations | indent 8}}
     {{- end }}
       labels:
@@ -22,6 +23,11 @@ spec:
         component: "{{ .Values.controller.name }}"
         release: {{ .Release.Name }}
     spec:
+{{- if .Values.controller.rbac.enabled }}
+      serviceAccountName: {{ template "fullname" . }}
+{{- else }}
+      serviceAccountName: default
+{{- end }}
       hostNetwork: {{ .Values.controller.hostNetwork }}
       containers:
         - name: {{ template "name" . }}-{{ .Values.controller.name }}
