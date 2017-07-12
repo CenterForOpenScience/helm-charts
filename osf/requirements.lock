@@ -1,45 +1,51 @@
 dependencies:
-- condition: ""
+- alias: ""
+  condition: ""
   enabled: false
   import-values: null
   name: postgresql
   repository: https://kubernetes-charts.storage.googleapis.com
   tags: null
   version: 0.7.0
-- condition: ""
+- alias: ""
+  condition: ""
   enabled: false
   import-values: null
   name: rabbitmq
   repository: https://kubernetes-charts.storage.googleapis.com
   tags: null
   version: 0.5.1
-- condition: ""
+- alias: ""
+  condition: ""
   enabled: false
   import-values: null
   name: osf-admin
   repository: file://../osf-admin
   tags: null
   version: 0.1.0
-- condition: ""
+- alias: ""
+  condition: ""
   enabled: false
   import-values: null
   name: osf-api
   repository: file://../osf-api
   tags: null
   version: 0.1.0
-- condition: ""
+- alias: ""
+  condition: ""
   enabled: false
   import-values: null
   name: osf-web
   repository: file://../osf-web
   tags: null
   version: 0.1.0
-- condition: ""
+- alias: ""
+  condition: ""
   enabled: false
   import-values: null
   name: osf-sharejs
   repository: file://../osf-sharejs
   tags: null
   version: 0.1.0
-digest: sha256:18e69039a87e35f5c51b88808f906703138265ff9113e90b10eea775a8426ea7
-generated: 2017-06-16T10:55:17.099792138-04:00
+digest: sha256:2606a5765fb4b4a2bdf0d0f8088a4303f6a64f2c8ae66d4ae822f27143a4ea9e
+generated: 2017-07-12T16:32:50.043424273-04:00

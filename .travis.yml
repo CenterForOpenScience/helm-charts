@@ -1,0 +1,18 @@
+language: generic
+
+dist: trusty
+sudo: required
+
+install:
+- curl -o- -L https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+
+before_script:
+- helm init || true
+- helm repo add stable https://kubernetes-charts.storage.googleapis.com
+- |
+  for chart in $(find . -name 'requirements.yaml'); do
+    helm dep build $(dirname $chart)
+  done
+
+script:
+- helm lint */
