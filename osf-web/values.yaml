@@ -1,0 +1,145 @@
+# Default values for osf-web.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 3
+
+nginx:
+  image:
+    repository: gcr.io/cos-containers/nginx
+    tag: '1'
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+preprints:
+  image:
+    repository: gcr.io/cos-containers/ember-preprints
+    tag: develop-production-stage1
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+registries:
+  image:
+    repository: gcr.io/cos-containers/ember-osf-registries
+    tag: develop-production-stage1
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+uwsgi:
+  image:
+    repository: gcr.io/cos-containers/osf
+    tag: develop
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+service:
+  name: http
+  type: NodePort
+  externalPort: 5000
+  internalPort: 80
+
+osfSecretName:
+postgresHost:
+postgresDatabase:
+postgresUser:
+postgresSecret:
+
+## Addons
+# Box
+BOX_KEY: ''
+BOX_SECRET: ''
+# Dataverse
+DATAVERSE_HOST: ''
+# Dropbox
+DROPBOX_KEY: ''
+DROPBOX_SECRET: ''
+# Figshare
+FIGSHARE_CLIENT_ID: ''
+FIGSHARE_CLIENT_SECRET: ''
+# GitHub
+GITHUB_CLIENT_ID: ''
+GITHUB_CLIENT_SECRET: ''
+# Google Drive
+GOOGLEDRIVE_CLIENT_ID: ''
+GOOGLEDRIVE_CLIENT_SECRET: ''
+# Mendeley
+MENDELEY_CLIENT_ID: ''
+MENDELEY_CLIENT_SECRET: ''
+# OSF Storage
+osfstorage: |
+  WATERBUTLER_CREDENTIALS = {
+      'storage': {
+          'region': '',
+          'username': '',
+          'token': '',
+          'temp_key': '',
+      },
+      'parity': {
+          'region': '',
+          'username': '',
+          'token': '',
+          'temp_key': '',
+      },
+      'archive': {
+          'access_key': '',
+          'secret_key': '',
+      },
+  }
+
+  WATERBUTLER_SETTINGS = {
+      'storage': {
+          'provider': '',
+          'container': '',
+          'use_public': True,
+      },
+      'parity': {
+          'provider': '',
+          'container': '',
+          'use_public': True,
+      },
+      'archive': {
+          'vault': '',
+      },
+  }
+
+  WATERBUTLER_RESOURCE = 'container'
+# Wiki
+WIKI_SHAREJS_URL: ''
+WIKI_CHANGE_DATE_TIME: ''
+# Zotero
+ZOTERO_CLIENT_ID: ''
+ZOTERO_CLIENT_SECRET: ''
+
+# local.py
+localpy: |
+  # -*- coding: utf-8 -*-
+  """local.py."""
+
+# Must create the secret in the namespace
+# osfSecretName:
+
+global:
+  override: false

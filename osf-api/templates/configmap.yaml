@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+data:
+{{ (.Files.Glob "files/*").AsConfig | indent 2 }}
+  local.py: |
+    from . import defaults
+
+    API_BASE = 'v2/'
+    STATIC_URL = '/{}static/'.format(API_BASE)
+    SWAGGER_SETTINGS = dict(defaults.SWAGGER_SETTINGS, base_path='{{ .Values.domain }}/v2/docs')
+
+    JWE_SECRET = {{ .Values.JWE_SECRET | quote }}
+    JWT_SECRET = {{ .Values.JWT_SECRET | quote }}
+    BYPASS_THROTTLE_TOKEN = {{ .Values.BYPASS_THROTTLE_TOKEN | quote }}

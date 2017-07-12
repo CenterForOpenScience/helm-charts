@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-elasticsearch
+spec:
+  replicas: {{ .Values.elasticsearch.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        tier: backend
+    spec:
+      containers:
+      - env:
+        - name: ES_HEAP_SIZE
+          value: 256m
+        image: elasticsearch:1.7
+        name: elasticsearch
+        ports:
+        - containerPort: 9200
+          name: elasticsearch
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: elasticsearch-persistent-storage
+      volumes:
+      - name: elasticsearch-persistent-storage
+      {{- if .Values.elasticsearch.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.elasticsearch.persistence.existingClaim | default (print .Release.Name "-elasticsearch") }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}
+

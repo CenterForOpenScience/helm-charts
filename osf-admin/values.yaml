@@ -1,0 +1,43 @@
+# Default values for osf-admin.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+nginx:
+  image:
+    repository: gcr.io/cos-containers/nginx
+    tag: '1'
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+uwsgi:
+  image:
+    repository: gcr.io/cos-containers/osf
+    tag: develop
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+service:
+  name: http
+  type: NodePort
+  externalPort: 8001
+  internalPort: 80
+
+keen_public_project_id: ''
+keen_public_read_key: ''
+SENTRY_DSN: ''
+
+global:
+  overrides: false

@@ -1,0 +1,124 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+  annotations:
+    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        tier: frontend
+    spec:
+      containers:
+
+      - name: nginx
+        image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+        imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+        command:
+        - nginx
+        - -c
+        - /nginx/nginx.conf
+        - -g
+        - daemon off;
+        ports:
+        - containerPort: 80
+          name: http
+        readinessProbe:
+          httpGet:
+            httpHeaders:
+            - name: Host
+              value: status.osf.io
+            path: /v2/
+            port: 80
+          initialDelaySeconds: 30
+        volumeMounts:
+        - mountPath: /static
+          name: static-volume
+        - mountPath: /nginx/nginx.conf
+          name: api-config-volume
+          subPath: nginx.conf
+        - mountPath: /nginx/robots.txt
+          name: api-config-volume
+          subPath: robots.txt
+        - mountPath: /etc/nginx/conf.d/default.conf
+          name: api-config-volume
+          subPath: nginx-confd.conf
+        resources:
+{{ toYaml .Values.nginx.resources | indent 10 }}
+
+      - name: uwsgi
+        image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
+        imagePullPolicy: {{ .Values.uwsgi.image.pullPolicy }}
+        command:
+        - uwsgi
+        - --ini
+        - /etc/uwsgi/uwsgi.ini
+        env:
+        {{- if .Values.global.overrides }}
+        {{- include "override.dbSettings" . | indent 8 }}
+        {{- else }}
+        - name: SENSITIVE_DATA_SALT
+          valueFrom:
+            secretKeyRef:
+              key: sensitive-data-salt
+              name: {{ .Values.osfSecretName }}
+        - name: SENSITIVE_DATA_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: sensitive-data-secret
+              name: {{ .Values.osfSecretName }}
+        - name: OSF_DB_HOST
+          value: {{ .Values.postgresHost }}
+        - name: OSF_DB_NAME
+          value: {{ .Values.postgresDatabase }}
+        - name: OSF_DB_USER
+          value: {{ .Values.postgresUser }}
+        - name: OSF_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgres-password
+              name: {{ .Values.postgresSecret }}
+        {{- end }}
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - mkdir -p /static/code/api && cp -Rf /code/api/static /static/code/api
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 1717
+          name: stats
+        volumeMounts:
+        - mountPath: /static
+          name: static-volume
+        - mountPath: /etc/uwsgi/uwsgi.ini
+          name: api-config-volume
+          subPath: uwsgi.ini
+        {{- if .Values.global.overrides }}
+        {{- include "override.volumeMounts" . | indent 8 }}
+        {{- else }}
+        - mountPath: /code/api/base/settings/local.py
+          name: api-config-volume
+          subPath: local.py
+        {{- end }}
+        resources:
+{{ toYaml .Values.uwsgi.resources | indent 10 }}
+
+      volumes:
+      - name: static-volume
+        emptyDir: {}
+      {{- if .Values.global.overrides }}
+        {{- include "override.volumes" . | indent 6 }}
+      {{- else }}
+      - name: api-config-volume
+        configMap:
+          name: {{ template "fullname" . }}
+      {{- end }}

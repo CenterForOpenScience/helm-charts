@@ -1,0 +1,50 @@
+# Default values for osf-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 3
+
+nginx:
+  image:
+    repository: gcr.io/cos-containers/nginx
+    tag: '1'
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+uwsgi:
+  image:
+    repository: gcr.io/cos-containers/osf
+    tag: develop
+    pullPolicy: Always
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+service:
+  name: http
+  type: NodePort
+  externalPort: 8000
+  internalPort: 80
+
+osfSecretName:
+postgresHost:
+postgresDatabase:
+postgresUser:
+postgresSecret:
+
+domain:
+JWE_SECRET: ''
+JWT_SECRET: ''
+BYPASS_THROTTLE_TOKEN: ''
+
+global:
+  override: false

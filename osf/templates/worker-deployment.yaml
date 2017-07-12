@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: worker
+        tier: backend
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - DJANGO_SETTINGS_MODULE=api.base.settings python manage.py migrate --noinput
+          --no-init-app && gosu www-data invoke celery_worker --hostname worker.%h
+        env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: 'api.base.settings'
+        - name: LOG_PATH
+          value: /log
+        - name: UPLOADS_PATH
+          value: /uploads
+        - name: ANALYTICS_PATH
+          value: /analytics
+        {{- include "override.dbSettings" . | indent 8 }}
+        image: gcr.io/cos-containers/osf:develop
+        imagePullPolicy: Always
+        name: celery
+        volumeMounts:
+        - mountPath: /log
+          name: log-volume
+        - mountPath: /uploads
+          name: uploads-volume
+        - mountPath: /analytics
+          name: analytics-volume
+        - mountPath: /code/admin/base/settings/local.py
+          name: admin-config-volume
+          subPath: local.py
+        {{- include "override.volumeMounts" . | indent 8 }}
+      volumes:
+      - name: log-volume
+        emptyDir: {}
+      - name: uploads-volume
+        emptyDir: {}
+      - name: analytics-volume
+        emptyDir: {}
+      - name: admin-config-volume
+        configMap:
+          name: {{ .Release.Name }}-osf-admin
+      {{- include "override.volumes" . | indent 6 }}
+

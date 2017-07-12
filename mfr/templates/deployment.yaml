@@ -1,0 +1,107 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        tier: frontend
+    spec:
+      containers:
+      {{- with .Values.nginx }}
+      - name: nginx
+        image: "{{ .image.repository }}:{{ .image.tag }}"
+        imagePullPolicy: {{ .image.pullPolicy }}
+        command:
+        - nginx
+        - -c
+        - /nginx/nginx.conf
+        - -g
+        - daemon off;
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /nginx
+        - name: nginx-confd-config-volume
+          mountPath: /etc/nginx/conf.d
+        resources:
+{{ toYaml .resources | indent 10 }}
+      {{- end }}
+      {{- with .Values.tornado }}
+      - name: tornado
+        image: "{{ .image.repository }}:{{ .image.tag }}"
+        imagePullPolicy: {{ .image.pullPolicy }}
+      {{- end }}
+        command: 
+        - gosu
+        - www-data
+        - invoke
+        - server
+        env:
+        - name: ENV
+          value: kube
+        ports:
+        - name: http
+          containerPort: 7778
+        volumeMounts:
+        - name: config-volume
+          mountPath: /home/.cos
+        - name: localcache-volume
+          mountPath: /tmp/mfrlocalcache
+        resources:
+{{ toYaml .resources | indent 10 }}
+      {{- with .Values.unoconv }}
+      - name: unoconv
+        image: "{{ .image.repository }}:{{ .image.tag }}"
+        imagePullPolicy: {{ .image.pullPolicy }}
+        command:
+        - gosu
+        - www-data
+        - /opt/libreoffice4.4/program/python
+        - -u
+        - /usr/bin/unoconv
+        - --listener
+        - --server
+        - 0.0.0.0
+        - --port
+        - '2002'
+        - -vvv
+        ports:
+        - name: unoconv
+          containerPort: 2002
+        volumeMounts:
+        - name: localcache-volume
+          mountPath: /tmp/mfrlocalcache
+        resources:
+{{ toYaml .resources | indent 10 }}
+      {{- end }}
+      volumes:
+      - name: localcache-volume
+        emptyDir: {}
+      - name: nginx-config-volume
+        configMap:
+          name: {{ template "fullname" . }}
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+          - key: robots.txt
+            path: robots.txt
+      - name: nginx-confd-config-volume
+        configMap:
+          name: {{ template "fullname" . }}
+          items:
+          - key: nginx-confd.conf
+            path: default.conf
+      - name: config-volume
+        configMap:
+          name: {{ template "fullname" . }}
+          items:
+          - key: settings.json
+            path: mfr-kube.json

@@ -1,0 +1,210 @@
+# Default values for wb.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+nginx:
+  image:
+    repository: nginx
+    tag: '1'
+    pullPolicy: 'Always'
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+tornado:
+  image:
+    repository: quay.io/centerforopenscience/waterbutler
+    tag: develop
+    pullPolicy: 'Always'
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+celery:
+  image:
+    repository: quay.io/centerforopenscience/waterbutler
+    tag: develop
+    pullPolicy: 'Always'
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+service:
+  name: wb
+  type: NodePort
+  externalPort: 7777
+  internalPort: 80
+
+ingress:
+  enabled: true
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+  # - staging-files.osf.io
+  tls:
+  # - secretName: osf-io-tls
+  #   hosts:
+  #   - staging-files.osf.io
+
+settingsFile:
+  ANALYTICS:
+    MFR_DOMAIN: "https://staging-mfr.osf.io"
+    KEEN:
+      PRIVATE:
+        PROJECT_ID: ''
+        WRITE_KEY: ''
+      PUBLIC:
+        PROJECT_ID: ''
+        WRITE_KEY: ''
+  GITHUB_PROVIDER_CONFIG:
+    MOVE_MESSAGE: "Moved via the Open Science Framework"
+    COPY_MESSAGE: "Copied via the Open Science Framework"
+    UPLOAD_FILE_MESSAGE: "Added via the Open Science Framework"
+    UPDATE_FILE_MESSAGE: "Updated via the Open Science Framework"
+    DELETE_FILE_MESSAGE: "Deleted via the Open Science Framework"
+    DELETE_FOLDER_MESSAGE: "Deleted via the Open Science Framework"
+  OSFSTORAGE_PROVIDER_CONFIG:
+    FILE_PATH_PENDING: "/data/pending"
+    FILE_PATH_COMPLETE: "/data/complete"
+    HMAC_SECRET: ''
+    RUN_TASKS: true
+  SERVER_CONFIG:
+    DOMAIN: "https://staging-files.osf.io"
+    ADDRESS: "0.0.0.0"
+    PORT: 7777
+    DEBUG: false
+    XHEADERS: true
+    CORS_ALLOW_ORIGIN:
+      - "https://staging.osf.io"
+      - "https://staging-mfr.osf.io"
+    HMAC_SECRET: ''
+    MAX_BUFFER_SIZE: 157286400
+    AUTH_HANDLERS:
+      - "osf"
+  OSF_AUTH_CONFIG:
+    API_URL: "https://staging.osf.io/api/v1/files/auth/"
+    JWE_SALT: ''
+    JWE_SECRET: ''
+    JWT_SECRET: ''
+  TASKS_CONFIG:
+    BROKER_URL: "amqp://rabbitmq:5672//"
+    ADHOC_BACKEND_PATH: "/pickles"
+  SENTRY_DSN: ''
+  LOGGING:
+    version: 1
+    disable_existing_loggers: false
+    formatters:
+      defaultFormatter:
+        '()': "waterbutler.core.logging.MaskFormatter"
+        format: "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s"
+        pattern: "(?<=cookie=)(.*?)(?=&|$)"
+        mask: "***"
+    handlers:
+      consoleHandler:
+        class: "logging.StreamHandler"
+        level: "INFO"
+        formatter: "defaultFormatter"
+    loggers:
+      '':
+        handlers:
+          - "consoleHandler"
+        level: "INFO"
+        propagate: false
+    root:
+      level: "INFO"
+      handlers:
+        - "consoleHandler"
+
+rabbitmq:
+  ## Bitnami RabbitMQ image version
+  ## ref: https://hub.docker.com/r/bitnami/rabbitmq/tags/
+  ##
+  image: rabbitmq:3-management
+
+  ## Specify a imagePullPolicy
+  ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  # imagePullPolicy:
+
+  ## RabbitMQ application username
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  ##
+  rabbitmqUsername: user
+
+  ## RabbitMQ application password
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  ##
+  # rabbitmqPassword:
+
+  ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  # rabbitmqErlangCookie:
+
+  ## Node port
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqNodePort: 5672
+
+  ## Node Type
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqNodeType: stats
+
+  ## Node Name
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqNodeName: rabbit@localhost
+
+  ## Node name to cluster with. e.g.: `clusternode@hostname`
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  # rabbitmqClusternodename:
+
+  ## RabbitMQ application vhost
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqVhost: /
+
+  ## RabbitMQ Manager port
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqManagerPort: 15672
+
+  persistence:
+    enabled: true
+
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+
+    ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
+    ## Default: volume.alpha.kubernetes.io/storage-class: default
+    ##
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 10Gi
+
+  ## Configure resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m

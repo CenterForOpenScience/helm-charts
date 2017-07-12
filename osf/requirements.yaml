@@ -1,0 +1,19 @@
+dependencies:
+  - name: postgresql
+    version: 0.7.0
+    repository: https://kubernetes-charts.storage.googleapis.com
+  - name: rabbitmq
+    version: 0.5.1
+    repository: https://kubernetes-charts.storage.googleapis.com
+  - name: osf-admin
+    version: 0.1.0
+    repository: file://../osf-admin
+  - name: osf-api
+    version: 0.1.0
+    repository: file://../osf-api
+  - name: osf-web
+    version: 0.1.0
+    repository: file://../osf-web
+  - name: osf-sharejs
+    version: 0.1.0
+    repository: file://../osf-sharejs
