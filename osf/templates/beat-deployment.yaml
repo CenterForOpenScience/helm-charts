@@ -21,7 +21,7 @@ spec:
         env:
         - name: LOG_PATH
           value: /celery/log
-        {{- include "override.dbSettings" . | indent 8 }}
+        {{- include "osf.dbSettings" . | indent 8 }}
         image: gcr.io/cos-containers/osf:develop
         imagePullPolicy: Always
         lifecycle:

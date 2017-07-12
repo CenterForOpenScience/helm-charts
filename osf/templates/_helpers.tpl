@@ -15,7 +15,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "override.dbSettings" }}
+{{- define "osf.dbSettings" }}
 - name: SENSITIVE_DATA_SALT
   valueFrom:
     secretKeyRef:
@@ -37,18 +37,18 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
     secretKeyRef:
       name: {{ .Release.Name }}-postgresql
       key: postgres-password
-{{- end }}
+{{- end -}}
 
-{{- define "override.volumes" }}
+{{- define "osf.volumes" }}
 - name: api-config-volume
   configMap:
     name: {{ .Release.Name }}-osf-api
 - name: web-config-volume
   configMap:
     name: {{ .Release.Name }}-osf-web
-{{- end }}
+{{- end -}}
 
-{{- define "override.volumeMounts" }}
+{{- define "osf.volumeMounts" }}
 - mountPath: /code/api/base/settings/local.py
   name: api-config-volume
   subPath: local.py
@@ -85,4 +85,4 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 - mountPath: /code/addons/zotero/settings/local.py
   name: web-config-volume
   subPath: addons-zotero-local.py
-{{- end }}
+{{- end -}}

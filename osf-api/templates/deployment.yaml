@@ -59,31 +59,7 @@ spec:
         - --ini
         - /etc/uwsgi/uwsgi.ini
         env:
-        {{- if .Values.global.overrides }}
-        {{- include "override.dbSettings" . | indent 8 }}
-        {{- else }}
-        - name: SENSITIVE_DATA_SALT
-          valueFrom:
-            secretKeyRef:
-              key: sensitive-data-salt
-              name: {{ .Values.osfSecretName }}
-        - name: SENSITIVE_DATA_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: sensitive-data-secret
-              name: {{ .Values.osfSecretName }}
-        - name: OSF_DB_HOST
-          value: {{ .Values.postgresHost }}
-        - name: OSF_DB_NAME
-          value: {{ .Values.postgresDatabase }}
-        - name: OSF_DB_USER
-          value: {{ .Values.postgresUser }}
-        - name: OSF_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: postgres-password
-              name: {{ .Values.postgresSecret }}
-        {{- end }}
+        {{- include "osf.dbSettings" . | indent 8 }}
         lifecycle:
           postStart:
             exec:
@@ -102,23 +78,11 @@ spec:
         - mountPath: /etc/uwsgi/uwsgi.ini
           name: api-config-volume
           subPath: uwsgi.ini
-        {{- if .Values.global.overrides }}
-        {{- include "override.volumeMounts" . | indent 8 }}
-        {{- else }}
-        - mountPath: /code/api/base/settings/local.py
-          name: api-config-volume
-          subPath: local.py
-        {{- end }}
+        {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}
 
       volumes:
       - name: static-volume
         emptyDir: {}
-      {{- if .Values.global.overrides }}
-        {{- include "override.volumes" . | indent 6 }}
-      {{- else }}
-      - name: api-config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-      {{- end }}
+      {{- include "osf.volumes" . | indent 6 }}

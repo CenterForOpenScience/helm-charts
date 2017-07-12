@@ -25,7 +25,7 @@ spec:
           value: /uploads
         - name: ANALYTICS_PATH
           value: /analytics
-        {{- include "override.dbSettings" . | indent 8 }}
+        {{- include "osf.dbSettings" . | indent 8 }}
         image: gcr.io/cos-containers/osf:develop
         imagePullPolicy: Always
         name: celery
@@ -39,7 +39,7 @@ spec:
         - mountPath: /code/admin/base/settings/local.py
           name: admin-config-volume
           subPath: local.py
-        {{- include "override.volumeMounts" . | indent 8 }}
+        {{- include "osf.volumeMounts" . | indent 8 }}
       volumes:
       - name: log-volume
         emptyDir: {}
@@ -50,5 +50,5 @@ spec:
       - name: admin-config-volume
         configMap:
           name: {{ .Release.Name }}-osf-admin
-      {{- include "override.volumes" . | indent 6 }}
+      {{- include "osf.volumes" . | indent 6 }}
 
