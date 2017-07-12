@@ -1,17 +1,21 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-beat
+  name: {{ template "fullname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
-  replicas: {{ .Values.beat.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: beat
-        tier: backend
+        app: {{ template "fullname" . }}
     spec:
       containers:
-      - command:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
         - gosu
         - www-data
         - invoke
@@ -21,9 +25,8 @@ spec:
         env:
         - name: LOG_PATH
           value: /celery/log
+        # TODO
         {{- include "osf.dbSettings" . | indent 8 }}
-        image: gcr.io/cos-containers/osf:develop
-        imagePullPolicy: Always
         lifecycle:
           postStart:
             exec:
@@ -31,22 +34,26 @@ spec:
               - /bin/sh
               - -c
               - chmod o+w /celery
-        name: celery
         volumeMounts:
         - mountPath: /celery
-          name: beat-persistent-storage
+          name: persistent-storage
+# TODO osf override
         - mountPath: /code/website/settings/local.py
           name: web-config-volume
           subPath: local.py
+# /TODO
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
       volumes:
+# TODO osf override
       - name: web-config-volume
         configMap:
           name: {{ .Release.Name }}-osf-web
-      - name: beat-persistent-storage
-      {{- if .Values.beat.persistence.enabled }}
+# /TODO
+      - name: persistent-storage
+      {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ .Values.beat.persistence.existingClaim | default (print .Release.Name "-beat") }}
+          claimName: {{ .Values.persistence.existingClaim | default (include "fullname" .) }}
       {{- else }}
         emptyDir: {}
       {{- end -}}
-

@@ -40,6 +40,9 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "osf.volumes" }}
+- name: admin-config-volume
+  configMap:
+    name: {{ .Release.Name }}-osf-admin  
 - name: api-config-volume
   configMap:
     name: {{ .Release.Name }}-osf-api
@@ -49,6 +52,9 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "osf.volumeMounts" }}
+- mountPath: /code/admin/base/settings/local.py
+  name: admin-config-volume
+  subPath: local.py
 - mountPath: /code/api/base/settings/local.py
   name: api-config-volume
   subPath: local.py

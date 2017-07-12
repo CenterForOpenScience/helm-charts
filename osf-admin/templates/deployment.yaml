@@ -75,9 +75,6 @@ spec:
         - mountPath: /etc/uwsgi/uwsgi.ini
           name: admin-config-volume
           subPath: uwsgi.ini
-        - mountPath: /code/admin/base/settings/local.py
-          name: admin-config-volume
-          subPath: local.py
         {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}
@@ -85,7 +82,4 @@ spec:
       volumes:
       - name: static-volume
         emptyDir: {}
-      - name: admin-config-volume
-        configMap:
-          name: {{ template "fullname" . }}
       {{- include "osf.volumes" . | indent 6 }}

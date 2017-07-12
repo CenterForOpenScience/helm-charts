@@ -46,16 +46,10 @@ Overridable OSF database settings
 Overridable OSF volume mounts
 */}}
 {{- define "osf.volumeMounts" }}
-- mountPath: /code/admin/base/settings/local.py
-  name: admin-config-volume
-  subPath: local.py
 {{- end -}}
 
 {{/*
 Overridable OSF volumes
 */}}
 {{- define "osf.volumes" }}
-- name: admin-config-volume
-  configMap:
-    name: {{ template "fullname" . }}
 {{- end -}}
