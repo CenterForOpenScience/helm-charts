@@ -10,21 +10,50 @@ ingress:
   domainPrefix: ''
 
 elasticsearch:
-  replicaCount: 1
-  persistence:
-    enabled: true
+  image:
+    repository: "jetstack/elasticsearch-pet"
+    tag: "2.4.0"
+    pullPolicy: "Always"
 
-    ## A manually managed Persistent Volume and Claim
-    ## Requires persistence.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    # existingClaim:
+  client:
+    name: client
+    replicas: 2
+    serviceType: ClusterIP
+    heapSize: "128m"
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512Mi"
+      requests:
+        cpu: "25m"
+        memory: "256Mi"
 
-    ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
-    ## Default: volume.alpha.kubernetes.io/storage-class: default
-    ##
-    # storageClass: ssd
-    accessMode: ReadWriteOnce
-    size: 25Gi
+  master:
+    name: master
+    replicas: 2
+    heapSize: "128m"
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512Mi"
+      requests:
+        cpu: "25m"
+        memory: "256Mi"
+
+  data:
+    name: data
+    replicas: 3
+    heapSize: "1536m"
+    storage: "30Gi"
+    # storageClass: "ssd"
+    terminationGracePeriodSeconds: 3600
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512Mi"
+      requests:
+        cpu: "25m"
+        memory: "256Mi"
 
 postgresql:
   # replicaCount: 1

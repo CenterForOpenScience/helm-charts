@@ -5,6 +5,9 @@ dependencies:
   - name: rabbitmq
     version: 0.5.1
     repository: https://kubernetes-charts.storage.googleapis.com
+  - name: elasticsearch
+    version: 0.1.6
+    repository: file://../elasticsearch
   - name: osf-admin
     version: 0.1.0
     repository: file://../osf-admin
