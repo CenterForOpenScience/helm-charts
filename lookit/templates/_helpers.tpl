@@ -22,3 +22,19 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- define "postgresql.fullname" -}}
 {{- printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{- define "environment" }}
+- name: DJANGO_SETTINGS_MODULE
+  value: project.settings
+- name: OSF_DB_NAME
+  value: {{ .Values.postgresql.postgresDatabase | quote }}
+- name: OSF_DB_USER
+  value: {{ .Values.postgresql.postgresUser | quote }}
+- name: OSF_DB_HOST
+  value: {{ template "postgresql.fullname" . }}
+- name: OSF_DB_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ template "postgresql.fullname" . }}
+      key: postgres-password
+{{- end -}}

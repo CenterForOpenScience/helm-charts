@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}"
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  template:
+    metadata:
+      name: "{{ .Release.Name }}"
+      labels:
+        app: {{ template "name" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrations
+          image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
+          command:
+            - python
+            - manage.py
+            - migrate
+          env:
+            {{- include "environment" .  | indent 12 }}
+          volumeMounts:
+            - mountPath: /code/project/settings/local.py
+              name: config-volume
+              subPath: local.py
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ template "fullname" . }}-{{ .Release.Time.Seconds }}

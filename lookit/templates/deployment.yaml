@@ -55,26 +55,15 @@ spec:
             - --ini
             - /etc/uwsgi/uwsgi.ini
           env:
-            - name: OSF_DB_NAME
-              value: {{ .Values.postgresql.postgresDatabase | quote }}
-            - name: OSF_DB_USER
-              value: {{ .Values.postgresql.postgresUser | quote }}
-            - name: OSF_DB_HOST
-              value: {{ template "postgresql.fullname" . }}
-            - name: OSF_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "postgresql.fullname" . }}
-                  key: postgres-password
+            {{- include "environment" . | indent 12 }}
           ports:
             - name: wsgi
               containerPort: 5000
             - name: stats
               containerPort: 1717
           readinessProbe:
-            httpGet:
-              path: /healthz
-              port: {{ .Values.service.internalPort }}
+            tcpSocket:
+              port: 5000
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /static
