@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{- range $key, $value := .Values.configs }}
+{{- range $key, $value := merge .Values.configs ((.Files.Glob "files/*").AsConfig | fromYaml) }}
   {{ $key }}: |-
 {{ $value | indent 4 }}
 {{- end }}
