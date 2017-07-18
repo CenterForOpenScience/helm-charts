@@ -10,7 +10,7 @@ nginx:
     pullPolicy: Always
   resources:
     limits:
-      cpu: 100m
+      cpu: "1"
       memory: 128Mi
     requests:
       cpu: 100m
@@ -23,7 +23,7 @@ preprints:
     pullPolicy: Always
   resources:
     limits:
-      cpu: 100m
+      cpu: "1"
       memory: 128Mi
     requests:
       cpu: 100m
@@ -49,7 +49,7 @@ uwsgi:
     pullPolicy: Always
   resources:
     limits:
-      cpu: 100m
+      cpu: "1"
       memory: 128Mi
     requests:
       cpu: 100m
@@ -57,86 +57,94 @@ uwsgi:
 
 service:
   name: http
-  type: NodePort
+  type: ClusterIP
   externalPort: 5000
   internalPort: 80
 
-osfSecretName:
-postgresHost:
-postgresDatabase:
-postgresUser:
-postgresSecret:
+secrets:
+  addons-box-local.py: |-
+    # -*- coding: utf-8 -*-
+    BOX_KEY = ''
+    BOX_SECRET = ''
+  addons-dataverse-local.py: |-
+    # -*- coding: utf-8 -*-
+    HOST = ''
+  addons-dropbox-local.py: |-
+    # -*- coding: utf-8 -*-
+    DROPBOX_KEY = ''
+    DROPBOX_SECRET = ''
+  addons-figshare-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-github-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-googledrive-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-mendeley-local.py: |-
+    # -*- coding: utf-8 -*-
+    MENDELEY_CLIENT_ID = ''
+    MENDELEY_CLIENT_SECRET = ''
+  addons-osfstorage-local.py: |-
+    # -*- coding: utf-8 -*-
+    WATERBUTLER_CREDENTIALS = {
+        'storage': {
+            'region': '',
+            'username': '',
+            'token': '',
+            'temp_key': '',
+        },
+        'parity': {
+            'region': '',
+            'username': '',
+            'token': '',
+            'temp_key': '',
+        },
+        'archive': {
+            'access_key': '',
+            'secret_key': '',
+        },
+    }
 
-## Addons
-# Box
-BOX_KEY: ''
-BOX_SECRET: ''
-# Dataverse
-DATAVERSE_HOST: ''
-# Dropbox
-DROPBOX_KEY: ''
-DROPBOX_SECRET: ''
-# Figshare
-FIGSHARE_CLIENT_ID: ''
-FIGSHARE_CLIENT_SECRET: ''
-# GitHub
-GITHUB_CLIENT_ID: ''
-GITHUB_CLIENT_SECRET: ''
-# Google Drive
-GOOGLEDRIVE_CLIENT_ID: ''
-GOOGLEDRIVE_CLIENT_SECRET: ''
-# Mendeley
-MENDELEY_CLIENT_ID: ''
-MENDELEY_CLIENT_SECRET: ''
-# OSF Storage
-osfstorage: |
-  WATERBUTLER_CREDENTIALS = {
-      'storage': {
-          'region': '',
-          'username': '',
-          'token': '',
-          'temp_key': '',
-      },
-      'parity': {
-          'region': '',
-          'username': '',
-          'token': '',
-          'temp_key': '',
-      },
-      'archive': {
-          'access_key': '',
-          'secret_key': '',
-      },
-  }
+    WATERBUTLER_SETTINGS = {
+        'storage': {
+            'provider': '',
+            'container': '',
+            'use_public': True,
+        },
+        'parity': {
+            'provider': '',
+            'container': '',
+            'use_public': True,
+        },
+        'archive': {
+            'vault': '',
+        },
+    }
 
-  WATERBUTLER_SETTINGS = {
-      'storage': {
-          'provider': '',
-          'container': '',
-          'use_public': True,
-      },
-      'parity': {
-          'provider': '',
-          'container': '',
-          'use_public': True,
-      },
-      'archive': {
-          'vault': '',
-      },
-  }
+    WATERBUTLER_RESOURCE = 'container'
+  addons-wiki-local.py: |-
+    # -*- coding: utf-8 -*-
+    from datetime import datetime
 
-  WATERBUTLER_RESOURCE = 'container'
-# Wiki
-WIKI_SHAREJS_URL: ''
-WIKI_CHANGE_DATE_TIME: ''
-# Zotero
-ZOTERO_CLIENT_ID: ''
-ZOTERO_CLIENT_SECRET: ''
+    SHAREJS_URL = ''
+    WIKI_CHANGE_DATE = datetime.utcfromtimestamp('')
+  addons-zotero-local.py: |-
+    # -*- coding: utf-8 -*-
+    ZOTERO_CLIENT_ID = ''
+    ZOTERO_CLIENT_SECRET = ''
+  website-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
 
-# local.py
-localpy: |
-  # -*- coding: utf-8 -*-
-  """local.py."""
+    # TBD...
 
-# Must create the secret in the namespace
-# osfSecretName:
+configs: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  # robots.txt: |-
+  #   User-agent: *
+  #   Disallow: /
