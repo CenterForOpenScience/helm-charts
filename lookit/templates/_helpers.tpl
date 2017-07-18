@@ -26,13 +26,13 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- define "environment" }}
 - name: DJANGO_SETTINGS_MODULE
   value: project.settings
-- name: OSF_DB_NAME
+- name: DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
-- name: OSF_DB_USER
+- name: DB_USER
   value: {{ .Values.postgresql.postgresUser | quote }}
-- name: OSF_DB_HOST
+- name: DB_HOST
   value: {{ template "postgresql.fullname" . }}
-- name: OSF_DB_PASSWORD
+- name: DB_PASSWORD
   valueFrom:
     secretKeyRef:
       name: {{ template "postgresql.fullname" . }}
