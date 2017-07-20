@@ -26,6 +26,8 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- define "environment" }}
 - name: DJANGO_SETTINGS_MODULE
   value: project.settings
+- name: GEVENT
+  value: '1'
 - name: DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
 - name: DB_USER

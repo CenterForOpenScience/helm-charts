@@ -28,7 +28,7 @@ spec:
             - manage.py
             - migrate
           env:
-            {{- include "environment" .  | indent 12 }}
+            {{- include "environment" . | indent 12 }}
           volumeMounts:
             - mountPath: /code/project/settings/local.py
               name: config-volume
@@ -37,4 +37,4 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: {{ template "fullname" . }}-{{ .Release.Time.Seconds }}
+            name: {{ template "fullname" . }}
