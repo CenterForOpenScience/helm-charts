@@ -14,6 +14,9 @@ spec:
       labels:
         app: {{ template "name" . }}
         release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       initContainers:
       - name: preprints
@@ -65,11 +68,11 @@ spec:
           name: static-volume
           readOnly: true
         - mountPath: /nginx/nginx.conf
-          name: web-config-volume
+          name: config-volume
           subPath: nginx.conf
           readOnly: true
         - mountPath: /nginx/robots.txt
-          name: web-config-volume
+          name: config-volume
           subPath: robots.txt
           readOnly: true
         resources:
@@ -88,27 +91,23 @@ spec:
               command:
               - /bin/sh
               - -c
-              - mkdir -p /static/code/website && cp -Rf /code/website/static /static/code/website
-                && find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f
-                --parents {} /static/
+              - mkdir -p /static/code/website &&
+                cp -Rf /code/website/static /static/code/website &&
+                find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
         ports:
         - containerPort: 5000
           name: wsgi
         - containerPort: 1717
           name: stats
-        # livenessProbe:
-        #   httpGet:
-        #     path: /
-        #     port: 5000
         readinessProbe:
-          httpGet:
-            path: /
-            port: 5000
+          tcpSocket:
+            port: 5000 
+          initialDelaySeconds: 10
         volumeMounts:
         - mountPath: /static
           name: static-volume
         - mountPath: /etc/uwsgi/uwsgi.ini
-          name: web-config-volume
+          name: config-volume
           subPath: uwsgi.ini
           readOnly: true
         {{- include "osf.volumeMounts" . | indent 8 }}
@@ -118,9 +117,9 @@ spec:
       volumes:
       - name: static-volume
         emptyDir: {}
-      - name: web-config-volume
+      - name: config-volume
         configMap:
-          name: {{ template "fullname" . }}-{{ .Release.Time.Seconds }}
+          name: {{ template "fullname" . }}
       {{- include "osf.volumes" . | indent 6 }}
 
     {{- if .Values.nodeSelector }}

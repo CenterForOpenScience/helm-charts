@@ -3,13 +3,19 @@ kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
         app: {{ template "fullname" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
       - name: {{ .Chart.Name }}
@@ -25,7 +31,6 @@ spec:
         env:
         - name: LOG_PATH
           value: /celery/log
-        # TODO
         {{- include "osf.dbSettings" . | indent 8 }}
         lifecycle:
           postStart:
@@ -37,19 +42,11 @@ spec:
         volumeMounts:
         - mountPath: /celery
           name: persistent-storage
-# TODO osf override
-        - mountPath: /code/website/settings/local.py
-          name: web-config-volume
-          subPath: local.py
-# /TODO
+        {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
       volumes:
-# TODO osf override
-      - name: web-config-volume
-        configMap:
-          name: {{ .Release.Name }}-osf-web
-# /TODO
+      {{- include "osf.volumes" . | indent 6 }}
       - name: persistent-storage
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:

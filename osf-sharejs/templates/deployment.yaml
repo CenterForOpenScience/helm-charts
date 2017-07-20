@@ -3,14 +3,19 @@ kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
-        tier: frontend
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       containers:
       {{- with .Values.nginx }}
@@ -29,10 +34,14 @@ spec:
         - name: http
           containerPort: 80
         volumeMounts:
-        - name: nginx-config-volume
-          mountPath: /nginx
-        - name: nginx-confd-config-volume
-          mountPath: /etc/nginx/conf.d
+        - mountPath: /nginx/nginx.conf
+          name: config-volume
+          subPath: nginx.conf
+          readOnly: true
+        - mountPath: /nginx/robots.txt
+          name: config-volume
+          subPath: robots.txt
+          readOnly: true
       {{- end }}
       {{- with .Values.nodejs }}
       - name: nodejs
@@ -53,7 +62,7 @@ spec:
         - name: SHAREJS_DB_NAME
           value: {{ .Values.dbName }}
         - name: SHAREJS_DB_URL
-          value: "mongodb://{{ template "fullname" . }}-mongodb:27017/{{ .Values.dbName }}"
+          value: "mongodb://{{ include "mongodb.fullname" . }}:27017/{{ .Values.dbName }}"
         - name: SHAREJS_CORS_ALLOW_ORIGIN
           value: {{ .Values.corsAllowOrigin }}
         - name: SHAREJS_SENTRY_DSN
@@ -62,17 +71,11 @@ spec:
         - name: http
           containerPort: 7007
       volumes:
-      - name: nginx-config-volume
+      - name: config-volume
         configMap:
           name: {{ template "fullname" . }}
-          items:
-          - key: nginx.conf
-            path: nginx.conf
-          - key: robots.txt
-            path: robots.txt
-      - name: nginx-confd-config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-          items:
-          - key: nginx-confd.conf
-            path: default.conf
+
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

@@ -3,13 +3,20 @@ kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
 
@@ -37,14 +44,13 @@ spec:
         - mountPath: /static
           name: static-volume
         - mountPath: /nginx/nginx.conf
-          name: admin-config-volume
+          name: config-volume
           subPath: nginx.conf
+          readonly: true
         - mountPath: /nginx/robots.txt
-          name: admin-config-volume
+          name: config-volume
           subPath: robots.txt
-        - mountPath: /etc/nginx/conf.d/default.conf
-          name: admin-config-volume
-          subPath: nginx-confd.conf
+          readonly: true
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
 
@@ -73,8 +79,9 @@ spec:
         - mountPath: /static
           name: static-volume
         - mountPath: /etc/uwsgi/uwsgi.ini
-          name: admin-config-volume
+          name: config-volume
           subPath: uwsgi.ini
+          readonly: true
         {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}
@@ -82,4 +89,12 @@ spec:
       volumes:
       - name: static-volume
         emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: {{ template "fullname" . }}
       {{- include "osf.volumes" . | indent 6 }}
+
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

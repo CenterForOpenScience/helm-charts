@@ -1,10 +1,104 @@
+back-end: true
+front-end: true
+
 global:
   postgresDatabase: ''
   postgresUser: ''
 
-osf:
-  salt: ''
-  secret: ''
+secrets:
+  sensitive-data-salt: ''
+  sensitive-data-secret: ''
+  admin-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  api-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  web-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  addons-box-local.py: |-
+    # -*- coding: utf-8 -*-
+    BOX_KEY = ''
+    BOX_SECRET = ''
+  addons-dataverse-local.py: |-
+    # -*- coding: utf-8 -*-
+    HOST = ''
+  addons-dropbox-local.py: |-
+    # -*- coding: utf-8 -*-
+    DROPBOX_KEY = ''
+    DROPBOX_SECRET = ''
+  addons-figshare-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-github-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-googledrive-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-mendeley-local.py: |-
+    # -*- coding: utf-8 -*-
+    MENDELEY_CLIENT_ID = ''
+    MENDELEY_CLIENT_SECRET = ''
+  addons-osfstorage-local.py: |-
+    # -*- coding: utf-8 -*-
+    WATERBUTLER_CREDENTIALS = {
+        'storage': {
+            'region': '',
+            'username': '',
+            'token': '',
+            'temp_key': '',
+        },
+        'parity': {
+            'region': '',
+            'username': '',
+            'token': '',
+            'temp_key': '',
+        },
+        'archive': {
+            'access_key': '',
+            'secret_key': '',
+        },
+    }
+
+    WATERBUTLER_SETTINGS = {
+        'storage': {
+            'provider': '',
+            'container': '',
+            'use_public': True,
+        },
+        'parity': {
+            'provider': '',
+            'container': '',
+            'use_public': True,
+        },
+        'archive': {
+            'vault': '',
+        },
+    }
+
+    WATERBUTLER_RESOURCE = 'container'
+  addons-wiki-local.py: |-
+    # -*- coding: utf-8 -*-
+    from datetime import datetime
+
+    SHAREJS_URL = ''
+    WIKI_CHANGE_DATE = datetime.utcfromtimestamp('')
+  addons-zotero-local.py: |-
+    # -*- coding: utf-8 -*-
+    ZOTERO_CLIENT_ID = ''
+    ZOTERO_CLIENT_SECRET = ''
+
 
 ingress:
   domainPrefix: ''
@@ -20,25 +114,25 @@ elasticsearch:
     replicas: 2
     serviceType: ClusterIP
     heapSize: "128m"
-    resources:
-      limits:
-        cpu: "1"
-        memory: "512Mi"
-      requests:
-        cpu: "25m"
-        memory: "256Mi"
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
 
   master:
     name: master
     replicas: 2
     heapSize: "128m"
-    resources:
-      limits:
-        cpu: "1"
-        memory: "512Mi"
-      requests:
-        cpu: "25m"
-        memory: "256Mi"
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
 
   data:
     name: data
@@ -47,13 +141,13 @@ elasticsearch:
     storage: "30Gi"
     # storageClass: "ssd"
     terminationGracePeriodSeconds: 3600
-    resources:
-      limits:
-        cpu: "1"
-        memory: "512Mi"
-      requests:
-        cpu: "25m"
-        memory: "256Mi"
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
 
 postgresql:
   # replicaCount: 1

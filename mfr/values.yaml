@@ -8,43 +8,43 @@ nginx:
     repository: nginx
     tag: '1'
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 tornado:
   image:
     repository: quay.io/centerforopenscience/mfr
     tag: develop
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 unoconv:
   image:
     repository: centerforopenscience/unoconv  # TODO: update to quay.io
     tag: latest
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 service:
   name: mfr
-  type: NodePort
+  type: ClusterIP
   externalPort: 7778
   internalPort: 80
 

@@ -7,7 +7,7 @@ install:
 - curl -o- -L https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 
 before_script:
-- helm init || true
+- helm init --client-only
 - helm repo add stable https://kubernetes-charts.storage.googleapis.com
 - |
   for chart in $(find . -name 'requirements.yaml'); do

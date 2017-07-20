@@ -3,16 +3,20 @@ kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-  annotations:
-    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
-        tier: frontend
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
 
@@ -40,14 +44,13 @@ spec:
         - mountPath: /static
           name: static-volume
         - mountPath: /nginx/nginx.conf
-          name: api-config-volume
+          name: config-volume
           subPath: nginx.conf
+          readonly: true
         - mountPath: /nginx/robots.txt
-          name: api-config-volume
+          name: config-volume
           subPath: robots.txt
-        - mountPath: /etc/nginx/conf.d/default.conf
-          name: api-config-volume
-          subPath: nginx-confd.conf
+          readonly: true
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
 
@@ -66,7 +69,8 @@ spec:
               command:
               - /bin/sh
               - -c
-              - mkdir -p /static/code/api && cp -Rf /code/api/static /static/code/api
+              - mkdir -p /static/code/api &&
+                cp -Rf /code/api/static /static/code/api
         ports:
         - containerPort: 8000
           name: http
@@ -76,8 +80,9 @@ spec:
         - mountPath: /static
           name: static-volume
         - mountPath: /etc/uwsgi/uwsgi.ini
-          name: api-config-volume
+          name: config-volume
           subPath: uwsgi.ini
+          readonly: true
         {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}
@@ -85,4 +90,12 @@ spec:
       volumes:
       - name: static-volume
         emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: {{ template "fullname" . }}
       {{- include "osf.volumes" . | indent 6 }}
+
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

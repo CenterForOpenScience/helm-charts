@@ -9,3 +9,4 @@ Includes
 - OSF Web
 - PostgreSQL
 - RabbitMQ
+- ShareJS

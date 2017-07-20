@@ -8,52 +8,52 @@ nginx:
     repository: gcr.io/cos-containers/nginx
     tag: '1'
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: "1"
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 preprints:
   image:
     repository: gcr.io/cos-containers/ember-preprints
     tag: develop-production-stage1
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: "1"
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 registries:
   image:
     repository: gcr.io/cos-containers/ember-osf-registries
     tag: develop-production-stage1
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 uwsgi:
   image:
     repository: gcr.io/cos-containers/osf
     tag: develop
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: "1"
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 service:
   name: http
@@ -62,6 +62,24 @@ service:
   internalPort: 80
 
 secrets:
+  postgres-password: ''
+  sensitive-data-salt: ''
+  sensitive-data-secret: ''
+  admin-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  api-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  web-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
   addons-box-local.py: |-
     # -*- coding: utf-8 -*-
     BOX_KEY = ''
@@ -137,14 +155,13 @@ secrets:
     # -*- coding: utf-8 -*-
     ZOTERO_CLIENT_ID = ''
     ZOTERO_CLIENT_SECRET = ''
-  website-local.py: |-
-    # -*- coding: utf-8 -*-
-    import os
-
-    # TBD...
 
 configs: {}
   # Override configmap files here (and delete the {} above), e.g.:
   # robots.txt: |-
   #   User-agent: *
   #   Disallow: /
+
+postgresHost: ''
+postgresDatabase: ''
+postgresUser: ''
