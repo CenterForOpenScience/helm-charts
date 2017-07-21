@@ -62,9 +62,12 @@ service:
   internalPort: 80
 
 secrets:
-  postgres-password: ''
-  sensitive-data-salt: ''
-  sensitive-data-secret: ''
+  SENSITIVE_DATA_SALT: ''
+  SENSITIVE_DATA_SECRET: ''
+  OSF_DB_HOST: ''
+  OSF_DB_NAME: ''
+  OSF_DB_USER: ''
+  OSF_DB_PASSWORD: ''
   admin-local.py: |-
     # -*- coding: utf-8 -*-
     import os
@@ -161,7 +164,3 @@ configs: {}
   # robots.txt: |-
   #   User-agent: *
   #   Disallow: /
-
-postgresHost: ''
-postgresDatabase: ''
-postgresUser: ''

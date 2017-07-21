@@ -31,7 +31,6 @@ spec:
           name: static-volume
         resources:
 {{ toYaml .Values.preprints.resources | indent 10 }}
-
       - name: registries
         image: "{{ .Values.registries.image.repository }}:{{ .Values.registries.image.tag }}"
         imagePullPolicy: {{ .Values.registries.image.pullPolicy }}
@@ -44,7 +43,6 @@ spec:
           name: static-volume
         resources:
 {{ toYaml .Values.registries.resources | indent 10 }}
-
       containers:
       - name: nginx
         image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -77,7 +75,6 @@ spec:
           readOnly: true
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
-
       - name: uwsgi
         image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
         imagePullPolicy: {{ .Values.uwsgi.image.pullPolicy }}
@@ -85,6 +82,10 @@ spec:
         - uwsgi
         - --ini
         - /etc/uwsgi/uwsgi.ini
+        - --socket
+        - :{{ .Values.service.externalPort }}
+        env:
+        {{- include "osf.dbSettings" . | indent 8 }}
         lifecycle:
           postStart:
             exec:
@@ -95,13 +96,13 @@ spec:
                 cp -Rf /code/website/static /static/code/website &&
                 find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
         ports:
-        - containerPort: 5000
-          name: wsgi
-        - containerPort: 1717
-          name: stats
+        - name: wsgi
+          containerPort: {{ .Values.service.externalPort }}
+        - name: stats
+          containerPort: 1717
         readinessProbe:
           tcpSocket:
-            port: 5000 
+            port: {{ .Values.service.externalPort }} 
           initialDelaySeconds: 10
         volumeMounts:
         - mountPath: /static
@@ -113,7 +114,6 @@ spec:
         {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}
-
       volumes:
       - name: static-volume
         emptyDir: {}
@@ -121,7 +121,6 @@ spec:
         configMap:
           name: {{ template "fullname" . }}
       {{- include "osf.volumes" . | indent 6 }}
-
     {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}

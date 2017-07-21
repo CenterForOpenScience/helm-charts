@@ -16,30 +16,23 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Overridable OSF deployment annotations
+*/}}
+{{- define "osf.deploymentAnnotations" }}
+{{- end -}}
+
+{{/*
 Overridable OSF database settings
 */}}
 {{- define "osf.dbSettings" }}
-- name: SENSITIVE_DATA_SALT
+{{- $fullname := (include "fullname" .) -}}
+{{- range tuple "SENSITIVE_DATA_SALT" "SENSITIVE_DATA_SECRET" "OSF_DB_HOST" "OSF_DB_NAME" "OSF_DB_USER" "OSF_DB_PASSWORD" }}
+- name: {{ . }}
   valueFrom:
     secretKeyRef:
-      key: sensitive-data-salt
-      name: {{ .Values.osfSecretName }}
-- name: SENSITIVE_DATA_SECRET
-  valueFrom:
-    secretKeyRef:
-      key: sensitive-data-secret
-      name: {{ .Values.osfSecretName }}
-- name: OSF_DB_HOST
-  value: {{ .Values.postgresHost }}
-- name: OSF_DB_NAME
-  value: {{ .Values.postgresDatabase }}
-- name: OSF_DB_USER
-  value: {{ .Values.postgresUser }}
-- name: OSF_DB_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      key: postgres-password
-      name: {{ .Values.postgresSecret }}
+      name: {{ $fullname }}
+      key: {{ . }}
+{{- end -}}
 {{- end -}}
 
 {{/*

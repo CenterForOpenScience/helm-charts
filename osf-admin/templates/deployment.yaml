@@ -30,7 +30,7 @@ spec:
         - -g
         - daemon off;
         ports:
-        - containerPort: 80
+        - containerPort: {{ .Values.service.internalPort }}
           name: http
         readinessProbe:
           httpGet:
@@ -38,7 +38,7 @@ spec:
             - name: Host
               value: status.osf.io
             path: /account/login/
-            port: 80
+            port: {{ .Values.service.internalPort }}
           initialDelaySeconds: 30
         volumeMounts:
         - mountPath: /static
@@ -46,11 +46,11 @@ spec:
         - mountPath: /nginx/nginx.conf
           name: config-volume
           subPath: nginx.conf
-          readonly: true
+          readOnly: true
         - mountPath: /nginx/robots.txt
           name: config-volume
           subPath: robots.txt
-          readonly: true
+          readOnly: true
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
 
@@ -61,6 +61,8 @@ spec:
         - uwsgi
         - --ini
         - /etc/uwsgi/uwsgi.ini
+        - --socket
+        - :{{ .Values.service.externalPort }}
         env:
         {{- include "osf.dbSettings" . | indent 8 }}
         lifecycle:
@@ -69,19 +71,20 @@ spec:
               command:
               - /bin/sh
               - -c
-              - mkdir -p /static/code/admin && cp -Rf /code/static_root/* /static/code/admin
+              - mkdir -p /static/code/admin &&
+                cp -Rf /code/static_root/* /static/code/admin
         ports:
-        - containerPort: 8001
-          name: http
-        - containerPort: 1717
-          name: stats
+        - name: wsgi
+          containerPort: {{ .Values.service.externalPort }}
+        - name: stats
+          containerPort: 1717
         volumeMounts:
         - mountPath: /static
           name: static-volume
         - mountPath: /etc/uwsgi/uwsgi.ini
           name: config-volume
           subPath: uwsgi.ini
-          readonly: true
+          readOnly: true
         {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}

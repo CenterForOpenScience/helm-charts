@@ -9,7 +9,10 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
       - name: {{ .Chart.Name }}
@@ -30,7 +33,6 @@ spec:
         - name: ANALYTICS_PATH
           value: /analytics
         {{- include "osf.dbSettings" . | indent 8 }}
-        image: gcr.io/cos-containers/osf:develop
         volumeMounts:
         - mountPath: /log
           name: log-volume

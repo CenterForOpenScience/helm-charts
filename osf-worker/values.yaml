@@ -16,5 +16,10 @@ resources:
     cpu: 100m
     memory: 128Mi
 
-# Must create the secret in the namespace
-# osfSecretName:
+secrets:
+  SENSITIVE_DATA_SALT: ''
+  SENSITIVE_DATA_SECRET: ''
+  OSF_DB_HOST: ''
+  OSF_DB_NAME: ''
+  OSF_DB_USER: ''
+  OSF_DB_PASSWORD: ''

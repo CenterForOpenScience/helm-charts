@@ -6,8 +6,8 @@ global:
   postgresUser: ''
 
 secrets:
-  sensitive-data-salt: ''
-  sensitive-data-secret: ''
+  SENSITIVE_DATA_SALT: ''
+  SENSITIVE_DATA_SECRET: ''
   admin-local.py: |-
     # -*- coding: utf-8 -*-
     import os
