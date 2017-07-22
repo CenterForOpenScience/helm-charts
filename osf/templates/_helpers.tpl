@@ -16,6 +16,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Create a default fully qualified osf name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "osf.fullname" -}}
+{{- printf "%s-%s" .Release.Name "osf" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Create a default fully qualified postgresql name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
@@ -37,12 +45,12 @@ Overridable OSF database settings
 - name: SENSITIVE_DATA_SALT
   valueFrom:
     secretKeyRef:
-      name: {{ template "fullname" . }}
+      name: {{ template "osf.fullname" . }}
       key: SENSITIVE_DATA_SALT
 - name: SENSITIVE_DATA_SECRET
   valueFrom:
     secretKeyRef:
-      name: {{ template "fullname" . }}
+      name: {{ template "osf.fullname" . }}
       key: SENSITIVE_DATA_SECRET
 - name: OSF_DB_HOST
   value: {{ template "postgresql.fullname" . }}
@@ -63,7 +71,7 @@ Overridable OSF volumes
 {{- define "osf.volumes" }}
 - name: secret-volume
   secret:
-    secretName: {{ printf "%s-%s" .Release.Name "osf" | trunc 63 | trimSuffix "-" }}
+    secretName: {{ template "osf.fullname" . }}
 {{- end -}}
 
 {{/*
