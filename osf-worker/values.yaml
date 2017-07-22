@@ -8,13 +8,13 @@ image:
   tag: develop
   pullPolicy: Always
 
-resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
+resources: {}
+  #limits:
+  #  cpu: 1
+  #  memory: 128Mi
+  #requests:
+  #  cpu: 100m
+  #  memory: 128Mi
 
 secrets:
   SENSITIVE_DATA_SALT: ''

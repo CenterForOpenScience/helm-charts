@@ -63,7 +63,7 @@ Overridable OSF volumes
 {{- define "osf.volumes" }}
 - name: secret-volume
   secret:
-    secretName: {{ template "fullname" . }}
+    secretName: {{ printf "%s-%s" .Release.Name "osf" | trunc 63 | trimSuffix "-" }}
 {{- end -}}
 
 {{/*
