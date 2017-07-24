@@ -19,7 +19,6 @@ spec:
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
-
       - name: nginx
         image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
         imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
@@ -34,10 +33,7 @@ spec:
           name: http
         readinessProbe:
           httpGet:
-            httpHeaders:
-            - name: Host
-              value: status.osf.io
-            path: /account/login/
+            path: /healthz
             port: {{ .Values.service.internalPort }}
           initialDelaySeconds: 30
         volumeMounts:
@@ -53,7 +49,6 @@ spec:
           readOnly: true
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
-
       - name: uwsgi
         image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
         imagePullPolicy: {{ .Values.uwsgi.image.pullPolicy }}
@@ -88,7 +83,6 @@ spec:
         {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}
-
       volumes:
       - name: static-volume
         emptyDir: {}
@@ -96,7 +90,6 @@ spec:
         configMap:
           name: {{ template "fullname" . }}
       {{- include "osf.volumes" . | indent 6 }}
-
     {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}

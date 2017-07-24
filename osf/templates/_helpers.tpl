@@ -32,6 +32,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Create a default fully qualified rabbitmq name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "rabbitmq.fullname" -}}
+{{- printf "%s-%s" .Release.Name "rabbitmq" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Overridable OSF deployment annotations
 */}}
 {{- define "osf.deploymentAnnotations" }}
@@ -63,6 +71,8 @@ Overridable OSF database settings
     secretKeyRef:
       name: {{ template "postgresql.fullname" . }}
       key: postgres-password
+- name: RABBITMQ_URL
+  value: amqp://{{ template "rabbitmq.fullname" . }}:5672
 {{- end -}}
 
 {{/*
