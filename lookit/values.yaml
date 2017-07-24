@@ -57,6 +57,16 @@ ingress:
     #   hosts:
     #     - chart-example.local
 
+configs: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  #robots.txt: |-
+  #  User-agent: *
+  #  Disallow: /
+
+secrets:
+  googleAppCreds.json: |-
+    {}
+
 postgresql:
   ## postgres image repository
   image: "postgres"
@@ -120,9 +130,3 @@ postgresql:
     requests:
       memory: 256Mi
       cpu: 100m
-
-configs: {}
-  # Override configmap files here (and delete the {} above), e.g.:
-  #robots.txt: |-
-  #  User-agent: *
-  #  Disallow: /

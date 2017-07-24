@@ -16,6 +16,7 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       containers:
         - name: nginx
@@ -57,6 +58,8 @@ spec:
             - /etc/uwsgi/uwsgi.ini
           env:
             {{- include "environment" . | indent 12 }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /etc/googleAppCreds.json
           ports:
             - name: wsgi
               containerPort: 5000
@@ -77,6 +80,10 @@ spec:
               name: config-volume
               subPath: local.py
               readOnly: true
+            - mountPath: /etc/googleAppCreds.json
+              name: secret-volume
+              subPath: googleAppCreds.json
+              readOnly: true
           resources:
 {{ toYaml .Values.uwsgi.resources | indent 12 }}
       volumes:
@@ -85,6 +92,9 @@ spec:
         - name: config-volume
           configMap:
             name: {{ template "fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "fullname" . }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}
