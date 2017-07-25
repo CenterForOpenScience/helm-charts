@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "fullname" . }}-migration-{{ .Release.Time.Seconds }}
+  name: {{ template "fullname" . }}-collectstatic-{{ .Release.Time.Seconds }}
   labels:
     app: {{ template "name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
@@ -21,12 +21,13 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - name: migrations
+        - name: collectstatic
           image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
           command:
             - python
             - manage.py
-            - migrate
+            - collectstatic
+            - --noinput
           env:
             {{- include "environment" . | indent 12 }}
           volumeMounts:
@@ -34,7 +35,14 @@ spec:
               name: config-volume
               subPath: local.py
               readOnly: true
+            - mountPath: /etc/googleAppCreds.json
+              name: secret-volume
+              subPath: googleAppCreds.json
+              readOnly: true
       volumes:
         - name: config-volume
           configMap:
             name: {{ template "fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "fullname" . }}

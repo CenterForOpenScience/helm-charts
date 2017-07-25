@@ -56,18 +56,18 @@ spec:
             - uwsgi
             - --ini
             - /etc/uwsgi/uwsgi.ini
+            - --socket
+            - :{{ .Values.service.externalPort }}
           env:
             {{- include "environment" . | indent 12 }}
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /etc/googleAppCreds.json
           ports:
             - name: wsgi
-              containerPort: 5000
+              containerPort: {{ .Values.service.externalPort }}
             - name: stats
               containerPort: 1717
           readinessProbe:
             tcpSocket:
-              port: 5000
+              port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /static

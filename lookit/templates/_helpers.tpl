@@ -39,4 +39,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
     secretKeyRef:
       name: {{ template "postgresql.fullname" . }}
       key: postgres-password
+- name: GOOGLE_APPLICATION_CREDENTIALS
+  value: /etc/googleAppCreds.json
+- name: MEDIA_URL
+  value: {{ .Values.mediaUrl | quote }}
+- name: STATIC_URL
+  value: {{ .Values.staticUrl | quote }}
+- name: GS_BUCKET_NAME
+  value: {{ .Values.gsBucketName | quote }}
+- name: GS_PROJECT_ID
+  value: {{ .Values.gsProjectId | quote }}
 {{- end -}}

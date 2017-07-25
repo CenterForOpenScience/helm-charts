@@ -57,6 +57,11 @@ ingress:
     #   hosts:
     #     - chart-example.local
 
+mediaUrl: https://storage.googleapis.com/bucket/media/
+staticUrl: https://storage.googleapis.com/bucket/static/
+gsBucketName: 'bucket'
+gsProjectId: 'project-id'
+
 configs: {}
   # Override configmap files here (and delete the {} above), e.g.:
   #robots.txt: |-
