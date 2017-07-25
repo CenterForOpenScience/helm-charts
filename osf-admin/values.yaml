@@ -8,39 +8,147 @@ nginx:
     repository: gcr.io/cos-containers/nginx
     tag: '1'
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 uwsgi:
   image:
     repository: gcr.io/cos-containers/osf
     tag: develop
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 512Mi
 
 service:
   name: http
-  type: NodePort
+  type: ClusterIP
   externalPort: 8001
   internalPort: 80
 
-keen_public_project_id: ''
-keen_public_read_key: ''
-SENTRY_DSN: ''
+ingress:
+  enabled: false
+  # Used to create Ingress record (should used with service.type: ClusterIP).
+  hosts:
+    - chart-example.local
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
 
-osfSecretName:
-postgresHost:
-postgresDatabase:
-postgresUser:
-postgresSecret:
+secrets:
+  SENSITIVE_DATA_SALT: ''
+  SENSITIVE_DATA_SECRET: ''
+  OSF_DB_HOST: ''
+  OSF_DB_NAME: ''
+  OSF_DB_USER: ''
+  OSF_DB_PASSWORD: ''
+  admin-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  api-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  web-local.py: |-
+    # -*- coding: utf-8 -*-
+    import os
+
+    # TBD...
+  addons-box-local.py: |-
+    # -*- coding: utf-8 -*-
+    BOX_KEY = ''
+    BOX_SECRET = ''
+  addons-dataverse-local.py: |-
+    # -*- coding: utf-8 -*-
+    HOST = ''
+  addons-dropbox-local.py: |-
+    # -*- coding: utf-8 -*-
+    DROPBOX_KEY = ''
+    DROPBOX_SECRET = ''
+  addons-figshare-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-github-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-googledrive-local.py: |-
+    # -*- coding: utf-8 -*-
+    CLIENT_ID = ''
+    CLIENT_SECRET = ''
+  addons-mendeley-local.py: |-
+    # -*- coding: utf-8 -*-
+    MENDELEY_CLIENT_ID = ''
+    MENDELEY_CLIENT_SECRET = ''
+  addons-osfstorage-local.py: |-
+    # -*- coding: utf-8 -*-
+    WATERBUTLER_CREDENTIALS = {
+        'storage': {
+            'region': '',
+            'username': '',
+            'token': '',
+            'temp_key': '',
+        },
+        'parity': {
+            'region': '',
+            'username': '',
+            'token': '',
+            'temp_key': '',
+        },
+        'archive': {
+            'access_key': '',
+            'secret_key': '',
+        },
+    }
+
+    WATERBUTLER_SETTINGS = {
+        'storage': {
+            'provider': '',
+            'container': '',
+            'use_public': True,
+        },
+        'parity': {
+            'provider': '',
+            'container': '',
+            'use_public': True,
+        },
+        'archive': {
+            'vault': '',
+        },
+    }
+
+    WATERBUTLER_RESOURCE = 'container'
+  addons-wiki-local.py: |-
+    # -*- coding: utf-8 -*-
+    from datetime import datetime
+
+    SHAREJS_URL = ''
+    WIKI_CHANGE_DATE = datetime.utcfromtimestamp('')
+  addons-zotero-local.py: |-
+    # -*- coding: utf-8 -*-
+    ZOTERO_CLIENT_ID = ''
+    ZOTERO_CLIENT_SECRET = ''
+
+configs: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  # robots.txt: |-
+  #   User-agent: *
+  #   Disallow: /

@@ -1,0 +1,56 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - gosu
+        - www-data
+        - invoke
+        - celery_beat
+        - --schedule
+        - /celery/beat-schedule
+        env:
+        - name: LOG_PATH
+          value: /celery/log
+        {{- include "osf.dbSettings" . | indent 8 }}
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - chmod o+w /celery
+        volumeMounts:
+        - mountPath: /celery
+          name: persistent-storage
+        {{- include "osf.volumeMounts" . | indent 8 }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+      volumes:
+      {{- include "osf.volumes" . | indent 6 }}
+      - name: persistent-storage
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default (include "fullname" .) }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}

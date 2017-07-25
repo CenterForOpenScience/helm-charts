@@ -2,49 +2,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 data:
-{{ (.Files.Glob "files/*").AsConfig | indent 2 }}
-  addons-box-local.py: |
-    BOX_KEY = {{ .Values.BOX_KEY | quote }}
-    BOX_SECRET = {{ .Values.BOX_SECRET | quote }}
-  addons-dataverse-local.py: |
-    # HOST = 'apitest.dataverse.org'  # Dataverse TEST server
-    HOST = {{ .Values.DATAVERSE_HOST | quote }}
-
-    # HOST = 'dataverse.harvard.edu'  # Dataverse PRODUCTION server
-    # VERIFY_SSL = False   # Disable for test server
-  addons-dropbox-local.py: |
-    # -*- coding: utf-8 -*-
-    DROPBOX_KEY = {{ .Values.DROPBOX_KEY | quote }}
-    DROPBOX_SECRET = {{ .Values.DROPBOX_SECRET | quote }}
-  addons-figshare-local.py: |
-    CLIENT_ID = {{ .Values.FIGSHARE_CLIENT_ID | quote }}
-    CLIENT_SECRET = {{ .Values.FIGSHARE_CLIENT_SECRET | quote }}
-  addons-github-local.py: |
-    # GitHub application credentials
-    CLIENT_ID = {{ .Values.GITHUB_CLIENT_ID | quote }}
-    CLIENT_SECRET = {{ .Values.GITHUB_CLIENT_SECRET | quote }}
-  addons-googledrive-local.py: |
-    # Drive credentials
-    CLIENT_ID = {{ .Values.GOOGLEDRIVE_CLIENT_ID | quote }}
-    CLIENT_SECRET = {{ .Values.GOOGLEDRIVE_CLIENT_SECRET | quote }}
-  addons-mendeley-local.py: |
-    # cos ops admin account
-    MENDELEY_CLIENT_ID = {{ .Values.MENDELEY_CLIENT_ID | quote }}
-    MENDELEY_CLIENT_SECRET = {{ .Values.MENDELEY_CLIENT_SECRET | quote }}
-  addons-osfstorage-local.py: |
-{{ .Values.osfstorage | indent 4 }}
-  addons-wiki-local.py: |
-    import datetime
-
-    SHAREJS_URL = {{ .Values.WIKI_SHAREJS_URL | quote }}
-    # SHAREJS_DB_NAME = 'sharejs'
-    # SHAREJS_DB_URL = 'mongodb://{}:{}@{}/{}?replicaSet=rs0'.format('sharejs', '...password...', '192.168.11.2,192.168.11.1', SHAREJS_DB_NAME)
-
-    WIKI_CHANGE_DATE = datetime.datetime.utcfromtimestamp({{ .Values.WIKI_CHANGE_DATE_TIME }})
-  addons-zotero-local.py: |
-    # cosopsadmin account
-    ZOTERO_CLIENT_ID = {{ .Values.ZOTERO_CLIENT_ID | quote }}
-    ZOTERO_CLIENT_SECRET = {{ .Values.ZOTERO_CLIENT_ID | quote }}
-  local.py: |
-{{ .Values.localpy | indent 4 }}
+{{- range $key, $value := merge .Values.configs ((.Files.Glob "files/*").AsConfig | fromYaml) }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+{{- end }}

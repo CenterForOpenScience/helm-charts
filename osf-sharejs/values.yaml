@@ -8,38 +8,58 @@ nginx:
     repository: nginx
     tag: '1'
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 nodejs:
   image:
     repository: quay.io/centerforopenscience/osf
     tag: develop
     pullPolicy: Always
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 service:
   name: http
-  type: NodePort
+  type: ClusterIP
   externalPort: 7007
   internalPort: 80
+
+ingress:
+  enabled: false
+  # Used to create Ingress record (should used with service.type: ClusterIP).
+  hosts:
+    - chart-example.local
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
 
 serverHost: '0.0.0.0'
 serverPort: '7007'
 dbName: 'sharejs'
 corsAllowOrigin: 'https://staging-n.osf.io'
 sentryDSN: 'https://'
+
+configs: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  # robots.txt: |-
+  #   User-agent: *
+  #   Disallow: /
 
 mongodb:
   ## Bitnami MongoDB image version

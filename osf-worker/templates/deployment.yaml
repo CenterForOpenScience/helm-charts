@@ -1,21 +1,28 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-worker
+  name: {{ template "fullname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
-  replicas: {{ .Values.worker.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: worker
-        tier: backend
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
-      - command:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
         - /bin/sh
         - -c
-        - DJANGO_SETTINGS_MODULE=api.base.settings python manage.py migrate --noinput
-          --no-init-app && gosu www-data invoke celery_worker --hostname worker.%h
+        - python manage.py migrate --noinput --no-init-app && 
+          gosu www-data invoke celery_worker --hostname worker.%h
         env:
         - name: DJANGO_SETTINGS_MODULE
           value: 'api.base.settings'
@@ -26,9 +33,6 @@ spec:
         - name: ANALYTICS_PATH
           value: /analytics
         {{- include "osf.dbSettings" . | indent 8 }}
-        image: gcr.io/cos-containers/osf:develop
-        imagePullPolicy: Always
-        name: celery
         volumeMounts:
         - mountPath: /log
           name: log-volume
@@ -36,10 +40,9 @@ spec:
           name: uploads-volume
         - mountPath: /analytics
           name: analytics-volume
-        - mountPath: /code/admin/base/settings/local.py
-          name: admin-config-volume
-          subPath: local.py
         {{- include "osf.volumeMounts" . | indent 8 }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
       volumes:
       - name: log-volume
         emptyDir: {}
@@ -47,8 +50,4 @@ spec:
         emptyDir: {}
       - name: analytics-volume
         emptyDir: {}
-      - name: admin-config-volume
-        configMap:
-          name: {{ .Release.Name }}-osf-admin
       {{- include "osf.volumes" . | indent 6 }}
-

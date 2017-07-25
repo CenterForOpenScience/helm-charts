@@ -8,48 +8,48 @@ nginx:
     repository: nginx
     tag: '1'
     pullPolicy: 'Always'
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 1
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 tornado:
   image:
     repository: quay.io/centerforopenscience/waterbutler
     tag: develop
     pullPolicy: 'Always'
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 celery:
   image:
     repository: quay.io/centerforopenscience/waterbutler
     tag: develop
     pullPolicy: 'Always'
-  resources:
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
 service:
   name: wb
-  type: NodePort
+  type: ClusterIP
   externalPort: 7777
   internalPort: 80
 
 ingress:
-  enabled: true
+  enabled: false
   annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"

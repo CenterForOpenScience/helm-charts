@@ -3,19 +3,47 @@ kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-    tier: frontend
-  annotations:
-    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
+      initContainers:
+      - name: preprints
+        image: "{{ .Values.preprints.image.repository }}:{{ .Values.preprints.image.tag }}"
+        imagePullPolicy: {{ .Values.preprints.image.pullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - mkdir -p /static/preprints && cp -Rf /code/dist/* /static/preprints
+        volumeMounts:
+        - mountPath: /static
+          name: static-volume
+        resources:
+{{ toYaml .Values.preprints.resources | indent 10 }}
+      - name: registries
+        image: "{{ .Values.registries.image.repository }}:{{ .Values.registries.image.tag }}"
+        imagePullPolicy: {{ .Values.registries.image.pullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - mkdir -p /static/registries && cp -Rf /code/dist/* /static/registries
+        volumeMounts:
+        - mountPath: /static
+          name: static-volume
+        resources:
+{{ toYaml .Values.registries.resources | indent 10 }}
       containers:
-
       - name: nginx
         image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
         imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
@@ -30,62 +58,23 @@ spec:
           containerPort: {{ .Values.service.internalPort }}
         readinessProbe:
           httpGet:
-            path: /
+            path: /healthz
             port: {{ .Values.service.internalPort }}
           initialDelaySeconds: 10
         volumeMounts:
         - mountPath: /static
           name: static-volume
+          readOnly: true
         - mountPath: /nginx/nginx.conf
-          name: web-config-volume
+          name: config-volume
           subPath: nginx.conf
+          readOnly: true
         - mountPath: /nginx/robots.txt
-          name: web-config-volume
+          name: config-volume
           subPath: robots.txt
-        - mountPath: /etc/nginx/conf.d/default.conf
-          name: web-config-volume
-          subPath: nginx-confd.conf
+          readOnly: true
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
-
-      - name: preprints
-        image: "{{ .Values.preprints.image.repository }}:{{ .Values.preprints.image.tag }}"
-        imagePullPolicy: {{ .Values.preprints.image.pullPolicy }}
-        command:
-        - sleep
-        - "9999999999999999999999999999"
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - mkdir -p /static/preprints && cp -Rf /code/dist/* /static/preprints
-        volumeMounts:
-        - mountPath: /static
-          name: static-volume
-        resources:
-{{ toYaml .Values.preprints.resources | indent 10 }}
-
-      - name: registries
-        image: "{{ .Values.registries.image.repository }}:{{ .Values.registries.image.tag }}"
-        imagePullPolicy: {{ .Values.registries.image.pullPolicy }}
-        command:
-        - sleep
-        - "9999999999999999999999999999"
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - mkdir -p /static/registries && cp -Rf /code/dist/* /static/registries
-        volumeMounts:
-        - mountPath: /static
-          name: static-volume
-        resources:
-{{ toYaml .Values.registries.resources | indent 10 }}
-
       - name: uwsgi
         image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
         imagePullPolicy: {{ .Values.uwsgi.image.pullPolicy }}
@@ -93,6 +82,8 @@ spec:
         - uwsgi
         - --ini
         - /etc/uwsgi/uwsgi.ini
+        - --socket
+        - :{{ .Values.service.externalPort }}
         env:
         {{- include "osf.dbSettings" . | indent 8 }}
         lifecycle:
@@ -101,25 +92,36 @@ spec:
               command:
               - /bin/sh
               - -c
-              - mkdir -p /static/code/website && cp -Rf /code/website/static /static/code/website
-                && find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f
-                --parents {} /static/
+              - mkdir -p /static/code/website &&
+                cp -Rf /code/website/static /static/code/website &&
+                find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
         ports:
-        - containerPort: 5000
-          name: http
-        - containerPort: 1717
-          name: stats
+        - name: wsgi
+          containerPort: {{ .Values.service.externalPort }}
+        - name: stats
+          containerPort: 1717
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.service.externalPort }} 
+          initialDelaySeconds: 10
         volumeMounts:
         - mountPath: /static
           name: static-volume
         - mountPath: /etc/uwsgi/uwsgi.ini
-          name: web-config-volume
+          name: config-volume
           subPath: uwsgi.ini
+          readOnly: true
         {{- include "osf.volumeMounts" . | indent 8 }}
         resources:
 {{ toYaml .Values.uwsgi.resources | indent 10 }}
-
       volumes:
       - name: static-volume
         emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: {{ template "fullname" . }}
       {{- include "osf.volumes" . | indent 6 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
