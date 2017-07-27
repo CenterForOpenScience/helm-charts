@@ -1,83 +1,33 @@
 dependencies:
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: postgresql
+- name: postgresql
   repository: https://kubernetes-charts.storage.googleapis.com
-  tags: null
   version: 0.7.0
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: rabbitmq
+- name: rabbitmq
   repository: https://kubernetes-charts.storage.googleapis.com
-  tags: null
   version: 0.5.1
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: elasticsearch
+- name: elasticsearch
   repository: file://../elasticsearch
-  tags: null
   version: 0.1.6
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: osf-admin
+- name: osf-admin
   repository: file://../osf-admin
-  tags: null
   version: 0.1.0
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: osf-api
+- name: osf-api
   repository: file://../osf-api
-  tags: null
   version: 0.1.0
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: osf-web
+- name: osf-web
   repository: file://../osf-web
-  tags: null
   version: 0.1.0
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: osf-sharejs
+- name: osf-sharejs
   repository: file://../osf-sharejs
-  tags: null
   version: 0.1.0
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: osf-beat
+- name: osf-beat
   repository: file://../osf-beat
-  tags: null
   version: 0.1.0
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: osf-flower
+- name: osf-flower
   repository: file://../osf-flower
-  tags: null
   version: 0.1.0
-- alias: ""
-  condition: ""
-  enabled: false
-  import-values: null
-  name: osf-worker
+- name: osf-worker
   repository: file://../osf-worker
-  tags: null
   version: 0.1.0
-digest: sha256:3348f10adb14fd3fdaa2d6e1b307018cba4618a22336c9e9c51a31c08307913e
-generated: 2017-07-19T20:26:44.37270231-04:00
+digest: sha256:02259c12c595ef9e93a06919b0c528546c9b03244b156116efda2c61b4fd6604
+generated: 2017-07-27T09:15:17.152228545-04:00
