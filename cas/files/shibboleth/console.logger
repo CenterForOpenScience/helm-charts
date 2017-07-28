@@ -1,0 +1,32 @@
+log4j.rootCategory=WARN, console
+
+# fairly verbose for DEBUG, so generally leave at INFO
+log4j.category.XMLTooling.XMLObject=INFO
+log4j.category.XMLTooling.KeyInfoResolver=INFO
+log4j.category.Shibboleth.IPRange=INFO
+log4j.category.Shibboleth.PropertySet=INFO
+
+# raise for low-level tracing of SOAP client HTTP/SSL behavior
+log4j.category.XMLTooling.libcurl=INFO
+
+# useful categories to tune independently:
+#
+# tracing of SAML messages and security policies
+#log4j.category.OpenSAML.MessageDecoder=DEBUG
+#log4j.category.OpenSAML.MessageEncoder=DEBUG
+#log4j.category.OpenSAML.SecurityPolicyRule=DEBUG
+# interprocess message remoting
+#log4j.category.Shibboleth.Listener=DEBUG
+# mapping of requests to applicationId
+#log4j.category.Shibboleth.RequestMapper=DEBUG
+# high level session cache operations
+#log4j.category.Shibboleth.SessionCache=DEBUG
+# persistent storage and caching
+#log4j.category.XMLTooling.StorageService=DEBUG
+
+# define the appender
+
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+#log4j.appender.console.layout=org.apache.log4j.BasicLayout
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{%Y-%m-%d %H:%M:%S} %p %c %x: %m%n

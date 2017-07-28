@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: apache
+          image: "{{ .Values.apache.image.repository }}:{{ .Values.apache.image.tag }}"
+          imagePullPolicy: {{ .Values.apache.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.internalPort }}
+          livenessProbe:
+            httpGet:
+              httpHeaders:
+                - name: Host
+                  value: health
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              httpHeaders:
+                - name: Host
+                  value: {{ .Values.casDomain }}
+              path: /login
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+          volumeMounts:
+            {{- include "apacheVolumeMounts" . | indent 12 }}
+        - name: jetty
+          image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
+          imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
+          env:
+            {{- include "jettyEnv" . | indent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.externalPort }}
+          volumeMounts:
+            {{- include "jettyVolumeMounts" . | indent 12 }}
+      volumes:
+        {{- include "volumes" . | indent 8 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
