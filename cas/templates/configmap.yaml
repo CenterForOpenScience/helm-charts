@@ -1,0 +1,982 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{- define "inlineconfigs" }}
+shibboleth/shibboleth2.xml: |-
+  <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
+      xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
+      xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+      xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+      xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+      clockSkew="180">
+
+      <InProcess logger="native.logger" checkSpoofing="true"/>
+
+      <!--
+      By default, in-memory StorageService, ReplayCache, ArtifactMap, and SessionCache
+      are used. See example-shibboleth2.xml for samples of explicitly configuring them.
+      -->
+
+      <!--
+      To customize behavior for specific resources on Apache, and to link vhosts or
+      resources to ApplicationOverride settings below, use web server options/commands.
+      See https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfigurationElements for help.
+
+      For examples with the RequestMap XML syntax instead, see the example-shibboleth2.xml
+      file, and the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPRequestMapHowTo topic.
+      -->
+
+      <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
+      <ApplicationDefaults entityID="https://{{ .Values.casDomain }}/shibboleth"
+                            REMOTE_USER="eppn persistent-id targeted-id" attributePrefix="AUTH-">
+
+          <!--
+          Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
+          You MUST supply an effectively unique handlerURL value for each of your applications.
+          The value defaults to /Shibboleth.sso, and should be a relative path, with the SP computing
+          a relative value based on the virtual host. Using handlerSSL="true", the default, will force
+          the protocol to be https. You should also set cookieProps to "https" for SSL-only sites.
+          Note that while we default checkAddress to "false", this has a negative impact on the
+          security of your site. Stealing sessions via cookie theft is much easier with this disabled.
+          -->
+          <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
+                    checkAddress="false" handlerSSL="false" cookieProps="http">
+
+              <!--
+              Configures SSO for a default IdP. To allow for >1 IdP, remove
+              entityID property and adjust discoveryURL to point to discovery service.
+              (Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
+              You can also override entityID on /Login query string, or in RequestMap/htaccess.
+              -->
+              <!-- <SSO entityID="https://idp.testshib.org/idp/shibboleth"
+                    discoveryProtocol="SAMLDS" discoveryURL="https://ds.example.org/DS/WAYF">
+                SAML2 SAML1
+              </SSO> -->
+              <!-- <SSO entityID="https://idp.testshib.org/idp/shibboleth">SAML2 SAML1</SSO> -->
+              <!-- <SSO discoveryProtocol="SAMLDS" discoveryURL="https://wayf.incommonfederation.org/DS/WAYF">SAML2 SAML1</SSO> -->
+              <SSO>SAML2 SAML1</SSO>
+
+              <!-- SAML and local-only logout. -->
+              <Logout>SAML2 Local</Logout>
+
+              <!-- Extension service that generates "approximate" metadata based on SP configuration. -->
+              <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
+
+              <!-- Status reporting service. -->
+              <!-- <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/> -->
+              <Handler type="Status" Location="/Status"/>
+
+              <!-- Session diagnostic service. -->
+              <!-- <Handler type="Session" Location="/Session" showAttributeValues="false"/> -->
+              <Handler type="Session" Location="/Session" showAttributeValues="true"/>
+
+              <!-- JSON feed of discovery information. -->
+              <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+          </Sessions>
+
+          <!--
+          Allows overriding of error template information/filenames. You can
+          also add attributes with values that can be plugged into the templates.
+          -->
+          <Errors supportContact="support@cos.io" helpLocation="/about.html" styleSheet="/shibboleth-sp/main.css"/>
+          <!-- <Errors supportContact="EMAIL" logoLocation="/shibboleth-sp/logo.jpg" styleSheet="/shibboleth-sp/main.css"/> -->
+
+          <!-- Example of remotely supplied batch of signed metadata. -->
+          <!--
+          <MetadataProvider type="XML" uri="http://federation.org/federation-metadata.xml"
+                backingFilePath="federation-metadata.xml" reloadInterval="7200">
+              <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
+              <MetadataFilter type="Signature" certificate="fedsigner.pem"/>
+          </MetadataProvider>
+          -->
+
+          <!-- Example of locally maintained metadata. -->
+          <!--
+          <MetadataProvider type="XML" file="partner-metadata.xml"/>
+          -->
+
+          <!-- Univeristy of Notre Dame (ND) -->
+          <MetadataProvider type="XML" uri="https://login-test.cc.nd.edu/idp/profile/Metadata/SAML"
+                            backingFilePath="nd-test-idp-metadata.xml" reloadInterval="86400"/>
+
+          <!-- InCommon -->
+          <!-- <MetadataProvider type="XML" uri="http://md.incommon.org/InCommon/InCommon-metadata.xml"
+                            backingFilePath="incommon-idp-metadata.xml" reloadInterval="86400">
+              <MetadataFilter type="Signature" certificate="incommon-idp-signature.pem"/>
+          </MetadataProvider> -->
+
+          <!-- Map to extract attributes from SAML assertions. -->
+          <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
+
+          <!-- Use a SAML query if no attributes are supplied during SSO. -->
+          <AttributeResolver type="Query" subjectMatch="true"/>
+
+          <!-- Default filtering policy for recognized attributes, lets other data pass. -->
+          <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+          <!-- Simple file-based resolver for using a single keypair. -->
+          <CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"/>
+
+          <!--
+          The default settings can be overridden by creating ApplicationOverride elements (see
+          the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApplicationOverride topic).
+          Resource requests are mapped by web server commands, or the RequestMapper, to an
+          applicationId setting.
+
+          Example of a second application (for a second vhost) that has a different entityID.
+          Resources on the vhost would map to an applicationId of "admin":
+          -->
+          <!--
+          <ApplicationOverride id="admin" entityID="https://admin.example.org/shibboleth"/>
+          -->
+      </ApplicationDefaults>
+
+      <!-- Policies that determine how to process and authenticate runtime messages. -->
+      <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
+
+      <!-- Low-level configuration about protocols and bindings available for use. -->
+      <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
+
+  </SPConfig>
+sites-enabled/default.conf: |-
+  <VirtualHost *:{{ .Values.service.internalPort }}>
+    ServerName health
+    LoadModule status_module "modules/mod_status.so"
+
+    <Location "/healthz">
+      LogLevel crit
+      Require ip 10.0.0.0/8
+      Require local
+      SetHandler server-status
+    </Location>
+  </VirtualHost>
+  <VirtualHost *:{{ .Values.service.internalPort }}>
+    ServerName https://{{ required "casDomain must be set" .Values.casDomain }}:443
+    UseCanonicalName On
+    ServerAdmin admin@osf.io
+
+    ProxyRequests off
+
+    # the google health check must have a 200 from /
+    RewriteEngine On
+    RewriteCond %{HTTP_USER_AGENT} "googlehc" [NC]
+    SetEnvIfNoCase User-Agent "googlehc" dontlog
+    RewriteRule ^/ - [L,R=200]
+
+    <Location />
+      # ShibDisable on
+
+      ProxyPass http://127.0.0.1:{{ .Values.service.externalPort }}/
+      ProxyPassReverse http://127.0.0.1:{{ .Values.service.externalPort }}/
+    </Location>
+
+    <Location /login>
+      AuthType shibboleth
+      # ShibRequestSetting requireSession 0
+      Require shibboleth
+
+      # https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPSpoofChecking
+      # - Jetty 9 drops AJP Support (https://bugs.eclipse.org/bugs/show_bug.cgi?id=425244)
+      ShibUseEnvironment off
+      ShibUseHeaders on
+
+      ProxyPass http://127.0.0.1:{{ .Values.service.externalPort }}/login
+      ProxyPassReverse http://127.0.0.1:{{ .Values.service.externalPort }}/login
+    </Location>
+
+    <Location /Shibboleth.sso>
+      ProxyPass !
+      SetHandler shib
+    </Location>
+  </VirtualHost>
+cas.properties: |-
+  #
+  # Licensed to Apereo under one or more contributor license
+  # agreements. See the NOTICE file distributed with this work
+  # for additional information regarding copyright ownership.
+  # Apereo licenses this file to you under the Apache License,
+  # Version 2.0 (the "License"); you may not use this file
+  # except in compliance with the License.  You may obtain a
+  # copy of the License at the following location:
+  #
+  #   http://www.apache.org/licenses/LICENSE-2.0
+  #
+  # Unless required by applicable law or agreed to in writing,
+  # software distributed under the License is distributed on an
+  # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  # KIND, either express or implied.  See the License for the
+  # specific language governing permissions and limitations
+  # under the License.
+  #
+
+  #### Open Science Framework ####
+
+  ##
+  # Google Analytics
+  #
+  google.analytics.id=
+  google.analytics.autoLink=
+
+  ##
+  # CAS Login and Logout URLs
+  #
+  cas.osf.login.url=/login?
+  cas.logout.url=/logout
+  cas.institution.login.url=/login?campaign=institution
+
+  ##
+  # Authentication Delegation: General
+  #
+  delegation.redirect.uri=https://{{ .Values.casDomain }}/login
+
+  ##
+  # Authentication Delegation: Clients
+  #
+  # CAS: Oklahoma State University
+  cas.okstate.login.url=${CAS_OKSTATE_LOGIN_URL:https://stgcas.okstate.edu/cas/login}
+  cas.okstate.client.name=${CAS_OKSTATE_CLIENT_NAME:okstate}
+  cas.okstate.cas.protocol=SAML
+
+  ##
+  # OAuth: ORCID
+  #
+  oauth.orcid.authorize.url=${OAUTH_ORCID_AUTHORIZATION_URL:https://orcid.org/oauth/authorize}
+  oauth.orcid.token.url=${OAUTH_ORCID_TOKEN_URL:https://pub.orcid.org/oauth/token}
+  oauth.orcid.client.id=${OAUTH_ORCID_CLIENT_ID:}
+  oauth.orcid.client.secret=${OAUTH_ORCID_CLIENT_SECRET:}
+  oauth.orcid.member=${OAUTH_ORCID_MEMBER:false}
+  oauth.orcid.scope=${OAUTH_ORCID_SCOPE:/authenticate}
+
+  ##
+  # Open Science Framework URLs
+  #
+  osf.url=https://{{ .Values.osfDomain }}/
+  osf.institutionLogin.url=https://{{ .Values.osfDomain }}/login/?campaign=institution
+  osf.resendConfirmation.url=https://{{ .Values.osfDomain }}/resend/
+  osf.forgotPassword.url=https://{{ .Values.osfDomain }}/forgotpassword/
+  osf.createAccount.url=https://{{ .Values.osfDomain }}/register/
+  osf.api.institutions.auth.url=https://{{ .Values.apiDomain }}/v2/institutions/auth/
+  # The encryption secret key. By default, must be a octet string of size 256.
+  osf.api.institutions.auth.jweSecret=${OSF_JWE_SECRET}
+  osf.api.institutions.auth.jwtSecret=${OSF_JWT_SECRET}
+  osf.api.institutions.auth.xslLocation=file:institutions-auth.xsl
+
+  ##
+  # Open Science Framework Postgres Database
+  #
+  osf.database.driverClass=org.postgresql.Driver
+  osf.database.url=${OSF_DB_URL:jdbc:postgresql://127.0.0.1/osf?targetServerType=master}
+  osf.database.user=${OSF_DB_USER:postgres}
+  osf.database.password=${OSF_DB_PASSWORD:}
+  osf.database.hibernate.dialect=org.hibernate.dialect.PostgreSQL82Dialect
+
+  ##
+  # OAuth Provider
+  #
+  # OAuth Access Token session length in seconds
+  oauth.accessTokenDuration=3600
+  oauth.loginUrl=https://{{ .Values.casDomain }}/login
+
+
+  #### Central Authentication Service ####
+
+  server.name=https://{{ .Values.casDomain }}
+  server.prefix=${server.name}
+
+  # Spring Security's EL-based access rules for the /status URI of CAS that exposes health check information
+  cas.securityContext.status.access=hasIpAddress('127.0.0.1')
+
+  # Spring Security's EL-based access rules for the /statistics URI of CAS that exposes stats about the CAS server
+  cas.securityContext.statistics.access=hasIpAddress('127.0.0.1')
+
+  cas.themeResolver.defaultThemeName=cas-theme-default
+
+  # Path prefix for where views are to be found
+  # cas.viewResolver.defaultViewsPathPrefix=/WEB-INF/view/jsp/default/ui/
+
+  # Location of the Spring xml config file where views may be collected
+  # cas.viewResolver.xmlFile=/META-INF/spring/views.xml
+
+  ##
+  # Unique CAS node name
+  # host.name is used to generate unique Service Ticket IDs and SAMLArtifacts.  This is usually set to the specific
+  # hostname of the machine running the CAS node, but it could be any label so long as it is unique in the cluster.
+  host.name={{ .Values.casDomain }}
+
+  ##
+  # Database flavors for Hibernate
+  #
+  # One of these is needed if you are storing Services or Tickets in an RDBMS via JPA.
+  #
+  database.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+  database.hibernate.batchSize=1
+  database.hibernate.showSql=false
+  database.driverClass=org.postgresql.Driver
+  database.url=jdbc:postgresql://{{ template "postgresql.fullname" . }}/${DATABASE_NAME}?targetServerType=master
+  database.user=${DATABASE_USER}
+  database.password=${DATABASE_PASSWORD}
+
+  ##
+  # CAS SSO Cookie Generation & Security
+  # See https://github.com/mitreid-connect/json-web-key-generator
+  #
+  # Do note that the following settings MUST be generated per deployment.
+  #
+  # Defaults at spring-configuration/ticketGrantingTicketCookieGenerator.xml
+  # The encryption secret key. By default, must be a octet string of size 256.
+  tgc.encryption.key=${TGC_ENCRYPTION_KEY}
+
+  # The signing secret key. By default, must be a octet string of size 512.
+  tgc.signing.key=${TGC_SIGNING_KEY}
+
+  # Allow non-secure cookie generation, Must set this `true` for production.
+  tgc.cookie.secure=true
+
+  # Do not allow client side script to access the cookie, MUST set this `true` for production.
+  tgc.cookie.httponly=true
+
+  ##
+  # CAS Logout Behavior
+  # WEB-INF/cas-servlet.xml
+  #
+  # Specify whether CAS should redirect to the specified service parameter on /logout requests
+  cas.logout.followServiceRedirects=true
+
+  ##
+  # CAS Cached Attributes Timeouts
+  # Controls the cached attribute expiration policy
+  #
+  # Notes the duration in which attributes will be kept alive
+  # cas.attrs.timeToExpireInHours=2
+
+  ##
+  # Single Sign-On Session
+  #
+  # Indicates whether an SSO session should be created for renewed authentication requests.
+  # create.sso.renewed.authn=true
+  #
+  # Indicates whether an SSO session can be created if no service is present.
+  # create.sso.missing.service=true
+
+  ##
+  # Spring Webflow Web Application Session
+  # Define the settings that are required to encrypt and persist the CAS web application session.
+  # See the cas-servlet.xml file to understand how these properties are used.
+  #
+  # cas.webflow.cipher.alg=AES
+  # cas.webflow.cipher.mode=CBC
+  # cas.webflow.cipher.padding=PKCS7
+  # cas.webflow.keystore=classpath:/etc/keystore.jceks
+  # cas.webflow.keystore.type=JCEKS
+  # cas.webflow.keystore.password=changeit
+  # cas.webflow.keyalias=aes128
+  # cas.webflow.keypassword=changeit
+
+  ##
+  # Single Sign-On Session Timeouts
+  # Defaults sourced from WEB-INF/spring-configuration/ticketExpirationPolices.xml
+  #
+  # Maximum session timeout - TGT will expire in maxTimeToLiveInSeconds regardless of usage
+  # tgt.maxTimeToLiveInSeconds=28800
+  #
+  # Idle session timeout -  TGT will expire sooner than maxTimeToLiveInSeconds if no further requests
+  # for STs occur within timeToKillInSeconds
+  # tgt.timeToKillInSeconds=7200
+  #
+  # Long term authentication session length in seconds (30 days)
+  tgt.rememberMeDuration=2592000
+
+  ##
+  # Service Ticket Timeout
+  # Default sourced from WEB-INF/spring-configuration/ticketExpirationPolices.xml
+  #
+  # Service Ticket timeout - typically kept short as a control against replay attacks, default is 10s.  You'll want to
+  # increase this timeout if you are manually testing service ticket creation/validation via tamperdata or similar tools
+  st.timeToKillInSeconds=60
+
+  ##
+  # Http Client Settings
+  #
+  # The http client read timeout in milliseconds
+  # http.client.read.timeout=5000
+
+  # The http client connection timeout in milliseconds
+  # http.client.connection.timeout=5000
+  #
+  # The http client truststore file, in addition to the default's
+  #http.client.truststore.file=classpath:truststore.jks
+  #
+  # The http client truststore's password
+  # http.client.truststore.psw=changeit
+
+  ##
+  # Single Logout Out Callbacks
+  # Default sourced from WEB-INF/spring-configuration/argumentExtractorsConfiguration.xml
+  #
+  # To turn off all back channel SLO requests set this to true
+  slo.callbacks.disabled=true
+  #
+  # To send callbacks to endpoints synchronously, set this to false
+  # slo.callbacks.asynchronous=true
+
+  ##
+  # CAS Protocol Security Filter
+  #
+  # Are multi-valued parameters accepted?
+  # cas.http.allow.multivalue.params=false
+
+  # Define the list of request parameters to examine for sanity
+  # cas.http.check.params=ticket,service,renew,gateway,warn,target,SAMLart,pgtUrl,pgt,pgtId,pgtIou,targetService
+
+  # Define the list of request parameters only allowed via POST
+  cas.http.allow.post.params=password,oneTimePassword
+
+  ##
+  # JSON Service Registry
+  #
+  # Directory location where JSON service files may be found.
+  #service.registry.config.location=classpath:services
+
+  ##
+  # Service Registry Periodic Reloading Scheduler
+  # Default sourced from WEB-INF/spring-configuration/applicationContext.xml
+  #
+  # Force a startup delay of 2 minutes.
+  # service.registry.quartz.reloader.startDelay=120000
+  #
+  # Reload services every 2 minutes
+  # service.registry.quartz.reloader.repeatInterval=120000
+
+  ##
+  # Log4j
+  # Default sourced from WEB-INF/spring-configuration/log4jConfiguration.xml:
+  #
+  # It is often time helpful to externalize log4j.xml to a system path to preserve settings between upgrades.
+  # e.g. log4j.config.location=/etc/cas/log4j2.xml
+  log4j.config.location=classpath:log4j2.xml
+
+  ##
+  # Metrics
+  # Default sourced from WEB-INF/spring-configuration/metricsConfiguration.xml:
+  #
+  # Define how often should metric data be reported. Default is 30 seconds.
+  # metrics.refresh.internal=30s
+
+  ##
+  # Encoding
+  #
+  # Set the encoding to use for requests. Default is UTF-8
+  # httprequest.web.encoding=UTF-8
+
+  # Default is true. Switch this to "false" to not enforce the specified encoding in any case,
+  # applying it as default response encoding as well.
+  # httprequest.web.encoding.force=true
+
+  ##
+  # Reports
+  #
+  # Setting to whether include the ticket granting ticket id in the report
+  # sso.sessions.include.tgt=false
+
+  ##
+  # Password Policy
+  #
+  # Warn all users of expiration date regardless of warningDays value.
+  # password.policy.warnAll=false
+
+  # Threshold number of days to begin displaying password expiration warnings.
+  # password.policy.warningDays=30
+
+  # URL to which the user will be redirected to change the password.
+  # password.policy.url=https://password.example.edu/change
+
+  ##
+  # Login Throttle
+  cas.throttle.failureRangeInSeconds = 1
+  cas.throttle.failureThreshold = 1000
+  cas.throttle.startDelay = 1000
+  cas.throttle.repeatInterval = 1000
+log4j2.xml: |-
+  <?xml version="1.0" encoding="UTF-8" ?>
+
+  <!--
+
+      Licensed to Apereo under one or more contributor license
+      agreements. See the NOTICE file distributed with this work
+      for additional information regarding copyright ownership.
+      Apereo licenses this file to you under the Apache License,
+      Version 2.0 (the "License"); you may not use this file
+      except in compliance with the License.  You may obtain a
+      copy of the License at the following location:
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing,
+      software distributed under the License is distributed on an
+      "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+      KIND, either express or implied.  See the License for the
+      specific language governing permissions and limitations
+      under the License.
+
+  -->
+
+  <!-- Specify the refresh internal in seconds. -->
+  <Configuration monitorInterval="60">
+      <Appenders>
+          <Console name="Console" target="SYSTEM_OUT">
+              <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n" />
+          </Console>
+          <!-- <File name="perfStats" fileName="/log/perfStats.log" append="true">
+              <PatternLayout pattern="%m%n" />
+          </File> -->
+          <Raven name="Sentry">
+              <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
+              <DSN>{{ .Values.sentryDSN }}</DSN>
+          </Raven>
+      </Appenders>
+      <Loggers>
+          <!-- <Logger name="org.jasig" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="org.springframework" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="org.springframework.webflow" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="org.springframework.web" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="org.springframework.security" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="org.hibernate" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="org.jasig.cas.web.flow" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger> -->
+          <!-- <Logger name="io.cos.cas.authentication.handler.support" level="debug" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger> -->
+          <Logger name="org.slf4j.impl.CasDelegatingLogger" level="error" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Logger name="perfStatsLogger" level="error" additivity="false">
+              <AppenderRef ref="Console" />
+          </Logger>
+          <Root level="info">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Root>
+      </Loggers>
+  </Configuration>
+services/cas.json: |-
+  {
+    "@class" : "org.jasig.cas.services.RegexRegisteredService",
+    "id" : 983219871349823,
+    "name" : "",
+    "description" : "",
+    "serviceId" : "^https://{{ .Values.casDomain }}/.*",
+    "evaluationOrder": "2000",
+    "logo": "",
+    "attributeReleasePolicy" : {
+      "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes" : [ "java.util.ArrayList", [ "givenName", "familyName" ] ]
+    },
+    "properties" : {
+      "@class": "java.util.HashMap",
+      "title": {
+        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+        "values": [
+          "java.util.HashSet",
+          [
+            "Open Science Framework"
+          ]
+        ]
+      },
+      "titleAbbr": {
+        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+        "values": [
+          "java.util.HashSet",
+          [
+            "OSF"
+          ]
+        ]
+      }
+    }
+  }
+services/oauth2.json: |-
+  {
+    "@class" : "org.jasig.cas.support.oauth.services.OAuthCallbackAuthorizeService",
+    "id" : 983450982340993434,
+    "name" : "",
+    "description" : "",
+    "serviceId" : "^https://{{ .Values.casDomain }}/oauth2/callbackAuthorize",
+    "evaluationOrder": "1000",
+    "properties" : {
+      "@class": "java.util.HashMap",
+      "title": {
+        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+        "values": [
+          "java.util.HashSet",
+          [
+            "Open Science Framework"
+          ]
+        ]
+      },
+      "titleAbbr": {
+        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+        "values": [
+          "java.util.HashSet",
+          [
+            "OSF"
+          ]
+        ]
+      }
+    }
+  }
+services/osf-campaigns-erpc.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207232,
+      "name": "Election Research<br>Preacceptance Competition",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain }}/erpc/.*",
+      "logo": "",
+      "evaluationOrder": 1000,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "?campaign=erpc"
+                  ]
+              ]
+          }
+      }
+  }
+services/osf-campaigns-prereg.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207231,
+      "name": "Preregistration Challenge",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain }}/prereg/.*",
+      "logo": "",
+      "evaluationOrder": 1000,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "?campaign=prereg"
+                  ]
+              ]
+          }
+      }
+  }
+services/osf.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207230,
+      "name": "",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain }}/(?!oauth/callback).*",
+      "logo": "",
+      "evaluationOrder": 2000,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      ""
+                  ]
+              ]
+          }
+      }
+  }
+services/preprints-engrxiv.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207242,
+      "name": "engrXiv",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/)engrxiv.*",
+      "logo": "https://{{ .Values.casDomain }}/images/preprints-engrxiv-logo.png",
+      "evaluationOrder": 1000,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "?campaign=engrxiv-preprints"
+                  ]
+              ]
+          }
+      }
+  }
+services/preprints-osf.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207240,
+      "name": "",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/).*",
+      "logo": "https://{{ .Values.casDomain }}/images/preprints-osf-logo-black.png",
+      "evaluationOrder": 1001,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "?campaign=osf-preprints"
+                  ]
+              ]
+          }
+      }
+  }
+services/preprints-psyarxiv.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207243,
+      "name": "PsyArXiv",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/)psyarxiv.*",
+      "logo": "https://{{ .Values.casDomain }}/images/preprints-psyarxiv-logo.png",
+      "evaluationOrder": 1000,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "?campaign=psyarxiv-preprints"
+                  ]
+              ]
+          }
+      }
+  }
+services/preprints-socarxiv.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207241,
+      "name": "SocArXiv",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/)socarxiv.*",
+      "logo": "https://{{ .Values.casDomain }}/images/preprints-socarxiv-logo.png",
+      "evaluationOrder": 1000,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "?campaign=socarxiv-preprints"
+                  ]
+              ]
+          }
+      }
+    }
+{{- end -}}
+{{- define "fileconfigs" -}}
+{{- range $path, $bytes := .Files.Glob "files/**" }}
+{{ $path | trimPrefix "files/" }}: |-
+{{ printf "%s" $bytes | indent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{- range $key, $value := merge .Values.configs (merge (include "inlineconfigs" . | fromYaml) (include "fileconfigs" . | fromYaml)) }}
+  {{ $key | replace "/" "-" }}: |-
+{{ $value | indent 4 }}
+{{- end }}

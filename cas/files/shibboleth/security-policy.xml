@@ -1,0 +1,33 @@
+<SecurityPolicies xmlns="urn:mace:shibboleth:2.0:native:sp:config">
+
+    <!-- Each policy defines a set of rules to use to secure messages. -->
+
+    <!--
+    The predefined policy enforces replay/freshness, standard
+    condition processing, and permits signing and client TLS.
+    -->
+    <Policy id="default" validate="false">
+        <PolicyRule type="MessageFlow" checkReplay="true" expires="60"/>
+        <PolicyRule type="Conditions">
+            <PolicyRule type="Audience"/>
+            <!-- Enable Delegation rule to permit delegated access. -->
+            <!-- <PolicyRule type="Delegation"/> -->
+        </PolicyRule>
+        <PolicyRule type="ClientCertAuth" errorFatal="true"/>
+        <PolicyRule type="XMLSigning" errorFatal="true"/>
+        <PolicyRule type="SimpleSigning" errorFatal="true"/>
+    </Policy>
+
+    <!--
+    This policy is a place-holder for use of assertions in metadata
+    as a way of attaching signed information about particular IdPs.
+    -->
+    <Policy id="entity-attributes">
+        <PolicyRule type="Conditions"/>
+        <PolicyRule type="XMLSigning" errorFatal="true"/>
+    </Policy>
+
+    <!-- Disables known weak algorithms. -->
+    <AlgorithmBlacklist includeDefaultBlacklist="true"/>
+
+</SecurityPolicies>
