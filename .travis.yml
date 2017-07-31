@@ -11,8 +11,28 @@ before_script:
 - helm repo add stable https://kubernetes-charts.storage.googleapis.com
 - |
   for chart in $(find . -name 'requirements.yaml'); do
-    helm dep build $(dirname $chart)
+    helm dep build $(dirname ${chart})
   done
 
 script:
 - helm lint */
+
+after_success:
+- |
+  SOURCE_BRANCH='master'
+  
+  # Skip if PR or not master branch
+  if [ "$TRAVIS_PULL_REQUEST" != "false" -o $TRAVIS_BRANCH != $SOURCE_BRANCH ]; then
+      echo "Not a tag. Skipping chart repository publish."
+      exit 0
+  fi
+  
+  # Decrypt deploy key and add to SSH
+  openssl aes-256-cbc -K $encrypted_1314893fce55_key -iv $encrypted_1314893fce55_iv -in deploy_key.enc -out deploy_key -d
+  chmod 600 deploy_key
+  eval `ssh-agent -s`
+  ssh-add deploy_key
+  
+  # Update the charts repository (GitHub Pages)
+  ./updateChartsRepository.sh
+
