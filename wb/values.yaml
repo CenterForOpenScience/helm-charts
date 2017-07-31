@@ -60,74 +60,104 @@ ingress:
   #   hosts:
   #   - staging-files.osf.io
 
-settingsFile:
-  ANALYTICS:
-    MFR_DOMAIN: "https://staging-mfr.osf.io"
-    KEEN:
-      PRIVATE:
-        PROJECT_ID: ''
-        WRITE_KEY: ''
-      PUBLIC:
-        PROJECT_ID: ''
-        WRITE_KEY: ''
-  GITHUB_PROVIDER_CONFIG:
-    MOVE_MESSAGE: "Moved via the Open Science Framework"
-    COPY_MESSAGE: "Copied via the Open Science Framework"
-    UPLOAD_FILE_MESSAGE: "Added via the Open Science Framework"
-    UPDATE_FILE_MESSAGE: "Updated via the Open Science Framework"
-    DELETE_FILE_MESSAGE: "Deleted via the Open Science Framework"
-    DELETE_FOLDER_MESSAGE: "Deleted via the Open Science Framework"
-  OSFSTORAGE_PROVIDER_CONFIG:
-    FILE_PATH_PENDING: "/data/pending"
-    FILE_PATH_COMPLETE: "/data/complete"
-    HMAC_SECRET: ''
-    RUN_TASKS: true
-  SERVER_CONFIG:
-    DOMAIN: "https://staging-files.osf.io"
-    ADDRESS: "0.0.0.0"
-    PORT: 7777
-    DEBUG: false
-    XHEADERS: true
-    CORS_ALLOW_ORIGIN:
-      - "https://staging.osf.io"
-      - "https://staging-mfr.osf.io"
-    HMAC_SECRET: ''
-    MAX_BUFFER_SIZE: 157286400
-    AUTH_HANDLERS:
-      - "osf"
-  OSF_AUTH_CONFIG:
-    API_URL: "https://staging.osf.io/api/v1/files/auth/"
-    JWE_SALT: ''
-    JWE_SECRET: ''
-    JWT_SECRET: ''
-  TASKS_CONFIG:
-    BROKER_URL: "amqp://rabbitmq:5672//"
-    ADHOC_BACKEND_PATH: "/pickles"
-  SENTRY_DSN: ''
-  LOGGING:
-    version: 1
-    disable_existing_loggers: false
-    formatters:
-      defaultFormatter:
-        '()': "waterbutler.core.logging.MaskFormatter"
-        format: "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s"
-        pattern: "(?<=cookie=)(.*?)(?=&|$)"
-        mask: "***"
-    handlers:
-      consoleHandler:
-        class: "logging.StreamHandler"
-        level: "INFO"
-        formatter: "defaultFormatter"
-    loggers:
-      '':
-        handlers:
-          - "consoleHandler"
-        level: "INFO"
-        propagate: false
-    root:
-      level: "INFO"
-      handlers:
-        - "consoleHandler"
+secrets:
+  settings.json: |-
+    {
+      "ANALYTICS": {
+        "MFR_DOMAIN": "https://staging-mfr.osf.io",
+        "KEEN": {
+          "PRIVATE": {
+            "PROJECT_ID": "",
+            "WRITE_KEY": ""
+          },
+          "PUBLIC": {
+            "PROJECT_ID": "",
+            "WRITE_KEY": ""
+          }
+        }
+      },
+      "GITHUB_PROVIDER_CONFIG": {
+        "MOVE_MESSAGE": "Moved via the Open Science Framework",
+        "COPY_MESSAGE": "Copied via the Open Science Framework",
+        "UPLOAD_FILE_MESSAGE": "Added via the Open Science Framework",
+        "UPDATE_FILE_MESSAGE": "Updated via the Open Science Framework",
+        "DELETE_FILE_MESSAGE": "Deleted via the Open Science Framework",
+        "DELETE_FOLDER_MESSAGE": "Deleted via the Open Science Framework"
+      },
+      "OSFSTORAGE_PROVIDER_CONFIG": {
+        "FILE_PATH_PENDING": "/data/pending",
+        "FILE_PATH_COMPLETE": "/data/complete",
+        "HMAC_SECRET": "",
+        "RUN_TASKS": true
+      },
+      "SERVER_CONFIG": {
+        "DOMAIN": "https://staging-files.osf.io",
+        "ADDRESS": "0.0.0.0",
+        "PORT": 7777,
+        "DEBUG": false,
+        "XHEADERS": true,
+        "CORS_ALLOW_ORIGIN": [
+          "https://staging.osf.io",
+          "https://staging-mfr.osf.io"
+        ],
+        "HMAC_SECRET": "",
+        "MAX_BUFFER_SIZE": 157286400,
+        "AUTH_HANDLERS": [
+          "osf"
+        ]
+      },
+      "OSF_AUTH_CONFIG": {
+        "API_URL": "https://staging.osf.io/api/v1/files/auth/",
+        "JWE_SALT": "",
+        "JWE_SECRET": "",
+        "JWT_SECRET": ""
+      },
+      "TASKS_CONFIG": {
+        "BROKER_URL": "amqp://rabbitmq:5672//",
+        "ADHOC_BACKEND_PATH": "/pickles"
+      },
+      "SENTRY_DSN": "",
+      "LOGGING": {
+        "version": 1,
+        "disable_existing_loggers": false,
+        "formatters": {
+          "defaultFormatter": {
+            "()": "waterbutler.core.logging.MaskFormatter",
+            "format": "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s",
+            "pattern": "(?<=cookie=)(.*?)(?=&|$)",
+            "mask": "***"
+          }
+        },
+        "handlers": {
+          "consoleHandler": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "defaultFormatter"
+          }
+        },
+        "loggers": {
+          "": {
+            "handlers": [
+              "consoleHandler"
+            ],
+            "level": "INFO",
+            "propagate": false
+          }
+        },
+        "root": {
+          "level": "INFO",
+          "handlers": [
+            "consoleHandler"
+          ]
+        }
+      }
+    }
+
+configs: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  # robots.txt: |-
+  #   User-agent: *
+  #   Disallow: /
 
 rabbitmq:
   ## Bitnami RabbitMQ image version
@@ -197,7 +227,7 @@ rabbitmq:
     ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
     ## Default: volume.alpha.kubernetes.io/storage-class: default
     ##
-    # storageClass: ssd
+    # storageClass: 
     accessMode: ReadWriteOnce
     size: 10Gi
 

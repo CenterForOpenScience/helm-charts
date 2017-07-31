@@ -2,14 +2,21 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-        tier: frontend
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       containers:
       {{- with .Values.nginx }}
@@ -22,17 +29,26 @@ spec:
         - /nginx/nginx.conf
         - -g
         - daemon off;
-        ports:
-        - name: http
-          containerPort: 80
         volumeMounts:
-        - name: nginx-config-volume
-          mountPath: /nginx
-        - name: nginx-confd-config-volume
-          mountPath: /etc/nginx/conf.d
+        - name: config-volume
+          subPath: nginx.conf
+          mountPath: /nginx/nginx.conf
+          readOnly: true
+        - name: config-volume
+          subPath: robots.txt
+          mountPath: /nginx/robots.txt
+          readOnly: true
         resources:
 {{ toYaml .resources | indent 10 }}
       {{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.internalPort }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.service.internalPort }}
+          initialDelaySeconds: 10
       {{- with .Values.tornado }}
       - name: tornado
         image: "{{ .image.repository }}:{{ .image.tag }}"
@@ -45,12 +61,11 @@ spec:
         env:
         - name: ENV
           value: kube
-        ports:
-        - name: http
-          containerPort: 7777
         volumeMounts:
-        - name: config-volume
-          mountPath: /home/.cos
+        - name: secret-volume
+          subPath: settings.json
+          mountPath: /home/.cos/waterbutler-kube.json
+          readOnly: true
         - name: data-volume
           mountPath: /data
         - name: pickles-volume
@@ -58,6 +73,9 @@ spec:
         resources:
 {{ toYaml .resources | indent 10 }}
       {{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.externalPort }}
       {{- with .Values.celery }}
       - name: celery
         image: "{{ .image.repository }}:{{ .image.tag }}"
@@ -71,8 +89,10 @@ spec:
         - name: ENV
           value: kube
         volumeMounts:
-        - name: config-volume
-          mountPath: /home/.cos
+        - name: secret-volume
+          subPath: settings.json
+          mountPath: /home/.cos/waterbutler-kube.json
+          readOnly: true
         - name: data-volume
           mountPath: /data
         - name: pickles-volume
@@ -85,23 +105,9 @@ spec:
         emptyDir: {}
       - name: pickles-volume
         emptyDir: {}
-      - name: nginx-config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-          items:
-          - key: nginx.conf
-            path: nginx.conf
-          - key: robots.txt
-            path: robots.txt
-      - name: nginx-confd-config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-          items:
-          - key: nginx-confd.conf
-            path: default.conf
       - name: config-volume
         configMap:
           name: {{ template "fullname" . }}
-          items:
-          - key: settings.json
-            path: waterbutler-kube.json
+      - name: secret-volume
+        secret:
+          secretName: {{ template "fullname" . }}
