@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{ if .Values.securityContext -}}
+        securityContext:
+{{ toYaml .Values.securityContext | indent 10 }}
+        {{- end }}
+        env:
+        {{- range $key, $value :=  .Values.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- include "kibana.env" . | indent 8 }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.internalPort }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.service.internalPort }}
+          initialDelaySeconds: 180
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: {{ .Values.service.internalPort }}
+          initialDelaySeconds: 180
+          periodSeconds: 10
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
