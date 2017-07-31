@@ -3,14 +3,20 @@ kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "fullname" . }}
-        tier: frontend
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       containers:
       {{- with .Values.nginx }}
@@ -23,22 +29,30 @@ spec:
         - /nginx/nginx.conf
         - -g
         - daemon off;
-        ports:
-        - name: http
-          containerPort: 80
         volumeMounts:
-        - name: nginx-config-volume
-          mountPath: /nginx
-        - name: nginx-confd-config-volume
-          mountPath: /etc/nginx/conf.d
+        - name: config-volume
+          subPath: nginx.conf
+          mountPath: /nginx/nginx.conf
+          readOnly: true
+        - name: config-volume
+          subPath: robots.txt
+          mountPath: /nginx/robots.txt
+          readOnly: true
         resources:
 {{ toYaml .resources | indent 10 }}
       {{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.internalPort }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.service.internalPort }}
+          initialDelaySeconds: 10
       {{- with .Values.tornado }}
       - name: tornado
         image: "{{ .image.repository }}:{{ .image.tag }}"
         imagePullPolicy: {{ .image.pullPolicy }}
-      {{- end }}
         command: 
         - gosu
         - www-data
@@ -47,16 +61,19 @@ spec:
         env:
         - name: ENV
           value: kube
-        ports:
-        - name: http
-          containerPort: 7778
         volumeMounts:
-        - name: config-volume
-          mountPath: /home/.cos
+        - name: secret-volume
+          subPath: settings.json
+          mountPath: /home/.cos/mfr-kube.json
+          readOnly: true
         - name: localcache-volume
           mountPath: /tmp/mfrlocalcache
         resources:
 {{ toYaml .resources | indent 10 }}
+      {{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.externalPort }}
       {{- with .Values.unoconv }}
       - name: unoconv
         image: "{{ .image.repository }}:{{ .image.tag }}"
@@ -85,23 +102,9 @@ spec:
       volumes:
       - name: localcache-volume
         emptyDir: {}
-      - name: nginx-config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-          items:
-          - key: nginx.conf
-            path: nginx.conf
-          - key: robots.txt
-            path: robots.txt
-      - name: nginx-confd-config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-          items:
-          - key: nginx-confd.conf
-            path: default.conf
       - name: config-volume
         configMap:
           name: {{ template "fullname" . }}
-          items:
-          - key: settings.json
-            path: mfr-kube.json
+      - name: secret-volume
+        secret:
+          secretName: {{ template "fullname" . }}

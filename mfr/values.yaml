@@ -62,59 +62,84 @@ ingress:
     #   hosts:
     #     - staging-mfr.osf.io
 
+secrets:
+  settings.json: |-
+    {
+      "SERVER_CONFIG": {
+        "ADDRESS": "0.0.0.0",
+        "PORT": 7778,
+        "DEBUG": false,
+        "XHEADERS": true,
+        "CORS_ALLOW_ORIGIN": "https://staging.osf.io",
+        "MAX_BUFFER_SIZE": 157286400,
+        "PROVIDER_NAME": "osf",
+        "ALLOWED_PROVIDER_DOMAINS": "https://staging.osf.io/ https://staging-files.osf.io/",
+        "CACHE_ENABLED": true,
+        "CACHE_PROVIDER_NAME": "cloudfiles",
+        "CACHE_PROVIDER_SETTINGS": {
+          "container": "mfr_staging"
+        },
+        "CACHE_PROVIDER_CREDENTIALS": {
+          "region": "",
+          "username": "",
+          "token": "",
+          "temp_key": ""
+        },
+        "ANALYTICS": {
+          "KEEN": {
+            "PRIVATE": {
+              "PROJECT_ID": "",
+              "WRITE_KEY": ""
+            },
+            "PUBLIC": {
+              "PROJECT_ID": "",
+              "WRITE_KEY": ""
+            }
+          }
+        }
+      },
+      "UNOCONV_EXTENSION_CONFIG": {
+        "SERVER": "127.0.0.1"
+      },
+      "SENTRY_DSN": "",
+      "LOGGING": {
+        "version": 1,
+        "disable_existing_loggers": false,
+        "formatters": {
+          "defaultFormatter": {
+            "()": "waterbutler.core.logging.MaskFormatter",
+            "format": "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s",
+            "pattern": "(?<=cookie=)(.*?)(?=&|$)",
+            "mask": "***"
+          }
+        },
+        "handlers": {
+          "consoleHandler": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "defaultFormatter"
+          }
+        },
+        "loggers": {
+          "": {
+            "handlers": [
+              "consoleHandler"
+            ],
+            "level": "INFO",
+            "propagate": false
+          }
+        },
+        "root": {
+          "level": "INFO",
+          "handlers": [
+            "consoleHandler"
+          ]
+        }
+      }
+    }
 
-settingsFile:
-  SERVER_CONFIG:
-    ADDRESS: "0.0.0.0"
-    PORT: 7778
-    DEBUG: false
-    XHEADERS: true
-    CORS_ALLOW_ORIGIN: "https://staging.osf.io"
-    MAX_BUFFER_SIZE: 157286400
-    PROVIDER_NAME: "osf"
-    ALLOWED_PROVIDER_DOMAINS: "https://staging.osf.io/ https://staging-files.osf.io/"
-    CACHE_ENABLED: true
-    CACHE_PROVIDER_NAME: "cloudfiles"
-    CACHE_PROVIDER_SETTINGS:
-      container: "mfr_staging"
-    CACHE_PROVIDER_CREDENTIALS:
-      region: ''
-      username: ''
-      token: ''
-      temp_key: ''
-    ANALYTICS:
-      KEEN:
-        PRIVATE:
-          PROJECT_ID: ''
-          WRITE_KEY: ''
-        PUBLIC:
-          PROJECT_ID: ''
-          WRITE_KEY: ''
-  UNOCONV_EXTENSION_CONFIG:
-    SERVER: "127.0.0.1"
-  SENTRY_DSN: ''
-  LOGGING:
-    version: 1
-    disable_existing_loggers: false
-    formatters:
-      defaultFormatter:
-        '()': "waterbutler.core.logging.MaskFormatter"
-        format: "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s"
-        pattern: "(?<=cookie=)(.*?)(?=&|$)"
-        mask: "***"
-    handlers:
-      consoleHandler:
-        class: "logging.StreamHandler"
-        level: "INFO"
-        formatter: "defaultFormatter"
-    loggers:
-      '':
-        handlers:
-          - "consoleHandler"
-        level: "INFO"
-        propagate: false
-    root:
-      level: "INFO"
-      handlers:
-        - "consoleHandler"
-
+configs: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  # robots.txt: |-
+  #   User-agent: *
+  #   Disallow: /
