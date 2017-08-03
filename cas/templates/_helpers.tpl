@@ -39,25 +39,25 @@ Volumes
 Apache volume mounts
 */}}
 {{- define "apacheFilemapConfig" }}
-shibboleth/accessError.html: /etc/shibboleth/accessError.html
-shibboleth/attrChecker.html: /etc/shibboleth/attrChecker.html
+shibboleth/accesserror.html: /etc/shibboleth/accessError.html
+shibboleth/attrchecker.html: /etc/shibboleth/attrChecker.html
 shibboleth/attribute-map.xml: /etc/shibboleth/attribute-map.xml
 shibboleth/attribute-policy.xml: /etc/shibboleth/attribute-policy.xml
-shibboleth/bindingTemplate.html: /etc/shibboleth/bindingTemplate.html
+shibboleth/bindingtemplate.html: /etc/shibboleth/bindingTemplate.html
 shibboleth/console.logger: /etc/shibboleth/console.logger
-shibboleth/discoveryTemplate.html: /etc/shibboleth/discoveryTemplate.html
-shibboleth/globalLogout.html: /etc/shibboleth/globalLogout.html
-shibboleth/localLogout.html: /etc/shibboleth/localLogout.html
-shibboleth/metadataError.html: /etc/shibboleth/metadataError.html
+shibboleth/discoverytemplate.html: /etc/shibboleth/discoveryTemplate.html
+shibboleth/globallogout.html: /etc/shibboleth/globalLogout.html
+shibboleth/locallogout.html: /etc/shibboleth/localLogout.html
+shibboleth/metadataerror.html: /etc/shibboleth/metadataError.html
 shibboleth/native.logger: /etc/shibboleth/native.logger
-shibboleth/partialLogout.html: /etc/shibboleth/partialLogout.html
-shibboleth/postTemplate.html: /etc/shibboleth/postTemplate.html
+shibboleth/partiallogout.html: /etc/shibboleth/partialLogout.html
+shibboleth/posttemplate.html: /etc/shibboleth/postTemplate.html
 shibboleth/protocols.xml: /etc/shibboleth/protocols.xml
 shibboleth/security-policy.xml: /etc/shibboleth/security-policy.xml
-shibboleth/sessionError.html: /etc/shibboleth/sessionError.html
+shibboleth/sessionerror.html: /etc/shibboleth/sessionError.html
 shibboleth/shibboleth2.xml: /etc/shibboleth/shibboleth2.xml
 shibboleth/shibd.logger: /etc/shibboleth/shibd.logger
-shibboleth/sslError.html: /etc/shibboleth/sslError.html
+shibboleth/sslerror.html: /etc/shibboleth/sslError.html
 shibboleth/syslog.logger: /etc/shibboleth/syslog.logger
 shibboleth/upgrade.xsl: /etc/shibboleth/upgrade.xsl
 sites-enabled/default.conf: /etc/apache2/sites-enabled/default.conf
