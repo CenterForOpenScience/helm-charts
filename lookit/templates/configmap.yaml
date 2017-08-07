@@ -36,7 +36,17 @@ nginx.conf: |-
       gzip_min_length 512;
       gzip_proxied any;
       gzip_vary on;
-      gzip_types text/plain text/css application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss;
+      gzip_types text/plain
+                 text/css
+                 image/svg+xml 
+                 application/javascript
+                 application/x-javascript
+                 text/xml
+                 application/xml
+                 text/javascript
+                 application/json
+                 application/xml+rss
+                 application/vnd.api+json;
       ##
       # Caching Settings
       ##
@@ -78,13 +88,13 @@ nginx.conf: |-
           location /media/ {
               proxy_redirect off;
               proxy_buffering off;
-              proxy_pass {{ .Values.mediaUrl }};
+              proxy_pass {{ .Values.environment.MEDIA_URL }};
           }
 
           location /static/ {
               proxy_redirect off;
               proxy_buffering off;
-              proxy_pass {{ .Values.staticUrl }};
+              proxy_pass {{ .Values.environment.STATIC_URL }};
           }
 
           location / {
