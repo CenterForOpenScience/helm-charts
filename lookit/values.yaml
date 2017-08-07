@@ -57,10 +57,21 @@ ingress:
     #   hosts:
     #     - chart-example.local
 
-mediaUrl: https://storage.googleapis.com/bucket/media/
-staticUrl: https://storage.googleapis.com/bucket/static/
-gsBucketName: 'bucket'
-gsProjectId: 'project-id'
+environment:
+  DJANGO_SETTINGS_MODULE: project.settings
+  GEVENT: '1'
+  GOOGLE_APPLICATION_CREDENTIALS: /etc/googleAppCreds.json
+  MEDIA_URL: https://storage.googleapis.com/bucket/media/
+  STATIC_URL: https://storage.googleapis.com/bucket/static/
+  GS_BUCKET_NAME: 'bucket'
+  GS_PROJECT_ID: 'project-id'
+  EMAIL_HOST: ''
+  EMAIL_PORT: 587
+  EMAIL_USE_TLS: 'True'
+  EMAIL_FROM_ADDRESS: ''
+  LOGIN_REDIRECT_URL: https://chart-example.local/exp/
+  SITE_DOMAIN: chart-example.local
+  ACCOUNT_LOGOUT_REDIRECT_URL: /login/
 
 configs: {}
   # Override configmap files here (and delete the {} above), e.g.:
@@ -71,6 +82,9 @@ configs: {}
 secrets:
   googleAppCreds.json: |-
     {}
+  # Environment Variables
+  EMAIL_HOST_USER: ''
+  EMAIL_HOST_PASSWORD: ''
 
 postgresql:
   ## postgres image repository

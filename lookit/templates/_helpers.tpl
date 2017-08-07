@@ -24,10 +24,6 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "environment" }}
-- name: DJANGO_SETTINGS_MODULE
-  value: project.settings
-- name: GEVENT
-  value: '1'
 - name: DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
 - name: DB_USER
@@ -39,14 +35,16 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
     secretKeyRef:
       name: {{ template "postgresql.fullname" . }}
       key: postgres-password
-- name: GOOGLE_APPLICATION_CREDENTIALS
-  value: /etc/googleAppCreds.json
-- name: MEDIA_URL
-  value: {{ .Values.mediaUrl | quote }}
-- name: STATIC_URL
-  value: {{ .Values.staticUrl | quote }}
-- name: GS_BUCKET_NAME
-  value: {{ .Values.gsBucketName | quote }}
-- name: GS_PROJECT_ID
-  value: {{ .Values.gsProjectId | quote }}
+{{- range $key, $val := .Values.environment }}
+- name: {{ $key }}
+  value: {{ $val | quote }}
+{{- end }}
+{{- $fullname := include "fullname" . -}}
+{{- range tuple "EMAIL_HOST_USER" "EMAIL_HOST_PASSWORD" }}
+- name: {{ . }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ $fullname }}
+      key: {{ . }}
+{{- end }}
 {{- end -}}
