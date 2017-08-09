@@ -91,6 +91,7 @@ Overridable OSF volume mounts
 admin-local.py: /code/admin/base/settings/local.py
 api-local.py: /code/api/base/settings/local.py
 web-local.py: /code/website/settings/local.py
+addons-bitbucket-local.py: /code/addons/bitbucket/settings/local.py
 addons-box-local.py: /code/addons/box/settings/local.py
 addons-dataverse-local.py: /code/addons/dataverse/settings/local.py
 addons-dropbox-local.py: /code/addons/dropbox/settings/local.py
