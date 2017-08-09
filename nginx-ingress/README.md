@@ -47,7 +47,7 @@ Parameter | Description | Default
 --- | --- | ---
 `controller.name` | name of the controller component | `controller`
 `controller.image.repository` | controller container image repository | `gcr.io/google_containers/nginx-ingress-controller`
-`controller.image.tag` | controller container image tag | `0.8.3`
+`controller.image.tag` | controller container image tag | `0.9.0-beta11`
 `controller.image.pullPolicy` | controller container image pull policy | `IfNotPresent`
 `controller.config` | nginx ConfigMap entries | none
 `controller.hostNetwork` | If the nginx deployment / daemonset should run on the host's network namespace | false
