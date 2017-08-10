@@ -8,6 +8,53 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
+{{- define "preprint-services" }}
+engrxiv:
+  id: '203948234207242'
+  name: engrXiv
+psyarxiv:
+  id: '203948234207243'
+  name: PsyArXiv
+socarxiv:
+  id: '203948234207241'
+  name: SocArXiv
+agrixiv:
+  id: '203948234207244'
+  name: AgriXiv
+asu:
+  id: '203948234207254'
+  name: LiveData
+bitss:
+  id: '203948234207245'
+  name: BITSS
+focusarchive:
+  id: '203948234207248'
+  name: FocUS Archive
+lawarxiv:
+  id: '203948234207247'
+  name: LawArXiv
+lissa:
+  id: '203948234207249'
+  name: LISSA
+mindrxiv:
+  id: '203948234207250'
+  name: MindRxiv
+nutrixiv:
+  id: '203948234207255'
+  name: NutriXiv
+paleorxiv:
+  id: '203948234207251'
+  name: PaleorXiv
+scielo:
+  id: '203948234207246'
+  name: SciELO
+sportrxiv:
+  id: '203948234207252'
+  name: SportRxiv
+thesiscommons:
+  id: '203948234207253'
+  name: Thesis Commons
+{{- end -}}
 {{- define "inlineconfigs" }}
 shibboleth/shibboleth2.xml: |-
   <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
@@ -784,52 +831,6 @@ services/osf.json: |-
           }
       }
   }
-services/preprints-engrxiv.json: |-
-  {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207242,
-      "name": "engrXiv",
-      "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/)engrxiv.*",
-      "logo": "https://{{ .Values.casDomain }}/images/preprints-engrxiv-logo.png",
-      "evaluationOrder": 1000,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
-          ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "?campaign=engrxiv-preprints"
-                  ]
-              ]
-          }
-      }
-  }
 services/preprints-osf.json: |-
   {
       "@class": "org.jasig.cas.services.RegexRegisteredService",
@@ -876,14 +877,17 @@ services/preprints-osf.json: |-
           }
       }
   }
-services/preprints-psyarxiv.json: |-
+{{- $osfDomain := .Values.osfDomain -}}
+{{- $casDomain := .Values.casDomain -}}
+{{- range $key, $val := (include "preprint-services" . | fromYaml) }}
+services/preprints-{{ $key }}.json: |-
   {
       "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207243,
-      "name": "PsyArXiv",
+      "id": {{ $val.id }},
+      "name": "{{ $val.name }}",
       "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/)psyarxiv.*",
-      "logo": "https://{{ .Values.casDomain }}/images/preprints-psyarxiv-logo.png",
+      "serviceId": "^https://{{ $osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ $osfDomain }}(%2F|/)preprints(%2F|/){{ $key }}.*",
+      "logo": "https://{{ $casDomain }}/images/preprints-{{ $key }}-logo.png",
       "evaluationOrder": 1000,
       "attributeReleasePolicy": {
           "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
@@ -916,59 +920,16 @@ services/preprints-psyarxiv.json: |-
               "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
               "values": [
                   "java.util.HashSet", [
-                      "?campaign=psyarxiv-preprints"
+                      "?campaign={{ $key }}-preprints"
                   ]
               ]
           }
       }
   }
-services/preprints-socarxiv.json: |-
-  {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207241,
-      "name": "SocArXiv",
-      "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/)socarxiv.*",
-      "logo": "https://{{ .Values.casDomain }}/images/preprints-socarxiv-logo.png",
-      "evaluationOrder": 1000,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
-          ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "?campaign=socarxiv-preprints"
-                  ]
-              ]
-          }
-      }
-    }
 {{- end -}}
+
+{{- end -}}
+
 {{- define "fileconfigs" -}}
 {{- range $path, $bytes := .Files.Glob "files/**" }}
 {{ $path | trimPrefix "files/" }}: |-

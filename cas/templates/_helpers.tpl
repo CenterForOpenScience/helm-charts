@@ -97,10 +97,14 @@ services/oauth2.json: /code/etc/services/oauth2.json
 services/osf.json: /code/etc/services/osf.json
 services/osf-campaigns-erpc.json: /code/etc/services/osf-campaigns-erpc.json
 services/osf-campaigns-prereg.json: /code/etc/services/osf-campaigns-prereg.json
-services/preprints-engrxiv.json: /code/etc/services/preprints-engrxiv.json
 services/preprints-osf.json: /code/etc/services/preprints-osf.json
-services/preprints-psyarxiv.json: /code/etc/services/preprints-psyarxiv.json
-services/preprints-socarxiv.json: /code/etc/services/preprints-socarxiv.json
+#services/preprints-engrxiv.json: /code/etc/services/preprints-engrxiv.json
+#services/preprints-psyarxiv.json: /code/etc/services/preprints-psyarxiv.json
+#services/preprints-socarxiv.json: /code/etc/services/preprints-socarxiv.json
+{{- range $key, $val := (include "preprint-services" . | fromYaml) }}
+{{- $filename := printf "services/preprints-%s.json" $key }}
+{{ $filename }}: /code/etc/{{ $filename }}
+{{- end -}}
 {{- end -}}
 {{- define "jettyVolumeMounts" }}
 {{- range $key, $value := (include "jettyFilemapConfig" . | fromYaml) }}
