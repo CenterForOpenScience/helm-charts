@@ -16,12 +16,14 @@ rules:
     verbs:
       - get
       - list
+      - watch
       - create
       - delete
   - apiGroups:
       - ""
     resources:
       - pods/exec
+      - pods/log
     verbs:
       - get
 {{- end -}}
