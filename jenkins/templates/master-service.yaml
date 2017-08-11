@@ -1,0 +1,27 @@
+{{- if .Values.agent.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}-{{ .Values.master.name }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: {{ .Values.master.name }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.service.internalPort }}
+    targetPort: {{ .Values.service.internalPort }}
+    protocol: TCP
+    name: http
+  - port: {{ .Values.agent.listenerPort }}
+    targetPort: {{ .Values.agent.listenerPort }}
+    protocol: TCP
+    name: agent-listener
+  selector:
+    app: {{ template "name" . }}
+    component: {{ .Values.master.name }}
+    release: {{ .Release.Name }}
+{{- end }}
