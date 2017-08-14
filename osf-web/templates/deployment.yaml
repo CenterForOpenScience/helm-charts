@@ -25,10 +25,24 @@ spec:
         command:
         - /bin/sh
         - -c
-        - mkdir -p /static/preprints && cp -Rf /code/dist/* /static/preprints
+        - mkdir -p /static/preprints &&
+          {{- if hasKey .Values.configs "preprints-config.json" }}
+          sh /code/replace-ember-config.sh /code/config.json &&
+          {{- end }}
+          cp -Rf /code/dist/* /static/preprints
         volumeMounts:
         - mountPath: /static
           name: static-volume
+        {{- if hasKey .Values.configs "preprints-config.json" }}
+        - mountPath: /code/dist/scripts/replace-ember-config.sh
+          name: config-volume
+          subPath: replace-ember-config.sh
+          readOnly: true
+        - mountPath: /code/config.json
+          name: config-volume
+          subPath: preprints-config.json
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .Values.preprints.resources | indent 10 }}
       - name: registries
@@ -37,10 +51,24 @@ spec:
         command:
         - /bin/sh
         - -c
-        - mkdir -p /static/registries && cp -Rf /code/dist/* /static/registries
+        - mkdir -p /static/registries &&
+          {{- if hasKey .Values.configs "registries-config.json" }}
+          sh /code/replace-ember-config.sh /code/config.json &&
+          {{- end }}
+          cp -Rf /code/dist/* /static/registries
         volumeMounts:
         - mountPath: /static
           name: static-volume
+        {{- if hasKey .Values.configs "registries-config.json" }}
+        - mountPath: /code/dist/scripts/replace-ember-config.sh
+          name: config-volume
+          subPath: replace-ember-config.sh
+          readOnly: true
+        - mountPath: /code/config.json
+          name: config-volume
+          subPath: registries-config.json
+          readOnly: true
+        {{- end }}
         resources:
 {{ toYaml .Values.registries.resources | indent 10 }}
       containers:
