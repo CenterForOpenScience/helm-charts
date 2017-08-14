@@ -40,7 +40,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
   value: {{ $val | quote }}
 {{- end }}
 {{- $fullname := include "fullname" . -}}
-{{- range tuple "EMAIL_HOST_USER" "EMAIL_HOST_PASSWORD" }}
+{{- range tuple "EMAIL_HOST_USER" "EMAIL_HOST_PASSWORD" "RAVEN_DSN" }}
 - name: {{ . }}
   valueFrom:
     secretKeyRef:
