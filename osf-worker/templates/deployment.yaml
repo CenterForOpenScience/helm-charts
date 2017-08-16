@@ -19,10 +19,11 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
-        - /bin/sh
-        - -c
-        - python manage.py migrate --noinput --no-init-app && 
-          gosu www-data invoke celery_worker --hostname worker.%h
+        - gosu
+        - www-data
+        - invoke
+        - celery_worker
+        - --hostname worker.%h
         env:
         - name: DJANGO_SETTINGS_MODULE
           value: 'api.base.settings'

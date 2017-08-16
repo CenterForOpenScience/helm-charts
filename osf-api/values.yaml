@@ -29,6 +29,9 @@ uwsgi:
     #   cpu: 100m
     #   memory: 128Mi
 
+migration:
+  enabled: true
+
 service:
   name: http
   type: ClusterIP
