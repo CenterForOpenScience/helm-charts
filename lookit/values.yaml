@@ -72,6 +72,7 @@ environment:
   LOGIN_REDIRECT_URL: https://chart-example.local/exp/
   SITE_DOMAIN: chart-example.local
   ACCOUNT_LOGOUT_REDIRECT_URL: /login/
+  AWS_DEFAULT_REGION: 'us-east-1'
 
 configs: {}
   # Override configmap files here (and delete the {} above), e.g.:
@@ -83,6 +84,8 @@ secrets:
   googleAppCreds.json: |-
     {}
   # Environment Variables
+  AWS_ACCESS_KEY_ID: 'AKIAIOSFODNN7EXAMPLE'
+  AWS_SECRET_ACCESS_KEY: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
   EMAIL_HOST_USER: ''
   EMAIL_HOST_PASSWORD: ''
   RAVEN_DSN: ''
