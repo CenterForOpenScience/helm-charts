@@ -23,7 +23,8 @@ spec:
         - www-data
         - invoke
         - celery_worker
-        - --hostname worker.%h
+        - --hostname
+        - worker.%h
         env:
         - name: DJANGO_SETTINGS_MODULE
           value: 'api.base.settings'
