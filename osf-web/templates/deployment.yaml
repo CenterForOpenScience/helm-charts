@@ -18,59 +18,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
-      initContainers:
-      - name: preprints
-        image: "{{ .Values.preprints.image.repository }}:{{ .Values.preprints.image.tag }}"
-        imagePullPolicy: {{ .Values.preprints.image.pullPolicy }}
-        command:
-        - /bin/sh
-        - -c
-        - mkdir -p /static/preprints &&
-          {{- if hasKey .Values.configs "preprints-config.json" }}
-          sh /code/replace-ember-config.sh /code/config.json &&
-          {{- end }}
-          cp -Rf /code/dist/* /static/preprints
-        volumeMounts:
-        - mountPath: /static
-          name: static-volume
-        {{- if hasKey .Values.configs "preprints-config.json" }}
-        - mountPath: /code/dist/scripts/replace-ember-config.sh
-          name: config-volume
-          subPath: replace-ember-config.sh
-          readOnly: true
-        - mountPath: /code/config.json
-          name: config-volume
-          subPath: preprints-config.json
-          readOnly: true
-        {{- end }}
-        resources:
-{{ toYaml .Values.preprints.resources | indent 10 }}
-      - name: registries
-        image: "{{ .Values.registries.image.repository }}:{{ .Values.registries.image.tag }}"
-        imagePullPolicy: {{ .Values.registries.image.pullPolicy }}
-        command:
-        - /bin/sh
-        - -c
-        - mkdir -p /static/registries &&
-          {{- if hasKey .Values.configs "registries-config.json" }}
-          sh /code/replace-ember-config.sh /code/config.json &&
-          {{- end }}
-          cp -Rf /code/dist/* /static/registries
-        volumeMounts:
-        - mountPath: /static
-          name: static-volume
-        {{- if hasKey .Values.configs "registries-config.json" }}
-        - mountPath: /code/dist/scripts/replace-ember-config.sh
-          name: config-volume
-          subPath: replace-ember-config.sh
-          readOnly: true
-        - mountPath: /code/config.json
-          name: config-volume
-          subPath: registries-config.json
-          readOnly: true
-        {{- end }}
-        resources:
-{{ toYaml .Values.registries.resources | indent 10 }}
       containers:
       - name: nginx
         image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -94,6 +41,14 @@ spec:
           name: static-volume
           readOnly: true
         - mountPath: /nginx/nginx.conf
+          name: config-volume
+          subPath: nginx.conf
+          readOnly: true
+        - mountPath: /nginx/preprints.conf
+          name: config-volume
+          subPath: nginx.conf
+          readOnly: true
+        - mountPath: /nginx/registries.conf
           name: config-volume
           subPath: nginx.conf
           readOnly: true

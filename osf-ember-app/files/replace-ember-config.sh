@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 ###
-# usage: replace-ember-config.sh /path/to/config.json
+# usage: replace-ember-config.sh /path/to/config.json /path/to/index.html
 ###
 
 if [ ! -e $1 ]; then
@@ -29,4 +29,4 @@ urlencode() {
 
 encoded=$(urlencode "$(<${1})")
 
-sed -i .bak 's/\(meta name=".*\/config\/environment" content="\)\(.*\)\("\)/\1'"${encoded}"'\3/' /code/dist/index.html
+sed -i .bak 's/\(meta name=".*\/config\/environment" content="\)\(.*\)\("\)/\1'"${encoded}"'\3/' ${2}

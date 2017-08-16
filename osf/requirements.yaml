@@ -36,6 +36,20 @@ dependencies:
     tags:
       - front-end
       - osf-api
+  - name: osf-ember-app
+    version: 0.1.0
+    alias: osf-ember-preprints
+    repository: file://../osf-ember-app
+    condition: osf-ember-preprints.enabled, global.osf-ember-preprints.enabled
+    tags:
+      - front-end
+  - name: osf-ember-app
+    version: 0.1.0
+    alias: osf-ember-registries
+    repository: file://../osf-ember-app
+    condition: osf-ember-registries.enabled, global.osf-ember-registries.enabled
+    tags:
+      - front-end
   - name: osf-sharejs
     version: 0.1.0
     repository: file://../osf-sharejs

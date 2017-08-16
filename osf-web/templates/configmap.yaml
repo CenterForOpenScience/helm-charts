@@ -8,7 +8,21 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{- range $key, $value := merge .Values.configs ((.Files.Glob "files/*").AsConfig | fromYaml) }}
+{{- define "inlineconfigs" }}
+preprints.conf: |-
+  location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
+      proxy_redirect off;
+      proxy_buffering off;
+      proxy_pass http://{{ include "osf-ember-preprints.fullname" . }}/
+  }
+registries.conf: |-
+  location /registries/ {
+      proxy_redirect off;
+      proxy_buffering off;
+      proxy_pass http://{{ include "osf-ember-registries.fullname" . }}/
+  }
+{{- end }}
+{{- range $key, $value := merge .Values.configs (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
   {{ $key }}: |-
 {{ $value | indent 4 }}
 {{- end }}
