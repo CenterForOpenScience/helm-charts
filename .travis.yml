@@ -1,21 +1,27 @@
 language: generic
 
 dist: trusty
-sudo: required
+sudo: false
+
+env:
+  global:
+  - HELM_LATEST_VERSION="v2.5.1"
 
 install:
-- curl -o- -L https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+- wget http://storage.googleapis.com/kubernetes-helm/helm-${HELM_LATEST_VERSION}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
+- tar xzf /tmp/helm.tar.gz -C /tmp --strip-components=1
+- chmod +x /tmp/helm
 
 before_script:
-- helm init --client-only
-- helm repo add stable https://kubernetes-charts.storage.googleapis.com
+- /tmp/helm init --client-only
+- /tmp/helm repo add stable https://kubernetes-charts.storage.googleapis.com
 - |
   for chart in $(find . -name 'requirements.yaml'); do
-    helm dep build $(dirname ${chart})
+    /tmp/helm dep build $(dirname ${chart})
   done
 
 script:
-- helm lint */
+- /tmp/helm lint */
 
 after_success:
 - |
