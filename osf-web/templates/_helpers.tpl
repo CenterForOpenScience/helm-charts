@@ -72,3 +72,11 @@ addons-zotero-local.py: /code/addons/zotero/settings/local.py
   readOnly: true
 {{- end -}}
 {{- end -}}
+
+{{- define "osf-ember-preprints.fullname" -}}
+{{ .Values.preprintsDomain }}
+{{- end -}}
+
+{{- define "osf-ember-registries.fullname" -}}
+{{ .Values.registriesDomain }}
+{{- end -}}

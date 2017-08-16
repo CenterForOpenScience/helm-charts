@@ -8,7 +8,49 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{- range $key, $value := merge .Values.configs ((.Files.Glob "files/*").AsConfig | fromYaml) }}
+{{- define "inlineconfigs" }}
+preprints.conf: |-
+  location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
+      # root /static/;
+      # index index.html;
+      
+      if (-f $request_filename) {
+          add_header Cache-Control "public, max-age=31536000";
+          break;
+      }
+
+      add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
+      add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+      add_header Pragma "no-cache";
+      
+      rewrite (.*) /index.html break;
+      
+      proxy_redirect off;
+      proxy_buffering off;
+      proxy_pass http://{{ include "osf-ember-preprints.fullname" . }}/
+  }
+registries.conf: |-
+  location /registries/ {
+      # root /static/;
+      # index index.html;
+
+      if (-f $request_filename) {
+          add_header Cache-Control "public, max-age=31536000";
+          break;
+      }
+
+      add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
+      add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+      add_header Pragma "no-cache";
+      
+      rewrite (.*) /index.html break;
+      
+      proxy_redirect off;
+      proxy_buffering off;
+      proxy_pass http://{{ include "osf-ember-registries.fullname" . }}/
+  }
+{{- end }}
+{{- range $key, $value := merge .Values.configs (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
   {{ $key }}: |-
 {{ $value | indent 4 }}
 {{- end }}

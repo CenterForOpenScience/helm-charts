@@ -1,0 +1,85 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      initContainers:
+        - name: ember
+          image: "{{ .Values.ember.image.repository }}:{{ .Values.ember.image.tag }}"
+          imagePullPolicy: {{ .Values.ember.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - {{ if hasKey .Values.configs "config.json" -}}
+              sh /code/replace-ember-config.sh /code/config.json /code/dist/index.html &&
+              {{- end }}
+              cp -Rf /code/dist/* /static/
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+            {{- if hasKey .Values.configs "config.json" }}
+            - mountPath: /code/dist/scripts/replace-ember-config.sh
+              name: config-volume
+              subPath: replace-ember-config.sh
+              readOnly: true
+            - mountPath: /code/config.json
+              name: config-volume
+              subPath: config.json
+              readOnly: true
+            {{- end }}
+        resources:
+{{ toYaml .Values.preprints.resources | indent 10 }}
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /nginx/nginx.conf
+            - -g
+            - daemon off;
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+              readOnly: true
+            - mountPath: /nginx/nginx.conf
+              name: config-volume
+              subPath: nginx.conf
+              readOnly: true
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.internalPort }}
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+      volumes:
+        - name: static-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: {{ template "fullname" . }}
+    {{- if .Values.nginx.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nginx.nodeSelector | indent 8 }}
+    {{- end }}
