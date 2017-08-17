@@ -46,11 +46,11 @@ spec:
           readOnly: true
         - mountPath: /nginx/preprints.conf
           name: config-volume
-          subPath: nginx.conf
+          subPath: preprints.conf
           readOnly: true
         - mountPath: /nginx/registries.conf
           name: config-volume
-          subPath: nginx.conf
+          subPath: registries.conf
           readOnly: true
         - mountPath: /nginx/robots.txt
           name: config-volume

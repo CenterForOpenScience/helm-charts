@@ -87,6 +87,10 @@ Overridable OSF database settings
     secretKeyRef:
       name: {{ template "postgresql.fullname" . }}
       key: postgres-password
+- name: OSF_PREPRINTS_URL
+  value: http://{{ template "osf-ember-preprints.fullname" . }}/
+- name: OSF_REGISTRIES_URL
+  value: http://{{ template "osf-ember-registries.fullname" . }}/
 - name: RABBITMQ_URL
   value: amqp://{{ template "rabbitmq.fullname" . }}:5672
 {{- end -}}
