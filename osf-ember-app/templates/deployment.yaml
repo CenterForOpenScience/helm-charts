@@ -41,8 +41,8 @@ spec:
               subPath: config.json
               readOnly: true
             {{- end }}
-        resources:
-{{ toYaml .Values.preprints.resources | indent 10 }}
+          resources:
+{{ toYaml .Values.ember.resources | indent 12 }}
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
