@@ -16,6 +16,8 @@ spec:
         chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
         release: {{ .Release.Name }}
         heritage: {{ .Release.Service }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       initContainers:
         - name: ember
@@ -32,7 +34,7 @@ spec:
             - mountPath: /static
               name: static-volume
             {{- if hasKey .Values.configs "config.json" }}
-            - mountPath: /code/dist/scripts/replace-ember-config.sh
+            - mountPath: /code/replace-ember-config.sh
               name: config-volume
               subPath: replace-ember-config.sh
               readOnly: true

@@ -11,12 +11,14 @@ data:
 {{- define "inlineconfigs" }}
 preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
+      rewrite ^/preprints/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
       proxy_pass http://{{ include "osf-ember-preprints.fullname" . }};
   }
 registries.conf: |-
   location /registries/ {
+      rewrite ^/registries/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
       proxy_pass http://{{ include "osf-ember-registries.fullname" . }};
