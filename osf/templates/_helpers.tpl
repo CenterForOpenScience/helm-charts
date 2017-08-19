@@ -44,7 +44,11 @@ Create a default fully qualified osf-ember-preprints name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "osf-ember-preprints.fullname" -}}
+{{- if .Values.preprintsDomain -}}
+{{- .Values.preprintsDomain -}}
+{{- else -}}
 {{- printf "%s-%s" .Release.Name "osf-ember-preprints" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -52,7 +56,11 @@ Create a default fully qualified osf-ember-registries name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "osf-ember-registries.fullname" -}}
+{{- if .Values.registriesDomain -}}
+{{- .Values.registriesDomain -}}
+{{- else -}}
 {{- printf "%s-%s" .Release.Name "osf-ember-registries" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
