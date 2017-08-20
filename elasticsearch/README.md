@@ -63,6 +63,8 @@ The following tables lists the configurable parameters of the elasticsearch char
 | `client.serviceType`                 | Client service type                     | `ClusterIP`                         |
 | `master.name`                        | Master component name                   | `master`                            |
 | `master.replicas`                    | Master node replicas (deployment)       | `2`                                 |
+| `master.storage`                     | Master persistent volume size           | `15Gi`                              |
+| `master.storageClass`                | Master persistent volume Class          | `nil`                               |
 | `master.resources`                   | Master node resources requests & limits | `{} - cpu limit must be an integer` |
 | `master.heapSize`                    | Master node heap size                   | `128m`                              |
 | `master.name`                        | Data component name                     | `data`                              |

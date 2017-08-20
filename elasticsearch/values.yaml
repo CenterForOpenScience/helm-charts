@@ -24,6 +24,8 @@ master:
   name: master
   replicas: 2
   heapSize: "128m"
+  storage: "15Gi"
+  # storageClass: "ssd"
   resources:
     limits:
       cpu: "1"
