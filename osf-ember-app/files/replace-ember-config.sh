@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 ###
 # usage: replace-ember-config.sh /path/to/config.json /path/to/index.html
@@ -15,9 +15,8 @@ urlencode() {
     old_lc_collate=$LC_COLLATE
     LC_COLLATE=C
 
-    local length="${#1}"
-    for (( i = 0; i < length; i++ )); do
-        local c="${1:i:1}"
+    for i in $(seq 1 ${#1}); do
+        local c=$(echo $1 | head -c $i | tail -c 1)
         case $c in
             [a-zA-Z0-9.~_-]) printf "$c" ;;
             *) printf '%%%02X' "'$c" ;;
@@ -27,6 +26,6 @@ urlencode() {
     LC_COLLATE=$old_lc_collate
 }
 
-encoded=$(urlencode "$(<${1})")
+encoded=$(urlencode "$(cat ${1})")
 
-sed -i .bak 's/\(meta name=".*\/config\/environment" content="\)\(.*\)\("\)/\1'"${encoded}"'\3/' ${2}
+sed -i 's/\(meta name=".*\/config\/environment" content="\)\(.*\)\("\)/\1'"${encoded}"'\3/' $2
