@@ -69,10 +69,10 @@ spec:
             httpGet:
               path: /healthz
               port: {{ .Values.service.internalPort }}
-          readinessProbe:
-            httpGet:
-              path: /
-              port: {{ .Values.service.internalPort }}
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: {{ .Values.service.internalPort }}
           resources:
 {{ toYaml .Values.nginx.resources | indent 12 }}
       volumes:
