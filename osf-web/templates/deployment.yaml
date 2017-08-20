@@ -18,6 +18,19 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
+      initContainers:
+      - name: uwsgi-static
+        image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
+        imagePullPolicy: {{ .Values.uwsgi.image.pullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - mkdir -p /static/code/website &&
+          cp -Rf /code/website/static /static/code/website &&
+          find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
+        volumeMounts:
+        - mountPath: /static
+          name: static-volume
       containers:
       - name: nginx
         image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -69,15 +82,6 @@ spec:
         - :{{ .Values.service.externalPort }}
         env:
         {{- include "osf.dbSettings" . | indent 8 }}
-        lifecycle:
-          postStart:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - mkdir -p /static/code/website &&
-                cp -Rf /code/website/static /static/code/website &&
-                find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
         ports:
         - name: wsgi
           containerPort: {{ .Values.service.externalPort }}
@@ -88,8 +92,6 @@ spec:
             port: {{ .Values.service.externalPort }} 
           initialDelaySeconds: 10
         volumeMounts:
-        - mountPath: /static
-          name: static-volume
         - mountPath: /etc/uwsgi/uwsgi.ini
           name: config-volume
           subPath: uwsgi.ini
