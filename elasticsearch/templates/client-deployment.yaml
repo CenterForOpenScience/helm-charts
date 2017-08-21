@@ -1,34 +1,53 @@
 apiVersion: apps/v1beta1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     app: {{ template "name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.master.name }}"
+    component: "{{ .Values.client.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: {{ template "master.fullname" . }}
+  name: {{ template "client.fullname" . }}
 spec:
-  serviceName: {{ template "master.fullname" . }}
-  replicas: {{ .Values.master.replicas }}
+  replicas: {{ .Values.client.replicas }}
   template:
     metadata:
       labels:
         app: {{ template "name" . }}
-        component: "{{ .Values.master.name }}"
+        component: "{{ .Values.client.name }}"
         release: {{ .Release.Name }}
     spec:
       serviceAccountName: {{ template "fullname" . }}
+      {{- if eq .Values.client.antiAffinity "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: "{{ template "name" . }}"
+                  release: "{{ .Release.Name }}"
+                  component: "{{ .Values.client.name }}"
+      {{- else if eq .Values.client.antiAffinity "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: "{{ template "name" . }}"
+                  release: "{{ .Release.Name }}"
+                  component: "{{ .Values.client.name }}"
+      {{- end }}
+      initContainers:
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
       # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
-      initContainers:
-      - name: sysctl
-        image: busybox
-        imagePullPolicy: Always
-        command:
-        - sysctl
-        - -w
-        - vm.max_map_count=262144
+      - name: "sysctl"
+        image: "busybox"
+        imagePullPolicy: "Always"
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
         securityContext:
           privileged: true
       containers:
@@ -44,18 +63,22 @@ spec:
               fieldPath: metadata.namespace
         - name: NODE_DATA
           value: "false"
+        - name: NODE_INGEST
+          value: "false"
+        - name: NODE_MASTER
+          value: "false"
         - name: PROCESSORS
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
         - name: ES_JAVA_OPTS
-          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.master.heapSize }} -Xmx{{ .Values.master.heapSize }}"
-        {{- range $key, $value :=  .Values.env }}
+          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.client.heapSize }} -Xmx{{ .Values.client.heapSize }}"
+        {{- range $key, $value :=  .Values.cluster.env }}
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
         resources:
-{{ toYaml .Values.master.resources | indent 12 }}
+{{ toYaml .Values.client.resources | indent 12 }}
         readinessProbe:
           httpGet:
             path: /_cluster/health?local=true
@@ -64,11 +87,11 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
         ports:
+        - containerPort: 9200
+          name: http
         - containerPort: 9300
           name: transport
         volumeMounts:
-        - mountPath: /usr/share/elasticsearch/data
-          name: data
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
@@ -79,14 +102,3 @@ spec:
       - name: config
         configMap:
           name: {{ template "fullname" . }}
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ ReadWriteOnce ]
-    {{- if .Values.master.storageClass }}
-      storageClassName: "{{ .Values.master.storageClass }}"
-    {{- end }}
-      resources:
-        requests:
-          storage: "{{ .Values.master.storage }}"

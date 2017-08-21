@@ -37,4 +37,4 @@ helm del --purge <release-name>
 kubernetes/charts@ebdfb4e11aca5e126cef0e8becbfa7ecc18d7bf1 : stable/nginx-ingress
 
 ## elasticsearch
-kubernetes/charts@ebdfb4e11aca5e126cef0e8becbfa7ecc18d7bf1 : incubator/elasticsearch
+github.com/cos-forks/kubernetes-charts/commit/ab03204a745de67a9e8d3a22c8a8519eb1fef4c7 : incubator/elasticsearch
