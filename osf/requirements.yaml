@@ -12,7 +12,7 @@ dependencies:
     tags:
       - back-end
   - name: elasticsearch
-    version: 0.1.6
+    version: 0.1.9
     repository: file://../elasticsearch
     condition: elasticsearch.enabled, global.elasticsearch.enabled
     tags:
