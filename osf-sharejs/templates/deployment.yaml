@@ -13,68 +13,72 @@ spec:
     metadata:
       labels:
         app: {{ template "name" . }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
         release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       containers:
-      {{- with .Values.nginx }}
-      - name: nginx
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command:
-        - nginx
-        - -c
-        - /nginx/nginx.conf
-        - -g
-        - daemon off;
-        resources:
-{{ toYaml .resources | indent 10 }}
-        ports:
-        - name: http
-          containerPort: 80
-        volumeMounts:
-        - mountPath: /nginx/nginx.conf
-          name: config-volume
-          subPath: nginx.conf
-          readOnly: true
-        - mountPath: /nginx/robots.txt
-          name: config-volume
-          subPath: robots.txt
-          readOnly: true
-      {{- end }}
-      {{- with .Values.nodejs }}
-      - name: nodejs
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command:
-        - invoke
-        args:
-        - sharejs
-        resources:
-{{ toYaml .resources | indent 10 }}
-       {{- end }}
-        env:
-        - name: SHAREJS_SERVER_HOST
-          value: {{ .Values.serverHost }}
-        - name: SHAREJS_SERVER_PORT
-          value: "{{ .Values.serverPort }}"
-        - name: SHAREJS_DB_NAME
-          value: {{ .Values.dbName }}
-        - name: SHAREJS_DB_URL
-          value: "mongodb://{{ include "mongodb.fullname" . }}:27017/{{ .Values.dbName }}"
-        - name: SHAREJS_CORS_ALLOW_ORIGIN
-          value: {{ .Values.corsAllowOrigin }}
-        - name: SHAREJS_SENTRY_DSN
-          value: {{ .Values.sentryDSN }}
-        ports:
-        - name: http
-          containerPort: 7007
+        {{- with .Values.nginx }}
+        - name: nginx
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          imagePullPolicy: {{ .image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /nginx/nginx.conf
+            - -g
+            - daemon off;
+          resources:
+{{ toYaml .resources | indent 12 }}
+        {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.internalPort }}
+          volumeMounts:
+            - mountPath: /nginx/nginx.conf
+              name: config-volume
+              subPath: nginx.conf
+              readOnly: true
+            - mountPath: /nginx/robots.txt
+              name: config-volume
+              subPath: robots.txt
+              readOnly: true
+        {{- with .Values.nodejs }}
+        - name: nodejs
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          imagePullPolicy: {{ .image.pullPolicy }}
+          command:
+            - invoke
+            - sharejs
+          resources:
+{{ toYaml .resources | indent 12 }}
+        {{- end }}
+          env:
+            - name: SHAREJS_SERVER_HOST
+              value: {{ .Values.serverHost }}
+            - name: SHAREJS_SERVER_PORT
+              value: "{{ .Values.service.externalPort }}"
+            - name: SHAREJS_DB_NAME
+              value: {{ .Values.dbName }}
+            - name: SHAREJS_DB_URL
+              value: "mongodb://{{ include "mongodb.fullname" . }}:27017/{{ .Values.mongodb.mongodbDatabase }}"
+            - name: SHAREJS_CORS_ALLOW_ORIGIN
+              value: {{ .Values.corsAllowOrigin }}
+            - name: SHAREJS_SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "fullname" . }}
+                  key: sentryDSN
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.externalPort }}
       volumes:
-      - name: config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-
+        - name: config-volume
+          configMap:
+            name: {{ template "fullname" . }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}
