@@ -12,6 +12,7 @@ spec:
         app: {{ template "name" . }}
         release: {{ .Release.Name }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
