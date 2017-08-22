@@ -50,16 +50,16 @@ ingress:
     #     - chart-example.local
 
 serverHost: '0.0.0.0'
-serverPort: '7007'
-dbName: 'sharejs'
 corsAllowOrigin: 'https://staging-n.osf.io'
-sentryDSN: 'https://'
 
 configs: {}
   # Override configmap files here (and delete the {} above), e.g.:
   # robots.txt: |-
   #   User-agent: *
   #   Disallow: /
+
+secrets:
+  sentryDSN: 'https://'
 
 mongodb:
   ## Bitnami MongoDB image version
