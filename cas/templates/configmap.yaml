@@ -286,6 +286,11 @@ cas.properties: |-
   ##
   # Authentication Delegation: Clients
   #
+  # CAS: Ferris State University
+  cas.ferris.login.url=https://lpcas.ferris.edu/cas-web/login
+  cas.ferris.client.name=ferris
+  cas.ferris.cas.protocol=CAS20
+  #
   # CAS: Oklahoma State University
   cas.okstate.login.url=${CAS_OKSTATE_LOGIN_URL:https://stgcas.okstate.edu/cas/login}
   cas.okstate.client.name=${CAS_OKSTATE_CLIENT_NAME:okstate}
