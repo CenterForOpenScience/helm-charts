@@ -5,6 +5,7 @@
 image:
   repository: "centerforopenscience/elasticsearch"
   tag: "5.4"
+  # tag: "2.4"
   pullPolicy: "Always"
 
 cluster:
@@ -20,30 +21,30 @@ client:
   name: client
   replicas: 2
   serviceType: ClusterIP
-  heapSize: "128m"
+  heapSize: "512m"
   antiAffinity: "soft"
   resources:
     limits:
       cpu: "1"
-      memory: "512Mi"
+      memory: "1024Mi"
     requests:
       cpu: "25m"
-      memory: "256Mi"
+      memory: "512Mi"
 
 master:
   name: master
   replicas: 3
-  heapSize: "128m"
-  storage: "10Gi"
+  heapSize: "512m"
+  storage: "4Gi"
   # storageClass: "ssd"
   antiAffinity: "soft"
   resources:
     limits:
       cpu: "1"
-      memory: "512Mi"
+      memory: "1024Mi"
     requests:
       cpu: "25m"
-      memory: "256Mi"
+      memory: "512Mi"
 
 data:
   name: data
@@ -59,7 +60,7 @@ data:
       memory: "2048Mi"
     requests:
       cpu: "25m"
-      memory: "1792Mi"
+      memory: "1536Mi"
 
 ## Install Default RBAC roles and bindings
 rbac:
