@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{- define "inlineconfigs" }}
+nginx.conf: |
+  user  nginx;
+  worker_processes  1;
+
+  error_log  /var/log/nginx/error.log warn;
+  pid        /var/run/nginx.pid;
+
+  events {
+      worker_connections  1024;
+  }
+
+  http {
+      server {
+          listen {{ .Values.service.internalPort }};
+
+          root /code;
+          client_max_body_size 10M;
+
+          location = /healthz {
+              access_log off;
+              return 200;
+          }
+
+          location / {
+              #setting prerender as a variable forces DNS resolution since nginx caches IPs and doesnt play well with load balancing
+              rewrite .* /https://$host$request_uri? break;
+              proxy_pass http://127.0.0.1:{{ .Values.service.externalPort }};
+          }
+      }
+  }
+{{- end }}
+{{- range $key, $value := merge .Values.configs (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+{{- end }}
