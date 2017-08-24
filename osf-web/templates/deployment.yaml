@@ -69,6 +69,10 @@ spec:
           name: config-volume
           subPath: robots.txt
           readOnly: true
+        - mountPath: /nginx/prerender.conf
+          name: config-volume
+          subPath: prerender.conf
+          readOnly: true
         resources:
 {{ toYaml .Values.nginx.resources | indent 10 }}
       - name: uwsgi
