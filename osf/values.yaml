@@ -1,161 +1,435 @@
-back-end: true
-front-end: true
+# # preprintsDomain: preprints-chart.fqdn
+# # registriesDomain: registries-chart.fqdn
 
-global:
-  postgresDatabase: ''
-  postgresUser: ''
+image:
+  repository: quay.io/centerforopenscience/osf
+  tag: develop
+  pullPolicy: Always
 
-secrets:
-  SENSITIVE_DATA_SALT: ''
-  SENSITIVE_DATA_SECRET: ''
-  admin-local.py: |-
-    # -*- coding: utf-8 -*-
-    import os
-
-    # TBD...
-  api-local.py: |-
-    # -*- coding: utf-8 -*-
-    import os
-
-    # TBD...
-  web-local.py: |-
-    # -*- coding: utf-8 -*-
-    import os
-
-    # TBD...
-  addons-bitbucket-local.py: |-
-    # -*- coding: utf-8 -*-
-    CLIENT_ID = ''     # called 'Key'
-    CLIENT_SECRET = '' # called 'Secret'
-  addons-box-local.py: |-
-    # -*- coding: utf-8 -*-
-    BOX_KEY = ''
-    BOX_SECRET = ''
-  addons-dataverse-local.py: |-
-    # -*- coding: utf-8 -*-
-    HOST = ''
-  addons-dropbox-local.py: |-
-    # -*- coding: utf-8 -*-
-    DROPBOX_KEY = ''
-    DROPBOX_SECRET = ''
-  addons-figshare-local.py: |-
-    # -*- coding: utf-8 -*-
-    CLIENT_ID = ''
-    CLIENT_SECRET = ''
-  addons-github-local.py: |-
-    # -*- coding: utf-8 -*-
-    CLIENT_ID = ''
-    CLIENT_SECRET = ''
-  addons-googledrive-local.py: |-
-    # -*- coding: utf-8 -*-
-    CLIENT_ID = ''
-    CLIENT_SECRET = ''
-  addons-mendeley-local.py: |-
-    # -*- coding: utf-8 -*-
-    MENDELEY_CLIENT_ID = ''
-    MENDELEY_CLIENT_SECRET = ''
-  addons-osfstorage-local.py: |-
-    # -*- coding: utf-8 -*-
-    WATERBUTLER_CREDENTIALS = {
-        'storage': {
-            'region': '',
-            'username': '',
-            'token': '',
-            'temp_key': '',
-        },
-        'parity': {
-            'region': '',
-            'username': '',
-            'token': '',
-            'temp_key': '',
-        },
-        'archive': {
-            'access_key': '',
-            'secret_key': '',
-        },
-    }
-
-    WATERBUTLER_SETTINGS = {
-        'storage': {
-            'provider': '',
-            'container': '',
-            'use_public': True,
-        },
-        'parity': {
-            'provider': '',
-            'container': '',
-            'use_public': True,
-        },
-        'archive': {
-            'vault': '',
-        },
-    }
-
-    WATERBUTLER_RESOURCE = 'container'
-  addons-wiki-local.py: |-
-    # -*- coding: utf-8 -*-
-    from datetime import datetime
-
-    SHAREJS_URL = ''
-    WIKI_CHANGE_DATE = datetime.utcfromtimestamp('')
-  addons-zotero-local.py: |-
-    # -*- coding: utf-8 -*-
-    ZOTERO_CLIENT_ID = ''
-    ZOTERO_CLIENT_SECRET = ''
-
-elasticsearch:
+nginx:
   image:
-    repository: "jetstack/elasticsearch-pet"
-    tag: "2.4.0"
-    pullPolicy: "Always"
+    repository: nginx
+    tag: "1"
+    pullPolicy: Always
 
-  client:
-    name: client
-    replicas: 2
-    serviceType: ClusterIP
-    heapSize: "128m"
+ingress:
+  ## If true, Ingress will be created
+  ##
+  enabled: false
+
+  ## Ingress annotations
+  ##
+  annotations: {}
+  #   kubernetes.io/ingress.class: nginx
+  #   kubernetes.io/tls-acme: 'true'
+
+  ## Ingress TLS configuration
+  ## Secrets must be manually created in the namespace
+  ##
+  tls: []
+  #   - secretName: example-tls
+  #     hosts:
+  #       - example.domain.com
+
+admin:
+  enabled: true
+  name: admin
+  replicaCount: 1
+
+  nginx:
     resources: {}
       # limits:
       #   cpu: "1"
-      #   memory: "512Mi"
+      #   memory: 256Mi
       # requests:
-      #   cpu: "25m"
-      #   memory: "256Mi"
+      #   cpu: 100m
+      #   memory: 128Mi
 
-  master:
-    name: master
-    replicas: 2
-    heapSize: "128m"
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  service:
+    name: http
+    type: ClusterIP
+    externalPort: 8000
+    internalPort: 80
+
+  ingress:
+    ## component server Ingress hostnames
+    ## Must be provided if Ingress is enabled
+    ##
+    hosts: []
+    #   - example.domain.com
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env:
+    ALLOWED_HOSTS: "*"
+
+api:
+  enabled: true
+  name: api
+  replicaCount: 1
+
+  nginx:
     resources: {}
       # limits:
       #   cpu: "1"
-      #   memory: "512Mi"
+      #   memory: 256Mi
       # requests:
-      #   cpu: "25m"
-      #   memory: "256Mi"
+      #   cpu: 100m
+      #   memory: 128Mi
 
-  data:
-    name: data
-    replicas: 3
-    heapSize: "1536m"
-    storage: "30Gi"
-    # storageClass: "ssd"
-    terminationGracePeriodSeconds: 3600
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  service:
+    name: http
+    type: ClusterIP
+    externalPort: 8000
+    internalPort: 80
+
+  ingress:
+    ## component server Ingress hostnames
+    ## Must be provided if Ingress is enabled
+    ##
+    hosts: []
+    #   - example.domain.com
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env:
+    ALLOWED_HOSTS: "*"
+
+beat:
+  enabled: true
+  name: beat
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+  persistence:
+    enabled: true
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 4Gi
+
+collectstatic:
+  enabled: false
+  name: collectstatic
+
+  resources: {}
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+migration:
+  enabled: true
+  name: migration
+
+  resources: {}
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+sharejs:
+  enabled: true
+  name: sharejs
+  # replicaCount: 1
+
+  nginx:
     resources: {}
       # limits:
       #   cpu: "1"
-      #   memory: "512Mi"
+      #   memory: 256Mi
       # requests:
-      #   cpu: "25m"
-      #   memory: "256Mi"
+      #   cpu: 100m
+      #   memory: 128Mi
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  service:
+    name: http
+    type: ClusterIP
+    externalPort: 7007
+    internalPort: 80
+
+  env: {}
+
+  ingress:
+    ## component server Ingress hostnames
+    ## Must be provided if Ingress is enabled
+    ##
+    hosts: []
+    #   - example.domain.com
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+web:
+  enabled: true
+  name: web
+  replicaCount: 1
+
+  nginx:
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: 256Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  service:
+    name: http
+    type: ClusterIP
+    externalPort: 5000
+    internalPort: 80
+
+  ingress:
+    ## component server Ingress hostnames
+    ## Must be provided if Ingress is enabled
+    ##
+    hosts: []
+    #   - example.domain.com
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+worker:
+  enabled: true
+  name: worker
+  replicaCount: 1
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+configEnvs:
+  DEBUG: ""
+  # GEVENT: "1"
+
+configFiles: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  #robots.txt: |-
+  #  User-agent: *
+  #  Disallow: /
+
+secretEnvs: {}
+  # SENDGRID_API_KEY: ""
+  # RAVEN_DSN: ""
+
+secretFiles: {}
+  # admin-local.py: |-
+  #   ...
+  # api-local.py: |-
+  #   ...
+  # web-local.py: |-
+  #   ...
+  # addons-bitbucket-local.py: |-
+  #   ...
+  # addons-box-local.py: |-
+  #   ...
+  # addons-dataverse-local.py: |-
+  #   ...
+  # addons-dropbox-local.py: |-
+  #   ...
+  # addons-github-local.py: |-
+  #   ...
+  # addons-googledrive-local.py: |-
+  #   ...
+  # addons-osfstorage-local.py: |-
+  #   ...
+  # addons-wiki-local.py: |-
+  #   ...
+  # addons-zotero-local.py: |-
+  #   ...
+
+volumeMounts:
+  - mountPath: /code/admin/base/settings/local.py
+    name: secret-volume
+    subPath: admin-local.py
+    readOnly: true
+  - mountPath: /code/api/base/settings/local.py
+    name: secret-volume
+    subPath: api-local.py
+    readOnly: true
+  - mountPath: /code/website/settings/local.py
+    name: secret-volume
+    subPath: web-local.py
+    readOnly: true
+  - mountPath: /code/addons/bitbucket/settings/local.py
+    name: secret-volume
+    subPath: addons-bitbucket-local.py
+    readOnly: true
+  - mountPath: /code/addons/box/settings/local.py
+    name: secret-volume
+    subPath: addons-box-local.py
+    readOnly: true
+  - mountPath: /code/addons/dataverse/settings/local.py
+    name: secret-volume
+    subPath: addons-dataverse-local.py
+    readOnly: true
+  - mountPath: /code/addons/dropbox/settings/local.py
+    name: secret-volume
+    subPath: addons-dropbox-local.py
+    readOnly: true
+  - mountPath: /code/addons/figshare/settings/local.py
+    name: secret-volume
+    subPath: addons-figshare-local.py
+    readOnly: true
+  - mountPath: /code/addons/github/settings/local.py
+    name: secret-volume
+    subPath: addons-github-local.py
+    readOnly: true
+  - mountPath: /code/addons/googledrive/settings/local.py
+    name: secret-volume
+    subPath: addons-googledrive-local.py
+    readOnly: true
+  - mountPath: /code/addons/mendeley/settings/local.py
+    name: secret-volume
+    subPath: addons-mendeley-local.py
+    readOnly: true
+  - mountPath: /code/addons/osfstorage/settings/local.py
+    name: secret-volume
+    subPath: addons-osfstorage-local.py
+    readOnly: true
+  - mountPath: /code/addons/wiki/settings/local.py
+    name: secret-volume
+    subPath: addons-wiki-local.py
+    readOnly: true
+  - mountPath: /code/addons/zotero/settings/local.py
+    name: secret-volume
+    subPath: addons-zotero-local.py
+    readOnly: true
+
+osf-preprints:
+  enabled: true
+
+  ember:
+    replicaCount: 2
+  
+    image:
+      repository: us.gcr.io/cos-containers/osf-preprints
+      tag: develop
+      pullPolicy: Always
+
+    resources: {}
+
+    configFiles: {}
+      # config.json: '...'
+
+osf-registries:
+  enabled: true
+
+  ember:
+    replicaCount: 1
+
+    image:
+      repository: us.gcr.io/cos-containers/osf-registries
+      tag: develop
+      pullPolicy: Always
+
+    resources: {}
+
+    configFiles: {}
+      # config.json: '...'
+
+prerender:
+  enabled: true
+  replicaCount: 1
+
+  configFiles: {}
+    # nginx.conf: |-
+    #   TBD...
 
 postgresql:
-  # replicaCount: 1
-  ## postgres image repository
+  enabled: true
+
   image: "postgres"
-  ## postgres image version
-  ## ref: https://hub.docker.com/r/library/postgres/tags/
-  ##
   imageTag: "9.6"
 
   ## Specify a imagePullPolicy
@@ -167,8 +441,9 @@ postgresql:
   ## Create a database user
   ## Default: postgres
   postgresUser: postgres
+
   # Default: random 10 character string
-  # postgresPassword:
+  postgresPassword: osf
 
   ## Create a database
   ## Default: the postgres user
@@ -198,27 +473,18 @@ postgresql:
 
   metrics:
     enabled: false
-    image: wrouesnel/postgres_exporter
-    imageTag: v0.1.1
-    imagePullPolicy: IfNotPresent
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
 
-  ## Configure resource requests and limits
-  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-  ##
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 100m
+  resources: {}
+    # limits:
+    #  cpu: "1"
+    #  memory: 256Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 256Mi
 
 rabbitmq:
-  ## Bitnami RabbitMQ image version
-  ## ref: https://hub.docker.com/r/bitnami/rabbitmq/tags/
-  ##
-  image: rabbitmq:3-management
+  enabled: true
+  image: bitnami/rabbitmq:3.6.11-r1
 
   ## Specify a imagePullPolicy
   ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
@@ -229,12 +495,12 @@ rabbitmq:
   ## RabbitMQ application username
   ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
   ##
-  rabbitmqUsername: user
+  rabbitmqUsername: osf
 
   ## RabbitMQ application password
   ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
   ##
-  # rabbitmqPassword:
+  rabbitmqPassword: osf
 
   ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
   ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
@@ -254,7 +520,7 @@ rabbitmq:
   ## Node Name
   ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
   ##
-  rabbitmqNodeName: rabbit@localhost
+  rabbitmqNodeName: rabbit
 
   ## Node name to cluster with. e.g.: `clusternode@hostname`
   ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
@@ -270,6 +536,9 @@ rabbitmq:
   ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
   ##
   rabbitmqManagerPort: 15672
+
+  ## Kubernetes service type
+  serviceType: ClusterIP
 
   persistence:
     enabled: true
@@ -294,5 +563,57 @@ rabbitmq:
       memory: 256Mi
       cpu: 100m
 
-# preprintsDomain: preprints-chart.fqdn
-# registriesDomain: registries-chart.fqdn
+elasticsearch:
+  enabled: true
+
+  image:
+    repository: "centerforopenscience/elasticsearch"
+    tag: "2.4"
+    pullPolicy: "Always"
+
+  rbac:
+
+  cluster:
+    env:
+      MINIMUM_MASTER_NODES: "1"
+      EXPECTED_MASTER_NODES: "1"
+
+  client:
+    name: client
+    replicas: 1
+    serviceType: ClusterIP
+    heapSize: "128m"
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
+
+  master:
+    name: master
+    replicas: 1
+    heapSize: "128m"
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
+
+  data:
+    name: data
+    replicas: 1
+    heapSize: "1536m"
+    storage: "30Gi"
+    # storageClass: "ssd"
+    terminationGracePeriodSeconds: 3600
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
