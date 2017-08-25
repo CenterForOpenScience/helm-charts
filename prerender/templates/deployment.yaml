@@ -33,15 +33,16 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
           readinessProbe:
             httpGet:
               path: /healthz
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: {{ .Values.service.internalPort }}
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf
               name: config-volume
@@ -64,14 +65,6 @@ spec:
             {{- end }}
           ports:
             - containerPort: {{ .Values.service.externalPort }}
-#          livenessProbe:
-#            httpGet:
-#              path: /
-#              port: {{ .Values.service.internalPort }}
-#          readinessProbe:
-#            httpGet:
-#              path: /
-#              port: {{ .Values.service.internalPort }}
           volumeMounts:
             - mountPath: /code/server.js
               name: config-volume
