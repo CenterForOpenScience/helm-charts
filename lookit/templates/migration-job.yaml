@@ -1,12 +1,14 @@
+{{- if .Values.migration.enabled -}}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "fullname" . }}-migration-{{ .Release.Time.Seconds }}
+  name: {{ template "lookit.migration.fullname" . }}-{{ .Release.Time.Seconds }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "lookit.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
+    component: "{{ .Values.migration.name }}"
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
   annotations:
     "helm.sh/hook": post-install,post-upgrade
 spec:
@@ -14,27 +16,30 @@ spec:
     metadata:
       name: "{{ .Release.Name }}"
       labels:
-        app: {{ template "name" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        app: {{ template "lookit.name" . }}
+        component: "{{ .Values.migration.name }}"
         release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
     spec:
       restartPolicy: Never
       containers:
-        - name: migrations
-          image: "{{ .Values.uwsgi.image.repository }}:{{ .Values.uwsgi.image.tag }}"
+        - name: {{ .Values.migration.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - python
             - manage.py
             - migrate
           env:
-            {{- include "environment" . | indent 12 }}
+            {{- include "lookit.environment" . | indent 12 }}
           volumeMounts:
-            - mountPath: /code/project/settings/local.py
-              name: config-volume
-              subPath: local.py
-              readOnly: true
+{{- if .Values.volumeMounts }}
+{{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
       volumes:
         - name: config-volume
           configMap:
-            name: {{ template "fullname" . }}
+            name: {{ template "lookit.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "lookit.fullname" . }}
+{{- end -}}

@@ -1,34 +1,77 @@
 # Default values for lookit.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-replicaCount: 1
+image:
+  repository: quay.io/centerforopenscience/lookit
+  tag: develop
+  pullPolicy: Always
 
-nginx:
-  image:
-    repository: gcr.io/cos-containers/nginx
-    tag: '1'
-    pullPolicy: Always
+web:
+  enabled: true
+  name: web
+  replicaCount: 1
+
+  nginx:
+    image:
+      repository: nginx
+      tag: "1"
+      pullPolicy: Always
+    resources: {}
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      #limits:
+      #  cpu: "1"
+      #  memory: 128Mi
+      #requests:
+      #  cpu: 100m
+      #  memory: 128Mi
+
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious 
-    # choice for the user. This also increases chances charts run on environments with little 
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following 
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     #limits:
-    #  cpu: '1'
+    #  cpu: 100m
     #  memory: 128Mi
     #requests:
     #  cpu: 100m
     #  memory: 128Mi
 
-uwsgi:
-  image:
-    repository: gcr.io/cos-containers/lookit-api
-    tag: develop
-    pullPolicy: Always
+  service:
+    name: http
+    type: ClusterIP
+    externalPort: 5000
+    internalPort: 80
+
+worker:
+  enabled: true
+  name: worker
+  replicaCount: 1
+
+  docker:
+    image:
+      repository: docker
+      tag: 17.06-dind
+      pullPolicy: Always
+    resources: {}
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      #limits:
+      #  cpu: "1"
+      #  memory: 512Mi
+      #requests:
+      #  cpu: 100m
+      #  memory: 256Mi
+
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious 
-    # choice for the user. This also increases chances charts run on environments with little 
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following 
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
     # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     #limits:
     #  cpu: 100m
@@ -37,11 +80,37 @@ uwsgi:
     #  cpu: 100m
     #  memory: 128Mi
 
-service:
-  name: nginx
-  type: ClusterIP
-  externalPort: 5000
-  internalPort: 80
+collectstatic:
+  enabled: false
+  name: collectstatic
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+migration:
+  enabled: true
+  name: migration
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
 
 ingress:
   enabled: false
@@ -57,46 +126,55 @@ ingress:
     #   hosts:
     #     - chart-example.local
 
-environment:
+configEnvs:
+  DEBUG: ""
   DJANGO_SETTINGS_MODULE: project.settings
-  GEVENT: '1'
-  GOOGLE_APPLICATION_CREDENTIALS: /etc/googleAppCreds.json
-  MEDIA_URL: https://storage.googleapis.com/bucket/media/
-  STATIC_URL: https://storage.googleapis.com/bucket/static/
-  GS_BUCKET_NAME: 'bucket'
-  GS_PROJECT_ID: 'project-id'
-  EMAIL_HOST: ''
-  EMAIL_PORT: 587
-  EMAIL_USE_TLS: 'True'
-  EMAIL_FROM_ADDRESS: ''
-  LOGIN_REDIRECT_URL: https://chart-example.local/exp/
-  SITE_DOMAIN: chart-example.local
-  ACCOUNT_LOGOUT_REDIRECT_URL: /login/
-  AWS_DEFAULT_REGION: 'us-east-1'
-  BUCKET_NAME: ''
+  GEVENT: "1"
+  ALLOWED_HOSTS: "*"
+  # GOOGLE_APPLICATION_CREDENTIALS: /etc/googleAppCreds.json
+  # MEDIA_URL: https://storage.googleapis.com/bucket/media/
+  # STATIC_URL: https://storage.googleapis.com/bucket/static/
+  # GS_BUCKET_NAME: "bucket"
+  # GS_PROJECT_ID: "project-id"
+  # EMAIL_HOST: ""
+  # EMAIL_PORT: 587
+  # EMAIL_USE_TLS: "True"
+  # EMAIL_FROM_ADDRESS: ""
+  # LOGIN_REDIRECT_URL: https://chart-example.local/exp/
+  # SITE_DOMAIN: chart-example.local
+  # ACCOUNT_LOGOUT_REDIRECT_URL: /login/
+  # AWS_DEFAULT_REGION: "us-east-1"
+  # BUCKET_NAME: ""
 
-configs: {}
+configFiles: {}
   # Override configmap files here (and delete the {} above), e.g.:
   #robots.txt: |-
   #  User-agent: *
   #  Disallow: /
 
-secrets:
-  googleAppCreds.json: |-
-    {}
-  # Environment Variables
-  AWS_ACCESS_KEY_ID: 'AKIAIOSFODNN7EXAMPLE'
-  AWS_SECRET_ACCESS_KEY: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
-  EMAIL_HOST_USER: ''
-  EMAIL_HOST_PASSWORD: ''
-  RAVEN_DSN: ''
+secretEnvs: {}
+  # AWS_ACCESS_KEY_ID: "abc123"
+  # AWS_SECRET_ACCESS_KEY: ""
+  # EMAIL_HOST_USER: ""
+  # EMAIL_HOST_PASSWORD: ""
+  # RAVEN_DSN: ""
+
+secretFiles: {}
+  # googleAppCreds.json: |-
+  #   ...
+
+# volumeMounts:
+#   - mountPath: /code/project/settings/local.py
+#     name: secret-volume
+#     subPath: local.py
+#     readOnly: true
+#   - mountPath: /etc/googleAppCreds.json
+#     name: secret-volume
+#     subPath: googleAppCreds.json
+#     readOnly: true
 
 postgresql:
-  ## postgres image repository
   image: "postgres"
-  ## postgres image version
-  ## ref: https://hub.docker.com/r/library/postgres/tags/
-  ##
   imageTag: "9.6"
 
   ## Specify a imagePullPolicy
@@ -108,8 +186,10 @@ postgresql:
   ## Create a database user
   ## Default: postgres
   postgresUser: postgres
-  # Default: random 10 character string
-  # postgresPassword:
+
+  ## Password for the new user.
+  ## Default: If not set, a random 10 characters password will be used.
+  postgresPassword: lookit
 
   ## Create a database
   ## Default: the postgres user
@@ -139,18 +219,15 @@ postgresql:
 
   metrics:
     enabled: false
-    image: wrouesnel/postgres_exporter
-    imageTag: v0.1.1
-    imagePullPolicy: IfNotPresent
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
 
-  ## Configure resource requests and limits
-  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-  ##
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 100m
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    #limits:
+    #  cpu: "1"
+    #  memory: 256Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 256Mi

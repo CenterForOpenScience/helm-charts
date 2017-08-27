@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "name" -}}
+{{- define "lookit.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -10,41 +10,80 @@ Expand the name of the chart.
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "fullname" -}}
+{{- define "lookit.fullname" -}}
 {{- $name := default .Chart.Name .Values.nameOverride -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified collectstatic name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "lookit.collectstatic.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.collectstatic.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified migration name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "lookit.migration.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.migration.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified web name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "lookit.web.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.web.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified worker name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "lookit.worker.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.worker.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Create a default fully qualified postgresql name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "postgresql.fullname" -}}
+{{- define "lookit.postgresql.fullname" -}}
 {{- printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "environment" }}
+{{- define "lookit.environment" }}
 - name: DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
 - name: DB_USER
   value: {{ .Values.postgresql.postgresUser | quote }}
 - name: DB_HOST
-  value: {{ template "postgresql.fullname" . }}
+  value: {{ template "lookit.postgresql.fullname" . }}
 - name: DB_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ template "postgresql.fullname" . }}
+      name: {{ template "lookit.postgresql.fullname" . }}
       key: postgres-password
-{{- range $key, $val := .Values.environment }}
+{{- $fullname := include "lookit.fullname" . -}}
+{{- range $key, $value := .Values.configEnvs }}
 - name: {{ $key }}
-  value: {{ $val | quote }}
+  valueFrom:
+    configMapKeyRef:
+      name: {{ $fullname }}
+      key: {{ $key }}
 {{- end }}
-{{- $fullname := include "fullname" . -}}
-{{- range tuple "AWS_ACCESS_KEY_ID" "AWS_SECRET_ACCESS_KEY" "EMAIL_HOST_USER" "EMAIL_HOST_PASSWORD" "RAVEN_DSN" }}
-- name: {{ . }}
+{{- range $key, $value := .Values.secretEnvs }}
+- name: {{ $key }}
   valueFrom:
     secretKeyRef:
       name: {{ $fullname }}
-      key: {{ . }}
+      key: {{ $key }}
 {{- end }}
 {{- end -}}
