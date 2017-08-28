@@ -64,6 +64,12 @@ worker:
     #  cpu: 100m
     #  memory: 128Mi
 
+  persistence:
+    enabled: true
+    # storageClass:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+
 collectstatic:
   enabled: false
   name: collectstatic

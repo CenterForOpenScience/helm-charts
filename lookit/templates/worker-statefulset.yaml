@@ -1,6 +1,6 @@
 {{- if .Values.worker.enabled -}}
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1beta1
+kind: StatefulSet
 metadata:
   name: {{ template "lookit.worker.fullname" . }}
   labels:
@@ -10,6 +10,7 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  serviceName: {{ template "lookit.worker.fullname" . }}
   replicas: {{ .Values.worker.replicaCount }}
   template:
     metadata:
@@ -28,6 +29,8 @@ spec:
           args:
             - --storage-driver=overlay
           volumeMounts:
+            - mountPath: /var/lib/docker
+              name: docker-volume
             - mountPath: /code/ember_build/checkouts
               name: checkouts-volume
             - mountPath: /code/ember_build/deployments
@@ -72,6 +75,10 @@ spec:
           resources:
 {{ toYaml .Values.worker.resources | indent 12 }}
       volumes:
+        {{- if not .Values.worker.persistence.enabled }}
+        - name: docker-volume
+          emptyDir: {}
+        {{- end }}
         - name: checkouts-volume
           emptyDir: {}
         - name: deployments-volume
@@ -86,4 +93,18 @@ spec:
       nodeSelector:
 {{ toYaml .Values.worker.nodeSelector | indent 8 }}
     {{- end }}
+  {{- if .Values.worker.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: docker-volume
+      spec:
+        accessModes:
+          - {{ .Values.worker.persistence.accessMode | quote }}
+      {{- if .Values.worker.persistence.storageClass }}
+        storageClassName: {{ .Values.worker.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.worker.persistence.size | quote }}
+  {{- end }}
 {{- end -}}
