@@ -75,9 +75,6 @@ nginx.conf: |-
               alias /nginx/robots.txt;
           }
 
-          include /nginx/media.conf;
-          include /nginx/static.conf;
-
           {{- if .Values.configEnvs.MEDIA_URL }}
           location /media/ {
               proxy_redirect off;
@@ -118,7 +115,7 @@ nginx.conf: |-
   }
 {{- end -}}
 {{- range $key, $value := .Values.configEnvs }}
-  {{ $key }}: {{ $value }}
+  {{ $key }}: {{ $value | quote }}
 {{- end }}
 {{- range $key, $value := merge .Values.configFiles (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
   {{ $key }}: |-
