@@ -27,9 +27,11 @@ spec:
           imagePullPolicy: {{ .Values.worker.docker.image.pullPolicy }}
           args:
             - --storage-driver=overlay
-          # volumeMounts:
-          #   - mountPath: /var/lib/docker
-          #     name: docker-volume
+          volumeMounts:
+            - mountPath: /code/ember_build/checkouts
+              name: checkouts-volume
+            - mountPath: /code/ember_build/deployments
+              name: deployments-volume
           securityContext:
             privileged: true
           resources:
@@ -60,16 +62,20 @@ spec:
               value: 'tcp://localhost:2375'
             {{- include "lookit.environment" . | indent 12 }}
           volumeMounts:
-            # - mountPath: /var/lib/docker
-            #   name: docker-volume
+            - mountPath: /code/ember_build/checkouts
+              name: checkouts-volume
+            - mountPath: /code/ember_build/deployments
+              name: deployments-volume
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
 {{- end }}
           resources:
 {{ toYaml .Values.worker.resources | indent 12 }}
       volumes:
-        # - name: docker-volume
-        #   emptyDir: {}
+        - name: checkouts-volume
+          emptyDir: {}
+        - name: deployments-volume
+          emptyDir: {}
         - name: config-volume
           configMap:
             name: {{ template "lookit.fullname" . }}
