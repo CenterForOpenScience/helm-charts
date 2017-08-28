@@ -17,10 +17,6 @@ web:
       tag: "1"
       pullPolicy: Always
     resources: {}
-      # We usually recommend not to specify default resources and to leave this as a conscious
-      # choice for the user. This also increases chances charts run on environments with little
-      # resources, such as Minikube. If you do want to specify resources, uncomment the following
-      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
       #limits:
       #  cpu: "1"
       #  memory: 128Mi
@@ -29,10 +25,6 @@ web:
       #  memory: 128Mi
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     #limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -57,10 +49,6 @@ worker:
       tag: 17.06-dind
       pullPolicy: Always
     resources: {}
-      # We usually recommend not to specify default resources and to leave this as a conscious
-      # choice for the user. This also increases chances charts run on environments with little
-      # resources, such as Minikube. If you do want to specify resources, uncomment the following
-      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
       #limits:
       #  cpu: "1"
       #  memory: 512Mi
@@ -69,10 +57,6 @@ worker:
       #  memory: 256Mi
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     #limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -85,10 +69,6 @@ collectstatic:
   name: collectstatic
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     #limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -101,10 +81,6 @@ migration:
   name: migration
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     #limits:
     #  cpu: 100m
     #  memory: 128Mi
@@ -174,6 +150,8 @@ secretFiles: {}
 #     readOnly: true
 
 postgresql:
+  enabled: true
+
   image: "postgres"
   imageTag: "9.6"
 
@@ -182,6 +160,10 @@ postgresql:
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   ##
   # imagePullPolicy:
+
+  ## Database host
+  ## Default: postgresql.fullname
+  # postgresHost:
 
   ## Create a database user
   ## Default: postgres
@@ -221,13 +203,94 @@ postgresql:
     enabled: false
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     #limits:
     #  cpu: "1"
     #  memory: 256Mi
     #requests:
     #  cpu: 100m
     #  memory: 256Mi
+
+rabbitmq:
+  enabled: true
+  image: bitnami/rabbitmq:3.6.11-r1
+
+  ## Specify a imagePullPolicy
+  ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  # imagePullPolicy:
+
+  ## RabbitMQ application host
+  ##
+  # rabbitmqHost:
+
+  ## RabbitMQ application username
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  ##
+  rabbitmqUsername: lookit
+
+  ## RabbitMQ application password
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  ##
+  rabbitmqPassword: lookit
+
+  ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  # rabbitmqErlangCookie:
+
+  ## Node port
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqNodePort: 5672
+
+  ## Node Type
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqNodeType: stats
+
+  ## Node Name
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqNodeName: rabbit
+
+  ## Node name to cluster with. e.g.: `clusternode@hostname`
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  # rabbitmqClusterNodeName:
+
+  ## RabbitMQ application vhost
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqVhost: /
+
+  ## RabbitMQ Manager port
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+  ##
+  rabbitmqManagerPort: 15672
+
+  ## Kubernetes service type
+  serviceType: ClusterIP
+
+  persistence:
+    enabled: true
+
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+
+    ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
+    ## Default: volume.alpha.kubernetes.io/storage-class: default
+    ##
+    # storageClass:
+    accessMode: ReadWriteOnce
+    size: 8Gi
+
+  ## Configure resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m

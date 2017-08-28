@@ -36,26 +36,23 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - /bin/bash
+            - gosu
+            - www-data
+            - celery
+            - -A
+            - project.celery.app
+            - worker
             - -c
-            - sleep 9999999999999999999999999999999999999
-            # - gosu
-            # - www-data
-            # - celery
-            # - -A
-            # - project.celery.app
-            # - worker
-            # - -c
-            # - "5"
-            # - -l
-            # - INFO
-            # - -n
-            # - worker.%h
-            # - --without-gossip
-            # - --maxtasksperchild
-            # - "5"
-            # - -Q
-            # - email,builds,cleanup
+            - "5"
+            - -l
+            - INFO
+            - -n
+            - worker.%h
+            - --without-gossip
+            - --maxtasksperchild
+            - "5"
+            - -Q
+            - email,builds,cleanup
           env:
             {{- include "lookit.environment" . | indent 12 }}
           volumeMounts:
@@ -67,8 +64,8 @@ spec:
           resources:
 {{ toYaml .Values.worker.resources | indent 12 }}
       volumes:
-        - name: docker-volume
-          emptyDir: {}
+        # - name: docker-volume
+        #   emptyDir: {}
         - name: config-volume
           configMap:
             name: {{ template "lookit.fullname" . }}
