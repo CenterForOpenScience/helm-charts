@@ -25,6 +25,8 @@ spec:
         - name: docker
           image: "{{ .Values.worker.docker.image.repository }}:{{ .Values.worker.docker.image.tag }}"
           imagePullPolicy: {{ .Values.worker.docker.image.pullPolicy }}
+          args:
+            - --storage-driver=overlay
           # volumeMounts:
           #   - mountPath: /var/lib/docker
           #     name: docker-volume
@@ -54,6 +56,8 @@ spec:
             - -Q
             - email,builds,cleanup
           env:
+            - name: DOCKER_HOST
+              value: 'tcp://localhost:2375'
             {{- include "lookit.environment" . | indent 12 }}
           volumeMounts:
             # - mountPath: /var/lib/docker
