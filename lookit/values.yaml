@@ -118,9 +118,6 @@ configEnvs:
   # STATIC_URL: https://storage.googleapis.com/bucket/static/
   # GS_BUCKET_NAME: "bucket"
   # GS_PROJECT_ID: "project-id"
-  # EMAIL_HOST: ""
-  # EMAIL_PORT: 587
-  # EMAIL_USE_TLS: "True"
   # EMAIL_FROM_ADDRESS: ""
   # LOGIN_REDIRECT_URL: https://chart-example.local/exp/
   # SITE_DOMAIN: chart-example.local
@@ -137,8 +134,7 @@ configFiles: {}
 secretEnvs: {}
   # AWS_ACCESS_KEY_ID: "abc123"
   # AWS_SECRET_ACCESS_KEY: ""
-  # EMAIL_HOST_USER: ""
-  # EMAIL_HOST_PASSWORD: ""
+  # SENDGRID_API_KEY: ""
   # RAVEN_DSN: ""
 
 secretFiles: {}
