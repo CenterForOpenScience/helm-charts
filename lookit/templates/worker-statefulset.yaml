@@ -12,6 +12,10 @@ metadata:
 spec:
   serviceName: {{ template "lookit.worker.fullname" . }}
   replicas: {{ .Values.worker.replicaCount }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+        partition: 0
   template:
     metadata:
       labels:
