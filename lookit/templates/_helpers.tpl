@@ -69,6 +69,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Overridable deployment annotations
+*/}}
+{{- define "lookit.deploymentAnnotations" }}
+checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+{{- end -}}
+
 {{- define "lookit.environment" }}
 - name: DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}

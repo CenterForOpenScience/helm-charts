@@ -23,8 +23,7 @@ spec:
         component: "{{ .Values.worker.name }}"
         release: {{ .Release.Name }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- include "lookit.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
         - name: docker
