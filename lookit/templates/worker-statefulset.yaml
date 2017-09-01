@@ -31,6 +31,9 @@ spec:
           imagePullPolicy: {{ .Values.worker.docker.image.pullPolicy }}
           args:
             - --storage-driver=overlay
+          ports:
+            - name: docker
+              containerPort: 2375
           volumeMounts:
             - mountPath: /var/lib/docker
               name: docker-volume
