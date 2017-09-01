@@ -12,6 +12,7 @@ metadata:
   annotations:
     "helm.sh/hook": post-install,post-upgrade
 spec:
+  activeDeadlineSeconds: 100
   template:
     metadata:
       name: "{{ .Release.Name }}"
