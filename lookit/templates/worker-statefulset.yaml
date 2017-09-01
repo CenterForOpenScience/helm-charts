@@ -68,7 +68,7 @@ spec:
             - email,builds,cleanup
           env:
             - name: DOCKER_HOST
-              value: 'tcp://localhost:2375'
+              value: tcp://localhost:2375
             {{- include "lookit.environment" . | indent 12 }}
           volumeMounts:
             - mountPath: /code/ember_build/checkouts
