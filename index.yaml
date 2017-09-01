@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   cas:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.216106615Z
+    created: 2017-09-01T01:51:12.638819839Z
     description: A Helm chart for Kubernetes
     digest: 7532e3fc5398ca1e3a521f43cad3ad745e33f6a9f5f4ee22a3b8c865c92f6d9a
     name: cas
@@ -10,7 +10,7 @@ entries:
     - cas-0.1.0.tgz
     version: 0.1.0
   cerebro:
-  - created: 2017-09-01T01:30:23.217004332Z
+  - created: 2017-09-01T01:51:12.639226837Z
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
     digest: 32a88a9622300a72a4a91af425ad2db096f65a81b9d0dedf9d9976a67eb82e28
@@ -26,7 +26,7 @@ entries:
     - cerebro-0.1.0.tgz
     version: 0.1.0
   echoheaders:
-  - created: 2017-09-01T01:30:23.217316883Z
+  - created: 2017-09-01T01:51:12.639459155Z
     description: Echoheaders server for testing
     digest: c5307cee4f2603405d1dcc5705a0e5d8a3466bb3a557d2a965fcffa6b7df19bc
     maintainers:
@@ -38,7 +38,7 @@ entries:
     version: 0.1.0
   elastic-stack:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.218619626Z
+    created: 2017-09-01T01:51:12.640848513Z
     description: A Helm chart for Kubernetes
     digest: 183bc7d90337ec1b2ab8572e4ff88f373bfb17c9a1341a0797fb47b15ee22544
     name: elastic-stack
@@ -46,7 +46,7 @@ entries:
     - elastic-stack-0.1.0.tgz
     version: 0.1.0
   elasticsearch:
-  - created: 2017-09-01T01:30:23.219939813Z
+  - created: 2017-09-01T01:51:12.642242155Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: d00b94b3bb91b94a335ae6bf9455a1ac6e822e460f69bd2fee50bae1afeec967
@@ -66,7 +66,7 @@ entries:
     urls:
     - elasticsearch-0.1.9.tgz
     version: 0.1.9
-  - created: 2017-09-01T01:30:23.219318528Z
+  - created: 2017-09-01T01:51:12.641366766Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 2f3b7ecc33d8080ad6b80df420938256b3295d9feb2672ca9643e220c1b098c1
@@ -87,7 +87,7 @@ entries:
     - elasticsearch-0.1.6.tgz
     version: 0.1.6
   http-redirect:
-  - created: 2017-09-01T01:30:23.220221208Z
+  - created: 2017-09-01T01:51:12.642580735Z
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
     digest: 74d3219681016d93f370835442dbd7f7f7b80729910dc6becc4a6c317922aac5
@@ -105,7 +105,7 @@ entries:
     version: 0.1.0
   jenkins:
   - appVersion: "2.67"
-    created: 2017-09-01T01:30:23.221054347Z
+    created: 2017-09-01T01:51:12.643580665Z
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -126,7 +126,7 @@ entries:
     version: 0.8.2
   kibana:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.221314548Z
+    created: 2017-09-01T01:51:12.643850524Z
     description: A Helm chart for Kubernetes
     digest: bcb5cf1c6c50042ccb634b97e66b0636669129109143330de4223a9f1ff5f07c
     icon: https://static-www.elastic.co/assets/bltf11265439e44d327/logo-elastic-kibana-lt.svg?q=890
@@ -136,7 +136,15 @@ entries:
     version: 0.1.0
   lookit:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.22356096Z
+    created: 2017-09-01T01:51:12.647844992Z
+    description: A Helm chart for Kubernetes
+    digest: d9a8b1544136a9ee2a46f6031e7ce8120797c86e3100fa2068adc95067fa2797
+    name: lookit
+    urls:
+    - lookit-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v1
+    created: 2017-09-01T01:51:12.646398307Z
     description: A Helm chart for Kubernetes
     digest: 13de27a76d459baac9226858bff530b0012afdccd20793a7ac9935729adb9ffe
     name: lookit
@@ -144,7 +152,7 @@ entries:
     - lookit-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.22222877Z
+    created: 2017-09-01T01:51:12.644779381Z
     description: A Helm chart for Kubernetes
     digest: bd0eeda064c47ac18e39fab72d13813cbad825eaefa398fab52d90595bafb30e
     name: lookit
@@ -153,7 +161,7 @@ entries:
     version: 0.1.0
   mfr:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.223943837Z
+    created: 2017-09-01T01:51:12.648272207Z
     description: A Helm chart for Kubernetes
     digest: f6fe78d05792ab144d58bdc78846271938abf4634b4b5c1d37c714e1bbaafb10
     name: mfr
@@ -162,7 +170,7 @@ entries:
     version: 0.1.0
   nginx-ingress:
   - appVersion: 0.9.0-beta.7
-    created: 2017-09-01T01:30:23.224677909Z
+    created: 2017-09-01T01:51:12.649276519Z
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 6f797a8d3080724108faa25ea8690ad7627bfcd35a8112bc34b655f05541c00b
@@ -186,15 +194,15 @@ entries:
     version: 0.6.0
   osf:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.232881232Z
+    created: 2017-09-01T01:51:12.659785425Z
     description: A Helm chart for Kubernetes
-    digest: f6e05896296ff905672b513b407041560f806c77933fb0ddb1ff523b254db04c
+    digest: cf713027ca51ad696e346c82ca1980716f503257389064b2eb989ee2c5ce0611
     name: osf
     urls:
     - osf-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.228213167Z
+    created: 2017-09-01T01:51:12.654801885Z
     description: A Helm chart for Kubernetes
     digest: 682b126dbd2e68aed223a3c0ece192751968c9a4924f387b8ec1ba6871f66083
     name: osf
@@ -203,7 +211,7 @@ entries:
     version: 0.1.0
   osf-admin:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.233261318Z
+    created: 2017-09-01T01:51:12.660359756Z
     description: A Helm chart for Kubernetes
     digest: 3fb40630d5bc19834fae98252e4039a4a85de84b0349d0b2dcf12ff6b86ec63b
     name: osf-admin
@@ -212,7 +220,7 @@ entries:
     version: 0.1.0
   osf-api:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.233706602Z
+    created: 2017-09-01T01:51:12.660985994Z
     description: A Helm chart for Kubernetes
     digest: ad8578172b5212f1eb1d60efd6d5f92d3599767957381686132758ecab17cfc8
     name: osf-api
@@ -221,7 +229,7 @@ entries:
     version: 0.1.0
   osf-beat:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.234027814Z
+    created: 2017-09-01T01:51:12.661366396Z
     description: A Helm chart for Kubernetes
     digest: 21dcf194a6f0311f8edbc95fe0c8f1146b6b75c325f2b79aa2e88445dab7b304
     name: osf-beat
@@ -230,7 +238,7 @@ entries:
     version: 0.1.0
   osf-ember-app:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.23433054Z
+    created: 2017-09-01T01:51:12.661791732Z
     description: A Helm chart for Kubernetes
     digest: b8c988066cdbf5e58dd0fac4a820781d513ce348740e9d3815dfb66eae6ec112
     name: osf-ember-app
@@ -239,7 +247,7 @@ entries:
     version: 0.1.0
   osf-flower:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.234584158Z
+    created: 2017-09-01T01:51:12.662033115Z
     description: A Helm chart for Kubernetes
     digest: 2024c5eac91551f69c08b4cc28b10e5adf447b364cfc7cfdd688f8b42ee2d89b
     name: osf-flower
@@ -248,7 +256,7 @@ entries:
     version: 0.1.0
   osf-sharejs:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.235203927Z
+    created: 2017-09-01T01:51:12.662769771Z
     description: A Helm chart for Kubernetes
     digest: cadf3e07dfe008b02f0fe1f4a6dcc808b3bd3963dc4545a7e66be53170ef4a35
     name: osf-sharejs
@@ -257,7 +265,7 @@ entries:
     version: 0.1.0
   osf-web:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.235735197Z
+    created: 2017-09-01T01:51:12.663203833Z
     description: A Helm chart for Kubernetes
     digest: 7986fe535b8d766ca378763c6411302bd0fa568636bf66f8dc0ceafc0ea56c56
     name: osf-web
@@ -266,7 +274,7 @@ entries:
     version: 0.1.0
   osf-worker:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.235967153Z
+    created: 2017-09-01T01:51:12.663407564Z
     description: A Helm chart for Kubernetes
     digest: a31999bb2debf0d32f96b261cf67a0065de63b8d62530bde7e33ec6a2e952902
     name: osf-worker
@@ -275,7 +283,7 @@ entries:
     version: 0.1.0
   prerender:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.23625001Z
+    created: 2017-09-01T01:51:12.663755932Z
     description: A Helm chart for Kubernetes
     digest: ba2a058db50133ffa3ca9a8968585191d413f347394a9341506a222c8803931c
     name: prerender
@@ -284,11 +292,11 @@ entries:
     version: 0.1.0
   wb:
   - apiVersion: v1
-    created: 2017-09-01T01:30:23.236951734Z
+    created: 2017-09-01T01:51:12.664439856Z
     description: A Helm chart for Kubernetes
     digest: f4b67c1ab52a4385b101aeeb8259fba4b2f7221be770ae89a4d603de62615e73
     name: wb
     urls:
     - wb-0.1.0.tgz
     version: 0.1.0
-generated: 2017-09-01T01:30:23.212287376Z
+generated: 2017-09-01T01:51:12.636570979Z
