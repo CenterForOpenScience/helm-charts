@@ -20,7 +20,7 @@ spec:
     - host: {{ . }}
       http:
         paths:
-          - path: /
+          - path: /*
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
