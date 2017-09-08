@@ -1,0 +1,69 @@
+image:
+  repository: centerforopenscience/postgres
+  tag: 9.6-repmgr
+  pullPolicy: IfNotPresent
+
+## Persist data to a persitent volume
+persistence:
+  storageClass: default
+  accessMode: ReadWriteOnce
+  size: 8Gi
+  subPath: "postgresql-db"
+
+configs: {}
+
+secrets:
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ''
+  POSTGRES_INITDB_ARGS: --data-checksums
+  REPMGR_DBNAME: 'repmgr'
+  REPMGR_USER: 'repmgr'
+  REPMGR_PASSWORD: ''
+
+metrics:
+  enabled: false
+  image: wrouesnel/postgres_exporter
+  imageTag: v0.1.1
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+  ## Define additional custom metrics
+  ## ref: https://github.com/wrouesnel/postgres_exporter#adding-new-metrics-via-a-config-file
+  #customMetrics:
+  #  pg_database:
+  #    query: "SELECT d.datname AS name, CASE WHEN pg_catalog.has_database_privilege(d.datname, 'CONNECT') THEN pg_catalog.pg_database_size(d.datname) ELSE 0 END AS size FROM pg_catalog.pg_database d where datname not in ('template0', 'template1', 'postgres')"
+  #    metrics:
+  #      - name:
+  #          usage: "LABEL"
+  #          description: "Name of the database"
+  #      - size_bytes:
+  #          usage: "GAUGE"
+  #          description: "Size of the database in bytes"
+
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+
+service:
+  type: ClusterIP
+  port: 5432
+  externalIPs: []
+
+networkPolicy:
+  ## Enable creation of NetworkPolicy resources.
+  ##
+  enabled: false
+
+  ## The Policy model to apply. When set to false, only pods with the correct
+  ## client label will have network access to the port PostgreSQL is listening
+  ## on. When true, PostgreSQL will accept connections from any source
+  ## (with the correct destination port).
+  ##
+  allowExternal: true
