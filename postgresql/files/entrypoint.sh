@@ -12,7 +12,7 @@ fi
 sed \
 	-e "s|^#node=2|node=${ordinal_plus1}|" \
 	-e "s|^#node_name=node2|node_name=node${ordinal_plus1}|" \
-	-e "s|^conninfo='host=127.0.0.1 dbname=repmgr user=repmgr'|conninfo='host=${POD_NAME} dbname=${REPMGR_DBNAME}  user=${REPMGR_USER} password=${REPMGR_PASSWORD} application_name=node${ordinal_plus1}'|" \
+	-e "s|^conninfo=.*$|conninfo='host=${POD_NAME} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD} application_name=node${ordinal_plus1}'|" \
 	/etc/_repmgr.conf > /etc/repmgr.conf
 
 # usage: file_env VAR [DEFAULT]
@@ -62,44 +62,17 @@ if [ ! -s "$PGDATA/PG_VERSION" ]; then
 	if [ "$POSTGRES_INITDB_XLOGDIR" ]; then
 		export POSTGRES_INITDB_ARGS="$POSTGRES_INITDB_ARGS --xlogdir $POSTGRES_INITDB_XLOGDIR"
 	fi
-	gosu postgres initdb --username=postgres "$POSTGRES_INITDB_ARGS"
+	gosu postgres initdb --username=${PGUSER} "$POSTGRES_INITDB_ARGS"
 
-	# check password first so we can output the warning before postgres
-	# messes it up
-	file_env 'POSTGRES_PASSWORD'
-	if [ "$POSTGRES_PASSWORD" ]; then
-		pass="PASSWORD '$POSTGRES_PASSWORD'"
-		authMethod=md5
-	else
-		# The - option suppresses leading tabs but *not* spaces. :)
-		cat >&2 <<-'EOWARN'
-			****************************************************
-			WARNING: No password has been set for the database.
-					 This will allow anyone with access to the
-					 Postgres port to access your database. In
-					 Docker's default configuration, this is
-					 effectively any other container on the same
-					 system.
+	gosu postgres pg_ctl -w start
 
-					 Use "-e POSTGRES_PASSWORD=password" to set
-					 it in "docker run".
-			****************************************************
-		EOWARN
-
-		pass=
-		authMethod=trust
-	fi
-
-	# internal start of server in order to allow set-up using psql-client
-	# does not listen on external TCP/IP and waits until start finishes
-	PGUSER="${PGUSER:-postgres}" \
-	gosu postgres pg_ctl -D "$PGDATA" -w start
-
-	gosu postgres psql -c "CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';"
-	gosu postgres psql -c "CREATE DATABASE repmgr OWNER repmgr;"
-	gosu postgres psql -c "CREATE USER barman SUPERUSER LOGIN ENCRYPTED PASSWORD '${BARMAN_PASSWORD}';"
-	gosu postgres psql -c "CREATE USER barman_streaming REPLICATION LOGIN ENCRYPTED PASSWORD '${BARMAN_STREAMING_PASSWORD}';"
-	gosu postgres psql -c "CREATE DATABASE barman OWNER barman;"
+	gosu postgres psql <<-EOF
+	CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
+	CREATE DATABASE repmgr OWNER repmgr;
+	CREATE USER barman SUPERUSER LOGIN ENCRYPTED PASSWORD '${BARMAN_PASSWORD}';
+	CREATE USER barman_streaming REPLICATION LOGIN ENCRYPTED PASSWORD '${BARMAN_STREAMING_PASSWORD}';
+	CREATE DATABASE barman OWNER barman;
+	EOF
 
 	sed -i \
 		-e "s|^listen_addresses = .*|listen_addresses = '*'|" \
@@ -123,33 +96,26 @@ if [ ! -s "$PGDATA/PG_VERSION" ]; then
 	host    all             all              ${cidr_range}         md5
 	EOF
 
-	gosu postgres pg_ctl -D "$PGDATA" -w restart
+	gosu postgres pg_ctl -w restart
 
 	# Master
-	if [[ $ordinal -eq 0 ]]; then
+	if [[ $ordinal -eq 0 ]] || [[ $POD_NAME == $master_host ]]; then
 		gosu postgres repmgr master register
 	# Standby
 	else
 		if [[ ! -f "${PGDATA}/recovery.conf" ]]; then
-			gosu postgres pg_ctl -D "$PGDATA" -m fast -w stop
+			gosu postgres pg_ctl -m fast -w stop
 			rm -rf ${PGDATA}/*
 			gosu postgres repmgr \
-				--dbname="host=${master_host} dbname=${REPMGR_DBNAME} user=${REPMGR_USER} password=${REPMGR_PASSWORD} application_name=node1" \
+				--dbname="host=${master_host} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD}" \
 				standby clone
-			gosu postgres pg_ctl -D "$PGDATA" -w start
+			gosu postgres pg_ctl -w start
 		fi
 
 		gosu postgres repmgr standby register
 	fi
-
-	PGUSER="${PGUSER:-postgres}" \
-	gosu postgres pg_ctl -D "$PGDATA" -m fast -w stop
-
-	echo
-	echo 'PostgreSQL init process complete; ready for start up.'
-	echo
+else
+	gosu postgres pg_ctl -w start
 fi
 
-echo
-gosu postgres pg_ctl -D "$PGDATA" -w start
 supervisorctl start repmgrd

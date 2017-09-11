@@ -28,7 +28,7 @@ Return the appropriate apiVersion for networkpolicy.
 
 {{- define "postgresql.environment" -}}
 {{- $fullname := (include "postgresql.fullname" .) -}}
-{{- range tuple "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" "POSTGRES_INITDB_ARGS" "REPMGR_DBNAME" "REPMGR_USER" "REPMGR_PASSWORD" }}
+{{- range tuple "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" "POSTGRES_INITDB_ARGS" "REPMGR_PASSWORD" }}
 - name: {{ . }}
   valueFrom:
     secretKeyRef:
