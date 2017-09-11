@@ -5,6 +5,9 @@ set -e
 ordinal=${BASH_REMATCH[1]}
 ordinal_plus1=$((${ordinal} + 1))
 master_host=$(echo -n ${POD_NAME} | sed -E 's|-[0-9]+$|-0|')
+if [ "$MASTER_HOST" ]; then
+	master_host=${MASTER_HOST}
+fi
 
 sed \
 	-e "s|^#node=2|node=${ordinal_plus1}|" \
@@ -92,47 +95,52 @@ if [ ! -s "$PGDATA/PG_VERSION" ]; then
 	PGUSER="${PGUSER:-postgres}" \
 	gosu postgres pg_ctl -D "$PGDATA" -w start
 
-    gosu postgres psql -c "CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';"
-    gosu postgres psql -c "CREATE DATABASE repmgr OWNER repmgr;"
+	gosu postgres psql -c "CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';"
+	gosu postgres psql -c "CREATE DATABASE repmgr OWNER repmgr;"
+	gosu postgres psql -c "CREATE USER barman SUPERUSER LOGIN ENCRYPTED PASSWORD '${BARMAN_PASSWORD}';"
+	gosu postgres psql -c "CREATE USER barman_streaming REPLICATION LOGIN ENCRYPTED PASSWORD '${BARMAN_STREAMING_PASSWORD}';"
+	gosu postgres psql -c "CREATE DATABASE barman OWNER barman;"
 
-    sed -i \
-        -e "s|^listen_addresses = .*|listen_addresses = '*'|" \
-        -e "s|^#hot_standby = .*|hot_standby = on|" \
-        -e "s|^#wal_level = .*|wal_level = hot_standby|" \
-        -e "s|^#max_wal_senders = .*|max_wal_senders = 10|" \
-        -e "s|^#max_replication_slots = .*|max_replication_slots = 10|" \
-        -e "s|^#archive_mode = .*|archive_mode = on|" \
-        -e "s|^#archive_command = .*|archive_command = '/bin/true'|" \
-        -e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
-        ${PGDATA}/postgresql.conf
+	sed -i \
+		-e "s|^listen_addresses = .*|listen_addresses = '*'|" \
+		-e "s|^#hot_standby = .*|hot_standby = on|" \
+		-e "s|^#wal_level = .*|wal_level = hot_standby|" \
+		-e "s|^#max_wal_senders = .*|max_wal_senders = 10|" \
+		-e "s|^#max_replication_slots = .*|max_replication_slots = 10|" \
+		-e "s|^#archive_mode = .*|archive_mode = on|" \
+		-e "s|^#archive_command = .*|archive_command = '/bin/true'|" \
+		-e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
+		${PGDATA}/postgresql.conf
 
 	cidr_range="$(echo -n $POD_IP | grep -oE '^[0-9]+\.')0.0.0/8"
 
 	cat >> ${PGDATA}/pg_hba.conf <<-EOF
-	host    repmgr          repmgr          all                   md5
-	host    replication     repmgr          all                   md5
+	host    repmgr          repmgr           all                   md5
+	host    replication     repmgr           all                   md5
+	host    barman          barman           all                   md5
+	host    replication     barman_streaming all                   md5
 	# other
-	host    all             all             ${cidr_range}         md5
+	host    all             all              ${cidr_range}         md5
 	EOF
 
 	gosu postgres pg_ctl -D "$PGDATA" -w restart
 
-    # Master
-    if [[ $ordinal -eq 0 ]]; then
-        gosu postgres repmgr master register
-    # Standby
-    else
-        if [[ ! -f "${PGDATA}/recovery.conf" ]]; then
-            gosu postgres pg_ctl -D "$PGDATA" -m fast -w stop
-            rm -rf ${PGDATA}/*
-            gosu postgres repmgr \
-                --dbname="host=${master_host} dbname=${REPMGR_DBNAME} user=${REPMGR_USER} password=${REPMGR_PASSWORD} application_name=node1" \
-                standby clone
-            gosu postgres pg_ctl -D "$PGDATA" -w start
-        fi
+	# Master
+	if [[ $ordinal -eq 0 ]]; then
+		gosu postgres repmgr master register
+	# Standby
+	else
+		if [[ ! -f "${PGDATA}/recovery.conf" ]]; then
+			gosu postgres pg_ctl -D "$PGDATA" -m fast -w stop
+			rm -rf ${PGDATA}/*
+			gosu postgres repmgr \
+				--dbname="host=${master_host} dbname=${REPMGR_DBNAME} user=${REPMGR_USER} password=${REPMGR_PASSWORD} application_name=node1" \
+				standby clone
+			gosu postgres pg_ctl -D "$PGDATA" -w start
+		fi
 
-        gosu postgres repmgr standby register
-    fi
+		gosu postgres repmgr standby register
+	fi
 
 	PGUSER="${PGUSER:-postgres}" \
 	gosu postgres pg_ctl -D "$PGDATA" -m fast -w stop

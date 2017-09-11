@@ -9,7 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   serviceName: {{ template "postgresql.fullname" . }}
-  replicas: 2
+  replicas: {{ .Values.postgres.replicaCount }}
   template:
     metadata:
       labels:
@@ -20,8 +20,8 @@ spec:
     spec:
       containers:
       - name: postgresql
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+        imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
         env:
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
@@ -56,7 +56,7 @@ spec:
           timeoutSeconds: 3
           periodSeconds: 5
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+{{ toYaml .Values.postgres.resources | indent 10 }}
         volumeMounts:
         - name: data
           mountPath: /var/lib/postgresql/data/pgdata

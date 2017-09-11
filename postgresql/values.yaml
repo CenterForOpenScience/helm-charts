@@ -1,7 +1,18 @@
-image:
-  repository: centerforopenscience/postgres
-  tag: 9.6-repmgr
-  pullPolicy: IfNotPresent
+postgres:
+  replicaCount: 2
+  image:
+    repository: centerforopenscience/postgres
+    tag: 9.6-repmgr
+    pullPolicy: IfNotPresent
+  resources: {}
+
+barman:
+  replicaCount: 1
+  image:
+    repository: centerforopenscience/barman
+    tag: '9.6'
+    pullPolicy: IfNotPresent
+  resources: {}
 
 ## Persist data to a persitent volume
 persistence:
@@ -20,6 +31,8 @@ secrets:
   REPMGR_DBNAME: 'repmgr'
   REPMGR_USER: 'repmgr'
   REPMGR_PASSWORD: ''
+  BARMAN_PASSWORD: ''
+  BARMAN_STREAMING_PASSWORD: ''
 
 metrics:
   enabled: false
