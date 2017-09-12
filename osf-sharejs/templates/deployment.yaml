@@ -50,9 +50,6 @@ spec:
         - name: nodejs
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: {{ .image.pullPolicy }}
-          command:
-            - invoke
-            - sharejs
           resources:
 {{ toYaml .resources | indent 12 }}
         {{- end }}
@@ -62,7 +59,7 @@ spec:
             - name: SHAREJS_SERVER_PORT
               value: "{{ .Values.service.externalPort }}"
             - name: SHAREJS_DB_NAME
-              value: {{ .Values.dbName }}
+              value: {{ .Values.mongodb.mongodbDatabase }}
             - name: SHAREJS_DB_URL
               value: "mongodb://{{ include "mongodb.fullname" . }}:27017/{{ .Values.mongodb.mongodbDatabase }}"
             - name: SHAREJS_CORS_ALLOW_ORIGIN

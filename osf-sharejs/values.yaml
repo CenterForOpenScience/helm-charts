@@ -18,7 +18,7 @@ nginx:
 
 nodejs:
   image:
-    repository: quay.io/centerforopenscience/osf
+    repository: quay.io/centerforopenscience/sharejs
     tag: develop
     pullPolicy: Always
   resources: {}
@@ -62,6 +62,7 @@ secrets:
   sentryDSN: 'https://'
 
 mongodb:
+  enabled: true
   ## Bitnami MongoDB image version
   ## ref: https://hub.docker.com/r/bitnami/mongodb/tags/
   ##
