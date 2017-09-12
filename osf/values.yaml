@@ -1,6 +1,3 @@
-# # preprintsDomain: preprints-chart.fqdn
-# # registriesDomain: registries-chart.fqdn
-
 image:
   repository: quay.io/centerforopenscience/osf
   tag: develop
@@ -184,48 +181,6 @@ migration:
 
   env: {}
 
-sharejs:
-  enabled: true
-  name: sharejs
-  # replicaCount: 1
-
-  nginx:
-    resources: {}
-      # limits:
-      #   cpu: "1"
-      #   memory: 256Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-
-  resources: {}
-    # limits:
-    #   cpu: "1"
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
-
-  service:
-    name: http
-    type: ClusterIP
-    externalPort: 7007
-    internalPort: 80
-
-  env: {}
-
-  ingress:
-    ## component server Ingress hostnames
-    ## Must be provided if Ingress is enabled
-    ##
-    hosts: []
-    #   - example.domain.com
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
 web:
   enabled: true
   name: web
@@ -386,45 +341,29 @@ volumeMounts:
     subPath: addons-zotero-local.py
     readOnly: true
 
-osf-preprints:
-  enabled: true
+preprints:
+  enabled: false
+  service:
+    name: preprints
+    externalPort: 80
 
-  ember:
-    replicaCount: 2
-  
-    image:
-      repository: us.gcr.io/cos-containers/osf-preprints
-      tag: develop
-      pullPolicy: Always
-
-    resources: {}
-
-    configFiles: {}
-      # config.json: '...'
-
-osf-registries:
-  enabled: true
-
-  ember:
-    replicaCount: 1
-
-    image:
-      repository: us.gcr.io/cos-containers/osf-registries
-      tag: develop
-      pullPolicy: Always
-
-    resources: {}
-
-    configFiles: {}
-      # config.json: '...'
+registries:
+  enabled: false
+  service:
+    name: registries
+    externalPort: 80
 
 prerender:
-  enabled: true
-  replicaCount: 1
+  enabled: false
+  service:
+    name: prerender
+    externalPort: 3000
 
-  configFiles: {}
-    # nginx.conf: |-
-    #   TBD...
+sharejs:
+  enabled: false
+  service:
+    name: sharejs
+    externalPort: 7007
 
 postgresql:
   enabled: true

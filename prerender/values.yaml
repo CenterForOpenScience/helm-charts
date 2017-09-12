@@ -3,52 +3,32 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 
+image:
+  repository: centerforopenscience/prerender
+  tag: latest
+  pullPolicy: Always
+
+resources: {}
+  #limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  #requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
 nginx:
   image:
-    repository: gcr.io/cos-containers/nginx
-    tag: '1'
+    repository: us.gcr.io/cos-containers/nginx
+    tag: "1"
     pullPolicy: Always
+
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-nodejs:
-  image:
-    repository: centerforopenscience/prerender
-    tag: latest
-    pullPolicy: Always
-  env:
-    ALLOWED_DOMAINS: 'domain.name,domain2.name'
-    REDIS_URL: redis://redis:6379/0
-    PAGE_TTL: 432000 # 3600 * 24 * 5 # change to 0 if you want all time cache
-    # PRERENDER_NUM_WORKERS: 1
-    # PRERENDER_NUM_ITERATIONS: 40
-    # PRERENDER_NUM_SOFT_ITERATIONS: 30
-  resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-configs: {}
-  # Override configmap files here
-
-secrets:
-  THROTTLE_TOKEN: ''
+  #limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  #requests:
+  #  cpu: 100m
+  #  memory: 128Mi
 
 service:
   name: prerender
@@ -69,3 +49,108 @@ ingress:
     # - secretName: chart-example-tls
     #   hosts:
     #     - chart-example.local
+
+configEnvs: {}
+  # ALLOWED_DOMAINS: "domain.name,domain2.name"
+  # PAGE_TTL: 86400
+  # PRERENDER_NUM_WORKERS: "1"
+  # PRERENDER_NUM_ITERATIONS: "40"
+  # PRERENDER_NUM_SOFT_ITERATIONS: "30"
+
+configFiles: {}
+
+secretEnvs:
+  THROTTLE_TOKEN: ''
+  # REDIS_URL: redis://:<password>@s3prerender-redis-redis:6379/0
+
+secretFiles: {}
+
+redis:
+  nameOverride: prerender-redis
+  enabled: true
+
+  ## Bitnami Redis image version
+  ## ref: https://hub.docker.com/r/bitnami/redis/tags/
+  ##
+  image: bitnami/redis:3.2.9-r2
+
+  ## Specify a imagePullPolicy
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  imagePullPolicy: IfNotPresent
+
+  ## Use password authentication
+  usePassword: true
+
+  ## Redis password
+  ## Defaults to a random 10-character alphanumeric string if not set and usePassword is true
+  ## ref: https://github.com/bitnami/bitnami-docker-redis#setting-the-server-password-on-first-run
+  ##
+  redisPassword: prerender
+
+  ## Redis command arguments
+  ##
+  ## Can be used to specify command line arguments, for example:
+  ##
+  ## args:
+  ##  - "redis-server"
+  ##  - "--maxmemory-policy volatile-ttl"
+  args:
+
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    enabled: false
+
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+
+    ## redis data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 8Gi
+
+  metrics:
+    enabled: false
+    image: oliver006/redis_exporter
+    imageTag: v0.11
+    imagePullPolicy: IfNotPresent
+    resources: {}
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9121"
+
+  ## Configure resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+
+  ## Node labels and tolerations for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  nodeSelector: {}
+  tolerations: []
+
+  networkPolicy:
+    ## Enable creation of NetworkPolicy resources.
+    ##
+    enabled: false
+
+    ## The Policy model to apply. When set to false, only pods with the correct
+    ## client label will have network access to the port PostgreSQL is listening
+    ## on. When true, Redis will accept connections from any source
+    ## (with the correct destination port).
+    ##
+    allowExternal: true

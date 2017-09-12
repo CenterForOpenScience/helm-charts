@@ -163,24 +163,33 @@ api-nginx.conf: |-
           }
       }
   }
+{{- if .Values.preprints.enabled }}
 web-nginx-preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
+      {{- if .Values.prerender.enabled }}
       include /nginx/prerender.conf;
+      {{- end }}
 
       rewrite ^/preprints/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ include "osf-preprints.fullname" . }};
+      proxy_pass http://{{ .Values.preprints.service.name }}:{{ .Values.preprints.service.externalPort }};
   }
+{{- end }}
+{{- if .Values.registries.enabled }}
 web-nginx-registries.conf: |-
   location /registries/ {
+      {{- if .Values.prerender.enabled }}
       include /nginx/prerender.conf;
+      {{- end }}
 
       rewrite ^/registries/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ include "osf-registries.fullname" . }};
+      proxy_pass http://{{ .Values.registries.service.name }}:{{ .Values.registries.service.externalPort }};
   }
+{{- end }}
+{{- if .Values.prerender.enabled }}
 web-nginx-prerender.conf: |-
   set $prerender 0;
 
@@ -202,8 +211,9 @@ web-nginx-prerender.conf: |-
 
   if ($prerender = 1) {
       rewrite .* /https://$host$request_uri? break;
-      proxy_pass http://{{ include "prerender.fullname" . }};
+      proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
   }
+{{- end }}
 web-nginx.conf: |-
   user nginx;
   worker_processes 1;
@@ -290,8 +300,12 @@ web-nginx.conf: |-
               alias /static/code/website/static/;
           }
 
+          {{- if .Values.preprints.enabled }}
           include /nginx/preprints.conf;
+          {{- end }}
+          {{- if .Values.registries.enabled }}
           include /nginx/registries.conf;
+          {{- end }}
 
           # # SHARE
           # location /share/docs {
@@ -328,7 +342,9 @@ web-nginx.conf: |-
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
 
+              {{- if .Values.prerender.enabled }}
               include /nginx/prerender.conf;
+              {{- end }}
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;

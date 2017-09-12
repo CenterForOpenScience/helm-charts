@@ -11,15 +11,3 @@ dependencies:
     version: 0.6.3
     repository: https://kubernetes-charts.storage.googleapis.com
     condition: rabbitmq.enabled, global.rabbitmq.enabled
-  - name: prerender
-    version: 0.1.0
-    repository: file://../prerender
-    condition: prerender.enabled, global.prerender.enabled
-  - name: osf-preprints
-    version: 0.1.0
-    repository: file://../osf-preprints
-    condition: osf-preprints.enabled, global.osf-preprints.enabled
-  - name: osf-registries
-    version: 0.1.0
-    repository: file://../osf-registries
-    condition: osf-registries.enabled, global.osf-registries.enabled

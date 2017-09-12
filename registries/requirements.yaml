@@ -2,4 +2,4 @@ dependencies:
   - name: ember
     version: 0.1.0
     repository: file://../ember
-    condition: osf-preprints.enabled, global.osf-preprints.enabled
+    condition: registries.enabled, global.registries.enabled

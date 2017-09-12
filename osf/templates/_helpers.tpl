@@ -61,15 +61,6 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
-Create a default fully qualified sharejs name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-*/}}
-{{- define "osf.sharejs.fullname" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- printf "%s-%s-%s" .Release.Name $name .Values.sharejs.name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
 Create a default fully qualified web name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
@@ -88,53 +79,12 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
-Create a default fully qualified osf preprints name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-*/}}
-{{- define "osf-preprints.fullname" -}}
-{{- $values := default .Values (index .Values "osf-preprints") }}
-{{- $name := default (printf "%s-%s" .Release.Name "osf-preprints") $values.nameOverride -}}
-{{- $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create a default fully qualified osf registries name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-*/}}
-{{- define "osf-registries.fullname" -}}
-{{- $values := default .Values (index .Values "osf-registries") }}
-{{- $name := default (printf "%s-%s" .Release.Name "osf-registries") $values.nameOverride -}}
-{{- $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create a default fully qualified prerender name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-*/}}
-{{- define "prerender.fullname" -}}
-{{- $values := default .Values .Values.prerender }}
-{{- $name := default (printf "%s-%s" .Release.Name "prerender") $values.nameOverride -}}
-{{- $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create a default fully qualified elasticsearch client name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-*/}}
-{{- define "elasticsearch.client.fullname" -}}
-{{- $values := default .Values .Values.elasticsearch }}
-{{- $name := default (printf "%s-%s-%s" .Release.Name "elasticsearch" "client") $values.nameOverride -}}
-{{- $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
 Create a default fully qualified postgresql name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "postgresql.fullname" -}}
-{{- $values := default .Values .Values.postgresql }}
-{{- $name := default (printf "%s-%s" .Release.Name "postgresql") $values.nameOverride -}}
-{{- $name | trunc 63 | trimSuffix "-" -}}
+{{- $name := "postgresql" -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -142,19 +92,17 @@ Create a default fully qualified rabbitmq name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "rabbitmq.fullname" -}}
-{{- $values := default .Values .Values.rabbitmq }}
-{{- $name := default (printf "%s-%s" .Release.Name "rabbitmq") $values.nameOverride -}}
-{{- $name | trunc 63 | trimSuffix "-" -}}
+{{- $name := "rabbitmq" -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
-Create a default fully qualified flower name.
+Create a default fully qualified elasticsearch client name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "flower.fullname" -}}
-{{- $values := default .Values .Values.flower }}
-{{- $name := default (printf "%s-%s" .Release.Name "flower") $values.nameOverride -}}
-{{- $name | trunc 63 | trimSuffix "-" -}}
+{{- define "elasticsearch.client.fullname" -}}
+{{- $name := "elasticsearch-client" -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -203,7 +151,11 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 {{- end }}
       key: rabbitmq-password
 - name: ELASTIC_URI
-  value: http://{{ template "elasticsearch.client.fullname" . }}:9200
+{{- if .Values.elasticsearch.enabled }}
+   value: http://{{ template "elasticsearch.client.fullname" . }}:9200
+{{- else }}
+  value: http://{{ .Values.elasticsearch.client.service.name }}:9200
+{{- end }}
 {{- $fullname := include "osf.fullname" . -}}
 {{- range $key, $value := .Values.configEnvs }}
 - name: {{ $key }}

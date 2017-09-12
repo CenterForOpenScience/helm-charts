@@ -66,22 +66,28 @@ spec:
               name: config-volume
               subPath: web-nginx.conf
               readOnly: true
-            - mountPath: /nginx/preprints.conf
-              name: config-volume
-              subPath: web-nginx-preprints.conf
-              readOnly: true
-            - mountPath: /nginx/registries.conf
-              name: config-volume
-              subPath: web-nginx-registries.conf
-              readOnly: true
-            - mountPath: /nginx/prerender.conf
-              name: config-volume
-              subPath: web-nginx-prerender.conf
-              readOnly: true
             - mountPath: /nginx/robots.txt
               name: config-volume
               subPath: web-robots.txt
               readOnly: true
+            {{- if .Values.preprints.enabled }}
+            - mountPath: /nginx/preprints.conf
+              name: config-volume
+              subPath: web-nginx-preprints.conf
+              readOnly: true
+            {{- end }}
+            {{- if .Values.registries.enabled }}
+            - mountPath: /nginx/registries.conf
+              name: config-volume
+              subPath: web-nginx-registries.conf
+              readOnly: true
+            {{- end }}
+            {{- if .Values.prerender.enabled }}
+            - mountPath: /nginx/prerender.conf
+              name: config-volume
+              subPath: web-nginx-prerender.conf
+              readOnly: true
+            {{- end }}
           resources:
 {{ toYaml .Values.web.nginx.resources | indent 12 }}
         - name: {{ .Values.web.name }}
