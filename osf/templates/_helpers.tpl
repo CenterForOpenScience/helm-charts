@@ -121,7 +121,7 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
   valueFrom:
     secretKeyRef:
       name: {{ template "osf.fullname" . }}
-      key: postgres-host
+      key: OSF_DB_HOST
 {{- end }}
 - name: OSF_DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
@@ -132,10 +132,11 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
     secretKeyRef:
 {{- if .Values.postgresql.enabled }}
       name: {{ template "postgresql.fullname" . }}
+      key: postgres-password
 {{- else }}
       name: {{ template "osf.fullname" . }}
+      key: OSF_DB_PASSWORD
 {{- end }}
-      key: postgres-password
 - name: RABBITMQ_HOST
 {{- if .Values.rabbitmq.enabled }}
   value: {{ template "rabbitmq.fullname" . }}
