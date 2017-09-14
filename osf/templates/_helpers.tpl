@@ -114,15 +114,9 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 {{- end -}}
 
 {{- define "osf.environment" }}
-- name: OSF_DB_HOST
 {{- if .Values.postgresql.enabled }}
+- name: OSF_DB_HOST
   value: {{ template "postgresql.fullname" . }}
-{{- else }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ template "osf.fullname" . }}
-      key: OSF_DB_HOST
-{{- end }}
 - name: OSF_DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
 - name: OSF_DB_USER
@@ -130,19 +124,12 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 - name: OSF_DB_PASSWORD
   valueFrom:
     secretKeyRef:
-{{- if .Values.postgresql.enabled }}
       name: {{ template "postgresql.fullname" . }}
       key: postgres-password
-{{- else }}
-      name: {{ template "osf.fullname" . }}
-      key: OSF_DB_PASSWORD
 {{- end }}
-- name: RABBITMQ_HOST
 {{- if .Values.rabbitmq.enabled }}
+- name: RABBITMQ_HOST
   value: {{ template "rabbitmq.fullname" . }}
-{{- else }}
-  value: {{ .Values.rabbitmq.rabbitmqHost | quote }}
-{{- end }}
 - name: RABBITMQ_PORT
   value: {{ .Values.rabbitmq.rabbitmqNodePort | quote }}
 - name: RABBITMQ_VHOST
@@ -152,17 +139,12 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 - name: RABBITMQ_PASSWORD
   valueFrom:
     secretKeyRef:
-{{- if .Values.rabbitmq.enabled }}
       name: {{ template "rabbitmq.fullname" . }}
-{{- else }}
-      name: {{ template "osf.fullname" . }}
-{{- end }}
       key: rabbitmq-password
-- name: ELASTIC_URI
+{{- end }}
 {{- if .Values.elasticsearch.enabled }}
+- name: ELASTIC_URI
   value: http://{{ template "elasticsearch.client.fullname" . }}:9200
-{{- else }}
-  value: http://{{ .Values.elasticsearch.client.service.name }}:9200
 {{- end }}
 {{- $fullname := include "osf.fullname" . -}}
 {{- range $key, $value := .Values.configEnvs }}
