@@ -152,7 +152,7 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
       key: rabbitmq-password
 - name: ELASTIC_URI
 {{- if .Values.elasticsearch.enabled }}
-   value: http://{{ template "elasticsearch.client.fullname" . }}:9200
+  value: http://{{ template "elasticsearch.client.fullname" . }}:9200
 {{- else }}
   value: http://{{ .Values.elasticsearch.client.service.name }}:9200
 {{- end }}
