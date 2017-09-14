@@ -1,17 +1,17 @@
-{{- if .Values.worker.enabled -}}
+{{- if .Values.builder.enabled -}}
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  name: {{ template "lookit.worker.fullname" . }}
+  name: {{ template "lookit.builder.fullname" . }}
   labels:
     app: {{ template "lookit.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    component: "{{ .Values.worker.name }}"
+    component: "{{ .Values.builder.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
-  serviceName: {{ template "lookit.worker.fullname" . }}
-  replicas: {{ .Values.worker.replicaCount }}
+  serviceName: {{ template "lookit.builder.fullname" . }}
+  replicas: {{ .Values.builder.replicaCount }}
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
@@ -20,15 +20,15 @@ spec:
     metadata:
       labels:
         app: {{ template "lookit.name" . }}
-        component: "{{ .Values.worker.name }}"
+        component: "{{ .Values.builder.name }}"
         release: {{ .Release.Name }}
       annotations:
         {{- include "lookit.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
         - name: docker
-          image: "{{ .Values.worker.docker.image.repository }}:{{ .Values.worker.docker.image.tag }}"
-          imagePullPolicy: {{ .Values.worker.docker.image.pullPolicy }}
+          image: "{{ .Values.builder.docker.image.repository }}:{{ .Values.builder.docker.image.tag }}"
+          imagePullPolicy: {{ .Values.builder.docker.image.pullPolicy }}
           args:
             - --storage-driver=overlay
           ports:
@@ -44,8 +44,8 @@ spec:
           securityContext:
             privileged: true
           resources:
-{{ toYaml .Values.worker.docker.resources | indent 12 }}
-        - name: {{ .Values.worker.name }}
+{{ toYaml .Values.builder.docker.resources | indent 12 }}
+        - name: {{ .Values.builder.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
@@ -56,16 +56,16 @@ spec:
             - project.celery.app
             - worker
             - -c
-            - "{{ .Values.worker.conccurrency }}"
+            - "{{ .Values.builder.conccurrency }}"
             - -l
             - INFO
             - -n
             - worker.%h
             - --without-gossip
             - --maxtasksperchild
-            - "{{ .Values.worker.maxTasksPerChild }}"
+            - "{{ .Values.builder.maxTasksPerChild }}"
             - -Q
-            - email,builds,cleanup
+            - "{{ .Values.worker.queues }}"
           env:
             - name: DOCKER_HOST
               value: tcp://localhost:2375
@@ -79,9 +79,9 @@ spec:
 {{ toYaml .Values.volumeMounts | indent 12 }}
 {{- end }}
           resources:
-{{ toYaml .Values.worker.resources | indent 12 }}
+{{ toYaml .Values.builder.resources | indent 12 }}
       volumes:
-        {{- if not .Values.worker.persistence.enabled }}
+        {{- if not .Values.builder.persistence.enabled }}
         - name: docker-volume
           emptyDir: {}
         {{- end }}
@@ -95,22 +95,22 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "lookit.fullname" . }}
-    {{- if .Values.worker.nodeSelector }}
+    {{- if .Values.builder.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.worker.nodeSelector | indent 8 }}
+{{ toYaml .Values.builder.nodeSelector | indent 8 }}
     {{- end }}
-  {{- if .Values.worker.persistence.enabled }}
+  {{- if .Values.builder.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: docker-volume
       spec:
         accessModes:
-          - {{ .Values.worker.persistence.accessMode | quote }}
-      {{- if .Values.worker.persistence.storageClass }}
-        storageClassName: {{ .Values.worker.persistence.storageClass | quote }}
+          - {{ .Values.builder.persistence.accessMode | quote }}
+      {{- if .Values.builder.persistence.storageClass }}
+        storageClassName: {{ .Values.builder.persistence.storageClass | quote }}
       {{- end }}
         resources:
           requests:
-            storage: {{ .Values.worker.persistence.size | quote }}
+            storage: {{ .Values.builder.persistence.size | quote }}
   {{- end }}
 {{- end -}}

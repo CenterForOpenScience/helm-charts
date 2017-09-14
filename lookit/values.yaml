@@ -50,13 +50,14 @@ web:
     externalPort: 5000
     internalPort: 80
 
-worker:
+builder:
   enabled: true
-  name: worker
+  name: builder
   replicaCount: 1
 
   conccurrency: 1
   maxTasksPerChild: 5
+  queues: builds,cleanup
 
   docker:
     image:
@@ -84,6 +85,23 @@ worker:
     # storageClass:
     accessMode: ReadWriteOnce
     size: 10Gi
+
+worker:
+  enabled: true
+  name: worker
+  replicaCount: 1
+
+  conccurrency: 1
+  maxTasksPerChild: 5
+  queues: email
+
+  resources: {}
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
 
 collectstatic:
   enabled: false
