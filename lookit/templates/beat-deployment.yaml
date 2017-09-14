@@ -29,7 +29,7 @@ spec:
             - www-data
             - celery
             - -A
-            - project
+            - project.celery.app
             - beat
             - -l
             - DEBUG
