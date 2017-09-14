@@ -6,6 +6,18 @@ image:
   tag: develop
   pullPolicy: Always
 
+beat:
+  enabled: true
+  name: beat
+
+  resources: {}
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
 web:
   enabled: true
   name: web
