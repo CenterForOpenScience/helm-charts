@@ -1,12 +1,12 @@
 {{- if .Values.ingress.enabled -}}
-{{- $serviceName := include "prerender.fullname" . -}}
+{{- $serviceName := include "ember.fullname" . -}}
 {{- $servicePort := .Values.service.externalPort -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ template "prerender.fullname" . }}
+  name: {{ template "ember.fullname" . }}
   labels:
-    app: {{ template "prerender.name" . }}
+    app: {{ template "ember.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}

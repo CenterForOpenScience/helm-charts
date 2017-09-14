@@ -1,0 +1,122 @@
+{{- if .Values.admin.enabled -}}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "osf.admin.fullname" . }}
+  labels:
+    app: {{ template "osf.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.admin.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.admin.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "osf.name" . }}
+        component: "{{ .Values.admin.name }}"
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
+    spec:
+      {{- if not .Values.collectstatic.enabled }}
+      initContainers:
+        - name: {{ .Values.collectstatic.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - mkdir -p /static/code/admin &&
+              cp -Rf /code/static_root/* /static/code/admin
+          env:
+            {{- include "osf.environment" . | indent 12 }}
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+{{- if .Values.volumeMounts }}
+{{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+      {{- end }}
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /nginx/nginx.conf
+            - -g
+            - daemon off;
+          ports:
+            - name: http
+              containerPort: {{ .Values.admin.service.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.admin.service.internalPort }}
+            initialDelaySeconds: 10
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+            - mountPath: /nginx/nginx.conf
+              name: config-volume
+              subPath: admin-nginx.conf
+              readOnly: true
+            - mountPath: /nginx/robots.txt
+              name: config-volume
+              subPath: admin-robots.txt
+              readOnly: true
+          resources:
+{{ toYaml .Values.admin.nginx.resources | indent 12 }}
+        - name: {{ .Values.admin.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - uwsgi
+            - --ini
+            - /etc/uwsgi/uwsgi.ini
+            - --socket
+            - :{{ .Values.admin.service.externalPort }}
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: admin.base.settings
+            {{- include "osf.environment" . | indent 12 }}
+            {{- range $key, $value := .Values.admin.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          ports:
+            - name: wsgi
+              containerPort: {{ .Values.admin.service.externalPort }}
+            - name: stats
+              containerPort: 1717
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.admin.service.externalPort }}
+            initialDelaySeconds: 10
+          volumeMounts:
+            - mountPath: /etc/uwsgi/uwsgi.ini
+              name: config-volume
+              subPath: admin-uwsgi.ini
+              readOnly: true
+{{- if .Values.volumeMounts }}
+{{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+          resources:
+{{ toYaml .Values.admin.resources | indent 12 }}
+      volumes:
+        - name: static-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: {{ template "osf.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "osf.fullname" . }}
+    {{- if .Values.admin.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.admin.nodeSelector | indent 8 }}
+    {{- end }}
+{{- end -}}

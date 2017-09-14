@@ -1,0 +1,142 @@
+{{- if .Values.web.enabled -}}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "osf.web.fullname" . }}
+  labels:
+    app: {{ template "osf.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.web.name }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "osf.name" . }}
+        component: "{{ .Values.web.name }}"
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "osf.deploymentAnnotations" . | indent 8 }}
+    spec:
+      {{- if not .Values.collectstatic.enabled }}
+      initContainers:
+        - name: {{ .Values.collectstatic.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - mkdir -p /static/code/website &&
+              cp -Rf /code/website/static /static/code/website &&
+              find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
+          env:
+            {{- include "osf.environment" . | indent 12 }}
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+{{- if .Values.volumeMounts }}
+{{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+      {{- end }}
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /nginx/nginx.conf
+            - -g
+            - daemon off;
+          ports:
+            - containerPort: {{ .Values.web.service.internalPort }}
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.web.service.internalPort }}
+            initialDelaySeconds: 10
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+              readOnly: true
+            - mountPath: /nginx/nginx.conf
+              name: config-volume
+              subPath: web-nginx.conf
+              readOnly: true
+            - mountPath: /nginx/robots.txt
+              name: config-volume
+              subPath: web-robots.txt
+              readOnly: true
+            {{- if .Values.preprints.enabled }}
+            - mountPath: /nginx/preprints.conf
+              name: config-volume
+              subPath: web-nginx-preprints.conf
+              readOnly: true
+            {{- end }}
+            {{- if .Values.registries.enabled }}
+            - mountPath: /nginx/registries.conf
+              name: config-volume
+              subPath: web-nginx-registries.conf
+              readOnly: true
+            {{- end }}
+            {{- if .Values.prerender.enabled }}
+            - mountPath: /nginx/prerender.conf
+              name: config-volume
+              subPath: web-nginx-prerender.conf
+              readOnly: true
+            {{- end }}
+          resources:
+{{ toYaml .Values.web.nginx.resources | indent 12 }}
+        - name: {{ .Values.web.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - uwsgi
+            - --ini
+            - /etc/uwsgi/uwsgi.ini
+            - --socket
+            - :{{ .Values.web.service.externalPort }}
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: api.base.settings
+            {{- include "osf.environment" . | indent 12 }}
+            {{- range $key, $value := .Values.web.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          ports:
+            - name: wsgi
+              containerPort: {{ .Values.web.service.externalPort }}
+            - name: stats
+              containerPort: 1717
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.web.service.externalPort }}
+            initialDelaySeconds: 10
+          volumeMounts:
+            - mountPath: /etc/uwsgi/uwsgi.ini
+              name: config-volume
+              subPath: web-uwsgi.ini
+              readOnly: true
+{{- if .Values.volumeMounts }}
+{{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+          resources:
+{{ toYaml .Values.web.resources | indent 12 }}
+      volumes:
+        - name: static-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: {{ template "osf.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "osf.fullname" . }}
+    {{- if .Values.web.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.web.nodeSelector | indent 8 }}
+    {{- end }}
+{{- end -}}

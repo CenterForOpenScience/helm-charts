@@ -1,76 +1,13 @@
 dependencies:
-  - name: postgresql
-    version: 0.7.0
-    repository: https://kubernetes-charts.storage.googleapis.com
-    condition: postgresql.enabled, global.postgresql.enabled
-    tags:
-      - back-end
-  - name: rabbitmq
-    version: 0.5.1
-    repository: https://kubernetes-charts.storage.googleapis.com
-    condition: rabbitmq.enabled, global.rabbitmq.enabled
-    tags:
-      - back-end
   - name: elasticsearch
     version: 0.1.10
     repository: file://../elasticsearch
     condition: elasticsearch.enabled, global.elasticsearch.enabled
-    tags:
-      - back-end
-  - name: osf-admin
-    version: 0.1.0
-    repository: file://../osf-admin
-    condition: osf-admin.enabled, global.osf-admin.enabled
-    tags:
-      - front-end
-  - name: osf-api
-    version: 0.1.0
-    repository: file://../osf-api
-    condition: osf-api.enabled, global.osf-api.enabled
-    tags:
-      - front-end
-  - name: osf-web
-    version: 0.1.0
-    repository: file://../osf-web
-    condition: osf-web.enabled, global.osf-web.enabled
-    tags:
-      - front-end
-      - osf-api
-  - name: osf-ember-app
-    version: 0.1.0
-    alias: osf-ember-preprints
-    repository: file://../osf-ember-app
-    condition: osf-ember-preprints.enabled, global.osf-ember-preprints.enabled
-    tags:
-      - front-end
-  - name: osf-ember-app
-    version: 0.1.0
-    alias: osf-ember-registries
-    repository: file://../osf-ember-app
-    condition: osf-ember-registries.enabled, global.osf-ember-registries.enabled
-    tags:
-      - front-end
-  - name: osf-sharejs
-    version: 0.2.0
-    repository: file://../osf-sharejs
-    condition: osf-sharejs.enabled, global.osf-sharejs.enabled
-    tags:
-      - front-end
-  - name: osf-beat
-    version: 0.1.0
-    repository: file://../osf-beat
-    condition: osf-beat.enabled, global.osf-beat.enabled
-    tags:
-      - back-end
-  - name: osf-flower
-    version: 0.1.0
-    repository: file://../osf-flower
-    condition: osf-flower.enabled, global.osf-flower.enabled
-    tags:
-      - back-end
-  - name: osf-worker
-    version: 0.1.0
-    repository: file://../osf-worker
-    condition: osf-worker.enabled, global.osf-worker.enabled
-    tags:
-      - back-end
+  - name: postgresql
+    version: 0.8.1
+    repository: https://kubernetes-charts.storage.googleapis.com
+    condition: postgresql.enabled, global.postgresql.enabled
+  - name: rabbitmq
+    version: 0.6.3
+    repository: https://kubernetes-charts.storage.googleapis.com
+    condition: rabbitmq.enabled, global.rabbitmq.enabled

@@ -1,0 +1,27 @@
+{{- /* TODO: Remove when djang-celery-beat is configured */ -}}
+{{- if .Values.beat.enabled -}}
+{{- if and .Values.beat.persistence.enabled (not .Values.beat.persistence.existingClaim) -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "osf.beat.fullname" . }}
+  labels:
+    app: {{ template "osf.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.beat.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  annotations:
+  {{- if .Values.beat.persistence.storageClass }}
+    volume.beta.kubernetes.io/storage-class: {{ .Values.beat.persistence.storageClass | quote }}
+  {{- else }}
+    volume.alpha.kubernetes.io/storage-class: default
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.beat.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.beat.persistence.size | quote }}
+{{- end -}}
+{{- end -}}

@@ -1,39 +1,12 @@
 dependencies:
-- name: postgresql
-  repository: https://kubernetes-charts.storage.googleapis.com
-  version: 0.7.0
-- name: rabbitmq
-  repository: https://kubernetes-charts.storage.googleapis.com
-  version: 0.5.1
 - name: elasticsearch
   repository: file://../elasticsearch
   version: 0.1.10
-- name: osf-admin
-  repository: file://../osf-admin
-  version: 0.1.0
-- name: osf-api
-  repository: file://../osf-api
-  version: 0.1.0
-- name: osf-web
-  repository: file://../osf-web
-  version: 0.1.0
-- name: osf-ember-app
-  repository: file://../osf-ember-app
-  version: 0.1.0
-- name: osf-ember-app
-  repository: file://../osf-ember-app
-  version: 0.1.0
-- name: osf-sharejs
-  repository: file://../osf-sharejs
-  version: 0.2.0
-- name: osf-beat
-  repository: file://../osf-beat
-  version: 0.1.0
-- name: osf-flower
-  repository: file://../osf-flower
-  version: 0.1.0
-- name: osf-worker
-  repository: file://../osf-worker
-  version: 0.1.0
-digest: sha256:1cc408877dfcc5e6cbd5d85b1d18032a6ed7299653fcff65f6af90e49d58a47f
-generated: 2017-09-12T13:35:59.373353413-04:00
+- name: postgresql
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 0.8.1
+- name: rabbitmq
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 0.6.3
+digest: sha256:e0475c9c26da27984531fdefd30fc007a8e7c065d37f41296a19425ccc81a248
+generated: 2017-09-13T21:15:05.770911133-04:00

@@ -1,21 +1,19 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "prerender.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "prerender.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
-        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        app: {{ template "prerender.name" . }}
         release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
@@ -51,18 +49,12 @@ spec:
           resources:
 {{ toYaml .Values.nginx.resources | indent 12 }}
         - name: nodejs
-          image: "{{ .Values.nodejs.image.repository }}:{{ .Values.nodejs.image.tag }}"
-          imagePullPolicy: {{ .Values.nodejs.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: THROTTLE_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "fullname" . }}
-                  key: THROTTLE_TOKEN
-            {{- range $key, $val := .Values.nodejs.env }}
-            - name: {{ $key }}
-              value: {{ $val | quote }}
-            {{- end }}
+            - name: PORT
+              value: "{{ .Values.service.externalPort }}"
+            {{- include "prerender.environment" . | indent 12 }}
           ports:
             - containerPort: {{ .Values.service.externalPort }}
           volumeMounts:
@@ -71,11 +63,14 @@ spec:
               subPath: server.js
               readOnly: true
           resources:
-{{ toYaml .Values.nodejs.resources | indent 12 }}
+{{ toYaml .Values.resources | indent 12 }}
       volumes:
         - name: config-volume
           configMap:
-            name: {{ template "fullname" . }}
+            name: {{ template "prerender.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "prerender.fullname" . }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}

@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "prerender.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "prerender.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 data:
 {{- define "inlineconfigs" }}
 nginx.conf: |
@@ -40,7 +40,10 @@ nginx.conf: |
       }
   }
 {{- end }}
-{{- range $key, $value := merge .Values.configs (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
+{{- range $key, $value := .Values.configEnvs }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- range $key, $value := merge .Values.configFiles (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
   {{ $key }}: |-
 {{ $value | indent 4 }}
 {{- end }}
