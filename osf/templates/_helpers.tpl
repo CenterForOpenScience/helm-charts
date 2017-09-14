@@ -123,7 +123,7 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 - name: OSF_DB_PASSWORD
   valueFrom:
     secretKeyRef:
-{{- if .Values.rabbitmq.enabled }}
+{{- if .Values.postgresql.enabled }}
       name: {{ template "postgresql.fullname" . }}
 {{- else }}
       name: {{ template "osf.fullname" . }}
