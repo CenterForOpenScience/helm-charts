@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "cas.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "cas.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
+        app: {{ template "cas.name" . }}
         release: {{ .Release.Name }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
@@ -42,19 +42,19 @@ spec:
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
           volumeMounts:
-            {{- include "apacheVolumeMounts" . | indent 12 }}
+            {{- include "cas.apache.volumeMounts" . | indent 12 }}
         - name: jetty
           image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
           imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
           env:
-            {{- include "jettyEnv" . | indent 12 }}
+            {{- include "cas.environment" . | indent 12 }}
           ports:
             - name: http
               containerPort: {{ .Values.service.externalPort }}
           volumeMounts:
-            {{- include "jettyVolumeMounts" . | indent 12 }}
+            {{- include "cas.jetty.volumeMounts" . | indent 12 }}
       volumes:
-        {{- include "volumes" . | indent 8 }}
+        {{- include "cas.volumes" . | indent 8 }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}

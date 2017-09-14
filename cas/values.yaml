@@ -49,10 +49,15 @@ osfDomain: 'staging.osf.io'
 apiDomain: 'staging-api.osf.io'
 ### https://sentry.cos.io/sentry/{project}/settings/keys/
 sentryDSN: ''
+
+# environment variables
+configEnvs: {}
+
 # override files here
-configs: {}
-# secret environment variables and files
-secrets:
+configFiles: {}
+
+# secret environment variables 
+secretEnvs:
   OAUTH_ORCID_CLIENT_ID: ''
   OAUTH_ORCID_CLIENT_SECRET: ''
   OSF_DB_URL: 'jdbc:postgresql://osf-postgresql.namespace/osf?targetServerType=master'
@@ -62,6 +67,14 @@ secrets:
   OSF_JWT_SECRET: ''
   TGC_ENCRYPTION_KEY: ''
   TGC_SIGNING_KEY: ''
+  ## If postgresql.enabled is false
+  # DATABASE_HOST: ''
+  # DATABASE_NAME: ''
+  # DATABASE_USER: ''
+  # DATABASE_PASSWORD: ''
+
+# secret files
+secretFiles:
   shibboleth/incommon-idp-signature.pem: |-
     
   shibboleth/sp-cert.pem: |-
