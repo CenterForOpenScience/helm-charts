@@ -16,33 +16,55 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         {{- include "ember.deploymentAnnotations" . | indent 8 }}
+        # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+        pod.beta.kubernetes.io/init-containers: |-
+          [
+              {
+                  "name": "{{ .Values.name }}",
+                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
+                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
+                  "command": [
+                      "/bin/sh",
+                      "-c",
+                      "{{ if hasKey .Values.configFiles "config.json" -}}sh /code/replace-config.sh /code/config.json /code/dist/index.html &&{{- end }} cp -Rf /code/dist/* /static/"
+                  ],
+                  "volumeMounts": [
+                      {"name":"static-volume","mountPath":"/static"}
+                      {{- if hasKey .Values.configFiles "config.json" }}
+                      ,
+                      {"name":"config-volume","readOnly":true,"mountPath":"/code/replace-config.sh","subPath":"replace-config.sh"},
+                      {"name":"config-volume","readOnly":true,"mountPath":"/code/config.json","subPath":"config.json"}
+                      {{- end }}
+                  ]
+              }
+          ]
     spec:
-      initContainers:
-        - name: {{ .Values.name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/sh
-            - -c
-            - {{ if hasKey .Values.configFiles "config.json" -}}
-              sh /code/replace-config.sh /code/config.json /code/dist/index.html &&
-              {{- end }}
-              cp -Rf /code/dist/* /static/
-          volumeMounts:
-            - mountPath: /static
-              name: static-volume
-            {{- if hasKey .Values.configFiles "config.json" }}
-            - mountPath: /code/replace-config.sh
-              name: config-volume
-              subPath: replace-config.sh
-              readOnly: true
-            - mountPath: /code/config.json
-              name: config-volume
-              subPath: config.json
-              readOnly: true
-            {{- end }}
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
+#       initContainers:
+#         - name: {{ .Values.name }}
+#           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+#           imagePullPolicy: {{ .Values.image.pullPolicy }}
+#           command:
+#             - /bin/sh
+#             - -c
+#             - {{ if hasKey .Values.configFiles "config.json" -}}
+#               sh /code/replace-config.sh /code/config.json /code/dist/index.html &&
+#               {{- end }}
+#               cp -Rf /code/dist/* /static/
+#           volumeMounts:
+#             - mountPath: /static
+#               name: static-volume
+#             {{- if hasKey .Values.configFiles "config.json" }}
+#             - mountPath: /code/replace-config.sh
+#               name: config-volume
+#               subPath: replace-config.sh
+#               readOnly: true
+#             - mountPath: /code/config.json
+#               name: config-volume
+#               subPath: config.json
+#               readOnly: true
+#             {{- end }}
+#           resources:
+# {\{ toYaml .Values.resources | indent 12 }}
       containers:
         - name: {{ .Values.nginx.name }}
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"

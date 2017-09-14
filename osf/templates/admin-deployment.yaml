@@ -19,26 +19,40 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
+        # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+        {{- if not .Values.collectstatic.enabled }}
+        pod.beta.kubernetes.io/init-containers: |-
+          [
+              {
+                  "name": "{{ .Values.collectstatic.name }}",
+                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
+                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
+                  "command": [
+                      "/bin/sh",
+                      "-c",
+                      "mkdir -p /static/code/admin && cp -Rf /code/static_root/* /static/code/admin"
+                  ],
+                  "volumeMounts": [
+                      {"name":"static-volume","mountPath":"/static"}
+                  ]
+              }
+          ]
+        {{- end }}
     spec:
-      {{- if not .Values.collectstatic.enabled }}
-      initContainers:
-        - name: {{ .Values.collectstatic.name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/sh
-            - -c
-            - mkdir -p /static/code/admin &&
-              cp -Rf /code/static_root/* /static/code/admin
-          env:
-            {{- include "osf.environment" . | indent 12 }}
-          volumeMounts:
-            - mountPath: /static
-              name: static-volume
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts | indent 12 }}
-{{- end }}
-      {{- end }}
+#       {{- if not .Values.collectstatic.enabled }}
+#       initContainers:
+#         - name: {{ .Values.collectstatic.name }}
+#           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+#           imagePullPolicy: {{ .Values.image.pullPolicy }}
+#           command:
+#             - /bin/sh
+#             - -c
+#             - mkdir -p /static/code/admin &&
+#               cp -Rf /code/static_root/* /static/code/admin
+#           volumeMounts:
+#             - mountPath: /static
+#               name: static-volume
+#       {{- end }}
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
