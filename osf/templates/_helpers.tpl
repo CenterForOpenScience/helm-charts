@@ -115,7 +115,14 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 
 {{- define "osf.environment" }}
 - name: OSF_DB_HOST
+{{- if .Values.postgresql.enabled }}
   value: {{ template "postgresql.fullname" . }}
+{{- else }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ template "osf.fullname" . }}
+      key: postgres-host
+{{- end }}
 - name: OSF_DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
 - name: OSF_DB_USER
