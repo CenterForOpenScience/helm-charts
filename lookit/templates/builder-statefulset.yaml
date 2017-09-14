@@ -65,7 +65,7 @@ spec:
             - --maxtasksperchild
             - "{{ .Values.builder.maxTasksPerChild }}"
             - -Q
-            - "{{ .Values.worker.queues }}"
+            - "{{ .Values.builder.queues }}"
           env:
             - name: DOCKER_HOST
               value: tcp://localhost:2375
