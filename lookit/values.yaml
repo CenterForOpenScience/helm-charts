@@ -55,6 +55,9 @@ worker:
   name: worker
   replicaCount: 1
 
+  conccurrency: 1
+  maxTasksPerChild: 5
+
   docker:
     image:
       repository: docker

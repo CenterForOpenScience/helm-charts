@@ -56,14 +56,14 @@ spec:
             - project.celery.app
             - worker
             - -c
-            - "5"
+            - "{{ .Values.worker.conccurrency }}"
             - -l
             - INFO
             - -n
             - worker.%h
             - --without-gossip
             - --maxtasksperchild
-            - "5"
+            - "{{ .Values.worker.maxTasksPerChild }}"
             - -Q
             - email,builds,cleanup
           env:
