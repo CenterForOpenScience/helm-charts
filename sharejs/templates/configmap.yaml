@@ -39,6 +39,11 @@ nginx.conf: |-
       server {
           listen {{ .Values.service.internalPort }};
 
+          location = /healthz {
+              access_log off;
+              return 200;
+          }
+
           location / {
               proxy_pass http://websocket;
               proxy_http_version 1.1;
