@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "cas.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "cas.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{- define "preprint-services" }}
+{{- define "cas.preprint-services" }}
 engrxiv:
   id: '203948234207242'
   name: engrXiv
@@ -55,7 +55,7 @@ thesiscommons:
   id: '203948234207253'
   name: Thesis Commons
 {{- end -}}
-{{- define "inlineconfigs" }}
+{{- define "cas.inlineconfigs" }}
 shibboleth/shibboleth2.xml: |-
   <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
       xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
@@ -371,7 +371,7 @@ cas.properties: |-
   database.hibernate.batchSize=1
   database.hibernate.showSql=false
   database.driverClass=org.postgresql.Driver
-  database.url=jdbc:postgresql://{{ template "postgresql.fullname" . }}/${DATABASE_NAME}?targetServerType=master
+  database.url=jdbc:postgresql://${DATABASE_HOST}/${DATABASE_NAME}?targetServerType=master
   database.user=${DATABASE_USER}
   database.password=${DATABASE_PASSWORD}
 
@@ -884,7 +884,7 @@ services/preprints-osf.json: |-
   }
 {{- $osfDomain := .Values.osfDomain -}}
 {{- $casDomain := .Values.casDomain -}}
-{{- range $key, $val := (include "preprint-services" . | fromYaml) }}
+{{- range $key, $val := (include "cas.preprint-services" . | fromYaml) }}
 services/preprints-{{ $key }}.json: |-
   {
       "@class": "org.jasig.cas.services.RegexRegisteredService",
@@ -935,14 +935,14 @@ services/preprints-{{ $key }}.json: |-
 
 {{- end -}}
 
-{{- define "fileconfigs" -}}
+{{- define "cas.fileconfigs" -}}
 {{- range $path, $bytes := .Files.Glob "files/**" }}
 {{ $path | trimPrefix "files/" }}: |-
 {{ printf "%s" $bytes | indent 2 }}
 {{- end -}}
 {{- end -}}
 
-{{- range $key, $value := merge .Values.configs (merge (include "inlineconfigs" . | fromYaml) (include "fileconfigs" . | fromYaml)) }}
+{{- range $key, $value := merge .Values.configFiles (merge (include "cas.inlineconfigs" . | fromYaml) (include "cas.fileconfigs" . | fromYaml)) }}
   {{ $key | replace "/" "-" }}: |-
 {{ $value | indent 4 }}
 {{- end }}

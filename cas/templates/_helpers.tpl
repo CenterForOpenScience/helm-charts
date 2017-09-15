@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "name" -}}
+{{- define "cas.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -10,7 +10,7 @@ Expand the name of the chart.
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "fullname" -}}
+{{- define "cas.fullname" -}}
 {{- $name := default .Chart.Name .Values.nameOverride -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -26,19 +26,19 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Volumes
 */}}
-{{- define "volumes" }}
+{{- define "cas.volumes" }}
 - name: config-volume
   configMap:
-    name: {{ template "fullname" . }}
+    name: {{ template "cas.fullname" . }}
 - name: secret-volume
   secret:
-    secretName: {{ template "fullname" . }}
+    secretName: {{ template "cas.fullname" . }}
 {{- end -}}
 
 {{/*
 Apache volume mounts
 */}}
-{{- define "apacheFilemapConfig" }}
+{{- define "cas.apache.filemapConfig" }}
 shibboleth/accesserror.html: /etc/shibboleth/accessError.html
 shibboleth/attrchecker.html: /etc/shibboleth/attrChecker.html
 shibboleth/attribute-map.xml: /etc/shibboleth/attribute-map.xml
@@ -62,19 +62,19 @@ shibboleth/syslog.logger: /etc/shibboleth/syslog.logger
 shibboleth/upgrade.xsl: /etc/shibboleth/upgrade.xsl
 sites-enabled/default.conf: /etc/apache2/sites-enabled/default.conf
 {{- end -}}
-{{- define "apacheFilemapSecret" }}
+{{- define "cas.apache.filemapSecret" }}
 shibboleth/incommon-idp-signature.pem: /etc/shibboleth/incommon-idp-signature.pem
 shibboleth/sp-cert.pem: /etc/shibboleth/sp-cert.pem
 shibboleth/sp-key.pem: /etc/shibboleth/sp-key.pem
 {{- end -}}
-{{- define "apacheVolumeMounts" }}
-{{- range $key, $value := (include "apacheFilemapConfig" . | fromYaml) }}
+{{- define "cas.apache.volumeMounts" }}
+{{- range $key, $value := (include "cas.apache.filemapConfig" . | fromYaml) }}
 - name: config-volume
   subPath: {{ $key | replace "/" "-" }}
   mountPath: {{ $value }}
   readOnly: true
 {{- end -}}
-{{- range $key, $value := (include "apacheFilemapSecret" . | fromYaml) }}
+{{- range $key, $value := (include "cas.apache.filemapSecret" . | fromYaml) }}
 - name: secret-volume
   subPath: {{ $key | replace "/" "-" }}
   mountPath: {{ $value }}
@@ -85,7 +85,7 @@ shibboleth/sp-key.pem: /etc/shibboleth/sp-key.pem
 {{/*
 Jetty volume mounts
 */}}
-{{- define "jettyFilemapConfig" }}
+{{- define "cas.jetty.filemapConfig" }}
 cas.properties: /code/etc/cas.properties
 jetty/institutions-auth.xsl: /code/etc/institutions-auth.xsl
 log4j2.xml: /code/etc/log4j2.xml
@@ -98,16 +98,13 @@ services/osf.json: /code/etc/services/osf.json
 services/osf-campaigns-erpc.json: /code/etc/services/osf-campaigns-erpc.json
 services/osf-campaigns-prereg.json: /code/etc/services/osf-campaigns-prereg.json
 services/preprints-osf.json: /code/etc/services/preprints-osf.json
-#services/preprints-engrxiv.json: /code/etc/services/preprints-engrxiv.json
-#services/preprints-psyarxiv.json: /code/etc/services/preprints-psyarxiv.json
-#services/preprints-socarxiv.json: /code/etc/services/preprints-socarxiv.json
-{{- range $key, $val := (include "preprint-services" . | fromYaml) }}
+{{- range $key, $val := (include "cas.preprint-services" . | fromYaml) }}
 {{- $filename := printf "services/preprints-%s.json" $key }}
 {{ $filename }}: /code/etc/{{ $filename }}
 {{- end -}}
 {{- end -}}
-{{- define "jettyVolumeMounts" }}
-{{- range $key, $value := (include "jettyFilemapConfig" . | fromYaml) }}
+{{- define "cas.jetty.volumeMounts" }}
+{{- range $key, $value := (include "cas.jetty.filemapConfig" . | fromYaml) }}
 - name: config-volume
   subPath: {{ $key | replace "/" "-" }}
   mountPath: {{ $value }}
@@ -118,19 +115,10 @@ services/preprints-osf.json: /code/etc/services/preprints-osf.json
 {{/*
 Jetty environment variables
 */}}
-{{- define "jettyVarsSecret" }}
-vars:
-- OAUTH_ORCID_CLIENT_ID
-- OAUTH_ORCID_CLIENT_SECRET
-- OSF_DB_URL
-- OSF_DB_USER
-- OSF_DB_PASSWORD
-- OSF_JWE_SECRET
-- OSF_JWT_SECRET
-- TGC_ENCRYPTION_KEY
-- TGC_SIGNING_KEY
-{{- end }}
-{{- define "jettyEnv" }}
+{{- define "cas.environment" }}
+{{- if .Values.postgresql.enabled }}
+- name: DATABASE_HOST
+  value: {{ template "postgresql.fullname" . }}
 - name: DATABASE_NAME
   value: {{ .Values.postgresql.postgresDatabase }}
 - name: DATABASE_USER
@@ -140,12 +128,20 @@ vars:
     secretKeyRef:
       name: {{ template "postgresql.fullname" . }}
       key: postgres-password
-{{- $fullname := (include "fullname" .) -}}
-{{- range (include "jettyVarsSecret" . | fromYaml).vars }}
-- name: {{ . }}
+{{- end }}
+{{- $fullname := include "cas.fullname" . -}}
+{{- range $key, $value := .Values.configEnvs }}
+- name: {{ $key }}
+  valueFrom:
+    configMapKeyRef:
+      name: {{ $fullname }}
+      key: {{ $key }}
+{{- end }}
+{{- range $key, $value := .Values.secretEnvs }}
+- name: {{ $key }}
   valueFrom:
     secretKeyRef:
       name: {{ $fullname }}
-      key: {{ . }}
+      key: {{ $key }}
 {{- end }}
 {{- end -}}
