@@ -44,7 +44,13 @@ nginx.conf: |-
               return 200;
           }
 
+          location /robots.txt {
+              alias /nginx/robots.txt;
+          }
+
           location / {
+              rewrite "^/sharejs/(.*)" /$1 break;
+
               proxy_pass http://websocket;
               proxy_http_version 1.1;
               proxy_set_header Upgrade $http_upgrade;
