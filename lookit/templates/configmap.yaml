@@ -88,7 +88,7 @@ nginx.conf: |-
           {{- end }}
 
           location /favicon.ico {
-              rewrite ^/(.*)$ /static/$1 break;
+              rewrite ^/(.*)$ /static/$1;
           }
 
           {{- if .Values.configEnvs.STATIC_URL }}
