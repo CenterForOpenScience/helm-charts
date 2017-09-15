@@ -41,6 +41,19 @@ spec:
     {{- end -}}
   {{- end }}
   {{- if .Values.web.enabled -}}
+    {{- if .Values.sharejs.enabled -}}
+    {{- $serviceName := .Values.sharejs.service.name . }}
+    {{- $servicePort := .Values.sharejs.service.externalPort -}}
+    {{- range .Values.web.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: /sharejs
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+    {{- end -}}
+    {{- end }}
     {{- $serviceName := include "osf.web.fullname" . }}
     {{- $servicePort := .Values.web.service.externalPort -}}
     {{- range .Values.web.ingress.hosts }}
