@@ -96,31 +96,22 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 {{- end -}}
 
 {{- define "lookit.environment" }}
+{{- if .Values.postgresql.enabled }}
 - name: DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
 - name: DB_USER
   value: {{ .Values.postgresql.postgresUser | quote }}
 - name: DB_HOST
-{{- if .Values.postgresql.enabled }}
   value: {{ template "postgresql.fullname" . }}
-{{- else }}
-  value: {{ .Values.postgresql.postgresHost }}
-{{- end }}
 - name: DB_PASSWORD
   valueFrom:
     secretKeyRef:
-{{- if .Values.postgresql.enabled }}
       name: {{ template "postgresql.fullname" . }}
-{{- else }}
-      name: {{ template "lookit.fullname" . }}
-{{- end }}
       key: postgres-password
-- name: RABBITMQ_HOST
-{{- if .Values.rabbitmq.enabled }}
-  value: {{ template "rabbitmq.fullname" . }}
-{{- else }}
-  value: {{ .Values.rabbitmq.rabbitmqHost | quote }}
 {{- end }}
+{{- if .Values.rabbitmq.enabled }}
+- name: RABBITMQ_HOST
+  value: {{ template "rabbitmq.fullname" . }}
 - name: RABBITMQ_PORT
   value: {{ .Values.rabbitmq.rabbitmqNodePort | quote }}
 - name: RABBITMQ_VHOST
@@ -130,12 +121,9 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 - name: RABBITMQ_PASSWORD
   valueFrom:
     secretKeyRef:
-{{- if .Values.rabbitmq.enabled }}
       name: {{ template "rabbitmq.fullname" . }}
-{{- else }}
-      name: {{ template "lookit.fullname" . }}
-{{- end }}
       key: rabbitmq-password
+{{- end }}
 {{- $fullname := include "lookit.fullname" . -}}
 {{- range $key, $value := .Values.configEnvs }}
 - name: {{ $key }}
