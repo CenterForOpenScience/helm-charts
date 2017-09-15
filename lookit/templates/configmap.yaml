@@ -87,6 +87,10 @@ nginx.conf: |-
           # }
           {{- end }}
 
+          location /favicon.ico {
+              rewrite ^/(.*)$ /static/$1 break;
+          }
+
           {{- if .Values.configEnvs.STATIC_URL }}
           location /static/ {
               proxy_redirect off;
