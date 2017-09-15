@@ -42,7 +42,7 @@ spec:
   {{- end }}
   {{- if .Values.web.enabled -}}
     {{- if .Values.sharejs.enabled -}}
-    {{- $serviceName := .Values.sharejs.service.name . }}
+    {{- $serviceName := .Values.sharejs.service.name }}
     {{- $servicePort := .Values.sharejs.service.externalPort -}}
     {{- range .Values.web.ingress.hosts }}
     - host: {{ . }}
