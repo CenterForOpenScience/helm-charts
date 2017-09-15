@@ -1,7 +1,18 @@
 # Default values for sharejs.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-replicaCount: 1
+image:
+  repository: quay.io/centerforopenscience/sharejs
+  tag: develop
+  pullPolicy: Always
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
 
 nginx:
   image:
@@ -11,19 +22,6 @@ nginx:
   resources: {}
     # limits:
     #   cpu: 1
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-
-nodejs:
-  image:
-    repository: quay.io/centerforopenscience/sharejs
-    tag: develop
-    pullPolicy: Always
-  resources: {}
-    # limits:
-    #   cpu: 100m
     #   memory: 128Mi
     # requests:
     #   cpu: 100m
@@ -49,20 +47,25 @@ ingress:
     #   hosts:
     #     - chart-example.local
 
-serverHost: '0.0.0.0'
-corsAllowOrigin: 'https://staging-n.osf.io'
+configEnvs: {}
+  # SHAREJS_CORS_ALLOW_ORIGIN: https://domain.example.com
 
-configs: {}
+configFiles: {}
   # Override configmap files here (and delete the {} above), e.g.:
-  # robots.txt: |-
-  #   User-agent: *
-  #   Disallow: /
+  #robots.txt: |-
+  #  User-agent: *
+  #  Disallow: /
 
-secrets:
-  sentryDSN: 'https://'
+secretEnvs: {}
+  # SHAREJS_SENTRY_DSN: 'https://'
+
+secretFiles: {}
+  # secret.json: |-
+  #   ...
 
 mongodb:
   enabled: true
+
   ## Bitnami MongoDB image version
   ## ref: https://hub.docker.com/r/bitnami/mongodb/tags/
   ##

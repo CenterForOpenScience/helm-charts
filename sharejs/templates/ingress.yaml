@@ -1,26 +1,26 @@
 {{- if .Values.ingress.enabled -}}
-{{- $serviceName := include "fullname" . -}}
+{{- $serviceName := include "sharejs.fullname" . -}}
 {{- $servicePort := .Values.service.externalPort -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "sharejs.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "sharejs.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
   annotations:
     {{- range $key, $value := .Values.ingress.annotations }}
       {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
   rules:
-    {{- range $host := .Values.ingress.hosts }}
-    - host: {{ $host }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . }}
       http:
         paths:
-          - path: /
+          - path: /*
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
