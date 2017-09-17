@@ -1,113 +1,167 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "wb.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "wb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
+        app: {{ template "wb.name" . }}
         release: {{ .Release.Name }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- include "wb.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
-      {{- with .Values.nginx }}
-      - name: nginx
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command:
-        - nginx
-        - -c
-        - /nginx/nginx.conf
-        - -g
-        - daemon off;
-        volumeMounts:
-        - name: config-volume
-          subPath: nginx.conf
-          mountPath: /nginx/nginx.conf
-          readOnly: true
-        - name: config-volume
-          subPath: robots.txt
-          mountPath: /nginx/robots.txt
-          readOnly: true
-        resources:
-{{ toYaml .resources | indent 10 }}
-      {{- end }}
-        ports:
-        - name: http
-          containerPort: {{ .Values.service.internalPort }}
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: {{ .Values.service.internalPort }}
-          initialDelaySeconds: 10
-      {{- with .Values.tornado }}
-      - name: tornado
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command:
-        - gosu
-        - www-data
-        - invoke
-        - server
-        env:
-        - name: ENV
-          value: kube
-        volumeMounts:
-        - name: secret-volume
-          subPath: settings.json
-          mountPath: /home/.cos/waterbutler-kube.json
-          readOnly: true
-        - name: data-volume
-          mountPath: /data
-        - name: pickles-volume
-          mountPath: /pickles
-        resources:
-{{ toYaml .resources | indent 10 }}
-      {{- end }}
-        ports:
-        - name: http
-          containerPort: {{ .Values.service.externalPort }}
-      {{- with .Values.celery }}
-      - name: celery
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command:
-        - gosu
-        - www-data
-        - invoke
-        - celery
-        env:
-        - name: ENV
-          value: kube
-        volumeMounts:
-        - name: secret-volume
-          subPath: settings.json
-          mountPath: /home/.cos/waterbutler-kube.json
-          readOnly: true
-        - name: data-volume
-          mountPath: /data
-        - name: pickles-volume
-          mountPath: /pickles
-        resources:
-{{ toYaml .resources | indent 10 }}
-      {{- end }}
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /nginx/nginx.conf
+            - -g
+            - daemon off;
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+          volumeMounts:
+            - name: config-volume
+              subPath: nginx.conf
+              mountPath: /nginx/nginx.conf
+              readOnly: true
+            - name: config-volume
+              subPath: robots.txt
+              mountPath: /nginx/robots.txt
+              readOnly: true
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+        - name: tornado
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - gosu
+            - www-data
+            - invoke
+            - server
+          env:
+            {{- include "wb.environment" . | indent 12 }}
+            - name: ENV
+              value: kube
+            - name: TASKS_CONFIG_BROKER_URL
+              value: "amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@127.0.0.1:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.externalPort }}
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: {{ .Values.service.externalPort }}
+          volumeMounts:
+            - name: secret-volume
+              subPath: settings.json
+              mountPath: /home/.cos/waterbutler-kube.json
+              readOnly: true
+            - name: data-volume
+              mountPath: /data
+            - name: pickles-volume
+              mountPath: /pickles
+          resources:
+{{ toYaml .Values.tornado.resources | indent 12 }}
+        - name: celery
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - gosu
+            - www-data
+            - invoke
+            - celery
+          env:
+            {{- include "wb.environment" . | indent 12 }}
+            - name: ENV
+              value: kube
+            - name: TASKS_CONFIG_BROKER_URL
+              value: "amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@127.0.0.1:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}"
+          volumeMounts:
+            - name: secret-volume
+              subPath: settings.json
+              mountPath: /home/.cos/waterbutler-kube.json
+              readOnly: true
+            - name: data-volume
+              mountPath: /data
+            - name: pickles-volume
+              mountPath: /pickles
+          resources:
+{{ toYaml .Values.celery.resources | indent 12 }}
+        - name: rabbitmq
+          image: "{{ .Values.rabbitmq.image.repository }}:{{ .Values.rabbitmq.image.tag }}"
+          imagePullPolicy: {{ .Values.rabbitmq.image.pullPolicy }}
+          env:
+            - name: RABBITMQ_USERNAME
+              value: {{ default "" .Values.rabbitmqUsername | quote }}
+            - name: RABBITMQ_PASSWORD
+              value: {{ default "" .Values.rabbitmqPassword | quote }}
+            - name: RABBITMQ_NODE_PORT_NUMBER
+              value: {{ default "5672" .Values.rabbitmq.rabbitmqNodePort | quote }}
+            - name: RABBITMQ_NODE_TYPE
+              value: {{ default "stats" .Values.rabbitmq.rabbitmqNodeType | quote }}
+            - name: RABBITMQ_NODE_NAME
+              value: {{ printf "%s@%s" (default "rabbit" .Values.rabbitmq.rabbitmqNodeName) "localhost" | quote }}
+            - name: RABBITMQ_CLUSTER_NODE_NAME
+              value: {{ default "" .Values.rabbitmq.rabbitmqClusterNodeName | quote }}
+            - name: RABBITMQ_VHOST
+              value: {{ default "/" .Values.rabbitmq.rabbitmqVhost | quote }}
+            - name: RABBITMQ_MANAGER_PORT_NUMBER
+              value: {{ default "15672" .Values.rabbitmq.rabbitmqManagerPort | quote }}
+          ports:
+            - name: amqp
+              containerPort: {{ default "5672" .Values.rabbitmq.rabbitmqNodePort }}
+            - name: stats
+              containerPort: {{ default "15672" .Values.rabbitmq.rabbitmqManagerPort }}
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmqctl
+                - status
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - rabbitmqctl
+                - status
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+          volumeMounts:
+            - name: rabbitmq-data-volume
+              mountPath: /bitnami/rabbitmq
+          resources:
+{{ toYaml .Values.rabbitmq.resources | indent 12 }}
       volumes:
-      - name: data-volume
-        emptyDir: {}
-      - name: pickles-volume
-        emptyDir: {}
-      - name: config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-      - name: secret-volume
-        secret:
-          secretName: {{ template "fullname" . }}
+        - name: rabbitmq-data-volume
+          emptyDir: {}
+        - name: data-volume
+          emptyDir: {}
+        - name: pickles-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: {{ template "wb.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "wb.fullname" . }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
