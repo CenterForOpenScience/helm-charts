@@ -30,7 +30,11 @@ tornado:
     #   cpu: 100m
     #   memory: 128Mi
 
-celery:
+worker:
+  conccurrency: 2
+  logLevel: INFO
+  maxTasksPerChild: 5
+
   resources: {}
     # limits:
     #   cpu: 100m

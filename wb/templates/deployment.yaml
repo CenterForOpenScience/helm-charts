@@ -77,14 +77,25 @@ spec:
               mountPath: /pickles
           resources:
 {{ toYaml .Values.tornado.resources | indent 12 }}
-        - name: celery
+        - name: worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - gosu
             - www-data
-            - invoke
             - celery
+            - -A
+            - waterbutler.tasks.app
+            - worker
+            - -c
+            - "{{ .Values.worker.conccurrency }}"
+            - -l
+            - "{{ .Values.worker.logLevel }}"
+            - -n
+            - worker.%h
+            - --without-gossip
+            - --maxtasksperchild
+            - "{{ .Values.worker.maxTasksPerChild }}"
           env:
             {{- include "wb.environment" . | indent 12 }}
             - name: ENV
@@ -101,7 +112,7 @@ spec:
             - name: pickles-volume
               mountPath: /pickles
           resources:
-{{ toYaml .Values.celery.resources | indent 12 }}
+{{ toYaml .Values.worker.resources | indent 12 }}
         - name: rabbitmq
           image: "{{ .Values.rabbitmq.image.repository }}:{{ .Values.rabbitmq.image.tag }}"
           imagePullPolicy: {{ .Values.rabbitmq.image.pullPolicy }}
