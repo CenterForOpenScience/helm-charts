@@ -1,110 +1,112 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "mfr.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "mfr.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
+        app: {{ template "mfr.name" . }}
         release: {{ .Release.Name }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- include "mfr.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
-      {{- with .Values.nginx }}
-      - name: nginx
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command:
-        - nginx
-        - -c
-        - /nginx/nginx.conf
-        - -g
-        - daemon off;
-        volumeMounts:
-        - name: config-volume
-          subPath: nginx.conf
-          mountPath: /nginx/nginx.conf
-          readOnly: true
-        - name: config-volume
-          subPath: robots.txt
-          mountPath: /nginx/robots.txt
-          readOnly: true
-        resources:
-{{ toYaml .resources | indent 10 }}
-      {{- end }}
-        ports:
-        - name: http
-          containerPort: {{ .Values.service.internalPort }}
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: {{ .Values.service.internalPort }}
-          initialDelaySeconds: 10
-      {{- with .Values.tornado }}
-      - name: tornado
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command: 
-        - gosu
-        - www-data
-        - invoke
-        - server
-        env:
-        - name: ENV
-          value: kube
-        volumeMounts:
-        - name: secret-volume
-          subPath: settings.json
-          mountPath: /home/.cos/mfr-kube.json
-          readOnly: true
-        - name: localcache-volume
-          mountPath: /tmp/mfrlocalcache
-        resources:
-{{ toYaml .resources | indent 10 }}
-      {{- end }}
-        ports:
-        - name: http
-          containerPort: {{ .Values.service.externalPort }}
-      {{- with .Values.unoconv }}
-      - name: unoconv
-        image: "{{ .image.repository }}:{{ .image.tag }}"
-        imagePullPolicy: {{ .image.pullPolicy }}
-        command:
-        - gosu
-        - www-data
-        - /opt/libreoffice4.4/program/python
-        - -u
-        - /usr/bin/unoconv
-        - --listener
-        - --server
-        - 0.0.0.0
-        - --port
-        - '2002'
-        - -vvv
-        ports:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /nginx/nginx.conf
+            - -g
+            - daemon off;
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+          volumeMounts:
+            - name: config-volume
+              subPath: nginx.conf
+              mountPath: /nginx/nginx.conf
+              readOnly: true
+            - name: config-volume
+              subPath: robots.txt
+              mountPath: /nginx/robots.txt
+              readOnly: true
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+        - name: tornado
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - gosu
+            - www-data
+            - invoke
+            - server
+          env:
+            {{- include "mfr.environment" . | indent 12 }}
+            - name: ENV
+              value: kube
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.externalPort }}
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: {{ .Values.service.externalPort }}
+          volumeMounts:
+            - name: secret-volume
+              subPath: settings.json
+              mountPath: /home/.cos/mfr-kube.json
+              readOnly: true
+            - name: localcache-volume
+              mountPath: /tmp/mfrlocalcache
+          resources:
+{{ toYaml .Values.tornado.resources | indent 12 }}
         - name: unoconv
-          containerPort: 2002
-        volumeMounts:
-        - name: localcache-volume
-          mountPath: /tmp/mfrlocalcache
-        resources:
-{{ toYaml .resources | indent 10 }}
-      {{- end }}
+          image: "{{ .Values.unoconv.image.repository }}:{{ .Values.unoconv.image.tag }}"
+          imagePullPolicy: {{ .Values.unoconv.image.pullPolicy }}
+          command:
+            - gosu
+            - www-data
+            - /opt/libreoffice4.4/program/python
+            - -u
+            - /usr/bin/unoconv
+            - --listener
+            - --server
+            - 0.0.0.0
+            - --port
+            - '2002'
+            - -vvv
+          ports:
+            - name: unoconv
+              containerPort: 2002
+          volumeMounts:
+            - name: localcache-volume
+              mountPath: /tmp/mfrlocalcache
+          resources:
+{{ toYaml .Values.unoconv.resources | indent 12 }}
       volumes:
-      - name: localcache-volume
-        emptyDir: {}
-      - name: config-volume
-        configMap:
-          name: {{ template "fullname" . }}
-      - name: secret-volume
-        secret:
-          secretName: {{ template "fullname" . }}
+        - name: localcache-volume
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: {{ template "mfr.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "mfr.fullname" . }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
