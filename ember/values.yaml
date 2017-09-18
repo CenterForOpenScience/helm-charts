@@ -62,7 +62,7 @@ ingress:
     #     - chart-example.local
 
 configFiles: {}
-  # Ember config
+  # Ember config (merges and overrides the default config in the container)
   # config.json: |-
   #   {
   #   }
