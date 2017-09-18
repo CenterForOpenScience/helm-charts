@@ -48,7 +48,7 @@ nginx.conf: |-
       server {
           listen {{ .Values.service.internalPort }};
           keepalive_timeout 15;
-          client_max_body_size 9999M;
+          client_max_body_size 9999m;
           server_name _;
 
           if ($http_x_forwarded_proto = "http") {
