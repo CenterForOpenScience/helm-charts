@@ -1,0 +1,22 @@
+enabled: true
+
+ember:
+  nameOverride: osf-reviews
+  replicaCount: 1
+ 
+  image:
+    repository: us.gcr.io/cos-containers/osf-reviews
+    tag: develop
+    pullPolicy: Always
+
+  resources: {}
+
+  nginx:
+    image:
+      repository: us.gcr.io/cos-containers/nginx
+      tag: '1'
+      pullPolicy: Always
+
+    resources: {}
+
+  configFiles: {}
