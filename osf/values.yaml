@@ -228,6 +228,10 @@ worker:
   name: worker
   replicaCount: 1
 
+  conccurrency: 1
+  logLevel: INFO
+  # maxTasksPerChild: 5
+
   resources: {}
     # limits:
     #   cpu: "1"

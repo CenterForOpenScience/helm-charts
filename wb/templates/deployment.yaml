@@ -94,8 +94,10 @@ spec:
             - -n
             - worker.%h
             - --without-gossip
+            {{- if .Values.worker.maxTasksPerChild }}
             - --maxtasksperchild
             - "{{ .Values.worker.maxTasksPerChild }}"
+            {{- end }}
           env:
             {{- include "wb.environment" . | indent 12 }}
             - name: ENV

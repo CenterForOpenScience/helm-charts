@@ -27,10 +27,22 @@ spec:
           command:
             - gosu
             - www-data
-            - invoke
-            - celery_worker
-            - --hostname
+            - celery
+            - -A
+            - framework.celery_tasks
+            - worker
+            - -c
+            - "{{ .Values.worker.conccurrency }}"
+            - -l
+            - "{{ .Values.worker.logLevel }}"
+            - -n
             - worker.%h
+            - --without-gossip
+            - -Ofair
+            {{- if .Values.worker.maxTasksPerChild }}
+            - --maxtasksperchild
+            - "{{ .Values.worker.maxTasksPerChild }}"
+            {{- end }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings

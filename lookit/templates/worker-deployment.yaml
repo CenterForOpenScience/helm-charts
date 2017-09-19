@@ -38,8 +38,10 @@ spec:
             - -n
             - worker.%h
             - --without-gossip
+            {{- if .Values.worker.maxTasksPerChild }}
             - --maxtasksperchild
             - "{{ .Values.worker.maxTasksPerChild }}"
+            {{- end }}
             - -Q
             - "{{ .Values.worker.queues }}"
           env:

@@ -37,7 +37,7 @@ worker:
 
   resources: {}
     # limits:
-    #   cpu: 100m
+    #   cpu: 2
     #   memory: 128Mi
     # requests:
     #   cpu: 100m
@@ -54,6 +54,8 @@ ingress:
   annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+    # ingress.kubernetes.io/proxy-body-size: 9999m
+    # nginx.org/client-max-body-size: 9999m
   hosts:
   # - staging-files.osf.io
   tls:
