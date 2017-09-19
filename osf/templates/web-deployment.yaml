@@ -96,6 +96,12 @@ spec:
               subPath: web-nginx-registries.conf
               readOnly: true
             {{- end }}
+            {{- if .Values.reviews.enabled }}
+            - mountPath: /nginx/reviews.conf
+              name: config-volume
+              subPath: web-nginx-reviews.conf
+              readOnly: true
+            {{- end }}
             {{- if .Values.prerender.enabled }}
             - mountPath: /nginx/prerender.conf
               name: config-volume

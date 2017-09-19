@@ -189,6 +189,19 @@ web-nginx-registries.conf: |-
       proxy_pass http://{{ .Values.registries.service.name }}:{{ .Values.registries.service.externalPort }};
   }
 {{- end }}
+{{- if .Values.reviews.enabled }}
+web-nginx-reviews.conf: |-
+  location /reviews/ {
+      {{- if .Values.prerender.enabled }}
+      include /nginx/prerender.conf;
+      {{- end }}
+
+      rewrite ^/reviews/(.*)$ /$1 break;
+      proxy_redirect off;
+      proxy_buffering off;
+      proxy_pass http://{{ .Values.reviews.service.name }}:{{ .Values.reviews.service.externalPort }};
+  }
+{{- end }}
 {{- if .Values.prerender.enabled }}
 web-nginx-prerender.conf: |-
   set $prerender 0;
@@ -305,6 +318,9 @@ web-nginx.conf: |-
           {{- end }}
           {{- if .Values.registries.enabled }}
           include /nginx/registries.conf;
+          {{- end }}
+          {{- if .Values.reviews.enabled }}
+          include /nginx/reviews.conf;
           {{- end }}
 
           # # SHARE
