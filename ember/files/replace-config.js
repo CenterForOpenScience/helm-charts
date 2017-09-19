@@ -5,7 +5,7 @@ const newConfig = require('./config.json');
 
 const filename = '/code/dist/index.html';
 const page = fs.readFileSync(filename, {encoding: 'utf8'});
-const rawConfig = /<meta name=".+?\/config\/environment" content="(.+?)" \/>/.exec(page)[1];
+const rawConfig = /<meta name=".+?\/config\/environment" content="(.+?)"\W*\/?>/.exec(page)[1];
 const config = JSON.parse(unescape(rawConfig));
 
 // Deep merge, overrides config with newConfig recursively
