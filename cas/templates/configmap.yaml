@@ -12,6 +12,7 @@ data:
 engrxiv:
   id: '203948234207242'
   name: engrXiv
+  domain: engrxiv.org
 psyarxiv:
   id: '203948234207243'
   name: PsyArXiv
@@ -639,7 +640,7 @@ services/cas.json: |-
     "id" : 983219871349823,
     "name" : "",
     "description" : "",
-    "serviceId" : "^https://{{ .Values.casDomain }}/.*",
+    "serviceId" : "^https://{{ .Values.casDomain | replace "." "\\\\." }}/.*",
     "evaluationOrder": "2000",
     "logo": "",
     "attributeReleasePolicy" : {
@@ -674,7 +675,7 @@ services/oauth2.json: |-
     "id" : 983450982340993434,
     "name" : "",
     "description" : "",
-    "serviceId" : "^https://{{ .Values.casDomain }}/oauth2/callbackAuthorize",
+    "serviceId" : "^https://{{ .Values.casDomain | replace "." "\\\\." }}/oauth2/callbackAuthorize",
     "evaluationOrder": "1000",
     "properties" : {
       "@class": "java.util.HashMap",
@@ -704,7 +705,7 @@ services/osf-campaigns-erpc.json: |-
       "id": 203948234207232,
       "name": "Election Research<br>Preacceptance Competition",
       "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain }}/erpc/.*",
+      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/erpc/.*",
       "logo": "",
       "evaluationOrder": 1000,
       "attributeReleasePolicy": {
@@ -750,7 +751,7 @@ services/osf-campaigns-prereg.json: |-
       "id": 203948234207231,
       "name": "Preregistration Challenge",
       "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain }}/prereg/.*",
+      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/prereg/.*",
       "logo": "",
       "evaluationOrder": 1000,
       "attributeReleasePolicy": {
@@ -796,7 +797,7 @@ services/osf.json: |-
       "id": 203948234207230,
       "name": "",
       "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain }}/(?!oauth/callback).*",
+      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/(?!oauth/callback).*",
       "logo": "",
       "evaluationOrder": 2000,
       "attributeReleasePolicy": {
@@ -842,7 +843,7 @@ services/preprints-osf.json: |-
       "id": 203948234207240,
       "name": "",
       "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain }}(%2F|/)preprints(%2F|/).*",
+      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)preprints(%2F|/).*",
       "logo": "https://{{ .Values.casDomain }}/images/preprints-osf-logo-black.png",
       "evaluationOrder": 1001,
       "attributeReleasePolicy": {
@@ -882,8 +883,11 @@ services/preprints-osf.json: |-
           }
       }
   }
-{{- $osfDomain := .Values.osfDomain -}}
+{{- $osfDomainRegex := .Values.osfDomain | replace "." "\\\\." -}}
 {{- $casDomain := .Values.casDomain -}}
+{{- $domainOverride := .Values.preprintProviderDomains.override -}}
+{{- $domainPrefix := .Values.preprintProviderDomains.prefix -}}
+{{- $domainSuffix := .Values.preprintProviderDomains.suffix -}}
 {{- range $key, $val := (include "cas.preprint-services" . | fromYaml) }}
 services/preprints-{{ $key }}.json: |-
   {
@@ -891,7 +895,19 @@ services/preprints-{{ $key }}.json: |-
       "id": {{ $val.id }},
       "name": "{{ $val.name }}",
       "description": "",
-      "serviceId": "^https://{{ $osfDomain }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ $osfDomain }}(%2F|/)preprints(%2F|/){{ $key }}.*",
+      "serviceId": "^https://{{ $osfDomainRegex }}/(login|logout)/?\\?next=https(%3A|:)(%2F|/)(%2F|/)
+          {{- if hasKey $val "domain" -}}
+              (
+                {{- if $domainOverride -}}
+                    {{- printf "%s%s%s" $domainPrefix $key $domainSuffix | replace "." "\\\\." -}}
+                {{- else -}}
+                    {{- $val.domain | replace "." "\\\\." -}}
+                {{- end -}}
+               |{{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}($|%2F|/))
+          {{- else -}}
+              {{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}
+          {{- end -}}
+      .*",
       "logo": "https://{{ $casDomain }}/images/preprints-{{ $key }}-logo.png",
       "evaluationOrder": 1000,
       "attributeReleasePolicy": {

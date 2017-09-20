@@ -47,6 +47,11 @@ ingress:
 casDomain: 'staging-accounts.osf.io'
 osfDomain: 'staging.osf.io'
 apiDomain: 'staging-api.osf.io'
+preprintProviderDomains:
+  override: true
+  prefix: staging-
+  suffix: .cos.io
+
 ### https://sentry.cos.io/sentry/{project}/settings/keys/
 sentryDSN: ''
 
