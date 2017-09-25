@@ -335,7 +335,7 @@ web-nginx.conf: |-
           {{- if (index .Values "osf-reviews").enabled }}
           include /nginx/osf-reviews.conf;
           {{- end }}
-          {{- if (index .Values "osf-preprints").enabled }}
+          {{- if (index .Values "osf-web").enabled }}
           include /nginx/osf-web.conf;
           {{- end }}
 
