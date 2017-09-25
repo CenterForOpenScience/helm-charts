@@ -327,7 +327,7 @@ web-nginx.conf: |-
           }
 
           {{- if (index .Values "osf-preprints").enabled }}
-          include /nginx/preprints.conf;
+          include /nginx/osf-preprints.conf;
           {{- end }}
           {{- if (index .Values "osf-registries").enabled }}
           include /nginx/osf-registries.conf;
