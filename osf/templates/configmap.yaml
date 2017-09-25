@@ -186,7 +186,7 @@ web-nginx-osf-registries.conf: |-
       rewrite ^/registries/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ (index .Values "osf-registries").service.name }}:{{ (index .Values "osf-registries").serviceexternalPort }};
+      proxy_pass http://{{ (index .Values "osf-registries").service.name }}:{{ (index .Values "osf-registries").service.externalPort }};
   }
 {{- end }}
 {{- if (index .Values "osf-reviews").enabled }}
