@@ -84,22 +84,28 @@ spec:
               name: config-volume
               subPath: web-robots.txt
               readOnly: true
-            {{- if .Values.preprints.enabled }}
-            - mountPath: /nginx/preprints.conf
+            {{- if (index .Values "osf-preprints").enabled }}
+            - mountPath: /nginx/osf-preprints.conf
               name: config-volume
-              subPath: web-nginx-preprints.conf
+              subPath: web-nginx-osf-preprints.conf
               readOnly: true
             {{- end }}
-            {{- if .Values.registries.enabled }}
-            - mountPath: /nginx/registries.conf
+            {{- if (index .Values "osf-registries").enabled }}
+            - mountPath: /nginx/osf-registries.conf
               name: config-volume
-              subPath: web-nginx-registries.conf
+              subPath: web-nginx-osf-registries.conf
               readOnly: true
             {{- end }}
-            {{- if .Values.reviews.enabled }}
-            - mountPath: /nginx/reviews.conf
+            {{- if (index .Values "osf-reviews").enabled }}
+            - mountPath: /nginx/osf-reviews.conf
               name: config-volume
-              subPath: web-nginx-reviews.conf
+              subPath: web-nginx-osf-reviews.conf
+              readOnly: true
+            {{- end }}
+            {{- if (index .Values "osf-web").enabled }}
+            - mountPath: /nginx/osf-web.conf
+              name: config-volume
+              subPath: web-nginx-osf-web.conf
               readOnly: true
             {{- end }}
             {{- if .Values.prerender.enabled }}

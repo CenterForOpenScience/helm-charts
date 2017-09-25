@@ -345,22 +345,28 @@ volumeMounts:
     subPath: addons-zotero-local.py
     readOnly: true
 
-preprints:
+osf-preprints:
   enabled: false
   service:
     name: preprints
     externalPort: 80
 
-registries:
+osf-registries:
   enabled: false
   service:
     name: registries
     externalPort: 80
 
-reviews:
+osf-reviews:
   enabled: false
   service:
     name: reviews
+    externalPort: 80
+
+osf-web:
+  enabled: false
+  service:
+    name: osfweb
     externalPort: 80
 
 prerender:
