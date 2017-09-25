@@ -202,7 +202,7 @@ web-nginx-osf-reviews.conf: |-
       proxy_pass http://{{ (index .Values "osf-reviews").service.name }}:{{ (index .Values "osf-reviews").service.externalPort }};
   }
 {{- end }}
-{{- if if (index .Values "osf-web").enabled }}
+{{- if (index .Values "osf-web").enabled }}
 web-nginx-osf-web.conf: |-
   location /quickfiles/ {
       {{- if .Values.prerender.enabled }}
