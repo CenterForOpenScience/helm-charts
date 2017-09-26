@@ -9,6 +9,10 @@ metadata:
     release: {{ .Release.Name }}
 data:
 {{- define "osf.inlineconfigs" }}
+{{- $osfPreprints := (index .Values "osf-preprints") }}
+{{- $osfRegistries := (index .Values "osf-registries") }}
+{{- $osfReviews := (index .Values "osf-reviews") }}
+{{- $osfWeb := (index .Values "osf-web") }}
 admin-nginx.conf: |-
   user nginx;
   worker_processes 1;
@@ -163,7 +167,8 @@ api-nginx.conf: |-
           }
       }
   }
-{{- if (index .Values "osf-preprints").enabled }}
+{{- if $osfPreprints.enabled }}
+OSF_PREPRINTS_URL: http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }}/
 web-nginx-osf-preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
@@ -173,10 +178,11 @@ web-nginx-osf-preprints.conf: |-
       rewrite ^/preprints/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ (index .Values "osf-preprints").service.name }}:{{ (index .Values "osf-preprints").service.externalPort }};
+      proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
   }
 {{- end }}
-{{- if (index .Values "osf-registries").enabled }}
+{{- if $osfRegistries.enabled }}
+OSF_REGISTRIES_URL: http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }}/
 web-nginx-osf-registries.conf: |-
   location /registries/ {
       {{- if .Values.prerender.enabled }}
@@ -186,10 +192,11 @@ web-nginx-osf-registries.conf: |-
       rewrite ^/registries/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ (index .Values "osf-registries").service.name }}:{{ (index .Values "osf-registries").service.externalPort }};
+      proxy_pass http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }};
   }
 {{- end }}
-{{- if (index .Values "osf-reviews").enabled }}
+{{- if $osfReviews.enabled }}
+OSF_REVIEWS_URL: http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }}/
 web-nginx-osf-reviews.conf: |-
   location /reviews/ {
       {{- if .Values.prerender.enabled }}
@@ -199,10 +206,11 @@ web-nginx-osf-reviews.conf: |-
       rewrite ^/reviews/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ (index .Values "osf-reviews").service.name }}:{{ (index .Values "osf-reviews").service.externalPort }};
+      proxy_pass http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }};
   }
 {{- end }}
-{{- if (index .Values "osf-web").enabled }}
+{{- if $osfWeb.enabled }}
+OSF_WEB_URL: http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }}/
 web-nginx-osf-web.conf: |-
   location /quickfiles/ {
       {{- if .Values.prerender.enabled }}
@@ -212,7 +220,7 @@ web-nginx-osf-web.conf: |-
       rewrite ^/quickfiles/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ (index .Values "osf-web").service.name }}:{{ (index .Values "osf-web").service.externalPort }};
+      proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
   }
 {{- end }}
 {{- if .Values.prerender.enabled }}
@@ -326,16 +334,16 @@ web-nginx.conf: |-
               alias /static/code/website/static/;
           }
 
-          {{- if (index .Values "osf-preprints").enabled }}
+          {{- if $osfPreprints.enabled }}
           include /nginx/osf-preprints.conf;
           {{- end }}
-          {{- if (index .Values "osf-registries").enabled }}
+          {{- if $osfRegistries.enabled }}
           include /nginx/osf-registries.conf;
           {{- end }}
-          {{- if (index .Values "osf-reviews").enabled }}
+          {{- if $osfReviews.enabled }}
           include /nginx/osf-reviews.conf;
           {{- end }}
-          {{- if (index .Values "osf-web").enabled }}
+          {{- if $osfWeb.enabled }}
           include /nginx/osf-web.conf;
           {{- end }}
 
@@ -392,18 +400,6 @@ web-nginx.conf: |-
       }
   }
 {{- end -}}
-{{- if (index .Values "osf-preprints").enabled }}
-  OSF_PREPRINTS_URL: http://{{ (index .Values "osf-preprints").service.name }}:{{ (index .Values "osf-preprints").service.externalPort }}/
-{{- end }}
-{{- if (index .Values "osf-registries").enabled }}
-  OSF_REGISTRIES_URL: http://{{ (index .Values "osf-registries").service.name }}:{{ (index .Values "osf-registries").service.externalPort }}/
-{{- end }}
-{{- if (index .Values "osf-reviews").enabled }}
-  OSF_REVIEWS_URL: http://{{ (index .Values "osf-reviews").service.name }}:{{ (index .Values "osf-reviews").service.externalPort }}/
-{{- end }}
-{{- if (index .Values "osf-web").enabled }}
-  OSF_WEB_URL: http://{{ (index .Values "osf-web").service.name }}:{{ (index .Values "osf-web").service.externalPort }}/
-{{- end }}
 {{- range $key, $value := .Values.configEnvs }}
   {{ $key }}: {{ $value | quote }}
 {{- end }}
