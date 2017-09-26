@@ -393,16 +393,16 @@ web-nginx.conf: |-
   }
 {{- end -}}
 {{- if (index .Values "osf-preprints").enabled }}
-  OSF_PREPRINTS_URL: http://{{ (index .Values "osf-preprints").service.name }}:{{ (index .Values "osf-preprints").service.externalPort }}
+  OSF_PREPRINTS_URL: http://{{ (index .Values "osf-preprints").service.name }}:{{ (index .Values "osf-preprints").service.externalPort }}/
 {{- end }}
 {{- if (index .Values "osf-registries").enabled }}
-  OSF_REGISTRIES_URL: http://{{ (index .Values "osf-registries").service.name }}:{{ (index .Values "osf-registries").service.externalPort }}
+  OSF_REGISTRIES_URL: http://{{ (index .Values "osf-registries").service.name }}:{{ (index .Values "osf-registries").service.externalPort }}/
 {{- end }}
 {{- if (index .Values "osf-reviews").enabled }}
-  OSF_REVIEWS_URL: http://{{ (index .Values "osf-reviews").service.name }}:{{ (index .Values "osf-reviews").service.externalPort }}
+  OSF_REVIEWS_URL: http://{{ (index .Values "osf-reviews").service.name }}:{{ (index .Values "osf-reviews").service.externalPort }}/
 {{- end }}
 {{- if (index .Values "osf-web").enabled }}
-  OSF_WEB_URL: http://{{ (index .Values "osf-web").service.name }}:{{ (index .Values "osf-web").service.externalPort }}
+  OSF_WEB_URL: http://{{ (index .Values "osf-web").service.name }}:{{ (index .Values "osf-web").service.externalPort }}/
 {{- end }}
 {{- range $key, $value := .Values.configEnvs }}
   {{ $key }}: {{ $value | quote }}
