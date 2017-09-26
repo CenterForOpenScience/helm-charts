@@ -1,4 +1,8 @@
 {{- if .Values.web.enabled -}}
+{{- $osfPreprints := (index .Values "osf-preprints") }}
+{{- $osfRegistries := (index .Values "osf-registries") }}
+{{- $osfReviews := (index .Values "osf-reviews") }}
+{{- $osfWeb := (index .Values "osf-web") }}
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -84,25 +88,25 @@ spec:
               name: config-volume
               subPath: web-robots.txt
               readOnly: true
-            {{- if (index .Values "osf-preprints").enabled }}
+            {{- if $osfPreprints.enabled }}
             - mountPath: /nginx/osf-preprints.conf
               name: config-volume
               subPath: web-nginx-osf-preprints.conf
               readOnly: true
             {{- end }}
-            {{- if (index .Values "osf-registries").enabled }}
+            {{- if $osfRegistries.enabled }}
             - mountPath: /nginx/osf-registries.conf
               name: config-volume
               subPath: web-nginx-osf-registries.conf
               readOnly: true
             {{- end }}
-            {{- if (index .Values "osf-reviews").enabled }}
+            {{- if $osfReviews.enabled }}
             - mountPath: /nginx/osf-reviews.conf
               name: config-volume
               subPath: web-nginx-osf-reviews.conf
               readOnly: true
             {{- end }}
-            {{- if (index .Values "osf-web").enabled }}
+            {{- if $osfWeb.enabled }}
             - mountPath: /nginx/osf-web.conf
               name: config-volume
               subPath: web-nginx-osf-web.conf
@@ -128,6 +132,22 @@ spec:
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
+            {{- if $osfPreprints.enabled }}
+            - name: OSF_PREPRINTS_URL
+              value: http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }}/
+            {{- end }}
+            {{- if $osfRegistries.enabled }}
+            - name: OSF_REGISTRIES_URL
+              value: http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }}/
+            {{- end }}
+            {{- if $osfReviews.enabled }}
+            - name: OSF_REVIEWS_URL
+              value: http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }}/
+            {{- end }}
+            {{- if $osfWeb.enabled }}
+            - name: OSF_WEB_URL
+              value: http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }}/
+            {{- end }}
             {{- include "osf.environment" . | indent 12 }}
             {{- range $key, $value := .Values.web.env }}
             - name: {{ $key }}

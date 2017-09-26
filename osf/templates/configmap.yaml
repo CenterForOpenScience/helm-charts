@@ -168,7 +168,6 @@ api-nginx.conf: |-
       }
   }
 {{- if $osfPreprints.enabled }}
-OSF_PREPRINTS_URL: http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }}/
 web-nginx-osf-preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
@@ -182,7 +181,6 @@ web-nginx-osf-preprints.conf: |-
   }
 {{- end }}
 {{- if $osfRegistries.enabled }}
-OSF_REGISTRIES_URL: http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }}/
 web-nginx-osf-registries.conf: |-
   location /registries/ {
       {{- if .Values.prerender.enabled }}
@@ -196,7 +194,6 @@ web-nginx-osf-registries.conf: |-
   }
 {{- end }}
 {{- if $osfReviews.enabled }}
-OSF_REVIEWS_URL: http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }}/
 web-nginx-osf-reviews.conf: |-
   location /reviews/ {
       {{- if .Values.prerender.enabled }}
@@ -210,7 +207,6 @@ web-nginx-osf-reviews.conf: |-
   }
 {{- end }}
 {{- if $osfWeb.enabled }}
-OSF_WEB_URL: http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }}/
 web-nginx-osf-web.conf: |-
   location /quickfiles/ {
       {{- if .Values.prerender.enabled }}
