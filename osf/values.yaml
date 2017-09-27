@@ -20,6 +20,8 @@ ingress:
   #   kubernetes.io/ingress.class: nginx
   #   kubernetes.io/tls-acme: 'true'
 
+  path: /
+
   ## Ingress TLS configuration
   ## Secrets must be manually created in the namespace
   ##

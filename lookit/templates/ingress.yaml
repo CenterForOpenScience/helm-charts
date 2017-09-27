@@ -1,6 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $serviceName := include "lookit.web.fullname" . -}}
 {{- $servicePort := .Values.web.service.externalPort -}}
+{{- $ingressPath := .Values.ingress.path -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -20,7 +21,7 @@ spec:
     - host: {{ . }}
       http:
         paths:
-          - path: /*
+          - path: {{ $ingressPath }}
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}

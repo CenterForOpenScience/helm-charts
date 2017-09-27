@@ -36,6 +36,7 @@ service:
 ingress:
   enabled: false
   # Used to create Ingress record (should used with service.type: ClusterIP).
+  path: /
   hosts:
     - chart-example.local
   annotations:

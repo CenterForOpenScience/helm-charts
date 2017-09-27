@@ -56,6 +56,7 @@ ingress:
     # kubernetes.io/tls-acme: "true"
     # ingress.kubernetes.io/proxy-body-size: 9999m
     # nginx.org/client-max-body-size: 9999m
+  path: /
   hosts:
   # - staging-files.osf.io
   tls:
