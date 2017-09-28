@@ -55,7 +55,7 @@ builder:
   name: builder
   replicaCount: 1
 
-  conccurrency: 1
+  concurrency: 1
   maxTasksPerChild: 5
   queues: builds,cleanup
 
@@ -91,7 +91,7 @@ worker:
   name: worker
   replicaCount: 1
 
-  conccurrency: 1
+  concurrency: 1
   maxTasksPerChild: 5
   queues: email
 

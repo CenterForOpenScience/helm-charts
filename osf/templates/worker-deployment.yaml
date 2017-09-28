@@ -32,7 +32,7 @@ spec:
             - framework.celery_tasks
             - worker
             - -c
-            - "{{ .Values.worker.conccurrency }}"
+            - "{{ .Values.worker.concurrency }}"
             - -l
             - "{{ .Values.worker.logLevel }}"
             - -n

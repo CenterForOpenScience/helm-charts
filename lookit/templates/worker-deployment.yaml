@@ -32,7 +32,7 @@ spec:
             - project.celery.app
             - worker
             - -c
-            - "{{ .Values.worker.conccurrency }}"
+            - "{{ .Values.worker.concurrency }}"
             - -l
             - INFO
             - -n
