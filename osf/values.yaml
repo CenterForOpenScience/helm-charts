@@ -225,6 +225,37 @@ web:
 
   env: {}
 
+task:
+  enabled: false
+  name: task
+  replicaCount: 1
+
+  concurrency: 2
+  logLevel: INFO
+  # maxTasksPerChild: 5
+  # queues: logged-tasks
+
+  resources: {}
+    # limits:
+    #   cpu: "2"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+  persistence:
+    enabled: true
+    # storageClass:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+
 worker:
   enabled: true
   name: worker
@@ -233,6 +264,7 @@ worker:
   concurrency: 1
   logLevel: INFO
   # maxTasksPerChild: 5
+  # queues: non-logged-tasks
 
   resources: {}
     # limits:

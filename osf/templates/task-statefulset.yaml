@@ -1,27 +1,28 @@
-{{- if .Values.worker.enabled -}}
+{{- if .Values.task.enabled -}}
 apiVersion: apps/v1beta1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: {{ template "osf.worker.fullname" . }}
+  name: {{ template "osf.task.fullname" . }}
   labels:
     app: {{ template "osf.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    component: "{{ .Values.worker.name }}"
+    component: "{{ .Values.task.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.worker.replicaCount }}
+  serviceName: {{ template "osf.task.fullname" . }}
+  replicas: {{ .Values.task.replicaCount }}
   template:
     metadata:
       labels:
         app: {{ template "osf.name" . }}
-        component: "{{ .Values.worker.name }}"
+        component: "{{ .Values.task.name }}"
         release: {{ .Release.Name }}
       annotations:
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
-        - name: {{ .Values.worker.name }}
+        - name: {{ .Values.task.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
@@ -32,20 +33,20 @@ spec:
             - --app
             - framework.celery_tasks
             - --concurrency
-            - "{{ .Values.worker.concurrency }}"
+            - "{{ .Values.task.concurrency }}"
             - --loglevel
-            - "{{ .Values.worker.logLevel }}"
+            - "{{ .Values.task.logLevel }}"
             - --hostname
             - $POD_NAME
             - --without-gossip
             - -Ofair
-            {{- if .Values.worker.maxTasksPerChild }}
+            {{- if .Values.task.maxTasksPerChild }}
             - --maxtasksperchild
-            - "{{ .Values.worker.maxTasksPerChild }}"
+            - "{{ .Values.task.maxTasksPerChild }}"
             {{- end }}
-            {{- if .Values.worker.queues }}
+            {{- if .Values.task.queues }}
             - --queues
-            - "{{ .Values.worker.queues }}"
+            - "{{ .Values.task.queues }}"
             {{- end }}
           env:
             - name: DJANGO_SETTINGS_MODULE
@@ -55,20 +56,18 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             {{- include "osf.environment" . | indent 12 }}
-            {{- range $key, $value := .Values.worker.env }}
+            {{- range $key, $value := .Values.task.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
           volumeMounts:
-            {{- if not .Values.task.enabled }}
             - mountPath: /log
               name: log-volume
-            {{- end }}
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
 {{- end }}
           resources:
-{{ toYaml .Values.worker.resources | indent 12 }}
+{{ toYaml .Values.task.resources | indent 12 }}
       volumes:
         - name: config-volume
           configMap:
@@ -76,12 +75,26 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "osf.fullname" . }}
-        {{- if not .Values.task.enabled }}
+        {{- if not .Values.task.persistence.enabled }}
         - name: log-volume
           emptyDir: {}
         {{- end }}
-    {{- if .Values.worker.nodeSelector }}
+     {{- if .Values.task.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.worker.nodeSelector | indent 8 }}
+{{ toYaml .Values.task.nodeSelector | indent 8 }}
     {{- end }}
+  {{- if .Values.task.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: log-volume
+      spec:
+        accessModes:
+          - {{ .Values.task.persistence.accessMode | quote }}
+      {{- if .Values.task.persistence.storageClass }}
+        storageClassName: {{ .Values.task.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.task.persistence.size | quote }}
+  {{- end }}
 {{- end -}}
