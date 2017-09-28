@@ -21,6 +21,19 @@ spec:
       annotations:
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
     spec:
+      initContainers:
+        - name: "chown"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - chown -R www-data:www-data /log
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /log
+              name: log-volume
       containers:
         - name: {{ .Values.task.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
