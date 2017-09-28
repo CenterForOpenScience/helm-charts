@@ -51,6 +51,8 @@ spec:
           volumeMounts:
             - mountPath: /beat
               name: beat-volume
+            - mountPath: /log
+              name: log-volume
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
 {{- end }}
@@ -65,9 +67,8 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end }}
-        - name: static-volume
-          configMap:
-            name: {{ template "osf.fullname" . }}
+        - name: log-volume
+          emptyDir: {}
         - name: config-volume
           configMap:
             name: {{ template "osf.fullname" . }}
