@@ -29,6 +29,7 @@ jetty:
 service:
   name: cas
   type: ClusterIP
+  sessionAffinity: None
   externalPort: 8080
   internalPort: 80
 
