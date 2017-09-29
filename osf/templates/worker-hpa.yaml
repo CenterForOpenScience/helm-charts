@@ -1,0 +1,14 @@
+{{- if .Values.worker.horizontalPodAutoscaler.enabled -}}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "osf.worker.fullname" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: {{ template "osf.worker.fullname" . }}
+  minReplicas: {{ .Values.worker.replicaCount }}
+  maxReplicas: {{ .Values.worker.horizontalPodAutoscaler.maxReplicas }}
+  targetCPUUtilizationPercentage: {{ .Values.worker.horizontalPodAutoscaler.targetCPUUtilizationPercentage }}
+{{- end -}}

@@ -52,6 +52,11 @@ admin:
     #   cpu: 100m
     #   memory: 256Mi
 
+  horizontalPodAutoscaler:
+    enabled: false
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 90
+
   service:
     name: http
     type: ClusterIP
@@ -94,6 +99,11 @@ api:
     # requests:
     #   cpu: 100m
     #   memory: 256Mi
+
+  horizontalPodAutoscaler:
+    enabled: false
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 90
 
   service:
     name: http
@@ -205,6 +215,11 @@ web:
     #   cpu: 100m
     #   memory: 256Mi
 
+  horizontalPodAutoscaler:
+    enabled: false
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 90
+
   service:
     name: http
     type: ClusterIP
@@ -273,6 +288,11 @@ worker:
     # requests:
     #   cpu: 100m
     #   memory: 256Mi
+
+  horizontalPodAutoscaler:
+    enabled: false
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 90
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/

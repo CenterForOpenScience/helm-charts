@@ -27,6 +27,11 @@ nginx:
     #   cpu: 100m
     #   memory: 128Mi
 
+horizontalPodAutoscaler:
+  enabled: false
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 90
+
 service:
   name: http
   type: ClusterIP

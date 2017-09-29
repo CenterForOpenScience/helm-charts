@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 replicaCount: 2
+
 apache:
   image:
     repository: quay.io/centerforopenscience/shibboleth
@@ -14,6 +15,7 @@ apache:
     #requests:
     #  cpu: 100m
     #  memory: 128Mi
+
 jetty:
   image:
     repository: quay.io/centerforopenscience/cas
@@ -26,6 +28,12 @@ jetty:
     #requests:
     #  cpu: 100m
     #  memory: 128Mi
+
+horizontalPodAutoscaler:
+  enabled: false
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 90
+
 service:
   name: cas
   type: ClusterIP
