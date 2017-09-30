@@ -9,27 +9,6 @@ nginx:
     tag: "1"
     pullPolicy: Always
 
-ingress:
-  ## If true, Ingress will be created
-  ##
-  enabled: false
-
-  ## Ingress annotations
-  ##
-  annotations: {}
-  #   kubernetes.io/ingress.class: nginx
-  #   kubernetes.io/tls-acme: 'true'
-
-  path: /
-
-  ## Ingress TLS configuration
-  ## Secrets must be manually created in the namespace
-  ##
-  tls: []
-  #   - secretName: example-tls
-  #     hosts:
-  #       - example.domain.com
-
 admin:
   enabled: true
   name: admin
@@ -64,11 +43,21 @@ admin:
     internalPort: 80
 
   ingress:
-    ## component server Ingress hostnames
-    ## Must be provided if Ingress is enabled
-    ##
+    enabled: false
+
+    annotations: {}
+    #   kubernetes.io/ingress.class: nginx
+    #   kubernetes.io/tls-acme: 'true'
+
+    path: /
+
     hosts: []
     #   - example.domain.com
+
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -112,11 +101,21 @@ api:
     internalPort: 80
 
   ingress:
-    ## component server Ingress hostnames
-    ## Must be provided if Ingress is enabled
-    ##
+    enabled: false
+
+    annotations: {}
+    #   kubernetes.io/ingress.class: nginx
+    #   kubernetes.io/tls-acme: 'true'
+
+    path: /
+
     hosts: []
     #   - example.domain.com
+
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -227,11 +226,21 @@ web:
     internalPort: 80
 
   ingress:
-    ## component server Ingress hostnames
-    ## Must be provided if Ingress is enabled
-    ##
+    enabled: false
+
+    annotations: {}
+    #   kubernetes.io/ingress.class: nginx
+    #   kubernetes.io/tls-acme: 'true'
+
+    path: /
+
     hosts: []
     #   - example.domain.com
+
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -434,6 +443,8 @@ sharejs:
   service:
     name: sharejs
     externalPort: 7007
+  ingress:
+    path: /sharejs
 
 postgresql:
   enabled: true
