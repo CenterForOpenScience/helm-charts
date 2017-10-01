@@ -1,0 +1,23 @@
+{{- if .Values.migration.networkPolicy.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ template "osf.migration.fullname" . }}
+  labels:
+    app: {{ template "osf.migration.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ template "osf.migration.name" . }}
+      release: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.internalPort }}
+{{- end -}}

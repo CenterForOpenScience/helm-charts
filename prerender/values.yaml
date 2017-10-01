@@ -35,6 +35,9 @@ horizontalPodAutoscaler:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 90
 
+networkPolicy:
+  enabled: false
+
 service:
   name: prerender
   type: ClusterIP

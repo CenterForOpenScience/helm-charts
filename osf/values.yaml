@@ -57,6 +57,9 @@ admin:
     maxReplicas: 3
     targetCPUUtilizationPercentage: 90
 
+  networkPolicy:
+    enabled: false
+
   service:
     name: http
     type: ClusterIP
@@ -104,6 +107,9 @@ api:
     enabled: false
     maxReplicas: 3
     targetCPUUtilizationPercentage: 90
+
+  networkPolicy:
+    enabled: false
 
   service:
     name: http
@@ -155,6 +161,9 @@ beat:
     accessMode: ReadWriteOnce
     size: 4Gi
 
+  networkPolicy:
+    enabled: false
+
 collectstatic:
   enabled: false
   name: collectstatic
@@ -174,6 +183,9 @@ collectstatic:
 
   env: {}
 
+  networkPolicy:
+    enabled: false
+
 migration:
   enabled: true
   name: migration
@@ -192,6 +204,9 @@ migration:
   nodeSelector: {}
 
   env: {}
+
+  networkPolicy:
+    enabled: false
 
 web:
   enabled: true
@@ -219,6 +234,9 @@ web:
     enabled: false
     maxReplicas: 3
     targetCPUUtilizationPercentage: 90
+
+  networkPolicy:
+    enabled: false
 
   service:
     name: http
@@ -271,6 +289,9 @@ task:
     accessMode: ReadWriteOnce
     size: 10Gi
 
+  networkPolicy:
+    enabled: false
+
 worker:
   enabled: true
   name: worker
@@ -300,6 +321,9 @@ worker:
   nodeSelector: {}
 
   env: {}
+
+  networkPolicy:
+    enabled: false
 
 configEnvs:
   DEBUG: ""

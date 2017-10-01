@@ -46,6 +46,9 @@ horizontalPodAutoscaler:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 90
 
+networkPolicy:
+  enabled: false
+
 service:
   name: nginx
   type: ClusterIP
