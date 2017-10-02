@@ -22,6 +22,7 @@ admin:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
+    volumeMounts: []
 
   resources: {}
     # limits:
@@ -80,6 +81,7 @@ api:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
+    volumeMounts: []
 
   resources: {}
     # limits:

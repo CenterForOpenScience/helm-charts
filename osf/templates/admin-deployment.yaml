@@ -82,6 +82,9 @@ spec:
               name: config-volume
               subPath: admin-robots.txt
               readOnly: true
+{{- if .Values.admin.nginx.volumeMounts }}
+{{ toYaml .Values.admin.nginx.volumeMounts | indent 12 }}
+{{- end }}
           resources:
 {{ toYaml .Values.admin.nginx.resources | indent 12 }}
         - name: {{ .Values.admin.name }}
