@@ -118,6 +118,9 @@ spec:
               subPath: web-nginx-prerender.conf
               readOnly: true
             {{- end }}
+{{- if .Values.web.nginx.volumeMounts }}
+{{ toYaml .Values.web.nginx.volumeMounts | indent 12 }}
+{{- end }}
           resources:
 {{ toYaml .Values.web.nginx.resources | indent 12 }}
         - name: {{ .Values.web.name }}
