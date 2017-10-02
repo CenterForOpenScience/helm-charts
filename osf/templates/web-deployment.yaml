@@ -89,25 +89,25 @@ spec:
               subPath: web-robots.txt
               readOnly: true
             {{- if $osfPreprints.enabled }}
-            - mountPath: /nginx/osf-preprints.conf
+            - mountPath: /nginx/conf.d/apps/osf-preprints.conf
               name: config-volume
               subPath: web-nginx-osf-preprints.conf
               readOnly: true
             {{- end }}
             {{- if $osfRegistries.enabled }}
-            - mountPath: /nginx/osf-registries.conf
+            - mountPath: /nginx/conf.d/apps/osf-registries.conf
               name: config-volume
               subPath: web-nginx-osf-registries.conf
               readOnly: true
             {{- end }}
             {{- if $osfReviews.enabled }}
-            - mountPath: /nginx/osf-reviews.conf
+            - mountPath: /nginx/conf.d/apps/osf-reviews.conf
               name: config-volume
               subPath: web-nginx-osf-reviews.conf
               readOnly: true
             {{- end }}
             {{- if $osfWeb.enabled }}
-            - mountPath: /nginx/osf-web.conf
+            - mountPath: /nginx/conf.d/apps/osf-web.conf
               name: config-volume
               subPath: web-nginx-osf-web.conf
               readOnly: true

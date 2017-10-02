@@ -330,18 +330,7 @@ web-nginx.conf: |-
               alias /static/code/website/static/;
           }
 
-          {{- if $osfPreprints.enabled }}
-          include /nginx/osf-preprints.conf;
-          {{- end }}
-          {{- if $osfRegistries.enabled }}
-          include /nginx/osf-registries.conf;
-          {{- end }}
-          {{- if $osfReviews.enabled }}
-          include /nginx/osf-reviews.conf;
-          {{- end }}
-          {{- if $osfWeb.enabled }}
-          include /nginx/osf-web.conf;
-          {{- end }}
+          include /nginx/conf.d/apps/*.conf
 
           # # SHARE
           # location /share/docs {
