@@ -24,7 +24,7 @@ spec:
           command:
             - nginx
             - -c
-            - /nginx/nginx.conf
+            - /etc/nginx/nginx.conf
             - -g
             - daemon off;
           ports:
@@ -35,11 +35,11 @@ spec:
               path: /healthz
               port: {{ .Values.service.internalPort }}
           volumeMounts:
-            - mountPath: /nginx/nginx.conf
+            - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: nginx.conf
               readOnly: true
-            - mountPath: /nginx/robots.txt
+            - mountPath: /usr/share/nginx/html/robots.txt
               name: config-volume
               subPath: robots.txt
               readOnly: true

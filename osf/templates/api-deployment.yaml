@@ -60,7 +60,7 @@ spec:
           command:
             - nginx
             - -c
-            - /nginx/nginx.conf
+            - /etc/nginx/nginx.conf
             - -g
             - daemon off;
           ports:
@@ -74,11 +74,15 @@ spec:
           volumeMounts:
             - mountPath: /static
               name: static-volume
-            - mountPath: /nginx/nginx.conf
+            - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: api-nginx.conf
               readOnly: true
-            - mountPath: /nginx/robots.txt
+            - mountPath: /etc/nginx/conf.d/default.conf
+              name: config-volume
+              subPath: default.conf
+              readOnly: true
+            - mountPath: /usr/share/nginx/html/robots.txt
               name: config-volume
               subPath: api-robots.txt
               readOnly: true
@@ -87,7 +91,7 @@ spec:
 {{- end }}
           resources:
 {{ toYaml .Values.api.nginx.resources | indent 12 }}
-        - name: {{ .Values.api.name }}
+        - name: uwsgi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:

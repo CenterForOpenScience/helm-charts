@@ -65,7 +65,7 @@ spec:
           command:
             - nginx
             - -c
-            - /nginx/nginx.conf
+            - /etc/nginx/nginx.conf
             - -g
             - daemon off;
           ports:
@@ -80,40 +80,44 @@ spec:
             - mountPath: /static
               name: static-volume
               readOnly: true
-            - mountPath: /nginx/nginx.conf
+            - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: web-nginx.conf
               readOnly: true
-            - mountPath: /nginx/robots.txt
+            - mountPath: /etc/nginx/conf.d/default.conf
+              name: config-volume
+              subPath: default.conf
+              readOnly: true
+            - mountPath: /usr/share/nginx/html/robots.txt
               name: config-volume
               subPath: web-robots.txt
               readOnly: true
             {{- if $osfPreprints.enabled }}
-            - mountPath: /nginx/conf.d/osf-preprints.conf
+            - mountPath: /etc/nginx/conf.d/osf-preprints.conf
               name: config-volume
               subPath: web-nginx-osf-preprints.conf
               readOnly: true
             {{- end }}
             {{- if $osfRegistries.enabled }}
-            - mountPath: /nginx/conf.d/osf-registries.conf
+            - mountPath: /etc/nginx/conf.d/osf-registries.conf
               name: config-volume
               subPath: web-nginx-osf-registries.conf
               readOnly: true
             {{- end }}
             {{- if $osfReviews.enabled }}
-            - mountPath: /nginx/conf.d/osf-reviews.conf
+            - mountPath: /etc/nginx/conf.d/osf-reviews.conf
               name: config-volume
               subPath: web-nginx-osf-reviews.conf
               readOnly: true
             {{- end }}
             {{- if $osfWeb.enabled }}
-            - mountPath: /nginx/conf.d/osf-web.conf
+            - mountPath: /etc/nginx/conf.d/osf-web.conf
               name: config-volume
               subPath: web-nginx-osf-web.conf
               readOnly: true
             {{- end }}
             {{- if .Values.prerender.enabled }}
-            - mountPath: /nginx/prerender.conf
+            - mountPath: /etc/nginx/prerender.conf
               name: config-volume
               subPath: web-nginx-prerender.conf
               readOnly: true
@@ -123,7 +127,7 @@ spec:
 {{- end }}
           resources:
 {{ toYaml .Values.web.nginx.resources | indent 12 }}
-        - name: {{ .Values.web.name }}
+        - name: uwsgi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:

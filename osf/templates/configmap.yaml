@@ -13,6 +13,7 @@ data:
 {{- $osfRegistries := (index .Values "osf-registries") }}
 {{- $osfReviews := (index .Values "osf-reviews") }}
 {{- $osfWeb := (index .Values "osf-web") }}
+default.conf: ''
 admin-nginx.conf: |-
   user nginx;
   worker_processes 1;
@@ -67,12 +68,14 @@ admin-nginx.conf: |-
           }
 
           location /robots.txt {
-              alias /nginx/robots.txt;
+              alias /usr/share/nginx/html/robots.txt;
           }
 
           location /static {
               alias /static/code/admin;
           }
+
+          include /etc/nginx/conf.d/*.conf;
 
           location / {
               # Disable caching of application requests
@@ -142,7 +145,7 @@ api-nginx.conf: |-
           }
 
           location /robots.txt {
-              alias /nginx/robots.txt;
+              alias /usr/share/nginx/html/robots.txt;
           }
 
           location /favicon.ico {
@@ -152,6 +155,8 @@ api-nginx.conf: |-
           location /v2/static {
               alias /static/code/api/static/vendor;
           }
+
+          include /etc/nginx/conf.d/*.conf;
 
           location / {
               # Disable caching of application requests
@@ -170,7 +175,7 @@ api-nginx.conf: |-
 web-nginx-osf-preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
       rewrite ^/preprints/(.*)$ /$1 break;
@@ -181,7 +186,7 @@ web-nginx-osf-preprints.conf: |-
 web-nginx-osf-registries.conf: |-
   location /registries/ {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
       rewrite ^/registries/(.*)$ /$1 break;
@@ -192,7 +197,7 @@ web-nginx-osf-registries.conf: |-
 web-nginx-osf-reviews.conf: |-
   location /reviews/ {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
       rewrite ^/reviews/(.*)$ /$1 break;
@@ -203,7 +208,7 @@ web-nginx-osf-reviews.conf: |-
 web-nginx-osf-web.conf: |-
   location /quickfiles/ {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
       rewrite ^/quickfiles/(.*)$ /$1 break;
@@ -309,7 +314,7 @@ web-nginx.conf: |-
           }
 
           location /robots.txt {
-              alias /nginx/robots.txt;
+              alias /usr/share/nginx/html/robots.txt;
           }
 
           location ~ /static/addons/(.*?)/(.*) {
@@ -320,7 +325,7 @@ web-nginx.conf: |-
               alias /static/code/website/static/;
           }
 
-          include /nginx/conf.d/*.conf;
+          include /etc/nginx/conf.d/*.conf;
 
           # # SHARE
           # location /share/docs {
@@ -358,7 +363,7 @@ web-nginx.conf: |-
               add_header Pragma "no-cache";
 
               {{- if .Values.prerender.enabled }}
-              include /nginx/prerender.conf;
+              include /etc/nginx/prerender.conf;
               {{- end }}
 
               # Pass requests to uwsgi application
