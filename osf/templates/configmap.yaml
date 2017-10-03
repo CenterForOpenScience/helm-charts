@@ -167,7 +167,6 @@ api-nginx.conf: |-
           }
       }
   }
-{{- if $osfPreprints.enabled }}
 web-nginx-osf-preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
@@ -179,8 +178,6 @@ web-nginx-osf-preprints.conf: |-
       proxy_buffering off;
       proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
   }
-{{- end }}
-{{- if $osfRegistries.enabled }}
 web-nginx-osf-registries.conf: |-
   location /registries/ {
       {{- if .Values.prerender.enabled }}
@@ -192,8 +189,6 @@ web-nginx-osf-registries.conf: |-
       proxy_buffering off;
       proxy_pass http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }};
   }
-{{- end }}
-{{- if $osfReviews.enabled }}
 web-nginx-osf-reviews.conf: |-
   location /reviews/ {
       {{- if .Values.prerender.enabled }}
@@ -205,8 +200,6 @@ web-nginx-osf-reviews.conf: |-
       proxy_buffering off;
       proxy_pass http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }};
   }
-{{- end }}
-{{- if $osfWeb.enabled }}
 web-nginx-osf-web.conf: |-
   location /quickfiles/ {
       {{- if .Values.prerender.enabled }}
@@ -218,8 +211,6 @@ web-nginx-osf-web.conf: |-
       proxy_buffering off;
       proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
   }
-{{- end }}
-{{- if .Values.prerender.enabled }}
 web-nginx-prerender.conf: |-
   set $prerender 0;
 
@@ -243,7 +234,6 @@ web-nginx-prerender.conf: |-
       rewrite .* /https://$host$request_uri? break;
       proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
   }
-{{- end }}
 web-nginx.conf: |-
   user nginx;
   worker_processes 1;
@@ -330,7 +320,7 @@ web-nginx.conf: |-
               alias /static/code/website/static/;
           }
 
-          include /nginx/conf.d/apps/*.conf
+          include /nginx/conf.d/*.conf;
 
           # # SHARE
           # location /share/docs {

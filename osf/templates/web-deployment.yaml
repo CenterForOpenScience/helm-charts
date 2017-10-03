@@ -95,19 +95,19 @@ spec:
               readOnly: true
             {{- end }}
             {{- if $osfRegistries.enabled }}
-            - mountPath: /nginx/conf.d/apps/osf-registries.conf
+            - mountPath: /nginx/conf.d/osf-registries.conf
               name: config-volume
               subPath: web-nginx-osf-registries.conf
               readOnly: true
             {{- end }}
             {{- if $osfReviews.enabled }}
-            - mountPath: /nginx/conf.d/apps/osf-reviews.conf
+            - mountPath: /nginx/conf.d/osf-reviews.conf
               name: config-volume
               subPath: web-nginx-osf-reviews.conf
               readOnly: true
             {{- end }}
             {{- if $osfWeb.enabled }}
-            - mountPath: /nginx/conf.d/apps/osf-web.conf
+            - mountPath: /nginx/conf.d/osf-web.conf
               name: config-volume
               subPath: web-nginx-osf-web.conf
               readOnly: true
