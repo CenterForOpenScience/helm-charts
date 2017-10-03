@@ -89,7 +89,7 @@ spec:
               subPath: web-robots.txt
               readOnly: true
             {{- if $osfPreprints.enabled }}
-            - mountPath: /nginx/conf.d/apps/osf-preprints.conf
+            - mountPath: /nginx/conf.d/osf-preprints.conf
               name: config-volume
               subPath: web-nginx-osf-preprints.conf
               readOnly: true
