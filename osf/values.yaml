@@ -200,6 +200,8 @@ web:
   replicaCount: 1
 
   nginx:
+    cache:
+      enabled: false
     resources: {}
       # limits:
       #   cpu: "1"
@@ -208,7 +210,7 @@ web:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
-
+    
   resources: {}
     # limits:
     #   cpu: "1"

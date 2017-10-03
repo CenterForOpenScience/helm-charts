@@ -274,26 +274,28 @@ web-nginx.conf: |-
       gzip_vary on;
       gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
 
+      {{- if .Values.web.nginx.cache.enabled }}
       ##
       # Caching Settings
       ##
-      #
-      # # Pull cache-busting key out of query string
-      # map $args $args_first {
-      #     default $args;
-      #     ~^(?<first>.*?)&?_=\d+ $first;
-      # }
-      # map $args $args_rest {
-      #     default "";
-      #     ~^\?_=\d+&?(?<rest>.*)$ $rest;
-      #     ~_=\d+(?<rest>.*)$ $rest;
-      # }
-      #
-      # uwsgi_cache_path /cache/uwsgi keys_zone=osf_uwsgi_cache:10m inactive=120m;
-      # uwsgi_temp_path /cache/uwsgi-temp;
-      #
-      # proxy_cache_path /cache/proxy keys_zone=osf_proxy_cache:10m inactive=120m;
-      # proxy_temp_path /cache/proxy-temp;
+      
+      # Pull cache-busting key out of query string
+      map $args $args_first {
+          default $args;
+          ~^(?<first>.*?)&?_=\d+ $first;
+      }
+      map $args $args_rest {
+          default "";
+          ~^\?_=\d+&?(?<rest>.*)$ $rest;
+          ~_=\d+(?<rest>.*)$ $rest;
+      }
+      
+      uwsgi_cache_path /cache/uwsgi keys_zone=osf_uwsgi_cache:10m inactive=120m;
+      uwsgi_temp_path /cache/uwsgi-temp;
+      
+      proxy_cache_path /cache/proxy keys_zone=osf_proxy_cache:10m inactive=120m;
+      proxy_temp_path /cache/proxy-temp;
+      {{- end }}
 
       server {
           listen {{ .Values.web.service.internalPort }};
@@ -301,6 +303,11 @@ web-nginx.conf: |-
 
           client_max_body_size 25M;
           keepalive_timeout 15;
+
+          {{- if .Values.web.nginx.cache.enabled }}
+          uwsgi_cache osf_uwsgi_cache;
+          proxy_cache osf_proxy_cache;
+          {{- end }}
 
           root /static/code;
 
@@ -357,6 +364,30 @@ web-nginx.conf: |-
           # }
 
           location / {
+              {{- if .Values.web.nginx.cache.enabled }}
+              set $agent_monitor 0;
+              if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish)") {
+                  set $agent_monitor 1;
+              }
+              # Caching configuration
+              uwsgi_cache_valid 200 1m;
+              uwsgi_cache_key $host$uri$args_first$args_rest;
+              # Default cache methods, specified for clarity.
+              uwsgi_cache_methods GET HEAD;
+              # Skip cache when:
+              # - logged in
+              # - using basic auth
+              # - view-only link
+              # - hmac signed
+              # - waterbutler provider
+              # - monitoring agent
+              uwsgi_cache_bypass $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+              uwsgi_no_cache $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+              uwsgi_cache_lock on;
+              uwsgi_cache_lock_timeout 30s;
+              uwsgi_cache_use_stale updating;
+              {{- end }}
+
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
