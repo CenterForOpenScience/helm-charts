@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "jenkins.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "jenkins.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     component: {{ .Values.master.name }}
     heritage: {{ .Release.Service }}
@@ -13,7 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
+        app: {{ template "jenkins.name" . }}
         component: {{ .Values.master.name }}
         release: {{ .Release.Name }}
       annotations:
@@ -28,7 +28,7 @@ spec:
 {{ toYaml .Values.master.tolerations | indent 8 }}
       {{- end }}
       {{- if .Values.rbac.create }}
-      serviceAccountName: {{ template "fullname" . }}
+      serviceAccountName: {{ template "jenkins.fullname" . }}
       {{- else }}
       serviceAccountName: default
       {{- end }}
@@ -92,12 +92,12 @@ spec:
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "fullname" . }}
+                  name: {{ template "jenkins.fullname" . }}
                   key: admin-password
             - name: ADMIN_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "fullname" . }}
+                  name: {{ template "jenkins.fullname" . }}
                   key: admin-user
             {{- end }}
           ports:
@@ -129,7 +129,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: {{ template "fullname" . }}
+            name: {{ template "jenkins.fullname" . }}
         - name: plugins-volume
           emptyDir: {}
         - name: secrets-volume
@@ -137,7 +137,7 @@ spec:
         - name: persistent-storage
         {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "fullname" .) }}
+            claimName: {{ .Values.persistence.existingClaim | default (include "jenkins.fullname" .) }}
         {{- else }}
           emptyDir: {}
         {{- end -}}

@@ -2,9 +2,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "jenkins.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "jenkins.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
