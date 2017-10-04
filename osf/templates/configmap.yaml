@@ -18,6 +18,10 @@ admin-nginx.conf: |-
   user nginx;
   worker_processes 1;
 
+  {{- range .Values.admin.nginx.modules }}
+  load_module {{ . }};
+  {{- end }}
+
   error_log /var/log/nginx/error.log warn;
   pid /var/run/nginx.pid;
 
@@ -94,6 +98,10 @@ admin-nginx.conf: |-
 api-nginx.conf: |-
   user nginx;
   worker_processes 1;
+
+  {{- range .Values.api.nginx.modules }}
+  load_module {{ . }};
+  {{- end }}
 
   error_log /var/log/nginx/error.log warn;
   pid /var/run/nginx.pid;
@@ -242,6 +250,10 @@ web-nginx-prerender.conf: |-
 web-nginx.conf: |-
   user nginx;
   worker_processes 1;
+
+  {{- range .Values.web.nginx.modules }}
+  load_module {{ . }};
+  {{- end }}
 
   error_log /var/log/nginx/error.log warn;
   pid /var/run/nginx.pid;
