@@ -1,6 +1,6 @@
 {{- if and .Values.ingress.enabled .Values.ingress.webhook.enabled -}}
 {{- $serviceName := include "jenkins.fullname" . -}}
-{{- $servicePort := .Values.service.externalPort -}}
+{{- $servicePort := .Values.service.externalWebhookPort -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:

@@ -58,6 +58,8 @@ spec:
           ports:
             - containerPort: {{ .Values.service.externalPort }}
               name: http
+            - containerPort: {{ .Values.service.externalWebhookPort }}
+              name: webhook
           readinessProbe:
             httpGet:
               path: /healthz

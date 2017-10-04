@@ -23,6 +23,10 @@ spec:
 # CUSTOM END
     protocol: TCP
     name: http
+  - port: {{ .Values.service.externalWebhookPort }}
+    targetPort: {{ .Values.service.externalWebhookPort }}
+    protocol: TCP
+    name: webhook
   selector:
     app: {{ template "jenkins.name" . }}
     component: {{ .Values.master.name }}

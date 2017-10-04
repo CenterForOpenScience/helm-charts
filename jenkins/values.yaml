@@ -111,6 +111,7 @@ persistence:
 service:
   type: ClusterIP
   externalPort: 80
+  externalWebhookPort: 90
   internalPort: 8080
   # annotations:
   # loadBalancerSourceRanges:
