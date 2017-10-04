@@ -15,6 +15,8 @@ admin:
   replicaCount: 1
 
   nginx:
+    modules: []
+      # - modules/path/to/dynamic_module.so
     resources: {}
       # limits:
       #   cpu: "1"
@@ -74,6 +76,8 @@ api:
   replicaCount: 1
 
   nginx:
+    modules: []
+      # - modules/path/to/dynamic_module.so
     resources: {}
       # limits:
       #   cpu: "1"
@@ -200,6 +204,10 @@ web:
   replicaCount: 1
 
   nginx:
+    cache:
+      enabled: false
+    modules: []
+      # - modules/path/to/dynamic_module.so
     resources: {}
       # limits:
       #   cpu: "1"
@@ -208,7 +216,7 @@ web:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
-
+    
   resources: {}
     # limits:
     #   cpu: "1"
@@ -448,6 +456,9 @@ sharejs:
     externalPort: 7007
   ingress:
     path: /sharejs
+
+share:
+  url: https://staging-share.osf.io
 
 postgresql:
   enabled: true

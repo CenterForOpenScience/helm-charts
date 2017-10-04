@@ -80,6 +80,10 @@ spec:
             - mountPath: /static
               name: static-volume
               readOnly: true
+            {{- if .Values.web.nginx.cache.enabled }}
+            - mountPath: /cache
+              name: cache-volume
+            {{- end }}
             - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: web-nginx.conf
@@ -188,6 +192,10 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "osf.fullname" . }}
+        {{- if .Values.web.nginx.cache.enabled }}
+        - name: cache-volume
+          emptyDir: {}
+        {{- end }}
     {{- if .Values.web.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.web.nodeSelector | indent 8 }}
