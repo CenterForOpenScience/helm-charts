@@ -65,6 +65,10 @@ spec:
               path: /healthz
               port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 10
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.externalWebhookPort }}
+            initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf
               name: config-volume
