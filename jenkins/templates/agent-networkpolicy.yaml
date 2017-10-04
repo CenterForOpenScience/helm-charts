@@ -2,16 +2,16 @@
 kind: NetworkPolicy
 apiVersion: {{ .Values.networkPolicy.apiVersion }}
 metadata:
-  name: {{ template "jenkins.fullname" . }}-agent
+  name: {{ template "jenkins.agent.fullname" . }}
   labels:
     app: {{ template "jenkins.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    component: agent
+    component: {{ .Values.agent.name }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
   podSelector:
     matchLabels:
       # DefaultDeny
-      "jenkins/{{ template "jenkins.fullname" . }}-agent": "true"
+      "jenkins/{{ template "jenkins.agent.fullname" . }}": "true"
 {{- end }}

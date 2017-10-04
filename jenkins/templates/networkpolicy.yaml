@@ -22,7 +22,7 @@ spec:
     - from:
       - podSelector:
           matchLabels:
-            "jenkins/{{ template "jenkins.fullname" . }}-agent": "true"
+            "jenkins/{{ template "jenkins.agent.fullname" . }}": "true"
       ports:
       - port: {{ .Values.agent.listenerPort }}
 {{- end }}

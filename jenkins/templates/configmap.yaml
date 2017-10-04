@@ -34,7 +34,7 @@ data:
               <name>default</name>
               <instanceCap>2147483647</instanceCap>
               <idleMinutes>0</idleMinutes>
-              <label>{{ template "jenkins.fullname" . }}-agent</label>
+              <label>{{ template "jenkins.agent.fullname" . }}</label>
               <nodeSelector></nodeSelector>
               <volumes>
 {{- range $index, $volume := .Values.agent.volumes }}
