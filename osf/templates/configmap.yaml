@@ -346,34 +346,9 @@ web-nginx.conf: |-
 
           include /etc/nginx/conf.d/*.conf;
 
-          # # SHARE
-          # location /share/docs {
-          #     proxy_pass https://staging-share-registration.osf.io/api/v1/share/data/help;
-          #
-          #     proxy_set_header Host $host;
-          #     proxy_set_header X-Real-IP $remote_addr;
-          #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          #     proxy_set_header X-Forwarded-Host $host;
-          #     proxy_set_header X-Forwarded-Proto https;
-          # }
-          #
-          # # SHARE
-          # location /api/v1/share/data {
-          #     proxy_pass https://staging-share-registration.osf.io/api/v1/share/data;
-          #
-          #     proxy_redirect off;
-          #     proxy_set_header Host $host;
-          #     proxy_set_header X-Real-IP $remote_addr;
-          #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          #     proxy_set_header X-Forwarded-Host $host;
-          #     proxy_set_header X-Forwarded-Proto https;
-          # }
-          #
-          # # SHARE
-          # location /api/v1/share/documents/ {
-          #     rewrite /api/v1/share/documents(.*) /documents$1 break;
-          #     proxy_pass https://staging-share.osf.io;
-          # }
+          location ~* ^/(api/v1/)?share.*$ {
+              return 301 {{ .Values.share.url }};
+          }
 
           location / {
               {{- if .Values.web.nginx.cache.enabled }}
