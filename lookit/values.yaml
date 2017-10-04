@@ -26,7 +26,7 @@ web:
   nginx:
     image:
       repository: nginx
-      tag: "1"
+      tag: alpine
       pullPolicy: Always
     resources: {}
       #limits:

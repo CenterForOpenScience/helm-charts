@@ -18,8 +18,8 @@ resources: {}
 
 nginx:
   image:
-    repository: us.gcr.io/cos-containers/nginx
-    tag: "1"
+    repository: nginx
+    tag: alpine
     pullPolicy: Always
 
   resources: {}

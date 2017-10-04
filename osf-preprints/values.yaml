@@ -5,7 +5,7 @@ ember:
   replicaCount: 1
  
   image:
-    repository: us.gcr.io/cos-containers/osf-preprints
+    repository: quay.io/centerforopenscience/osf-preprints
     tag: develop
     pullPolicy: Always
 
@@ -13,8 +13,8 @@ ember:
 
   nginx:
     image:
-      repository: us.gcr.io/cos-containers/nginx
-      tag: '1'
+      repository: nginx
+      tag: alpine
       pullPolicy: Always
 
     resources: {}
