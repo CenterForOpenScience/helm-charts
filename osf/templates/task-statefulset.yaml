@@ -68,7 +68,7 @@ spec:
                 PREFIX='newrelic-admin run-program'
               fi
               $PREFIX gosu www-data celery worker --app framework.celery_tasks \
-                --concurrency "{{ .Values.task.concurrency }}" \ --loglevel "{{ .Values.task.logLevel }}" \
+                --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
                 --hostname $POD_NAME --without-gossip -Ofair
                 {{- if .Values.task.maxTasksPerChild }} --maxtasksperchild "{{ .Values.task.maxTasksPerChild }}"{{- end }}
                 {{- if .Values.task.queues }} --queues "{{ .Values.task.queues }}"{{- end }}
