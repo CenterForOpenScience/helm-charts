@@ -27,9 +27,14 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - python
-            - manage.py
-            - migrate
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX python manage.py migrate
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
@@ -38,9 +43,12 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-{{- if .Values.volumeMounts }}
+{{- if or .Values.volumeMounts .Values.migration.volumeMounts }}
           volumeMounts:
 {{ toYaml .Values.volumeMounts | indent 12 }}
+{{- if .Values.migration.volumeMounts }}
+{{ toYaml .Values.migration.volumeMounts | indent 12 }}
+{{- end }}
 {{- end }}
       volumes:
         - name: config-volume

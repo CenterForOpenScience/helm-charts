@@ -70,6 +70,8 @@ admin:
   env:
     ALLOWED_HOSTS: "*"
 
+  volumeMounts: []
+
 api:
   enabled: true
   name: api
@@ -131,6 +133,8 @@ api:
   env:
     ALLOWED_HOSTS: "*"
 
+  volumeMounts: []
+
 beat:
   enabled: true
   name: beat
@@ -149,6 +153,8 @@ beat:
   nodeSelector: {}
 
   env: {}
+
+  volumeMounts: []
 
   persistence:
     enabled: true
@@ -179,6 +185,8 @@ collectstatic:
 
   env: {}
 
+  volumeMounts: []
+
 migration:
   enabled: true
   name: migration
@@ -197,6 +205,8 @@ migration:
   nodeSelector: {}
 
   env: {}
+
+  volumeMounts: []
 
 web:
   enabled: true
@@ -260,6 +270,8 @@ web:
 
   env: {}
 
+  volumeMounts: []
+
 task:
   enabled: false
   name: task
@@ -284,6 +296,8 @@ task:
   nodeSelector: {}
 
   env: {}
+
+  volumeMounts: []
 
   persistence:
     enabled: true
@@ -320,6 +334,8 @@ worker:
   nodeSelector: {}
 
   env: {}
+
+  volumeMounts: []
 
 configEnvs:
   DEBUG: ""

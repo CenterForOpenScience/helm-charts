@@ -25,12 +25,14 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - gosu
-            - www-data
-            - invoke
-            - celery_beat
-            - --schedule
-            - /beat/celerybeat-schedule
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data invoke celery_beat --schedule /beat/celerybeat-schedule
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
@@ -55,6 +57,9 @@ spec:
               name: log-volume
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+{{- if .Values.beat.volumeMounts }}
+{{ toYaml .Values.beat.volumeMounts | indent 12 }}
 {{- end }}
           resources:
 {{ toYaml .Values.beat.resources | indent 12 }}

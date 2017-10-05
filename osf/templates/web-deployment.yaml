@@ -135,11 +135,14 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - uwsgi
-            - --ini
-            - /etc/uwsgi/uwsgi.ini
-            - --socket
-            - :{{ .Values.web.service.externalPort }}
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.web.service.externalPort }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
@@ -180,6 +183,9 @@ spec:
               readOnly: true
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+{{- if .Values.web.volumeMounts }}
+{{ toYaml .Values.web.volumeMounts | indent 12 }}
 {{- end }}
           resources:
 {{ toYaml .Values.web.resources | indent 12 }}
