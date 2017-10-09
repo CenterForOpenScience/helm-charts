@@ -309,8 +309,33 @@ web-nginx.conf: |-
       proxy_temp_path /cache/proxy-temp;
       {{- end }}
 
+      {{- if .Values.web.nginx.preprintDomainSuffix }}
       server {
           listen {{ .Values.web.service.internalPort }};
+          server_name *.{{ .Values.web.nginx.preprintDomainSuffix }};
+
+          location ~* ^/(?!\w+/download/?$).* {
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
+              proxy_redirect off;
+              proxy_buffering off;
+              proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
+          }
+
+          location / {
+              # Pass requests to uwsgi application
+              include /etc/nginx/uwsgi_params;
+              uwsgi_buffering off;
+              uwsgi_request_buffering off;
+              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
+          }
+      }
+      {{- end }}
+
+      server {
+          listen {{ .Values.web.service.internalPort }} default_server;
           server_name _;
 
           client_max_body_size 25M;
