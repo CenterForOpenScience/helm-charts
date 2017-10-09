@@ -216,6 +216,7 @@ web:
   nginx:
     cache:
       enabled: false
+    preprintDomainSuffix: ''
     modules: []
       # - modules/path/to/dynamic_module.so
     resources: {}
