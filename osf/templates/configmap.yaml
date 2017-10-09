@@ -335,7 +335,7 @@ web-nginx.conf: |-
       {{- end }}
 
       server {
-          listen {{ .Values.web.service.internalPort }};
+          listen {{ .Values.web.service.internalPort }} default_server;
           server_name _;
 
           client_max_body_size 25M;
