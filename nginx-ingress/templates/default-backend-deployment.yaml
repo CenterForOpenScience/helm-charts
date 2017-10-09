@@ -54,5 +54,28 @@ spec:
       tolerations:
 {{ toYaml .Values.defaultBackend.tolerations | indent 8 }}
     {{- end }}
+    {{- if eq .Values.defaultBackend.antiAffinity "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  component: "{{ .Values.defaultBackend.name }}"
+                  release: {{ .Release.Name }}
+    {{- else if eq .Values.defaultBackend.antiAffinity "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  component: "{{ .Values.defaultBackend.name }}"
+                  release: {{ .Release.Name }}
+    {{- end }}
       terminationGracePeriodSeconds: 60
 {{- end }}
