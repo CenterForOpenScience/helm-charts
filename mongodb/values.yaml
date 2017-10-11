@@ -25,6 +25,8 @@ image: bitnami/mongodb:3.4.9-r1
 service:
   name: mongodb
   type: ClusterIP
+  # If using type: LoadBalancer
+  #loadBalacerIP: 0.0.0.0
   externalPort: 27017
   internalPort: mongodb
 
