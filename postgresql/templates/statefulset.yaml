@@ -3,108 +3,106 @@ kind: StatefulSet
 metadata:
   name: postgresql
   labels:
-    app: {{ template "postgresql.fullname" . }}
+    app: {{ template "postgresql.name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 spec:
   serviceName: {{ template "postgresql.fullname" . }}
   replicas: {{ .Values.postgres.replicaCount }}
   template:
     metadata:
       labels:
-        app: {{ template "postgresql.fullname" . }}
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        app: {{ template "postgresql.name" . }}
         release: {{ .Release.Name }}
-        heritage: {{ .Release.Service }}
     spec:
       containers:
-      - name: postgresql
-        image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
-        imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
-        env:
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata
-        - name: POD_NAME
-          valueFrom: 
-            fieldRef: 
-              fieldPath: metadata.name
-        - name: POD_IP
-          valueFrom: 
-            fieldRef: 
-              fieldPath: status.podIP
-        {{- include "postgresql.environment" . | indent 8 }}
-        ports:
         - name: postgresql
-          containerPort: 5432
-        livenessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - exec pg_isready --host $POD_IP
-          initialDelaySeconds: 60
-          timeoutSeconds: 5
-          failureThreshold: 6
-        readinessProbe:
-          exec:
-            command:
-            - sh
-            - -c
-            - exec pg_isready --host $POD_IP
-          initialDelaySeconds: 60
-          timeoutSeconds: 3
-          periodSeconds: 5
-        resources:
-{{ toYaml .Values.postgres.resources | indent 10 }}
-        volumeMounts:
-        - name: data
-          mountPath: /var/lib/postgresql/data/pgdata
-          subPath: {{ .Values.persistence.subPath }}
-        - name: config-volume
-          mountPath: /etc/_repmgr.conf
-          subPath: repmgr.conf
-          readOnly: true
-        - name: config-volume
-          mountPath: /etc/supervisor/conf.d/supervisord.conf
-          subPath: supervisord.conf
-          readOnly: true
-        - name: config-volume
-          mountPath: /entrypoint.sh
-          subPath: entrypoint.sh
-          readOnly: true
-{{- if .Values.metrics.enabled }}
-      - name: metrics
-        image: "{{ .Values.metrics.image }}:{{ .Values.metrics.imageTag }}"
-        imagePullPolicy: {{ default "" .Values.metrics.imagePullPolicy | quote }}
-        env:
-        - name: DATA_SOURCE_NAME
-          value: postgresql://postgres@127.0.0.1:5432?sslmode=disable
-        ports:
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            {{- include "postgresql.environment" . | indent 12 }}
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready --host $POD_IP
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready --host $POD_IP
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+            periodSeconds: 5
+          resources:
+{{ toYaml .Values.postgres.resources | indent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data/pgdata
+              subPath: {{ .Values.persistence.subPath }}
+            - name: config-volume
+              mountPath: /etc/_repmgr.conf
+              subPath: repmgr.conf
+              readOnly: true
+            - name: config-volume
+              mountPath: /etc/supervisor/conf.d/supervisord.conf
+              subPath: supervisord.conf
+              readOnly: true
+            - name: config-volume
+              mountPath: /entrypoint.sh
+              subPath: entrypoint.sh
+              readOnly: true
+        {{- if .Values.metrics.enabled }}
         - name: metrics
-          containerPort: 9187
-        {{- if .Values.metrics.customMetrics }}
-        args: ["-extend.query-path", "/conf/custom-metrics.yaml"]
-        volumeMounts:
-          - name: custom-metrics
-            mountPath: /conf
-            readOnly: true
+          image: "{{ .Values.metrics.image }}:{{ .Values.metrics.imageTag }}"
+          imagePullPolicy: {{ default "" .Values.metrics.imagePullPolicy | quote }}
+          env:
+            - name: DATA_SOURCE_NAME
+              value: postgresql://postgres@127.0.0.1:5432?sslmode=disable
+          ports:
+            - name: metrics
+              containerPort: 9187
+          {{- if .Values.metrics.customMetrics }}
+          args: ["-extend.query-path", "/conf/custom-metrics.yaml"]
+          volumeMounts:
+            - name: custom-metrics
+              mountPath: /conf
+              readOnly: true
+          {{- end }}
+          resources:
+{{ toYaml .Values.metrics.resources | indent 12 }}
         {{- end }}
-        resources:
-{{ toYaml .Values.metrics.resources | indent 10 }}
-{{- end }}
       volumes:
-      - name: config-volume
-        configMap:
-          name: {{ template "postgresql.fullname" . }}
-      {{- if and .Values.metrics.enabled .Values.metrics.customMetrics }}
-      - name: custom-metrics
-        secret:
-          secretName: {{ template "postgresql.fullname" . }}
-          items:
-            - key: custom-metrics.yaml
-              path: custom-metrics.yaml
-      {{- end }}
+        - name: config-volume
+          configMap:
+            name: {{ template "postgresql.fullname" . }}
+        {{- if and .Values.metrics.enabled .Values.metrics.customMetrics }}
+        - name: custom-metrics
+          secret:
+            secretName: {{ template "postgresql.fullname" . }}
+            items:
+              - key: custom-metrics.yaml
+                path: custom-metrics.yaml
+        {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: data

@@ -3,10 +3,10 @@ kind: ConfigMap
 metadata:
   name: {{ template "postgresql.fullname" . }}
   labels:
-    app: {{ template "postgresql.fullname" . }}
+    app: {{ template "postgresql.name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 data:
 {{- range $key, $value := merge .Values.configs ((.Files.Glob "files/*").AsConfig | fromYaml) }}
   {{ $key }}: |-

@@ -6,14 +6,6 @@ postgres:
     pullPolicy: IfNotPresent
   resources: {}
 
-barman:
-  replicaCount: 1
-  image:
-    repository: centerforopenscience/barman
-    tag: '9.6'
-    pullPolicy: IfNotPresent
-  resources: {}
-
 ## Persist data to a persitent volume
 persistence:
   storageClass: default
