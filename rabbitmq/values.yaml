@@ -1,61 +1,59 @@
 ## Bitnami RabbitMQ image version
 ## ref: https://hub.docker.com/r/bitnami/rabbitmq/tags/
 ##
-image: bitnami/rabbitmq:3.6.12-r0
-
-## Specify a imagePullPolicy
-## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
-## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
-##
-# imagePullPolicy:
+image:
+  repository: bitnami/rabbitmq
+  tag: 3.6.12-r0
+  pullPolicy: IfNotPresent
 
 ## RabbitMQ application username
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
 ##
-rabbitmqUsername: user
+username: ''
 
 ## RabbitMQ application password
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
 ##
-# rabbitmqPassword:
+# password:
 
 ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
 ##
-# rabbitmqErlangCookie:
-
-## Node port
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
-##
-rabbitmqNodePort: 5672
+# erlangCookie:
 
 ## Node Type
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
 ##
-rabbitmqNodeType: stats
+nodeType: stats
 
 ## Node Name
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
 ##
-rabbitmqNodeName: rabbit
+nodeName: rabbit
 
 ## Node name to cluster with. e.g.: `clusternode@hostname`
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
 ##
-# rabbitmqClusterNodeName:
+clusterNodeName: ''
 
 ## RabbitMQ application vhost
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
 ##
-rabbitmqVhost: /
-
-## RabbitMQ Manager port
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
-##
-rabbitmqManagerPort: 15672
+vhost: /
 
 ## Kubernetes service type
 serviceType: ClusterIP
+
+service:
+  #annotations: {}
+  type: ClusterIP
+  # If using type: LoadBalancer
+  #loadBalacerIP: 0.0.0.0
+  ports:
+    empd: 4369
+    amqp: 5672
+    dist: 25672
+    stats: 15672
 
 persistence:
   enabled: true
@@ -72,7 +70,7 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  # storageClass: "-"
+  storageClass: ''
   accessMode: ReadWriteOnce
   size: 8Gi
 

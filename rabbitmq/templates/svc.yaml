@@ -3,24 +3,26 @@ kind: Service
 metadata:
   name: {{ template "rabbitmq.fullname" . }}
   labels:
-    app: {{ template "rabbitmq.fullname" . }}
+    app: {{ template "rabbitmq.name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  {{- if .Values.service.annotations }}
+  annotations:
+{{ toYaml .Values.service.annotations | indent 4 }}
+  {{- end }}
 spec:
-  type: {{ .Values.serviceType }}
+  type: {{ .Values.service.type }}
+  {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP | quote }}
+  {{- end }}
   ports:
-  - name: epmd
-    port: 4369
-    targetPort: epmd
-  - name: amqp
-    port: {{ default "5672" .Values.rabbitmqNodePort }}
-    targetPort: amqp
-  - name: dist
-    port: {{ default "5672" .Values.rabbitmqNodePort | add 20000 }}
-    targetPort: dist
-  - name: stats
-    port: {{ default "15672" .Values.rabbitmqManagerPort }}
-    targetPort: stats
+    {{- range $name, $port := .Values.service.ports }}
+    - name: {{ $name }}
+      port: {{ $port }}
+      protocol: TCP
+      targetPort: {{ $name }}
+    {{- end }}
   selector:
-    app: {{ template "rabbitmq.fullname" . }}
+    app: {{ template "rabbitmq.name" . }}
+    release: {{ .Release.Name }}
