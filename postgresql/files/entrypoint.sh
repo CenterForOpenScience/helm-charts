@@ -24,7 +24,7 @@ if [ "$1" = 'postgres' ]; then
 		if [ $STATEFUL_TYPE == "master" ]; then
 			exec docker-entrypoint.sh "$@" &
 
-			while ! pg_isready --host ${POD_IP}
+			while ! pg_isready --host ${POD_IP} --quiet
 			do
 				sleep 1
 			done
@@ -60,13 +60,16 @@ if [ "$1" = 'postgres' ]; then
 			done
 
 			gosu postgres repmgr master register
+
+			gosu postgres psql -U repmgr -d repmgr <<-EOF
+			ALTER TABLE repmgr_default.repl_monitor SET UNLOGGED;
+			EOF
 		else
 			while ! pg_isready --host ${MASTER_SERVICE}
 			do
 				sleep 1
 			done
 
-			# move into init script
 			mkdir -p "$PGDATA"
 			chown -R postgres "$PGDATA"
 			chmod 700 "$PGDATA"
@@ -77,7 +80,7 @@ if [ "$1" = 'postgres' ]; then
 
 			gosu postgres pg_ctl -w start
 
-			while ! pg_isready --host ${POD_NAME}
+			while ! pg_isready --host ${POD_NAME} --quiet
 			do
 				sleep 1
 			done
@@ -91,7 +94,7 @@ if [ "$1" = 'postgres' ]; then
 
 	exec docker-entrypoint.sh "$@" & pid=$!
 
-	while ! pg_isready --host ${service}
+	while ! pg_isready --host ${service} --quiet
 	do
 		sleep 1
 	done
@@ -104,6 +107,17 @@ fi
 
 if [ "$1" = 'repmgrd' ] && [ "$(id -u)" = '0' ]; then
 	exec gosu postgres "$@"
+fi
+
+if [ "$1" = 'cleanup' ]; then
+	while true
+	do
+		sleep 3600
+
+		if pg_isready --host ${MASTER_SERVICE} --quiet; then
+			gosu postgres repmgr --keep-history=1 cluster cleanup
+		fi
+	done
 fi
 
 exec "$@"
