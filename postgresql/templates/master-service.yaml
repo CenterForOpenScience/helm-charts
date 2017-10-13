@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "postgresql.fullname" . }}
+  name: {{ template "postgresql.master.fullname" . }}
   labels:
     app: {{ template "postgresql.name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    heritage: "{{ .Release.Service }}"
-    release: "{{ .Release.Name }}"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.master.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 {{- if .Values.metrics.enabled }}
   annotations:
     prometheus.io/scrape: "true"
@@ -23,4 +24,6 @@ spec:
 {{ toYaml .Values.service.externalIPs | indent 4 }}
 {{- end }}
   selector:
-    app: {{ template "postgresql.fullname" . }}
+    app: {{ template "postgresql.name" . }}
+    component: "{{ .Values.master.name }}"
+    release: {{ .Release.Name }}

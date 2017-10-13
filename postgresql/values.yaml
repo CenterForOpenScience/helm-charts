@@ -1,28 +1,33 @@
-postgres:
-  replicaCount: 2
-  image:
-    repository: centerforopenscience/postgres
-    tag: 9.6-repmgr
-    pullPolicy: IfNotPresent
+image:
+  repository: centerforopenscience/postgres
+  tag: 9.6-repmgr
+  pullPolicy: Always
+
+master:
+  name: master
+  resources: {}
+
+standby:
+  name: standby
+  replicaCount: 1
   resources: {}
 
 ## Persist data to a persitent volume
 persistence:
-  storageClass: default
+  enabled: true
+  # storageClass: ssd
   accessMode: ReadWriteOnce
   size: 8Gi
-  subPath: "postgresql-db"
+  subPath: pgdata
 
 configs: {}
 
 secrets:
   POSTGRES_DB: postgres
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: ''
+  POSTGRES_PASSWORD: password
   POSTGRES_INITDB_ARGS: --data-checksums
-  REPMGR_PASSWORD: ''
-  BARMAN_PASSWORD: ''
-  BARMAN_STREAMING_PASSWORD: ''
+  REPMGR_PASSWORD: repmgr
 
 metrics:
   enabled: false

@@ -1,28 +1,40 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  name: postgresql
+  name: {{ template "postgresql.standby.fullname" . }}
   labels:
     app: {{ template "postgresql.name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.standby.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
-  serviceName: {{ template "postgresql.fullname" . }}
-  replicas: {{ .Values.postgres.replicaCount }}
+  serviceName: {{ template "postgresql.standby.fullname" . }}
+  replicas: {{ .Values.standby.replicaCount }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
   template:
     metadata:
       labels:
         app: {{ template "postgresql.name" . }}
+        component: "{{ .Values.standby.name }}"
         release: {{ .Release.Name }}
     spec:
       containers:
         - name: postgresql
-          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
-          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
+            - name: STATEFUL_TYPE
+              value: standby
+            - name: MASTER_SERVICE
+              value: {{ template "postgresql.master.fullname" . }}
+            # - name: STANDBY_SERVICE
+            #   value: {{ template "postgresql.standby.fullname" . }}
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -50,27 +62,24 @@ spec:
                 - sh
                 - -c
                 - exec pg_isready --host $POD_IP
-            initialDelaySeconds: 60
             timeoutSeconds: 3
             periodSeconds: 5
           resources:
-{{ toYaml .Values.postgres.resources | indent 12 }}
+{{ toYaml .Values.standby.resources | indent 12 }}
           volumeMounts:
             - name: data
-              mountPath: /var/lib/postgresql/data/pgdata
+              mountPath: /var/lib/postgresql/data
               subPath: {{ .Values.persistence.subPath }}
             - name: config-volume
-              mountPath: /etc/_repmgr.conf
+              mountPath: /etc/repmgr.conf.tpl
               subPath: repmgr.conf
-              readOnly: true
             - name: config-volume
               mountPath: /etc/supervisor/conf.d/supervisord.conf
               subPath: supervisord.conf
               readOnly: true
             - name: config-volume
-              mountPath: /entrypoint.sh
+              mountPath: /usr/local/bin/entrypoint.sh
               subPath: entrypoint.sh
-              readOnly: true
         {{- if .Values.metrics.enabled }}
         - name: metrics
           image: "{{ .Values.metrics.image }}:{{ .Values.metrics.imageTag }}"
@@ -92,6 +101,10 @@ spec:
 {{ toYaml .Values.metrics.resources | indent 12 }}
         {{- end }}
       volumes:
+        {{- if not .Values.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
         - name: config-volume
           configMap:
             name: {{ template "postgresql.fullname" . }}
@@ -103,13 +116,17 @@ spec:
               - key: custom-metrics.yaml
                 path: custom-metrics.yaml
         {{- end }}
+  {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
         accessModes:
-          - {{ .Values.persistence.accessMode }}
-        storageClassName: {{ .Values.persistence.storageClass }}
+          - {{ .Values.persistence.accessMode | quote }}
+      {{- if hasKey .Values.persistence "storageClass" }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+      {{- end }}
         resources:
           requests:
-            storage: {{ .Values.persistence.size }}
+            storage: {{ .Values.persistence.size | quote }}
+  {{- end }}

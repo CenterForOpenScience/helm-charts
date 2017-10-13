@@ -1,0 +1,132 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "postgresql.master.fullname" . }}
+  labels:
+    app: {{ template "postgresql.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.master.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  serviceName: {{ template "postgresql.master.fullname" . }}
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  template:
+    metadata:
+      labels:
+        app: {{ template "postgresql.name" . }}
+        component: "{{ .Values.master.name }}"
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: postgresql
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: STATEFUL_TYPE
+              value: master
+            - name: MASTER_SERVICE
+              value: {{ template "postgresql.master.fullname" . }}
+            # - name: STANDBY_SERVICE
+            #   value: {{ template "postgresql.standby.fullname" . }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            {{- include "postgresql.environment" . | indent 12 }}
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready --host $POD_IP
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready --host $POD_IP
+            timeoutSeconds: 3
+            periodSeconds: 5
+          resources:
+{{ toYaml .Values.master.resources | indent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: {{ .Values.persistence.subPath }}
+            - name: config-volume
+              mountPath: /etc/repmgr.conf.tpl
+              subPath: repmgr.conf
+            - name: config-volume
+              mountPath: /etc/supervisor/conf.d/supervisord.conf
+              subPath: supervisord.conf
+              readOnly: true
+            - name: config-volume
+              mountPath: /usr/local/bin/entrypoint.sh
+              subPath: entrypoint.sh
+        {{- if .Values.metrics.enabled }}
+        - name: metrics
+          image: "{{ .Values.metrics.image }}:{{ .Values.metrics.imageTag }}"
+          imagePullPolicy: {{ default "" .Values.metrics.imagePullPolicy | quote }}
+          env:
+            - name: DATA_SOURCE_NAME
+              value: postgresql://postgres@127.0.0.1:5432?sslmode=disable
+          ports:
+            - name: metrics
+              containerPort: 9187
+          {{- if .Values.metrics.customMetrics }}
+          args: ["-extend.query-path", "/conf/custom-metrics.yaml"]
+          volumeMounts:
+            - name: custom-metrics
+              mountPath: /conf
+              readOnly: true
+          {{- end }}
+          resources:
+{{ toYaml .Values.metrics.resources | indent 12 }}
+        {{- end }}
+      volumes:
+        {{- if not .Values.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+        - name: config-volume
+          configMap:
+            name: {{ template "postgresql.fullname" . }}
+        {{- if and .Values.metrics.enabled .Values.metrics.customMetrics }}
+        - name: custom-metrics
+          secret:
+            secretName: {{ template "postgresql.fullname" . }}
+            items:
+              - key: custom-metrics.yaml
+                path: custom-metrics.yaml
+        {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - {{ .Values.persistence.accessMode | quote }}
+      {{- if hasKey .Values.persistence "storageClass" }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+  {{- end }}
