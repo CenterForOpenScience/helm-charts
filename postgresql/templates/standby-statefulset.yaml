@@ -69,7 +69,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
-              subPath: {{ .Values.persistence.subPath }}
+              subPath: {{ .Values.standby.persistence.subPath }}
             - name: config-volume
               mountPath: /etc/repmgr.conf.tpl
               subPath: repmgr.conf
@@ -101,7 +101,7 @@ spec:
 {{ toYaml .Values.metrics.resources | indent 12 }}
         {{- end }}
       volumes:
-        {{- if not .Values.persistence.enabled }}
+        {{- if not .Values.standby.persistence.enabled }}
         - name: data
           emptyDir: {}
         {{- end }}
@@ -116,17 +116,17 @@ spec:
               - key: custom-metrics.yaml
                 path: custom-metrics.yaml
         {{- end }}
-  {{- if .Values.persistence.enabled }}
+  {{- if .Values.standby.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
         accessModes:
-          - {{ .Values.persistence.accessMode | quote }}
-      {{- if hasKey .Values.persistence "storageClass" }}
-        storageClassName: {{ .Values.persistence.storageClass | quote }}
+          - {{ .Values.standby.persistence.accessMode | quote }}
+      {{- if hasKey .Values.standby.persistence "storageClass" }}
+        storageClassName: {{ .Values.standby.persistence.storageClass | quote }}
       {{- end }}
         resources:
           requests:
-            storage: {{ .Values.persistence.size | quote }}
+            storage: {{ .Values.standby.persistence.size | quote }}
   {{- end }}

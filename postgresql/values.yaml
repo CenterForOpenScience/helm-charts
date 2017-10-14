@@ -6,19 +6,23 @@ image:
 master:
   name: master
   resources: {}
+  persistence:
+    enabled: true
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 8Gi
+    subPath: pgdata
 
 standby:
   name: standby
   replicaCount: 1
   resources: {}
-
-## Persist data to a persitent volume
-persistence:
-  enabled: true
-  # storageClass: ssd
-  accessMode: ReadWriteOnce
-  size: 8Gi
-  subPath: pgdata
+  persistence:
+    enabled: true
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 8Gi
+    subPath: pgdata
 
 configs: {}
 
