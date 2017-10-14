@@ -11,7 +11,6 @@ master:
     # storageClass: ssd
     accessMode: ReadWriteOnce
     size: 8Gi
-    subPath: pgdata
 
 standby:
   name: standby
@@ -22,7 +21,6 @@ standby:
     # storageClass: ssd
     accessMode: ReadWriteOnce
     size: 8Gi
-    subPath: pgdata
 
 configs: {}
 

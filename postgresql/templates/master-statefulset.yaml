@@ -69,7 +69,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
-              subPath: {{ .Values.master.persistence.subPath }}
+              subPath: pgdata
             - name: config-volume
               mountPath: /etc/repmgr.conf.tpl
               subPath: repmgr.conf
