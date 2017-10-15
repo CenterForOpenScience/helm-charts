@@ -272,6 +272,18 @@ web:
   env: {}
 
   volumeMounts: []
+    # - mountPath: /etc/ssl/certs/ca-chain.cert.pem
+    #   name: secret-volume
+    #   subPath: worker-ca.cert.pem
+    #   readOnly: true
+    # - mountPath: /etc/ssl/certs/worker.pem
+    #   name: secret-volume
+    #   subPath: worker.pem
+    #   readOnly: true
+    # - mountPath: /etc/ssl/private/worker.key
+    #   name: secret-volume
+    #   subPath: worker.key
+    #   readOnly: true
 
 task:
   enabled: false
@@ -376,6 +388,12 @@ secretFiles: {}
   # addons-wiki-local.py: |-
   #   ...
   # addons-zotero-local.py: |-
+  #   ...
+  # worker-ca.cert.pem: |-
+  #   ...
+  # worker.pem: |-
+  #   ...
+  # worker.key: |-
   #   ...
 
 volumeMounts:
