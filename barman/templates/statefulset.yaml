@@ -1,0 +1,77 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "barman.fullname" . }}
+  labels:
+    app: {{ template "barman.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  serviceName: {{ template "barman.fullname" . }}
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  template:
+    metadata:
+      labels:
+        app: {{ template "barman.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: barman
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - mountPath: /var/lib/barman
+              name: data-volume
+            - mountPath: /etc/barman.conf
+              name: config-volume
+              subPath: barman.conf
+              readOnly: true
+            - mountPath: /etc/cron.d/barman_schedule
+              name: config-volume
+              subPath: cron.d-barman_schedule
+              readOnly: true
+          {{- range $key, $value := .Values.backups }}
+            - mountPath: /etc/barman.d/{{ $key }}.conf
+              name: secret-volume
+              subPath: barman.d-{{ $key }}.conf
+              readOnly: true
+          {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        {{- if not .Values.persistence.enabled }}
+        - name: data-volume
+          emptyDir: {}
+        {{- end }}
+        - name: config-volume
+          configMap:
+            name: {{ template "barman.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "barman.fullname" . }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data-volume
+      spec:
+        accessModes:
+          - {{ .Values.persistence.accessMode | quote }}
+      {{- if hasKey .Values.persistence "storageClass" }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+  {{- end }}

@@ -1,0 +1,48 @@
+The barman chart has been installed.
+
+Perform the following steps on your PostgresSQL server:
+
+  * Create the backup and replication user.
+
+    CREATE USER barman SUPERUSER LOGIN ENCRYPTED PASSWORD '...';
+    CREATE USER streaming_barman REPLICATION LOGIN ENCRYPTED PASSWORD '...';
+
+  * Allow password protected access to your database server.
+
+    e.g. vim /var/lib/postgresql/data/pgdata/pg_hba.conf
+
+    w/ tls:
+    hostssl    barman         barman              all    md5
+    hostssl    replication    streaming_barman    all    md5
+
+    w/o tls:
+    host    barman         barman              all    md5
+    host    replication    streaming_barman    all    md5
+
+    see more: https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html
+
+  * Reload the PostgreSQL configuration files without downtime.
+
+    pg_ctl reload
+
+Initialize any new backups by performing the following steps on your Barman server.
+
+  * Obtain a bash shell on your Barman server.
+
+    kubectl --namespace {{ .Release.Namespace }} exec -it {{ template "barman.fullname" . }}-0 su barman
+
+  * Create a replication slot for your backup.
+
+    barman receive-wal --create-slot <server_name>
+
+  * Reset WAL log to perofrm first replication.
+
+    barman switch-xlog --force --archive <server_name>
+
+  # Perform the initail backup
+
+    barman backup <server_name>
+
+  * Verify replication and bacups are working as expected.
+
+    barman check <server_name>
