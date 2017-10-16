@@ -27,22 +27,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: PGDATA
-              value: /var/lib/postgresql/data/pgdata
             - name: STATEFUL_TYPE
               value: standby
-            - name: MASTER_SERVICE
-              value: {{ template "postgresql.master.fullname" . }}
-            # - name: STANDBY_SERVICE
-            #   value: {{ template "postgresql.standby.fullname" . }}
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
             {{- include "postgresql.environment" . | indent 12 }}
           ports:
             - name: postgresql
@@ -67,19 +53,7 @@ spec:
           resources:
 {{ toYaml .Values.standby.resources | indent 12 }}
           volumeMounts:
-            - name: data
-              mountPath: /var/lib/postgresql/data
-              subPath: pgdata
-            - name: config-volume
-              mountPath: /etc/repmgr.conf.tpl
-              subPath: repmgr.conf
-            - name: config-volume
-              mountPath: /etc/supervisor/conf.d/supervisord.conf
-              subPath: supervisord.conf
-              readOnly: true
-            - name: config-volume
-              mountPath: /usr/local/bin/entrypoint.sh
-              subPath: entrypoint.sh
+            {{- include "postgresql.volumeMounts" . | indent 12 }}
         {{- if .Values.metrics.enabled }}
         - name: metrics
           image: "{{ .Values.metrics.image }}:{{ .Values.metrics.imageTag }}"
@@ -101,20 +75,10 @@ spec:
 {{ toYaml .Values.metrics.resources | indent 12 }}
         {{- end }}
       volumes:
+        {{- include "postgresql.volumes" . | indent 8 }}
         {{- if not .Values.standby.persistence.enabled }}
         - name: data
           emptyDir: {}
-        {{- end }}
-        - name: config-volume
-          configMap:
-            name: {{ template "postgresql.fullname" . }}
-        {{- if and .Values.metrics.enabled .Values.metrics.customMetrics }}
-        - name: custom-metrics
-          secret:
-            secretName: {{ template "postgresql.fullname" . }}
-            items:
-              - key: custom-metrics.yaml
-                path: custom-metrics.yaml
         {{- end }}
   {{- if .Values.standby.persistence.enabled }}
   volumeClaimTemplates:

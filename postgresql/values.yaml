@@ -31,6 +31,18 @@ secrets:
   POSTGRES_INITDB_ARGS: --data-checksums
   REPMGR_PASSWORD: repmgr
 
+ssl:
+  enabled: false
+  files:
+    server.crt: |-
+      ...
+    server.key: |-
+      ...
+    ca.key: |-
+      ...
+    ca.crl: |-
+      ...
+
 metrics:
   enabled: false
   image: wrouesnel/postgres_exporter

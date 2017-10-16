@@ -39,6 +39,21 @@ if [ "$1" = 'postgres' ]; then
 				-e "s|^#archive_command = .*|archive_command = '/bin/true'|" \
 				-e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
 				${PGDATA}/postgresql.conf
+			
+			if [ -n "${SSL_ENABLED}" ]; then
+				sed -i \
+					-e "s|^#ssl = .*|ssl = on|" \
+					-e "s|^#ssl_ciphers = .*|ssl_ciphers = 'HIGH'|" \
+					-e "s|^#ssl_cert_file = .*|ssl_cert_file = '/etc/ssl/server.crt'|" \
+					-e "s|^#ssl_key_file = .*|ssl_key_file = '/etc/ssl/server.key'|" \
+					-e "s|^#ssl_ca_file = .*|ssl_ca_file = '/etc/ssl/ca.crt'|" \
+					-e "s|^#ssl_crl_file = .*|ssl_crl_file = '/etc/ssl/ca.crl'|" \
+					${PGDATA}/postgresql.conf
+
+				sed -i \
+					-E "s|^host([ \\t]+all){3}.*|hostssl   all   all   all   md5   clientcert=1|" \
+					${PGDATA}/pg_hba.conf
+			fi
 
 			gosu postgres psql <<-EOF
 			CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
