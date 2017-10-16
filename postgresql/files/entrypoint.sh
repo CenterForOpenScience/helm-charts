@@ -12,7 +12,7 @@ if [ "$1" = 'postgres' ]; then
 		service=${POD_NAME}
 	fi
 
-	if [ -n "${SSL_ENABLED}" ]; then
+	if [ -n "${PGSSLMODE}" ]; then
 		chown -R postgres:ssl-cert /etc/ssl/*
 		chmod 0600 /etc/ssl/*
 	fi
@@ -45,7 +45,7 @@ if [ "$1" = 'postgres' ]; then
 				-e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
 				${PGDATA}/postgresql.conf
 			
-			if [ -n "${SSL_ENABLED}" ]; then
+			if [ -n "${PGSSLMODE}" ]; then
 				sed -i \
 					-e "s|^#ssl = .*|ssl = on|" \
 					-e "s|^#ssl_ciphers = .*|ssl_ciphers = 'HIGH'|" \

@@ -59,9 +59,17 @@ Return the appropriate apiVersion for networkpolicy.
   valueFrom:
     fieldRef:
       fieldPath: status.podIP
-{{- if .Values.ssl.enabled }}
-- name: SSL_ENABLED
-  value: "true"
+{{- if .Values.tls.enabled }}
+- name: PGSSLMODE
+  value: verify-ca
+- name: PGSSLCERT
+  value: /etc/ssl/certs/client_certificate.pem
+- name: PGSSLKEY
+  value: /etc/ssl/private/client_key.pem
+- name: PGSSLROOTCERT
+  value: /etc/ssl/certs/ca_certificate.pem
+- name: PGSSLCRL
+  value: /etc/ssl/crl/ca_crl.pem
 {{- end }}
 {{- $fullname := (include "postgresql.fullname" .) -}}
 {{- range tuple "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" "POSTGRES_INITDB_ARGS" "REPMGR_PASSWORD" }}
@@ -109,18 +117,24 @@ Return the appropriate apiVersion for networkpolicy.
 - name: config-volume
   mountPath: /usr/local/bin/entrypoint.sh
   subPath: entrypoint.sh
-{{- if .Values.ssl.enabled }}
+{{- if .Values.tls.enabled }}
 - name: secret-volume
-  mountPath: /etc/ssl/server.crt
-  subPath: server.crt
+  mountPath: /etc/ssl/certs/server_certificate.pem
+  subPath: server_certificate.pem
 - name: secret-volume
-  mountPath: /etc/ssl/server.key
-  subPath: server.key
+  mountPath: /etc/ssl/private/server_key.pem
+  subPath: server_key.pem
 - name: secret-volume
-  mountPath: /etc/ssl/ca.crt
-  subPath: ca.crt
+  mountPath: /etc/ssl/certs/client_certificate.pem
+  subPath: client_certificate.pem
 - name: secret-volume
-  mountPath: /etc/ssl/ca.crl
-  subPath: ca.crl
+  mountPath: /etc/ssl/private/client_key.pem
+  subPath: client_key.pem
+- name: secret-volume
+  mountPath: /etc/ssl/certs/ca_certificate.pem
+  subPath: ca_certificate.pem
+- name: secret-volume
+  mountPath: /etc/ssl/crl/ca_crl.pem
+  subPath: ca_crl.pem
 {{- end }}
 {{- end }}

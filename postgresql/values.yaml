@@ -31,16 +31,20 @@ secrets:
   POSTGRES_INITDB_ARGS: --data-checksums
   REPMGR_PASSWORD: repmgr
 
-ssl:
+tls:
   enabled: false
   files:
-    server.crt: |-
+    server_certificate.pem: |-
       ...
-    server.key: |-
+    server_key.pem: |-
       ...
-    ca.crt: |-
+    client_certificate.pem: |-
       ...
-    ca.crl: |-
+    client_key.pem: |-
+      ...
+    ca_certificate.pem: |-
+      ...
+    ca_crl.pem: |-
       ...
 
 metrics:
