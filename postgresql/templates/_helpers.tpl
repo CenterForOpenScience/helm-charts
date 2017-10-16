@@ -113,18 +113,14 @@ Return the appropriate apiVersion for networkpolicy.
 - name: secret-volume
   mountPath: /etc/ssl/server.crt
   subPath: server.crt
-  readOnly: true
 - name: secret-volume
   mountPath: /etc/ssl/server.key
   subPath: server.key
-  readOnly: true
 - name: secret-volume
   mountPath: /etc/ssl/ca.crt
   subPath: ca.crt
-  readOnly: true
 - name: secret-volume
   mountPath: /etc/ssl/ca.crl
   subPath: ca.crl
-  readOnly: true
 {{- end }}
 {{- end }}
