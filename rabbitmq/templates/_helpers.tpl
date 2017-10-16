@@ -38,22 +38,21 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "rabbitmq.volumeMounts" }}
-{{- if and .Values.configEnvs.RABBITMQ_SSL_CERTFILE (index .Values.secretFiles "server_certificate.pem") }}
+{{- if .Values.tls.enabled }}
 - name: secret-volume
   subPath: server_certificate.pem
-  mountPath: {{ .Values.configEnvs.RABBITMQ_SSL_CERTFILE }}
+  mountPath: /etc/ssl/server_certificate.pem
   readOnly: true
-{{- end }}
-{{- if and .Values.configEnvs.RABBITMQ_SSL_KEYFILE (index .Values.secretFiles "server_key.pem") }}
 - name: secret-volume
   subPath: server_key.pem
-  mountPath: {{ .Values.configEnvs.RABBITMQ_SSL_KEYFILE }}
+  mountPath: /etc/ssl/server_key.pem
   readOnly: true
-{{- end }}
-{{- if and .Values.configEnvs.RABBITMQ_SSL_CACERTFILE (index .Values.secretFiles "ca_certificate.pem") }}
 - name: secret-volume
   subPath: ca_certificate.pem
-  mountPath: {{ .Values.configEnvs.RABBITMQ_SSL_CACERTFILE }}
+  mountPath: /etc/ssl/ca_certificate.pem
   readOnly: true
+{{- end }}
+{{- if .Values.volumeMounts }}
+{{ toYaml .Values.volumeMounts }}
 {{- end }}
 {{- end -}}

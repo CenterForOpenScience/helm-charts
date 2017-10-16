@@ -12,9 +12,6 @@ configEnvs:
   RABBITMQ_NODE_NAME: rabbit@localhost
   RABBITMQ_CLUSTER_NODE_NAME: ''
   RABBITMQ_VHOST: /
-#  RABBITMQ_SSL_CERTFILE: /etc/ssl/server_certificate.pem
-#  RABBITMQ_SSL_KEYFILE: /etc/ssl/server_key.pem
-#  RABBITMQ_SSL_CACERTFILE: /etc/ssl/ca_certificate.pem
 
 configFiles: {}
 
@@ -27,12 +24,23 @@ secretEnvs:
   RABBITMQ_ERLANG_COOKIE: cookie
 
 secretFiles: {}
-#  server_certificate.pem: |-
-#    ..
-#  server_key.pem: |-
-#    ..
-#  ca_certificate.pem: |-
-#    ..
+
+## Extra volumeMounts
+volumeMounts: []
+
+## TLS support. Generate certificates with OpenSSL
+tls:
+  enabled: false
+  files:
+    # Server Certificate
+    server_certificate.pem: |-
+      ...
+    # Server Key
+    server_key.pem: |-
+      ...
+    # Certificate Authority Chain
+    ca_certificate.pem: |-
+      ...
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
@@ -60,6 +68,11 @@ persistence:
   storageClass: ''
   accessMode: ReadWriteOnce
   size: 8Gi
+
+## Node labels for component pod assignment
+## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
 
 service:
   #annotations: {}

@@ -64,3 +64,7 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "rabbitmq.fullname" . }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
