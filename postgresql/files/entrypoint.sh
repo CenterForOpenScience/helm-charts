@@ -12,6 +12,11 @@ if [ "$1" = 'postgres' ]; then
 		service=${POD_NAME}
 	fi
 
+	if [ -n "${SSL_ENABLED}" ]; then
+		chown -R postgres:ssl-cert /etc/ssl/*
+		chmod 0600 /etc/ssl/*
+	fi
+
 	sed \
 		-e "s|^#cluster=.*$|cluster=default|" \
 		-e "s|^#node=.*$|node=${node_id}|" \
@@ -21,11 +26,6 @@ if [ "$1" = 'postgres' ]; then
 		/etc/repmgr.conf.tpl > /etc/repmgr.conf
 
 	if [ ! -s "$PGDATA/PG_VERSION" ]; then
-		if [ -n "${SSL_ENABLED}" ]; then
-			chown -R postgres:ssl-cert /etc/ssl/*
-			chmod 0600 /etc/ssl/*
-		fi
-
 		if [ $STATEFUL_TYPE == "master" ]; then
 			exec docker-entrypoint.sh "$@" &
 
