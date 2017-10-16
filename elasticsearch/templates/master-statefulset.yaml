@@ -105,12 +105,12 @@ spec:
           name: transport
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
-          name: data
+          name: data-volume
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
-          name: config
+          name: config-volume
           subPath: elasticsearch.yml
         - mountPath: /usr/share/elasticsearch/config/logging.yml
-          name: config
+          name: config-volume
           subPath: logging.yml
         {{- if .Values.tls.enabled }}
         - mountPath: /etc/ssl/private/server_certificate.pem
@@ -127,12 +127,15 @@ spec:
           readOnly: true
         {{- end }}
       volumes:
-      - name: config
+      - name: config-volume
         configMap:
           name: {{ template "elasticsearch.fullname" . }}
+      - name: secret-volume
+        secret:
+          secretName: {{ template "elasticsearch.fullname" . }}
   volumeClaimTemplates:
   - metadata:
-      name: data
+      name: data-volume
     spec:
       accessModes: [ ReadWriteOnce ]
     {{- if .Values.master.storageClass }}

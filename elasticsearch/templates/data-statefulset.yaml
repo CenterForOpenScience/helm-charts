@@ -101,14 +101,14 @@ spec:
           initialDelaySeconds: 5
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
-          name: data
+          name: data-volume
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
-          name: config
+          name: config-volume
           subPath: elasticsearch.yml
         - mountPath: /usr/share/elasticsearch/config/logging.yml
-          name: config
+          name: config-volume
           subPath: logging.yml
-        - name: config
+        - name: config-volume
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh
         {{- if .Values.tls.enabled }}
@@ -131,12 +131,15 @@ spec:
               command: ["/bin/bash","/pre-stop-hook.sh"]
       terminationGracePeriodSeconds: {{ .Values.data.terminationGracePeriodSeconds }}
       volumes:
-      - name: config
+      - name: config-volume
         configMap:
           name: {{ template "elasticsearch.fullname" . }}
+      - name: secret-volume
+        secret:
+          secretName: {{ template "elasticsearch.fullname" . }}
   volumeClaimTemplates:
   - metadata:
-      name: data
+      name: data-volume
     spec:
       accessModes: [ ReadWriteOnce ]
     {{- if .Values.data.storageClass }}
