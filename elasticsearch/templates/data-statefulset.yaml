@@ -111,6 +111,20 @@ spec:
         - name: config
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh
+        {{- if .Values.tls.enabled }}
+        - mountPath: /etc/ssl/private/server_certificate.pem
+          name: secret-volume
+          subPath: server_certificate.pem
+          readOnly: true
+        - mountPath: /etc/ssl/private/server_key.pem
+          name: secret-volume
+          subPath: server_key.pem
+          readOnly: true
+        - mountPath: /etc/ssl/certs/ca_certificate.pem
+          name: secret-volume
+          subPath: ca_certificate.pem
+          readOnly: true
+        {{- end }}
         lifecycle:
           preStop:
             exec:

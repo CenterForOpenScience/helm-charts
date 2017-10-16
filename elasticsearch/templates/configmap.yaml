@@ -48,6 +48,17 @@ data:
     xpack.monitoring.enabled: ${XPACK_MONITORING_ENABLED:false}
     xpack.security.enabled: ${XPACK_SECURITY_ENABLED:false}
     xpack.watcher.enabled: ${XPACK_WATCHER_ENABLED:false}
+
+    # see https://github.com/floragunncom/search-guard-ssl/blob/master/src/main/java/com/floragunn/searchguard/ssl/util/SSLConfigConstants.java#L28
+
+    {{- if .Values.tls.enabled }}
+    {{- range $key, $value :=  .Values.tls.config }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+    {{- else }}
+    searchguard.ssl.http.enabled: ${SEARCHGUARD_SSL_HTTP_ENABLED:false}
+    searchguard.ssl.transport.enabled: ${SEARCHGUARD_SSL_TRANSPORT_ENABLED:false}
+    {{- end }}
 {{- end }}
 
     # see https://github.com/elastic/elasticsearch-definitive-guide/pull/679
