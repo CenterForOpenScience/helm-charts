@@ -49,10 +49,10 @@ if [ "$1" = 'postgres' ]; then
 				sed -i \
 					-e "s|^#ssl = .*|ssl = on|" \
 					-e "s|^#ssl_ciphers = .*|ssl_ciphers = 'HIGH'|" \
-					-e "s|^#ssl_cert_file = .*|ssl_cert_file = '/etc/ssl/server.crt'|" \
-					-e "s|^#ssl_key_file = .*|ssl_key_file = '/etc/ssl/server.key'|" \
-					-e "s|^#ssl_ca_file = .*|ssl_ca_file = '/etc/ssl/ca.crt'|" \
-					-e "s|^#ssl_crl_file = .*|ssl_crl_file = '/etc/ssl/ca.crl'|" \
+					-e "s|^#ssl_cert_file = .*|ssl_cert_file = '/etc/ssl/certs/server_certificate.pem'|" \
+					-e "s|^#ssl_key_file = .*|ssl_key_file = '/etc/ssl/private/server_key.pem'|" \
+					-e "s|^#ssl_ca_file = .*|ssl_ca_file = '/etc/ssl/certs/ca_certificate.pem'|" \
+					-e "s|^#ssl_crl_file = .*|ssl_crl_file = '/etc/ssl/crl/ca_crl.pem'|" \
 					${PGDATA}/postgresql.conf
 
 				sed -i \
