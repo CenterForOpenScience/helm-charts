@@ -11,7 +11,7 @@
 
   To access for outside the cluster execute the following commands:
 
-{{- if contains "NodePort" .Values.serviceType }}
+{{- if contains "NodePort" .Values.service.type }}
 
     export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
     export NODE_PORT_AMQP={{ .Values.service.ports.amqp }}
@@ -40,7 +40,7 @@
 
     echo http://$SERVICE_IP:{{ .Values.service.ports.stats }}/
 
-{{- else if contains "ClusterIP"  .Values.serviceType }}
+{{- else if contains "ClusterIP"  .Values.service.type }}
 
     export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "rabbitmq.name" . }}" -o jsonpath="{.items[0].metadata.name}")
     kubectl port-forward $POD_NAME {{ .Values.service.ports.amqp }}:{{ .Values.service.ports.amqp }} {{ .Values.service.ports.stats }}:{{ .Values.service.ports.stats }}

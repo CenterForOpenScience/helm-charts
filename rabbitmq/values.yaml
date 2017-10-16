@@ -6,54 +6,41 @@ image:
   tag: 3.6.12-r0
   pullPolicy: IfNotPresent
 
-## RabbitMQ application username
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
-##
-username: ''
-
-## RabbitMQ application password
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
-##
-# password:
-
-## Erlang cookie to determine whether different nodes are allowed to communicate with each other
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+configEnvs:
+  RABBITMQ_NODE_TYPE: stats
+  RABBITMQ_NODE_NAME: rabbit@localhost
+  RABBITMQ_CLUSTER_NODE_NAME: ''
+  RABBITMQ_VHOST: /
+#  RABBITMQ_SSL_CERTFILE: /etc/ssl/server_certificate.pem
+#  RABBITMQ_SSL_KEYFILE: /etc/ssl/server_key.pem
+#  RABBITMQ_SSL_CACERTFILE: /etc/ssl/ca_certificate.pem
+
+configFiles: {}
+
+secretEnvs:
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  RABBITMQ_USERNAME: 'guest'
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  RABBITMQ_PASSWORD: 'guest'
+  ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
+  RABBITMQ_ERLANG_COOKIE: cookie
+
+secretFiles: {}
+#  server_certificate.pem: |-
+#    ..
+#  server_key.pem: |-
+#    ..
+#  ca_certificate.pem: |-
+#    ..
+
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
-# erlangCookie:
-
-## Node Type
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
-##
-nodeType: stats
-
-## Node Name
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
-##
-nodeName: rabbit
-
-## Node name to cluster with. e.g.: `clusternode@hostname`
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
-##
-clusterNodeName: ''
-
-## RabbitMQ application vhost
-## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
-##
-vhost: /
-
-## Kubernetes service type
-serviceType: ClusterIP
-
-service:
-  #annotations: {}
-  type: ClusterIP
-  # If using type: LoadBalancer
-  #loadBalacerIP: 0.0.0.0
-  ports:
-    empd: 4369
-    amqp: 5672
-    dist: 25672
-    stats: 15672
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
 
 persistence:
   enabled: true
@@ -74,10 +61,13 @@ persistence:
   accessMode: ReadWriteOnce
   size: 8Gi
 
-## Configure resource requests and limits
-## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-##
-resources:
-  requests:
-    memory: 256Mi
-    cpu: 100m
+service:
+  #annotations: {}
+  type: ClusterIP
+  # If using type: LoadBalancer
+  #loadBalacerIP: 0.0.0.0
+  ports:
+    empd: 4369
+    amqp: 5672
+    dist: 25672
+    stats: 15672

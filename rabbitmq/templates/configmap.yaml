@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "rabbitmq.fullname" . }}
+  labels:
+    app: {{ template "rabbitmq.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+{{- range $key, $value := .Values.configEnvs }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- range $key, $value := .Values.configFiles }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+{{- end }}

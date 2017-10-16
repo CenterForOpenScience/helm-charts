@@ -13,36 +13,16 @@ spec:
       labels:
         app: {{ template "rabbitmq.name" . }}
         release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ template "rabbitmq.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           env:
-            - name: RABBITMQ_USERNAME
-              value: {{ .Values.username | quote }}
-            - name: RABBITMQ_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "rabbitmq.fullname" . }}
-                  key: password
-            - name: RABBITMQ_ERLANG_COOKIE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ template "rabbitmq.fullname" . }}
-                  key: erlangCookie
-            - name: RABBITMQ_NODE_PORT_NUMBER
-              value: {{ .Values.service.ports.amqp | quote }}
-            - name: RABBITMQ_NODE_TYPE
-              value: {{ .Values.nodeType | quote }}
-            - name: RABBITMQ_NODE_NAME
-              value: {{ printf "%s@%s" .Values.nodeName "localhost" | quote }}
-            - name: RABBITMQ_CLUSTER_NODE_NAME
-              value: {{ .Values.clusterNodeName | quote }}
-            - name: RABBITMQ_VHOST
-              value: {{ .Values.vhost | quote }}
-            - name: RABBITMQ_MANAGER_PORT_NUMBER
-              value: {{ .Values.service.ports.stats | quote }}
+            {{- include "rabbitmq.environment" . | indent 12 }}
           ports:
             {{- range $name, $port := .Values.service.ports }}
             - name: {{ $name }}
@@ -67,6 +47,7 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /bitnami/rabbitmq
+            {{- include "rabbitmq.volumeMounts" . | indent 12 }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:
@@ -76,4 +57,10 @@ spec:
             claimName: {{ .Values.persistence.existingClaim | default (include "rabbitmq.fullname" .) }}
         {{- else }}
           emptyDir: {}
-        {{- end -}}
+        {{- end }}
+        - name: config-volume
+          configMap:
+            name: {{ template "rabbitmq.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "rabbitmq.fullname" . }}
