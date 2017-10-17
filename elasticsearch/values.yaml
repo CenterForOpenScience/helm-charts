@@ -67,9 +67,12 @@ master:
   name: master
   replicas: 3
   heapSize: "512m"
-  storage: "4Gi"
-  # storageClass: "ssd"
   antiAffinity: "soft"
+  persistence:
+    enabled: true
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 4Gi
   resources:
     limits:
       cpu: "1"
@@ -86,6 +89,11 @@ data:
   # storageClass: "ssd"
   terminationGracePeriodSeconds: 3600
   antiAffinity: "soft"
+  persistence:
+    enabled: true
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 4Gi
   resources:
     limits:
       cpu: "1"

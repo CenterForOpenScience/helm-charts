@@ -140,17 +140,24 @@ spec:
       - name: config-volume
         configMap:
           name: {{ template "elasticsearch.fullname" . }}
+      {{- if not .Values.master.persistence.enabled }}
+      - name: data
+        emptyDir: {}
+      {{- end }}
       - name: secret-volume
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}
+  {{- if .Values.master.persistence.enabled }}
   volumeClaimTemplates:
-  - metadata:
-      name: data-volume
-    spec:
-      accessModes: [ ReadWriteOnce ]
-    {{- if .Values.master.storageClass }}
-      storageClassName: "{{ .Values.master.storageClass }}"
-    {{- end }}
-      resources:
-        requests:
-          storage: "{{ .Values.master.storage }}"
+    - metadata:
+        name: data-volume
+      spec:
+        accessModes:
+          - {{ .Values.master.persistence.accessMode | quote }}
+      {{- if hasKey .Values.master.persistence "storageClass" }}
+        storageClassName: {{ .Values.master.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.master.persistence.size | quote }}
+  {{- end }}
