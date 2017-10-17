@@ -44,8 +44,14 @@ if [ "$1" = 'postgres' ]; then
 				-e "s|^#archive_command = .*|archive_command = '/bin/true'|" \
 				-e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
 				${PGDATA}/postgresql.conf
-			
+
+			host_type="host"
+			options=""
+
 			if [ -n "${PGSSLMODE}" ]; then
+				host_type="hostssl"
+				options="clientcert=1"
+
 				sed -i \
 					-e "s|^#ssl = .*|ssl = on|" \
 					-e "s|^#ssl_ciphers = .*|ssl_ciphers = 'HIGH'|" \
@@ -56,10 +62,10 @@ if [ "$1" = 'postgres' ]; then
 					${PGDATA}/postgresql.conf
 
 				sed -i \
-					-E "s|^host([ \\t]+all){3}.*|hostssl   all   all   all   md5   clientcert=1|" \
+					-E "s|^host([ \\t]+all){3}.*|${host_type}   all   all   all   md5   ${options}|" \
 					${PGDATA}/pg_hba.conf
 			fi
-
+			
 			gosu postgres psql <<-EOF
 			CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
 			CREATE DATABASE repmgr OWNER repmgr;
@@ -68,8 +74,8 @@ if [ "$1" = 'postgres' ]; then
 			cat >> ${PGDATA}/pg_hba.conf <<-EOF
 
 			# repmgr
-			host    repmgr          repmgr           all                   md5
-			host    replication     repmgr           all                   md5
+			${host_type}   repmgr        repmgr   all   md5   ${options}
+			${host_type}   replication   repmgr   all   md5   ${options}
 			EOF
 
 			gosu postgres pg_ctl reload
