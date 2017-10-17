@@ -92,7 +92,7 @@ data:
           conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
 {{- end }}
 {{- if hasPrefix "5." .Values.image.tag }}
-  log4j2.yml: |-
+  log4j2.properties: |-
     status = error
 
     appender.console.type = Console

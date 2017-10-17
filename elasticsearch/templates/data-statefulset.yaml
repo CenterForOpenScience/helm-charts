@@ -115,7 +115,7 @@ spec:
 {{- if hasPrefix "5." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
           name: config
-          subPath: log4j2.yml
+          subPath: log4j2.properties
           readOnly: true
 {{- end }}
         - name: config
@@ -148,7 +148,7 @@ spec:
       - name: data
         emptyDir: {}
       {{- end }}
-      {{- if .Values.tls.enabled -}}
+      {{- if .Values.tls.enabled }}
       - name: secret
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}

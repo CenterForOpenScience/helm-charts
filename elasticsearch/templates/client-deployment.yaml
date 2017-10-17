@@ -112,7 +112,7 @@ spec:
 {{- if hasPrefix "5." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
           name: config
-          subPath: log4j2.yml
+          subPath: log4j2.properties
           readOnly: true
 {{- end }}
         {{- if .Values.tls.enabled }}
