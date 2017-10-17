@@ -29,7 +29,7 @@ if [ "$1" = 'postgres' ]; then
 		if [ $STATEFUL_TYPE == "master" ]; then
 			exec docker-entrypoint.sh "$@" &
 
-			while ! pg_isready --host ${POD_IP} --quiet
+			while ! pg_isready --host 127.0.0.1 --quiet
 			do
 				sleep 1
 			done
@@ -106,7 +106,7 @@ if [ "$1" = 'postgres' ]; then
 
 			gosu postgres pg_ctl -w start
 
-			while ! pg_isready --host ${POD_NAME} --quiet
+			while ! pg_isready --host 127.0.0.1 --quiet
 			do
 				sleep 1
 			done
