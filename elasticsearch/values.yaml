@@ -21,21 +21,28 @@ cluster:
 tls:
   enabled: false
   config:
+    # HTTP Configuration
     searchguard.ssl.http.enabled: true
-    searchguard.ssl.http.pemkey_filepath: /etc/ssl/private/server_key.pem
+    searchguard.ssl.http.pemkey_filepath: server_key.pem
     # searchguard.ssl.http.pemkey_password: changeme
-    searchguard.ssl.http.pemcert_filepath: /etc/ssl/private/server_certificate.pem
-    searchguard.ssl.http.pemtrustedcas_filepath: /etc/ssl/cert/ca_certificate.pem
+    searchguard.ssl.http.pemcert_filepath: server_certificate.pem
+    searchguard.ssl.http.pemtrustedcas_filepath: ca_certificate.pem
+    # searchguard.ssl.http.clientauth_mode: REQUIRED
+
+    # Transport Configuration
     searchguard.ssl.transport.enabled: true
-    searchguard.ssl.transport.pemkey_filepath: /etc/ssl/private/server_key.pem
+    searchguard.ssl.transport.pemkey_filepath: server_key.pem
     # searchguard.ssl.transport.pemkey_password: changeme
-    searchguard.ssl.transport.pemcert_filepath: /etc/ssl/private/server_certificate.pem
-    searchguard.ssl.transport.pemtrustedcas_filepath: /etc/ssl/cert/ca_certificate.pem
+    searchguard.ssl.transport.pemcert_filepath: server_certificate.pem
+    searchguard.ssl.transport.pemtrustedcas_filepath: ca_certificate.pem
+    searchguard.ssl.transport.enforce_hostname_verification: false
+    searchguard.ssl.transport.resolve_hostname: false
   files:
     # Server Certificate
     server_certificate.pem: |-
       ...
     # Server Key
+    # Issue: Ensure the key is PKCS#8 w/ http://netty.io/wiki/sslcontextbuilder-and-private-key.html
     server_key.pem: |-
       ...
     # Certificate Authority Chain
