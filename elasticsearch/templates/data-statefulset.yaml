@@ -63,7 +63,7 @@ spec:
           runAsUser: 0
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
-          name: data-volume
+          name: data
       containers:
       - name: elasticsearch
         env:
@@ -101,37 +101,37 @@ spec:
           initialDelaySeconds: 5
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
-          name: data-volume
+          name: data
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
-          name: config-volume
+          name: config
           subPath: elasticsearch.yml
           readOnly: true
 {{- if hasPrefix "2." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/logging.yml
-          name: config-volume
+          name: config
           subPath: logging.yml
           readOnly: true
 {{- end }}
 {{- if hasPrefix "5." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
-          name: config-volume
+          name: config
           subPath: log4j2.yml
           readOnly: true
 {{- end }}
-        - name: config-volume
+        - name: config
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh
         {{- if .Values.tls.enabled }}
         - mountPath: /usr/share/elasticsearch/config/server_certificate.pem
-          name: secret-volume
+          name: secret
           subPath: server_certificate.pem
           readOnly: true
         - mountPath: /usr/share/elasticsearch/config/server_key.pem
-          name: secret-volume
+          name: secret
           subPath: server_key.pem
           readOnly: true
         - mountPath: /usr/share/elasticsearch/config/ca_certificate.pem
-          name: secret-volume
+          name: secret
           subPath: ca_certificate.pem
           readOnly: true
         {{- end }}
@@ -141,7 +141,7 @@ spec:
               command: ["/bin/bash","/pre-stop-hook.sh"]
       terminationGracePeriodSeconds: {{ .Values.data.terminationGracePeriodSeconds }}
       volumes:
-      - name: config-volume
+      - name: config
         configMap:
           name: {{ template "elasticsearch.fullname" . }}
       {{- if not .Values.data.persistence.enabled }}
@@ -149,14 +149,14 @@ spec:
         emptyDir: {}
       {{- end }}
       {{- if .Values.tls.enabled -}}
-      - name: secret-volume
+      - name: secret
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}
       {{- end }}
   {{- if .Values.data.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: data-volume
+        name: data
       spec:
         accessModes:
           - {{ .Values.data.persistence.accessMode | quote }}

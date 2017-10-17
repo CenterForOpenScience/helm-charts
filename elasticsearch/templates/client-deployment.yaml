@@ -100,41 +100,41 @@ spec:
           name: transport
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
-          name: config-volume
+          name: config
           subPath: elasticsearch.yml
           readOnly: true
 {{- if hasPrefix "2." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/logging.yml
-          name: config-volume
+          name: config
           subPath: logging.yml
           readOnly: true
 {{- end }}
 {{- if hasPrefix "5." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
-          name: config-volume
+          name: config
           subPath: log4j2.yml
           readOnly: true
 {{- end }}
         {{- if .Values.tls.enabled }}
         - mountPath: /usr/share/elasticsearch/config/server_certificate.pem
-          name: secret-volume
+          name: secret
           subPath: server_certificate.pem
           readOnly: true
         - mountPath: /usr/share/elasticsearch/config/server_key.pem
-          name: secret-volume
+          name: secret
           subPath: server_key.pem
           readOnly: true
         - mountPath: /usr/share/elasticsearch/config/ca_certificate.pem
-          name: secret-volume
+          name: secret
           subPath: ca_certificate.pem
           readOnly: true
         {{- end }}
       volumes:
-      - name: config-volume
+      - name: config
         configMap:
           name: {{ template "elasticsearch.fullname" . }}
       {{- if .Values.tls.enabled }}
-      - name: secret-volume
+      - name: secret
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}
       {{- end }}
