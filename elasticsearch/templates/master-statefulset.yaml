@@ -144,9 +144,11 @@ spec:
       - name: data
         emptyDir: {}
       {{- end }}
+      {{- if .Values.tls.enabled -}}
       - name: secret-volume
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}
+      {{- end }}
   {{- if .Values.master.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
