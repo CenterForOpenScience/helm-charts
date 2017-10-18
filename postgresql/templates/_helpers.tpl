@@ -60,16 +60,16 @@ Return the appropriate apiVersion for networkpolicy.
     fieldRef:
       fieldPath: status.podIP
 {{- if .Values.tls.enabled }}
-- name: PGSSLMODE
-  value: verify-ca
-- name: PGSSLCERT
-  value: /etc/ssl/certs/client_certificate.pem
-- name: PGSSLKEY
-  value: /etc/ssl/private/client_key.pem
-- name: PGSSLROOTCERT
-  value: /etc/ssl/certs/ca_certificate.pem
-- name: PGSSLCRL
-  value: /etc/ssl/crl/ca_crl.pem
+#- name: PGSSLMODE
+#  value: verify-ca
+#- name: PGSSLCERT
+#  value: /etc/ssl/certs/client_certificate.pem
+#- name: PGSSLKEY
+#  value: /etc/ssl/private/client_key.pem
+#- name: PGSSLROOTCERT
+#  value: /etc/ssl/certs/ca_certificate.pem
+#- name: PGSSLCRL
+#  value: /etc/ssl/crl/ca_crl.pem
 {{- end }}
 {{- $fullname := (include "postgresql.fullname" .) -}}
 {{- range tuple "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" "POSTGRES_INITDB_ARGS" "REPMGR_PASSWORD" }}

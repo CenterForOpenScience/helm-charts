@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+export PGSSLMODE='require'
+
 if [ "$1" = 'postgres' ]; then
 	[[ ${POD_NAME} =~ -([0-9]+)$ ]] || exit 1
 	ordinal=${BASH_REMATCH[1]}
@@ -12,9 +14,9 @@ if [ "$1" = 'postgres' ]; then
 		service=${POD_NAME}
 	fi
 
-	if [ -n "${PGSSLMODE}" ]; then
-		chown -R postgres:ssl-cert /etc/ssl/*
-		chmod 0600 /etc/ssl/*
+	if [ -n "${PGSSLMODE}" ] && [ "${PGSSLMODE}" != "disable" ]; then
+	 	chown postgres /etc/ssl/private/*
+		chmod 0600 /etc/ssl/private/*
 	fi
 
 	sed \
@@ -25,11 +27,13 @@ if [ "$1" = 'postgres' ]; then
 		-e "s|^#use_replication_slots=.*$|use_replication_slots=1|" \
 		/etc/repmgr.conf.tpl > /etc/repmgr.conf
 
-	if [ ! -s "$PGDATA/PG_VERSION" ]; then
-		if [ $STATEFUL_TYPE == "master" ]; then
+	if [ ! -s "${PGDATA}/PG_VERSION" ]; then
+		if [ ${STATEFUL_TYPE} == "master" ]; then
+			export PGSSLMODE_GLOBAL=${PGSSLMODE}
+			unset PGSSLMODE
 			exec docker-entrypoint.sh "$@" &
 
-			while ! pg_isready --host 127.0.0.1 --quiet
+			while ! pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
 			done
@@ -48,7 +52,9 @@ if [ "$1" = 'postgres' ]; then
 			host_type="host"
 			options=""
 
-			if [ -n "${PGSSLMODE}" ]; then
+			export PGSSLMODE=${PGSSLMODE_GLOBAL}
+
+			if [ -n "${PGSSLMODE}" ] && [ "${PGSSLMODE}" != "disable" ]; then
 				host_type="hostssl"
 				options="clientcert=1"
 
@@ -78,9 +84,11 @@ if [ "$1" = 'postgres' ]; then
 			${host_type}   replication   repmgr   all   md5   ${options}
 			EOF
 
-			gosu postgres pg_ctl reload
+			sleep 99999999999999999999999999999999
+			gosu postgres pg_ctl restart -w
 
-			while ! pg_isready --host ${MASTER_SERVICE}
+			
+			while ! pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
 			done
@@ -91,7 +99,7 @@ if [ "$1" = 'postgres' ]; then
 			ALTER TABLE repmgr_default.repl_monitor SET UNLOGGED;
 			EOF
 		else
-			while ! pg_isready --host ${MASTER_SERVICE}
+			while ! pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
 			done
