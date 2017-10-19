@@ -36,22 +36,22 @@ spec:
           # livenessProbe:
           #   exec:
           #     command:
-          #       - sh
+          #       - su
           #       - postgres
           #       - -c
-          #       - exec pg_isready --host $POD_IP
-          #  initialDelaySeconds: 60
-          #  timeoutSeconds: 5
-          #  failureThreshold: 6
+          #       - pg_isready --host $POD_IP 
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5
+          #   failureThreshold: 6
           readinessProbe:
             exec:
               command:
-                - sh
+                - su
                 - postgres
                 - -c
-                - exec pg_isready --host $POD_IP
-           timeoutSeconds: 3
-           periodSeconds: 5
+                - pg_isready --host $POD_IP 
+            timeoutSeconds: 3
+            periodSeconds: 5
           resources:
 {{ toYaml .Values.standby.resources | indent 12 }}
           volumeMounts:

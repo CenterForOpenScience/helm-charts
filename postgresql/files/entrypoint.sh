@@ -22,12 +22,7 @@ if [ "$1" = 'postgres' ]; then
 
 	if [ ! -s "${PGDATA}/PG_VERSION" ]; then
 		if [ ${STATEFUL_TYPE} == "master" ]; then
-			exec docker-entrypoint.sh "$@" &
-
-			while ! pg_isready --host ${MASTER_SERVICE} --quiet
-			do
-				sleep 1
-			done
+			docker-entrypoint.sh "$@" --boot
 
 			sed -i \
 				-e "s|^listen_addresses = .*|listen_addresses = '*'|" \
@@ -74,11 +69,6 @@ if [ "$1" = 'postgres' ]; then
 					-E "s|^host([ \\t]+all){3}.*|hostnossl   all   all   all   reject\n${host_type}   all   all   all   md5   ${options}|" \
 					${PGDATA}/pg_hba.conf
 			fi
-			
-			gosu postgres psql <<-EOF
-			CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
-			CREATE DATABASE repmgr OWNER repmgr;
-			EOF
 
 			cat >> ${PGDATA}/pg_hba.conf <<-EOF
 
@@ -87,9 +77,14 @@ if [ "$1" = 'postgres' ]; then
 			${host_type}   replication   repmgr   all   md5   ${options}
 			EOF
 
-			gosu postgres pg_ctl restart -w
+			gosu postgres pg_ctl start -w
 
-			while ! pg_isready --host ${MASTER_SERVICE} --quiet
+			gosu postgres psql <<-EOF
+			CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
+			CREATE DATABASE repmgr OWNER repmgr;
+			EOF
+
+			while ! gosu postgres pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
 			done
@@ -100,7 +95,7 @@ if [ "$1" = 'postgres' ]; then
 			ALTER TABLE repmgr_default.repl_monitor SET UNLOGGED;
 			EOF
 		else
-			while ! pg_isready --host ${MASTER_SERVICE} --quiet
+			while ! gosu postgres pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
 			done
@@ -159,7 +154,7 @@ if [ "$1" = 'postgres' ]; then
 
 	exec docker-entrypoint.sh "$@" & pid=$!
 
-	while ! pg_isready --host ${service} --quiet
+	while ! gosu postgres pg_isready --host ${service} --quiet
 	do
 		sleep 1
 	done
@@ -175,14 +170,16 @@ if [ "$1" = 'repmgrd' ] && [ "$(id -u)" = '0' ]; then
 fi
 
 if [ "$1" = 'cleanup' ]; then
-	while true
-	do
-		sleep 3600
+	if [ ${STATEFUL_TYPE} == "master" ]; then
+		while true
+		do
+			sleep 3600
 
-		if pg_isready --host ${MASTER_SERVICE} --quiet; then
-			gosu postgres repmgr --keep-history=1 cluster cleanup
-		fi
-	done
+			if pg_isready --host 127.0.0.1 --quiet; then
+				gosu postgres repmgr --keep-history=1 cluster cleanup
+			fi
+		done
+	fi
 fi
 
 exec "$@"
