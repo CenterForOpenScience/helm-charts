@@ -39,15 +39,15 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 
 {{- define "rabbitmq.volumeMounts" }}
 {{- if .Values.tls.enabled }}
-- name: secret-volume
+- name: secret
   subPath: server_certificate.pem
   mountPath: /etc/ssl/server_certificate.pem
   readOnly: true
-- name: secret-volume
+- name: secret
   subPath: server_key.pem
   mountPath: /etc/ssl/server_key.pem
   readOnly: true
-- name: secret-volume
+- name: secret
   subPath: ca_certificate.pem
   mountPath: /etc/ssl/ca_certificate.pem
   readOnly: true

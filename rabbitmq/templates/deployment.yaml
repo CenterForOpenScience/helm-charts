@@ -58,10 +58,10 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end }}
-        - name: config-volume
+        - name: config
           configMap:
             name: {{ template "rabbitmq.fullname" . }}
-        - name: secret-volume
+        - name: secret
           secret:
             secretName: {{ template "rabbitmq.fullname" . }}
     {{- if .Values.nodeSelector }}
