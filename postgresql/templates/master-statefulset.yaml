@@ -21,6 +21,8 @@ spec:
         app: {{ template "postgresql.name" . }}
         component: "{{ .Values.master.name }}"
         release: {{ .Release.Name }}
+      annotations:
+        {{- include "postgresql.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
         - name: postgresql
@@ -76,6 +78,7 @@ spec:
           resources:
 {{ toYaml .Values.metrics.resources | indent 12 }}
         {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.master.terminationGracePeriodSeconds }}
       volumes:
         {{- include "postgresql.volumes" . | indent 8 }}
         {{- if not .Values.master.persistence.enabled }}

@@ -176,10 +176,12 @@ if [ "$1" = 'cleanup' ]; then
 			sleep 3600
 
 			if pg_isready --host 127.0.0.1 --quiet; then
-				gosu postgres repmgr --keep-history=1 cluster cleanup
+				gosu postgres repmgr --keep-history=1 cluster cleanup || true
 			fi
 		done
 	fi
+
+	exit 0
 fi
 
 exec "$@"
