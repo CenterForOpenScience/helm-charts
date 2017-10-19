@@ -108,23 +108,29 @@ Return the appropriate apiVersion for networkpolicy.
 {{- if .Values.tls.enabled }}
 - name: secret-volume
   mountPath: /certs/server.crt
-  subPath: server.crt
+  subPath: certs-server.crt
+  readOnly: true
 - name: secret-volume
   mountPath: /certs/server.key
-  subPath: server.key
+  subPath: certs-server.key
+  readOnly: true
 - name: secret-volume
   mountPath: /certs/root.crt
-  subPath: root.crt
+  subPath: certs-root.crt
+  readOnly: true
 - name: secret-volume
   mountPath: /certs/root.crl
-  subPath: root.crl
+  subPath: certs-root.crl
+  readOnly: true
 {{- if (index .Values.tls.files "postgresql.key") }}
 - name: secret-volume
   mountPath: /certs/postgresql.crt
-  subPath: postgresql.crt
+  subPath: certs-postgresql.crt
+  readOnly: true
 - name: secret-volume
   mountPath: /certs/postgresql.key
-  subPath: postgresql.key
+  subPath: certs-postgresql.key
+  readOnly: true
 {{- end }}
 {{- end }}
 {{- end }}
