@@ -8,20 +8,28 @@ metadata:
     component: "{{ .Values.standby.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-{{- if .Values.metrics.enabled }}
+{{- if or .Values.standby.service.annotations .Values.metrics.enabled }}
   annotations:
+  {{- if .Values.standby.service.annotations }}
+{{ toYaml .Values.standby.service.annotations | indent 4 }}
+  {{- end }}
+  {{- if .Values.metrics.enabled }}
     prometheus.io/scrape: "true"
     prometheus.io/port: "9187"
+  {{- end }}
 {{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.standby.service.type }}
+  {{- if and (eq .Values.standby.service.type "LoadBalancer") .Values.standby.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.standby.service.loadBalancerIP | quote }}
+  {{- end }}
   ports:
     - name: postgresql
-      port: {{ .Values.service.port }}
+      port: {{ .Values.standby.service.port }}
       targetPort: postgresql
-{{- if .Values.service.externalIPs }}
+{{- if .Values.standby.service.externalIPs }}
   externalIPs:
-{{ toYaml .Values.service.externalIPs | indent 4 }}
+{{ toYaml .Values.standby.service.externalIPs | indent 4 }}
 {{- end }}
   selector:
     app: {{ template "postgresql.name" . }}
