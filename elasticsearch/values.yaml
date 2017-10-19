@@ -59,9 +59,14 @@ tls:
 client:
   name: client
   replicas: 2
-  serviceType: ClusterIP
   heapSize: "512m"
   antiAffinity: "soft"
+  service:
+    #annotations: {}
+    type: ClusterIP
+    # If using type: LoadBalancer
+    #loadBalancerIP: 0.0.0.0
+    externalIPs: []
   resources:
     limits:
       cpu: "1"
