@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-export PGSSLMODE='require'
-
 if [ "$1" = 'postgres' ]; then
 	[[ ${POD_NAME} =~ -([0-9]+)$ ]] || exit 1
 	ordinal=${BASH_REMATCH[1]}
@@ -12,11 +10,6 @@ if [ "$1" = 'postgres' ]; then
 	else
 		node_id=$((${ordinal} + 100))
 		service=${POD_NAME}
-	fi
-
-	if [ -n "${PGSSLMODE}" ] && [ "${PGSSLMODE}" != "disable" ]; then
-	 	chown postgres /etc/ssl/private/*
-		chmod 0600 /etc/ssl/private/*
 	fi
 
 	sed \
@@ -29,8 +22,6 @@ if [ "$1" = 'postgres' ]; then
 
 	if [ ! -s "${PGDATA}/PG_VERSION" ]; then
 		if [ ${STATEFUL_TYPE} == "master" ]; then
-			export PGSSLMODE_GLOBAL=${PGSSLMODE}
-			unset PGSSLMODE
 			exec docker-entrypoint.sh "$@" &
 
 			while ! pg_isready --host ${MASTER_SERVICE} --quiet
@@ -52,23 +43,35 @@ if [ "$1" = 'postgres' ]; then
 			host_type="host"
 			options=""
 
-			export PGSSLMODE=${PGSSLMODE_GLOBAL}
-
-			if [ -n "${PGSSLMODE}" ] && [ "${PGSSLMODE}" != "disable" ]; then
+			if [ -f "/certs/server.key" ]; then
 				host_type="hostssl"
-				options="clientcert=1"
+
+				if [ -f "/certs/postgresql.key" ]; then
+					options="clientcert=1"
+				fi
+
+				# Server Certificate
+				cp -f /certs/{server,root}.* ${PGDATA}/
+				chown postgres:postgres ${PGDATA}/{root,server}.*
+				chmod -R 0600 ${PGDATA}/{root,server}.*
+
+				# Client Certificate
+				mkdir -p /home/postgres/.postgresql/
+				cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+				chown -R postgres:postgres /home/postgres
+				chmod -R 0600 /home/postgres/.postgresql/*
 
 				sed -i \
 					-e "s|^#ssl = .*|ssl = on|" \
 					-e "s|^#ssl_ciphers = .*|ssl_ciphers = 'HIGH'|" \
-					-e "s|^#ssl_cert_file = .*|ssl_cert_file = '/etc/ssl/certs/server_certificate.pem'|" \
-					-e "s|^#ssl_key_file = .*|ssl_key_file = '/etc/ssl/private/server_key.pem'|" \
-					-e "s|^#ssl_ca_file = .*|ssl_ca_file = '/etc/ssl/certs/ca_certificate.pem'|" \
-					-e "s|^#ssl_crl_file = .*|ssl_crl_file = '/etc/ssl/crl/ca_crl.pem'|" \
+					-e "s|^#ssl_cert_file = .*|ssl_cert_file = 'server.crt'|" \
+					-e "s|^#ssl_key_file = .*|ssl_key_file = 'server.key'|" \
+					-e "s|^#ssl_ca_file = .*|ssl_ca_file = 'root.crt'|" \
+					-e "s|^#ssl_crl_file = .*|ssl_crl_file = 'root.crl'|" \
 					${PGDATA}/postgresql.conf
 
 				sed -i \
-					-E "s|^host([ \\t]+all){3}.*|${host_type}   all   all   all   md5   ${options}|" \
+					-E "s|^host([ \\t]+all){3}.*|hostnossl   all   all   all   reject\n${host_type}   all   all   all   md5   ${options}|" \
 					${PGDATA}/pg_hba.conf
 			fi
 			
@@ -84,10 +87,8 @@ if [ "$1" = 'postgres' ]; then
 			${host_type}   replication   repmgr   all   md5   ${options}
 			EOF
 
-			sleep 99999999999999999999999999999999
 			gosu postgres pg_ctl restart -w
 
-			
 			while ! pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
@@ -108,9 +109,24 @@ if [ "$1" = 'postgres' ]; then
 			chown -R postgres "$PGDATA"
 			chmod 700 "$PGDATA"
 
+			if [ -f "/certs/root.crt" ]; then
+				# Client Certificate
+				mkdir -p /home/postgres/.postgresql/
+				cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+				chown -R postgres:postgres /home/postgres
+				chmod -R 0600 /home/postgres/.postgresql/*
+			fi
+
 			gosu postgres repmgr \
 				--dbname="host=${MASTER_SERVICE} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD}" \
 				standby clone
+
+			if [ -f "/certs/server.crt" ]; then
+				# Server Certificate
+				cp -f /certs/{server,root}.* ${PGDATA}/
+				chown postgres:postgres ${PGDATA}/{root,server}.*
+				chmod -R 0600 ${PGDATA}/{root,server}.*
+			fi
 
 			gosu postgres pg_ctl -w start
 
@@ -124,6 +140,21 @@ if [ "$1" = 'postgres' ]; then
 
 		gosu postgres pg_ctl -w stop
 		exit 0
+	else
+		if [ -f "/certs/server.key" ]; then
+			# Server Certificate
+			cp -f /certs/{server,root}.* ${PGDATA}/
+			chown postgres:postgres ${PGDATA}/{root,server}.*
+			chmod -R 0600 ${PGDATA}/{root,server}.*
+		fi
+
+		if [ -f "/certs/root.crt" ]; then
+			# Client Certificate
+			mkdir -p /home/postgres/.postgresql/
+			cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+			chown -R postgres:postgres /home/postgres
+			chmod -R 0600 /home/postgres/.postgresql/*
+		fi
 	fi
 
 	exec docker-entrypoint.sh "$@" & pid=$!
