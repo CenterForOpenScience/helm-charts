@@ -11,6 +11,14 @@ master:
     # storageClass: ssd
     accessMode: ReadWriteOnce
     size: 8Gi
+  service:
+    #annotations: {}
+    type: ClusterIP
+    # If using type: LoadBalancer
+    #loadBalancerIP: 0.0.0.0
+    port: 5432
+    externalIPs: []
+  terminationGracePeriodSeconds: 3600
 
 standby:
   name: standby
@@ -21,6 +29,14 @@ standby:
     # storageClass: ssd
     accessMode: ReadWriteOnce
     size: 8Gi
+  service:
+    #annotations: {}
+    type: ClusterIP
+    # If using type: LoadBalancer
+    #loadBalancerIP: 0.0.0.0
+    port: 5432
+    externalIPs: []
+  terminationGracePeriodSeconds: 3600
 
 configs: {}
 
@@ -34,17 +50,17 @@ secrets:
 tls:
   enabled: false
   files:
-    server_certificate.pem: |-
+    server.crt: |-
       ...
-    server_key.pem: |-
+    server.key: |-
       ...
-    client_certificate.pem: |-
+    # postgresql.crt: |-
+    #   ...
+    # postgresql.key: |-
+    #   ...
+    root.crt: |-
       ...
-    client_key.pem: |-
-      ...
-    ca_certificate.pem: |-
-      ...
-    ca_crl.pem: |-
+    root.crl: |-
       ...
 
 metrics:
@@ -76,11 +92,6 @@ resources:
   requests:
     memory: 256Mi
     cpu: 100m
-
-service:
-  type: ClusterIP
-  port: 5432
-  externalIPs: []
 
 networkPolicy:
   ## Enable creation of NetworkPolicy resources.

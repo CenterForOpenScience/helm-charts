@@ -21,6 +21,8 @@ spec:
         app: {{ template "postgresql.name" . }}
         component: "{{ .Values.master.name }}"
         release: {{ .Release.Name }}
+      annotations:
+        {{- include "postgresql.deploymentAnnotations" . | indent 8 }}
     spec:
       containers:
         - name: postgresql
@@ -33,21 +35,23 @@ spec:
           ports:
             - name: postgresql
               containerPort: 5432
-          livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - exec pg_isready --host $POD_IP
-            initialDelaySeconds: 60
-            timeoutSeconds: 5
-            failureThreshold: 6
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - su
+          #       - postgres
+          #       - -c
+          #       - pg_isready --host $POD_IP 
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5
+          #   failureThreshold: 6
           readinessProbe:
             exec:
               command:
-                - sh
+                - su
+                - postgres
                 - -c
-                - exec pg_isready --host $POD_IP
+                - pg_isready --host $POD_IP 
             timeoutSeconds: 3
             periodSeconds: 5
           resources:
@@ -74,6 +78,7 @@ spec:
           resources:
 {{ toYaml .Values.metrics.resources | indent 12 }}
         {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.master.terminationGracePeriodSeconds }}
       volumes:
         {{- include "postgresql.volumes" . | indent 8 }}
         {{- if not .Values.master.persistence.enabled }}

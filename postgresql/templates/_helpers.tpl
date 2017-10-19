@@ -34,6 +34,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Overridable deployment annotations
+*/}}
+{{- define "postgresql.deploymentAnnotations" }}
+checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+{{- end -}}
+
+{{/*
 Return the appropriate apiVersion for networkpolicy.
 */}}
 {{- define "postgresql.networkPolicy.apiVersion" -}}
@@ -59,18 +67,6 @@ Return the appropriate apiVersion for networkpolicy.
   valueFrom:
     fieldRef:
       fieldPath: status.podIP
-{{- if .Values.tls.enabled }}
-- name: PGSSLMODE
-  value: verify-ca
-- name: PGSSLCERT
-  value: /etc/ssl/certs/client_certificate.pem
-- name: PGSSLKEY
-  value: /etc/ssl/private/client_key.pem
-- name: PGSSLROOTCERT
-  value: /etc/ssl/certs/ca_certificate.pem
-- name: PGSSLCRL
-  value: /etc/ssl/crl/ca_crl.pem
-{{- end }}
 {{- $fullname := (include "postgresql.fullname" .) -}}
 {{- range tuple "POSTGRES_DB" "POSTGRES_USER" "POSTGRES_PASSWORD" "POSTGRES_INITDB_ARGS" "REPMGR_PASSWORD" }}
 - name: {{ . }}
@@ -119,22 +115,30 @@ Return the appropriate apiVersion for networkpolicy.
   subPath: entrypoint.sh
 {{- if .Values.tls.enabled }}
 - name: secret-volume
-  mountPath: /etc/ssl/certs/server_certificate.pem
-  subPath: server_certificate.pem
+  mountPath: /certs/server.crt
+  subPath: certs-server.crt
+  readOnly: true
 - name: secret-volume
-  mountPath: /etc/ssl/private/server_key.pem
-  subPath: server_key.pem
+  mountPath: /certs/server.key
+  subPath: certs-server.key
+  readOnly: true
 - name: secret-volume
-  mountPath: /etc/ssl/certs/client_certificate.pem
-  subPath: client_certificate.pem
+  mountPath: /certs/root.crt
+  subPath: certs-root.crt
+  readOnly: true
 - name: secret-volume
-  mountPath: /etc/ssl/private/client_key.pem
-  subPath: client_key.pem
+  mountPath: /certs/root.crl
+  subPath: certs-root.crl
+  readOnly: true
+{{- if (index .Values.tls.files "postgresql.key") }}
 - name: secret-volume
-  mountPath: /etc/ssl/certs/ca_certificate.pem
-  subPath: ca_certificate.pem
+  mountPath: /certs/postgresql.crt
+  subPath: certs-postgresql.crt
+  readOnly: true
 - name: secret-volume
-  mountPath: /etc/ssl/crl/ca_crl.pem
-  subPath: ca_crl.pem
+  mountPath: /certs/postgresql.key
+  subPath: certs-postgresql.key
+  readOnly: true
+{{- end }}
 {{- end }}
 {{- end }}

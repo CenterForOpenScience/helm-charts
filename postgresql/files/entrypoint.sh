@@ -12,11 +12,6 @@ if [ "$1" = 'postgres' ]; then
 		service=${POD_NAME}
 	fi
 
-	if [ -n "${PGSSLMODE}" ]; then
-		chown -R postgres:ssl-cert /etc/ssl/*
-		chmod 0600 /etc/ssl/*
-	fi
-
 	sed \
 		-e "s|^#cluster=.*$|cluster=default|" \
 		-e "s|^#node=.*$|node=${node_id}|" \
@@ -25,14 +20,9 @@ if [ "$1" = 'postgres' ]; then
 		-e "s|^#use_replication_slots=.*$|use_replication_slots=1|" \
 		/etc/repmgr.conf.tpl > /etc/repmgr.conf
 
-	if [ ! -s "$PGDATA/PG_VERSION" ]; then
-		if [ $STATEFUL_TYPE == "master" ]; then
-			exec docker-entrypoint.sh "$@" &
-
-			while ! pg_isready --host 127.0.0.1 --quiet
-			do
-				sleep 1
-			done
+	if [ ! -s "${PGDATA}/PG_VERSION" ]; then
+		if [ ${STATEFUL_TYPE} == "master" ]; then
+			docker-entrypoint.sh "$@" --boot
 
 			sed -i \
 				-e "s|^listen_addresses = .*|listen_addresses = '*'|" \
@@ -48,28 +38,37 @@ if [ "$1" = 'postgres' ]; then
 			host_type="host"
 			options=""
 
-			if [ -n "${PGSSLMODE}" ]; then
+			if [ -f "/certs/server.key" ]; then
 				host_type="hostssl"
-				options="clientcert=1"
+
+				if [ -f "/certs/postgresql.key" ]; then
+					options="clientcert=1"
+				fi
+
+				# Server Certificate
+				cp -f /certs/{server,root}.* ${PGDATA}/
+				chown postgres:postgres ${PGDATA}/{root,server}.*
+				chmod -R 0600 ${PGDATA}/{root,server}.*
+
+				# Client Certificate
+				mkdir -p /home/postgres/.postgresql/
+				cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+				chown -R postgres:postgres /home/postgres
+				chmod -R 0600 /home/postgres/.postgresql/*
 
 				sed -i \
 					-e "s|^#ssl = .*|ssl = on|" \
 					-e "s|^#ssl_ciphers = .*|ssl_ciphers = 'HIGH'|" \
-					-e "s|^#ssl_cert_file = .*|ssl_cert_file = '/etc/ssl/certs/server_certificate.pem'|" \
-					-e "s|^#ssl_key_file = .*|ssl_key_file = '/etc/ssl/private/server_key.pem'|" \
-					-e "s|^#ssl_ca_file = .*|ssl_ca_file = '/etc/ssl/certs/ca_certificate.pem'|" \
-					-e "s|^#ssl_crl_file = .*|ssl_crl_file = '/etc/ssl/crl/ca_crl.pem'|" \
+					-e "s|^#ssl_cert_file = .*|ssl_cert_file = 'server.crt'|" \
+					-e "s|^#ssl_key_file = .*|ssl_key_file = 'server.key'|" \
+					-e "s|^#ssl_ca_file = .*|ssl_ca_file = 'root.crt'|" \
+					-e "s|^#ssl_crl_file = .*|ssl_crl_file = 'root.crl'|" \
 					${PGDATA}/postgresql.conf
 
 				sed -i \
-					-E "s|^host([ \\t]+all){3}.*|${host_type}   all   all   all   md5   ${options}|" \
+					-E "s|^host([ \\t]+all){3}.*|hostnossl   all   all   all   reject\n${host_type}   all   all   all   md5   ${options}|" \
 					${PGDATA}/pg_hba.conf
 			fi
-			
-			gosu postgres psql <<-EOF
-			CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
-			CREATE DATABASE repmgr OWNER repmgr;
-			EOF
 
 			cat >> ${PGDATA}/pg_hba.conf <<-EOF
 
@@ -78,9 +77,14 @@ if [ "$1" = 'postgres' ]; then
 			${host_type}   replication   repmgr   all   md5   ${options}
 			EOF
 
-			gosu postgres pg_ctl reload
+			gosu postgres pg_ctl start -w
 
-			while ! pg_isready --host ${MASTER_SERVICE}
+			gosu postgres psql <<-EOF
+			CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
+			CREATE DATABASE repmgr OWNER repmgr;
+			EOF
+
+			while ! gosu postgres pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
 			done
@@ -91,7 +95,7 @@ if [ "$1" = 'postgres' ]; then
 			ALTER TABLE repmgr_default.repl_monitor SET UNLOGGED;
 			EOF
 		else
-			while ! pg_isready --host ${MASTER_SERVICE}
+			while ! gosu postgres pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
 			done
@@ -100,9 +104,24 @@ if [ "$1" = 'postgres' ]; then
 			chown -R postgres "$PGDATA"
 			chmod 700 "$PGDATA"
 
+			if [ -f "/certs/root.crt" ]; then
+				# Client Certificate
+				mkdir -p /home/postgres/.postgresql/
+				cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+				chown -R postgres:postgres /home/postgres
+				chmod -R 0600 /home/postgres/.postgresql/*
+			fi
+
 			gosu postgres repmgr \
 				--dbname="host=${MASTER_SERVICE} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD}" \
 				standby clone
+
+			if [ -f "/certs/server.crt" ]; then
+				# Server Certificate
+				cp -f /certs/{server,root}.* ${PGDATA}/
+				chown postgres:postgres ${PGDATA}/{root,server}.*
+				chmod -R 0600 ${PGDATA}/{root,server}.*
+			fi
 
 			gosu postgres pg_ctl -w start
 
@@ -116,11 +135,26 @@ if [ "$1" = 'postgres' ]; then
 
 		gosu postgres pg_ctl -w stop
 		exit 0
+	else
+		if [ -f "/certs/server.key" ]; then
+			# Server Certificate
+			cp -f /certs/{server,root}.* ${PGDATA}/
+			chown postgres:postgres ${PGDATA}/{root,server}.*
+			chmod -R 0600 ${PGDATA}/{root,server}.*
+		fi
+
+		if [ -f "/certs/root.crt" ]; then
+			# Client Certificate
+			mkdir -p /home/postgres/.postgresql/
+			cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+			chown -R postgres:postgres /home/postgres
+			chmod -R 0600 /home/postgres/.postgresql/*
+		fi
 	fi
 
 	exec docker-entrypoint.sh "$@" & pid=$!
 
-	while ! pg_isready --host ${service} --quiet
+	while ! gosu postgres pg_isready --host ${service} --quiet
 	do
 		sleep 1
 	done
@@ -136,14 +170,18 @@ if [ "$1" = 'repmgrd' ] && [ "$(id -u)" = '0' ]; then
 fi
 
 if [ "$1" = 'cleanup' ]; then
-	while true
-	do
-		sleep 3600
+	if [ ${STATEFUL_TYPE} == "master" ]; then
+		while true
+		do
+			sleep 3600
 
-		if pg_isready --host ${MASTER_SERVICE} --quiet; then
-			gosu postgres repmgr --keep-history=1 cluster cleanup
-		fi
-	done
+			if pg_isready --host 127.0.0.1 --quiet; then
+				gosu postgres repmgr --keep-history=1 cluster cleanup || true
+			fi
+		done
+	fi
+
+	exit 0
 fi
 
 exec "$@"

@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 image:
   repository: centerforopenscience/barman
-  tag: '9.6'
+  tag: "9.6"
   pullPolicy: Always
 
 resources: {}
@@ -26,7 +26,7 @@ backups:
     schedule: 0 1 * * *
     conf: |-
       [default]
-      description =  "Example of PostgreSQL Database (Streaming-Only)"
+      description = "Example of PostgreSQL Database (Streaming-Only)"
       conninfo = host=pg user=barman dbname=postgres password=guessme
       streaming_conninfo = host=pg user=streaming_barman password=guessme
       backup_method = postgres
@@ -81,5 +81,17 @@ backups:
   #     ; Policy for retention of periodic backups and archive logs.
   #     ; If left empty, retention policies are not enforced.
   #     ;retention_policy = REDUNDANCY 999
+
+tls:
+  enabled: false
+  files:
+    postgresql.crt: |-
+      ...
+    postgresql.key: |-
+      ...
+    root.crt: |-
+      ...
+    root.crl: |-
+      ...
 
 configFiles: {}
