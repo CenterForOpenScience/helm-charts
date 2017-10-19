@@ -1,9 +1,9 @@
-## Bitnami RabbitMQ image version
-## ref: https://hub.docker.com/r/bitnami/rabbitmq/tags/
+## RabbitMQ image version
+## ref: https://hub.docker.com/_/rabbitmq/tags/
 ##
 image:
-  repository: bitnami/rabbitmq
-  tag: 3.6.12-r0
+  repository: rabbitmq
+  tag: 3-management
   pullPolicy: IfNotPresent
 
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
@@ -25,8 +25,10 @@ secretEnvs:
 
 secretFiles: {}
 
-## Extra volumeMounts
-volumeMounts: []
+## volumeMounts
+volumeMounts:
+  - name: data
+    mountPath: /var/lib/rabbitmq
 
 ## TLS support. Generate certificates with OpenSSL
 tls:
@@ -80,7 +82,7 @@ service:
   # If using type: LoadBalancer
   #loadBalacerIP: 0.0.0.0
   ports:
-    empd: 4369
-    amqp: 5672
-    dist: 25672
+    amqp: 5672 # Change to 5671 for tls
     stats: 15672
+    #empd: 4369
+    #dist: 25672

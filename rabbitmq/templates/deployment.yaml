@@ -45,8 +45,6 @@ spec:
             timeoutSeconds: 3
             periodSeconds: 5
           volumeMounts:
-            - name: data
-              mountPath: /bitnami/rabbitmq
             {{- include "rabbitmq.volumeMounts" . | indent 12 }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}

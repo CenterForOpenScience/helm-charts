@@ -21,14 +21,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 - name: RABBITMQ_MANAGER_PORT_NUMBER
   value: {{ .Values.service.ports.stats | quote }}
 {{- $fullname := include "rabbitmq.fullname" . -}}
-{{- range $key, $val := .Values.configEnvs }}
+{{- range $key := keys .Values.configEnvs }}
 - name: {{ $key }}
   valueFrom:
     configMapKeyRef:
       name: {{ $fullname }}
       key: {{ $key }}
 {{- end }}
-{{- range $key, $val := .Values.secretEnvs }}
+{{- range $key := keys .Values.secretEnvs }}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
