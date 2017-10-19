@@ -95,9 +95,18 @@ spec:
         resources:
 {{ toYaml .Values.data.resources | indent 12 }}
         readinessProbe:
-          httpGet:
-            path: /_cluster/health?local=true
-            port: 9200
+          exec:
+            command:
+              - sh
+              - -c
+              - wget
+                --quiet
+                {{- if .Values.tls.enabled }}
+                --certificate /usr/share/elasticsearch/config/server_cert.pem
+                --private-key /usr/share/elasticsearch/config/server_key.pem
+                {{- end }}
+                --no-check-certificate
+                https://127.0.0.1:9200/_cluster/health?local=true
           initialDelaySeconds: 5
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
@@ -122,17 +131,21 @@ spec:
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh
         {{- if .Values.tls.enabled }}
-        - mountPath: /usr/share/elasticsearch/config/server_certificate.pem
+        - mountPath: /usr/share/elasticsearch/config/server_cert.pem
           name: secret
-          subPath: server_certificate.pem
+          subPath: server_cert.pem
           readOnly: true
         - mountPath: /usr/share/elasticsearch/config/server_key.pem
           name: secret
           subPath: server_key.pem
           readOnly: true
-        - mountPath: /usr/share/elasticsearch/config/ca_certificate.pem
+        - mountPath: /usr/share/elasticsearch/config/ca_cert.pem
           name: secret
-          subPath: ca_certificate.pem
+          subPath: ca_cert.pem
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/config/ca_crl.pem
+          name: secret
+          subPath: ca_crl.pem
           readOnly: true
         {{- end }}
         lifecycle:
