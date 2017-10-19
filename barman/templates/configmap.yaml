@@ -14,6 +14,7 @@ cron.d-barman_schedule: |-
   {{- range $key, $value := .Values.backups }}
   {{ $value.schedule }} barman /usr/bin/barman backup {{ $key }}
   {{- end }}
+  # EOF
 {{- end -}}
 {{- range $key, $value := merge .Values.configFiles (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
   {{ $key }}: |-
