@@ -41,7 +41,7 @@ Initialize any new backups by performing the following steps on your Barman serv
 
     barman switch-xlog --force --archive <server_name>
 
-  # Perform the initail backup
+  # Perform the initial backup
 
     barman backup <server_name>
 
