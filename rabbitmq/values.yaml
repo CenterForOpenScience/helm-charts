@@ -8,8 +8,8 @@ image:
 
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
 configEnvs:
+  #RABBITMQ_NODENAME: rabbit@localhost
   RABBITMQ_NODE_TYPE: stats
-  RABBITMQ_NODE_NAME: rabbit@localhost
   RABBITMQ_CLUSTER_NODE_NAME: ''
   RABBITMQ_VHOST: /
 
@@ -84,5 +84,5 @@ service:
   ports:
     amqp: 5672 # Change to 5671 for tls
     stats: 15672
-    #empd: 4369
-    #dist: 25672
+    empd: 4369
+    dist: 25672
