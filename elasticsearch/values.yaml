@@ -25,36 +25,48 @@ tls:
     searchguard.ssl.http.enabled: true
     searchguard.ssl.http.pemkey_filepath: server_key.pem
     # searchguard.ssl.http.pemkey_password: changeme
-    searchguard.ssl.http.pemcert_filepath: server_certificate.pem
-    searchguard.ssl.http.pemtrustedcas_filepath: ca_certificate.pem
-    # searchguard.ssl.http.clientauth_mode: REQUIRED
+    searchguard.ssl.http.pemcert_filepath: server_cert.pem
+    searchguard.ssl.http.pemtrustedcas_filepath: ca_cert.pem
+    searchguard.ssl.http.crl.validate: true
+    searchguard.ssl.http.crl.file_path: ca_crl.pem
+    searchguard.ssl.http.crl.prefer_crlfile_over_ocsp: true
+    searchguard.ssl.http.crl.check_only_end_entities: false
+    searchguard.ssl.http.clientauth_mode: REQUIRE
 
     # Transport Configuration
     searchguard.ssl.transport.enabled: true
     searchguard.ssl.transport.pemkey_filepath: server_key.pem
     # searchguard.ssl.transport.pemkey_password: changeme
-    searchguard.ssl.transport.pemcert_filepath: server_certificate.pem
-    searchguard.ssl.transport.pemtrustedcas_filepath: ca_certificate.pem
+    searchguard.ssl.transport.pemcert_filepath: server_cert.pem
+    searchguard.ssl.transport.pemtrustedcas_filepath: ca_cert.pem
     searchguard.ssl.transport.enforce_hostname_verification: false
     searchguard.ssl.transport.resolve_hostname: false
   files:
     # Server Certificate
-    server_certificate.pem: |-
+    server_cert.pem: |-
       ...
     # Server Key
     # Issue: Ensure the key is PKCS#8 w/ http://netty.io/wiki/sslcontextbuilder-and-private-key.html
     server_key.pem: |-
       ...
     # Certificate Authority Chain
-    ca_certificate.pem: |-
+    ca_cert.pem: |-
+      ...
+    # Certificate Authority Revocation List
+    ca_crl.pem: |-
       ...
 
 client:
   name: client
   replicas: 2
-  serviceType: ClusterIP
   heapSize: "512m"
   antiAffinity: "soft"
+  service:
+    #annotations: {}
+    type: ClusterIP
+    # If using type: LoadBalancer
+    #loadBalancerIP: 0.0.0.0
+    externalIPs: []
   resources:
     limits:
       cpu: "1"
