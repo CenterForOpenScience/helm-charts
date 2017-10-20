@@ -11,15 +11,21 @@ Perform the following steps on your PostgresSQL server:
 
   * Allow password protected access to your database server.
 
-    e.g. vim /var/lib/postgresql/data/pgdata/pg_hba.conf
-
     w/ tls:
-    hostssl    barman         barman              all    md5   clientcert=1
-    hostssl    replication    streaming_barman    all    md5   clientcert=1
+		cat >> ${PGDATA}/pg_hba.conf <<-EOF
+		
+		# Barman
+		hostssl    barman         barman              all    md5   clientcert=1
+		hostssl    replication    streaming_barman    all    md5   clientcert=1
+		EOF
 
     w/o tls:
-    host    barman         barman              all    md5
-    host    replication    streaming_barman    all    md5
+		cat >> ${PGDATA}/pg_hba.conf <<-EOF
+		
+		# Barman
+		host    barman         barman              all    md5
+		host    replication    streaming_barman    all    md5
+		EOF
 
     see more: https://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html
 
@@ -41,7 +47,7 @@ Initialize any new backups by performing the following steps on your Barman serv
 
     barman switch-xlog --force --archive <server_name>
 
-  # Perform the initial backup
+  * Perform the initial backup
 
     barman backup <server_name>
 
