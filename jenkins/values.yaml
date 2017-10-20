@@ -51,6 +51,7 @@ master:
 
 agent:
   enabled: true
+  name: agent
   listenerPort: 50000
   privileged: false
   image:
@@ -85,6 +86,7 @@ installPlugins:
   - workflow-job:2.13
   - credentials-binding:1.12
   - git:3.4.0
+  - display-url-api:2.0
 # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
 # scriptApproval:
 #   - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
@@ -110,6 +112,7 @@ persistence:
 service:
   type: ClusterIP
   externalPort: 80
+  externalWebhookPort: 90
   internalPort: 8080
   # annotations:
   # loadBalancerSourceRanges:
@@ -128,6 +131,19 @@ ingress:
     # - secretName: chart-example-tls
     #   hosts:
     #     - chart-example.local
+  webhook:
+    enabled: false
+    # Used to create Ingress record (should used with service.type: ClusterIP).
+    hosts:
+      - chart-example-webhook.local
+    annotations:
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    tls:
+      # Secrets must be manually created in the namespace.
+      # - secretName: chart-example-tls
+      #   hosts:
+      #     - chart-example-webhook.local
 
 networkPolicy:
   # Enable creation of NetworkPolicy resources.

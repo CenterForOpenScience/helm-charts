@@ -65,7 +65,7 @@ spec:
           command:
             - nginx
             - -c
-            - /nginx/nginx.conf
+            - /etc/nginx/nginx.conf
             - -g
             - daemon off;
           ports:
@@ -80,55 +80,69 @@ spec:
             - mountPath: /static
               name: static-volume
               readOnly: true
-            - mountPath: /nginx/nginx.conf
+            {{- if .Values.web.nginx.cache.enabled }}
+            - mountPath: /cache
+              name: cache-volume
+            {{- end }}
+            - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: web-nginx.conf
               readOnly: true
-            - mountPath: /nginx/robots.txt
+            - mountPath: /etc/nginx/conf.d/default.conf
+              name: config-volume
+              subPath: default.conf
+              readOnly: true
+            - mountPath: /usr/share/nginx/html/robots.txt
               name: config-volume
               subPath: web-robots.txt
               readOnly: true
             {{- if $osfPreprints.enabled }}
-            - mountPath: /nginx/osf-preprints.conf
+            - mountPath: /etc/nginx/conf.d/osf-preprints.conf
               name: config-volume
               subPath: web-nginx-osf-preprints.conf
               readOnly: true
             {{- end }}
             {{- if $osfRegistries.enabled }}
-            - mountPath: /nginx/osf-registries.conf
+            - mountPath: /etc/nginx/conf.d/osf-registries.conf
               name: config-volume
               subPath: web-nginx-osf-registries.conf
               readOnly: true
             {{- end }}
             {{- if $osfReviews.enabled }}
-            - mountPath: /nginx/osf-reviews.conf
+            - mountPath: /etc/nginx/conf.d/osf-reviews.conf
               name: config-volume
               subPath: web-nginx-osf-reviews.conf
               readOnly: true
             {{- end }}
             {{- if $osfWeb.enabled }}
-            - mountPath: /nginx/osf-web.conf
+            - mountPath: /etc/nginx/conf.d/osf-web.conf
               name: config-volume
               subPath: web-nginx-osf-web.conf
               readOnly: true
             {{- end }}
             {{- if .Values.prerender.enabled }}
-            - mountPath: /nginx/prerender.conf
+            - mountPath: /etc/nginx/prerender.conf
               name: config-volume
               subPath: web-nginx-prerender.conf
               readOnly: true
             {{- end }}
+{{- if .Values.web.nginx.volumeMounts }}
+{{ toYaml .Values.web.nginx.volumeMounts | indent 12 }}
+{{- end }}
           resources:
 {{ toYaml .Values.web.nginx.resources | indent 12 }}
-        - name: {{ .Values.web.name }}
+        - name: uwsgi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - uwsgi
-            - --ini
-            - /etc/uwsgi/uwsgi.ini
-            - --socket
-            - :{{ .Values.web.service.externalPort }}
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.web.service.externalPort }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
@@ -170,6 +184,9 @@ spec:
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
 {{- end }}
+{{- if .Values.web.volumeMounts }}
+{{ toYaml .Values.web.volumeMounts | indent 12 }}
+{{- end }}
           resources:
 {{ toYaml .Values.web.resources | indent 12 }}
       volumes:
@@ -181,6 +198,10 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "osf.fullname" . }}
+        {{- if .Values.web.nginx.cache.enabled }}
+        - name: cache-volume
+          emptyDir: {}
+        {{- end }}
     {{- if .Values.web.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.web.nodeSelector | indent 8 }}

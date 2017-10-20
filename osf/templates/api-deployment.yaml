@@ -60,7 +60,7 @@ spec:
           command:
             - nginx
             - -c
-            - /nginx/nginx.conf
+            - /etc/nginx/nginx.conf
             - -g
             - daemon off;
           ports:
@@ -74,25 +74,35 @@ spec:
           volumeMounts:
             - mountPath: /static
               name: static-volume
-            - mountPath: /nginx/nginx.conf
+            - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: api-nginx.conf
               readOnly: true
-            - mountPath: /nginx/robots.txt
+            - mountPath: /etc/nginx/conf.d/default.conf
+              name: config-volume
+              subPath: default.conf
+              readOnly: true
+            - mountPath: /usr/share/nginx/html/robots.txt
               name: config-volume
               subPath: api-robots.txt
               readOnly: true
+{{- if .Values.api.nginx.volumeMounts }}
+{{ toYaml .Values.api.nginx.volumeMounts | indent 12 }}
+{{- end }}
           resources:
 {{ toYaml .Values.api.nginx.resources | indent 12 }}
-        - name: {{ .Values.api.name }}
+        - name: uwsgi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - uwsgi
-            - --ini
-            - /etc/uwsgi/uwsgi.ini
-            - --socket
-            - :{{ .Values.api.service.externalPort }}
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.api.service.externalPort }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
@@ -117,6 +127,9 @@ spec:
               readOnly: true
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+{{- if .Values.api.volumeMounts }}
+{{ toYaml .Values.api.volumeMounts | indent 12 }}
 {{- end }}
           resources:
 {{ toYaml .Values.api.resources | indent 12 }}

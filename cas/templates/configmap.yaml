@@ -5,56 +5,76 @@ metadata:
   labels:
     app: {{ template "cas.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 data:
 {{- define "cas.preprint-services" }}
-engrxiv:
-  id: '203948234207242'
-  name: engrXiv
-  domain: engrxiv.org
-psyarxiv:
-  id: '203948234207243'
-  name: PsyArXiv
-socarxiv:
-  id: '203948234207241'
-  name: SocArXiv
 agrixiv:
   id: '203948234207244'
-  name: AgriXiv
+  name: AgriXiv Preprints
+  domain: agrixiv.org
 asu:
   id: '203948234207254'
   name: LiveData
 bitss:
   id: '203948234207245'
-  name: BITSS
+  name: BITSS Preprints
+engrxiv:
+  id: '203948234207242'
+  name: engrXiv Preprints
+  domain: engrxiv.org
+ecsarxiv:
+  id: '203948234207259'
+  name: ECSarXiv Preprints
+experimentalprotocols:
+  id: '203948234207258'
+  name: Experimental Protocols Preprints
 focusarchive:
   id: '203948234207248'
-  name: FocUS Archive
+  name: FocUS Archive Preprints
+inarxiv:
+  id: '203948234207257'
+  name: INA-Rxiv Preprints
 lawarxiv:
   id: '203948234207247'
-  name: LawArXiv
+  name: LawArXiv Papers
 lissa:
   id: '203948234207249'
-  name: LISSA
+  name: LIS Scholarship Archive Preprints
+marxiv:
+  id: '203948234207260'
+  name: MarXiv Preprints
+medarxiv:
+  id: '203948234207256'
+  name: MedArXiv Preprints
 mindrxiv:
   id: '203948234207250'
-  name: MindRxiv
+  name: MindRxiv Preprints
+  domain: mindrxiv.org
 nutrixiv:
   id: '203948234207255'
-  name: NutriXiv
+  name: NutriXiv Preprints
 paleorxiv:
   id: '203948234207251'
-  name: PaleorXiv
+  name: PaleorXiv Preprints
+psyarxiv:
+  id: '203948234207243'
+  name: PsyArXiv Preprints
+  domain: psyarxiv.com
 scielo:
   id: '203948234207246'
-  name: SciELO
+  name: SciELO Preprints
+socarxiv:
+  id: '203948234207241'
+  name: SocArXiv Preprints
 sportrxiv:
   id: '203948234207252'
-  name: SportRxiv
+  name: SportRxiv Preprints
+  domain: sportrxiv.org
 thesiscommons:
   id: '203948234207253'
   name: Thesis Commons
+  domain: thesiscommons.org
 {{- end -}}
 {{- define "cas.inlineconfigs" }}
 shibboleth/shibboleth2.xml: |-

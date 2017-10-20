@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "rabbitmq.fullname" . }}
+  labels:
+    app: {{ template "rabbitmq.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+{{- define "rabbitmq.tlsConfigs" }}
+{{- if .Values.tls.enabled }}
+RABBITMQ_SSL_CERTFILE: /etc/ssl/server_certificate.pem
+RABBITMQ_SSL_KEYFILE: /etc/ssl/server_key.pem
+RABBITMQ_SSL_CACERTFILE: /etc/ssl/ca_certificate.pem
+{{- end }}
+{{- end }}
+{{- range $key, $value := merge .Values.configEnvs (include "rabbitmq.tlsConfigs" . | fromYaml) }}
+  {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- range $key, $value := .Values.configFiles }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+{{- end }}

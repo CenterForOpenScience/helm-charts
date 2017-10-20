@@ -1,0 +1,115 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "barman.fullname" . }}
+  labels:
+    app: {{ template "barman.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  serviceName: {{ template "barman.fullname" . }}
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  template:
+    metadata:
+      labels:
+        app: {{ template "barman.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      {{- if .Values.tls.enabled }}
+      initContainers:
+        - name: certificates
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - mkdir -p /var/lib/barman/.postgresql/ &&
+              cp -f /certs/{postgresql,root}.* /var/lib/barman/.postgresql/ &&
+              chown -R barman:barman /var/lib/barman/.postgresql &&
+              chmod -R 0600 /var/lib/barman/.postgresql/*
+          volumeMounts:
+            - mountPath: /var/lib/barman
+              name: data
+              subPath: data
+            - mountPath: /entrypoint.sh
+              name: secret
+              subPath: certs-root.crt
+              readOnly: true
+            - mountPath: /certs/root.crt
+              name: secret
+              subPath: certs-root.crt
+              readOnly: true
+            - mountPath: /certs/root.crl
+              name: secret
+              subPath: certs-root.crl
+              readOnly: true
+            - mountPath: /certs/postgresql.crt
+              name: secret
+              subPath: certs-postgresql.crt
+              readOnly: true
+            - mountPath: /certs/postgresql.key
+              name: secret
+              subPath: certs-postgresql.key
+              readOnly: true
+      {{- end }}
+      containers:
+        - name: barman
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - mountPath: /var/lib/barman
+              name: data
+              subPath: data
+            - mountPath: /etc/barman.conf
+              name: config
+              subPath: barman.conf
+              readOnly: true
+            - mountPath: /etc/cron.d/barman_schedule
+              name: config
+              subPath: cron.d-barman_schedule
+              readOnly: true
+          {{- range $key := keys .Values.backups }}
+            - mountPath: /etc/barman.d/{{ $key }}.conf
+              name: secret
+              subPath: barman.d-{{ $key }}.conf
+              readOnly: true
+          {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        {{- if not .Values.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+        - name: config
+          configMap:
+            name: {{ template "barman.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "barman.fullname" . }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - {{ .Values.persistence.accessMode | quote }}
+      {{- if hasKey .Values.persistence "storageClass" }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+  {{- end }}

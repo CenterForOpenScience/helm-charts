@@ -5,7 +5,7 @@ name: ember
 replicaCount: 1
 
 image:
-  repository: gcr.io/cos-containers/EMBER_APP
+  repository: quay.io/centerforopenscience/EMBER_APP
   tag: develop
   pullPolicy: Always
 
@@ -25,8 +25,8 @@ nginx:
   name: nginx
 
   image:
-    repository: us.gcr.io/cos-containers/nginx
-    tag: '1'
+    repository: nginx
+    tag: alpine
     pullPolicy: Always
 
   resources: {}

@@ -72,7 +72,7 @@ nginx.conf: |-
           }
 
           location /robots.txt {
-              alias /nginx/robots.txt;
+              alias /usr/share/nginx/html/robots.txt;
           }
 
           {{- if .Values.configEnvs.MEDIA_URL }}

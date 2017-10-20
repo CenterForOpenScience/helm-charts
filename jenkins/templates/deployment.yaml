@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "jenkins.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "jenkins.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     component: {{ .Values.master.name }}
     heritage: {{ .Release.Service }}
@@ -13,11 +13,30 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
+        app: {{ template "jenkins.name" . }}
         component: {{ .Values.master.name }}
         release: {{ .Release.Name }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+        pod.beta.kubernetes.io/init-containers: |-
+          [
+              {
+                  "name": "copy-default-config",
+                  "image": "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}",
+                  "imagePullPolicy": "{{ .Values.master.image.pullPolicy }}",
+                  "command": [
+                      "sh",
+                      "/var/jenkins_config/apply_config.sh"
+                  ],
+                  "volumeMounts": [
+                      {"name":"config-volume","mountPath":"/var/jenkins_config"},
+                      {"name":"persistent-storage","mountPath":"/var/jenkins_home"},
+                      {"name":"plugins-volume","mountPath":"/usr/share/jenkins/ref/plugins/"},
+                      {"name":"secrets-volume","mountPath":"/usr/share/jenkins/ref/secrets/"}
+                  ]
+              }
+          ]
     spec:
       {{- if .Values.master.nodeSelector }}
       nodeSelector:
@@ -28,28 +47,28 @@ spec:
 {{ toYaml .Values.master.tolerations | indent 8 }}
       {{- end }}
       {{- if .Values.rbac.create }}
-      serviceAccountName: {{ template "fullname" . }}
+      serviceAccountName: {{ template "jenkins.fullname" . }}
       {{- else }}
       serviceAccountName: default
       {{- end }}
       securityContext:
         runAsUser: 0
-      initContainers:
-        - name: copy-default-config
-          image: "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}"
-          imagePullPolicy: {{ .Values.master.image.pullPolicy }}
-          command:
-            - sh
-            - /var/jenkins_config/apply_config.sh
-          volumeMounts:
-            - name: config-volume
-              mountPath: /var/jenkins_config
-            - name: persistent-storage
-              mountPath: /var/jenkins_home
-            - name: plugins-volume
-              mountPath: /usr/share/jenkins/ref/plugins/
-            - name: secrets-volume
-              mountPath: /usr/share/jenkins/ref/secrets/
+      # initContainers:
+      #   - name: copy-default-config
+      #     image: "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}"
+      #     imagePullPolicy: {{ .Values.master.image.pullPolicy }}
+      #     command:
+      #       - sh
+      #       - /var/jenkins_config/apply_config.sh
+      #     volumeMounts:
+      #       - name: config-volume
+      #         mountPath: /var/jenkins_config
+      #       - name: persistent-storage
+      #         mountPath: /var/jenkins_home
+      #       - name: plugins-volume
+      #         mountPath: /usr/share/jenkins/ref/plugins/
+      #       - name: secrets-volume
+      #         mountPath: /usr/share/jenkins/ref/secrets/
       containers:
 # CUSTOM START
         - name: nginx
@@ -58,10 +77,16 @@ spec:
           ports:
             - containerPort: {{ .Values.service.externalPort }}
               name: http
+            - containerPort: {{ .Values.service.externalWebhookPort }}
+              name: webhook
           readinessProbe:
             httpGet:
               path: /healthz
               port: {{ .Values.service.externalPort }}
+            initialDelaySeconds: 10
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.externalWebhookPort }}
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf
@@ -92,12 +117,12 @@ spec:
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "fullname" . }}
+                  name: {{ template "jenkins.fullname" . }}
                   key: admin-password
             - name: ADMIN_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ template "fullname" . }}
+                  name: {{ template "jenkins.fullname" . }}
                   key: admin-user
             {{- end }}
           ports:
@@ -129,7 +154,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: {{ template "fullname" . }}
+            name: {{ template "jenkins.fullname" . }}
         - name: plugins-volume
           emptyDir: {}
         - name: secrets-volume
@@ -137,7 +162,7 @@ spec:
         - name: persistent-storage
         {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "fullname" .) }}
+            claimName: {{ .Values.persistence.existingClaim | default (include "jenkins.fullname" .) }}
         {{- else }}
           emptyDir: {}
         {{- end -}}

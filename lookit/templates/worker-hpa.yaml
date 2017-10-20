@@ -3,6 +3,12 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ template "lookit.worker.fullname" . }}
+  labels:
+    app: {{ template "lookit.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.worker.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1beta1

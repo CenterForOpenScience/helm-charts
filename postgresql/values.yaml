@@ -1,36 +1,67 @@
-postgres:
-  replicaCount: 2
-  image:
-    repository: centerforopenscience/postgres
-    tag: 9.6-repmgr
-    pullPolicy: IfNotPresent
-  resources: {}
+image:
+  repository: centerforopenscience/postgres
+  tag: 9.6-repmgr
+  pullPolicy: Always
 
-barman:
+master:
+  name: master
+  resources: {}
+  persistence:
+    enabled: true
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 8Gi
+  service:
+    #annotations: {}
+    type: ClusterIP
+    # If using type: LoadBalancer
+    #loadBalancerIP: 0.0.0.0
+    port: 5432
+    externalIPs: []
+  terminationGracePeriodSeconds: 3600
+
+standby:
+  name: standby
   replicaCount: 1
-  image:
-    repository: centerforopenscience/barman
-    tag: '9.6'
-    pullPolicy: IfNotPresent
   resources: {}
-
-## Persist data to a persitent volume
-persistence:
-  storageClass: default
-  accessMode: ReadWriteOnce
-  size: 8Gi
-  subPath: "postgresql-db"
+  persistence:
+    enabled: true
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 8Gi
+  service:
+    #annotations: {}
+    type: ClusterIP
+    # If using type: LoadBalancer
+    #loadBalancerIP: 0.0.0.0
+    port: 5432
+    externalIPs: []
+  terminationGracePeriodSeconds: 3600
 
 configs: {}
 
 secrets:
   POSTGRES_DB: postgres
   POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: ''
+  POSTGRES_PASSWORD: password
   POSTGRES_INITDB_ARGS: --data-checksums
-  REPMGR_PASSWORD: ''
-  BARMAN_PASSWORD: ''
-  BARMAN_STREAMING_PASSWORD: ''
+  REPMGR_PASSWORD: repmgr
+
+tls:
+  enabled: false
+  files:
+    server.crt: |-
+      ...
+    server.key: |-
+      ...
+    # postgresql.crt: |-
+    #   ...
+    # postgresql.key: |-
+    #   ...
+    root.crt: |-
+      ...
+    root.crl: |-
+      ...
 
 metrics:
   enabled: false
@@ -61,11 +92,6 @@ resources:
   requests:
     memory: 256Mi
     cpu: 100m
-
-service:
-  type: ClusterIP
-  port: 5432
-  externalIPs: []
 
 networkPolicy:
   ## Enable creation of NetworkPolicy resources.

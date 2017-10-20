@@ -60,28 +60,18 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - gosu
-            - www-data
-            - celery
-            - worker
-            - --app
-            - framework.celery_tasks
-            - --concurrency
-            - "{{ .Values.task.concurrency }}"
-            - --loglevel
-            - "{{ .Values.task.logLevel }}"
-            - --hostname
-            - $POD_NAME
-            - --without-gossip
-            - -Ofair
-            {{- if .Values.task.maxTasksPerChild }}
-            - --maxtasksperchild
-            - "{{ .Values.task.maxTasksPerChild }}"
-            {{- end }}
-            {{- if .Values.task.queues }}
-            - --queues
-            - "{{ .Values.task.queues }}"
-            {{- end }}
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data celery worker --app framework.celery_tasks \
+                --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
+                --hostname $POD_NAME --without-gossip -Ofair
+                {{- if .Values.task.maxTasksPerChild }} --maxtasksperchild "{{ .Values.task.maxTasksPerChild }}"{{- end }}
+                {{- if .Values.task.queues }} --queues "{{ .Values.task.queues }}"{{- end }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
@@ -99,6 +89,9 @@ spec:
               name: log-volume
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
+{{- end }}
+{{- if .Values.task.volumeMounts }}
+{{ toYaml .Values.task.volumeMounts | indent 12 }}
 {{- end }}
           resources:
 {{ toYaml .Values.task.resources | indent 12 }}

@@ -24,7 +24,7 @@ spec:
           command:
             - nginx
             - -c
-            - /nginx/nginx.conf
+            - /etc/nginx/nginx.conf
             - -g
             - daemon off;
           ports:
@@ -37,11 +37,11 @@ spec:
           volumeMounts:
             - name: config-volume
               subPath: nginx.conf
-              mountPath: /nginx/nginx.conf
+              mountPath: /etc/nginx/nginx.conf
               readOnly: true
             - name: config-volume
               subPath: robots.txt
-              mountPath: /nginx/robots.txt
+              mountPath: /usr/share/nginx/html/robots.txt
               readOnly: true
           resources:
 {{ toYaml .Values.nginx.resources | indent 12 }}

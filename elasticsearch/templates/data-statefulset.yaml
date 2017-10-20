@@ -95,9 +95,18 @@ spec:
         resources:
 {{ toYaml .Values.data.resources | indent 12 }}
         readinessProbe:
-          httpGet:
-            path: /_cluster/health?local=true
-            port: 9200
+          exec:
+            command:
+              - sh
+              - -c
+              - wget
+                --quiet
+                {{- if .Values.tls.enabled }}
+                --certificate /usr/share/elasticsearch/config/server_cert.pem
+                --private-key /usr/share/elasticsearch/config/server_key.pem
+                {{- end }}
+                --no-check-certificate
+                https://127.0.0.1:9200/_cluster/health?local=true
           initialDelaySeconds: 5
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
@@ -105,12 +114,40 @@ spec:
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
+          readOnly: true
+{{- if hasPrefix "2." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/logging.yml
           name: config
           subPath: logging.yml
+          readOnly: true
+{{- end }}
+{{- if hasPrefix "5." .Values.image.tag }}
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+          readOnly: true
+{{- end }}
         - name: config
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh
+        {{- if .Values.tls.enabled }}
+        - mountPath: /usr/share/elasticsearch/config/server_cert.pem
+          name: secret
+          subPath: server_cert.pem
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/config/server_key.pem
+          name: secret
+          subPath: server_key.pem
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/config/ca_cert.pem
+          name: secret
+          subPath: ca_cert.pem
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/config/ca_crl.pem
+          name: secret
+          subPath: ca_crl.pem
+          readOnly: true
+        {{- end }}
         lifecycle:
           preStop:
             exec:
@@ -120,14 +157,26 @@ spec:
       - name: config
         configMap:
           name: {{ template "elasticsearch.fullname" . }}
+      {{- if not .Values.data.persistence.enabled }}
+      - name: data
+        emptyDir: {}
+      {{- end }}
+      {{- if .Values.tls.enabled }}
+      - name: secret
+        secret:
+          secretName: {{ template "elasticsearch.fullname" . }}
+      {{- end }}
+  {{- if .Values.data.persistence.enabled }}
   volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ ReadWriteOnce ]
-    {{- if .Values.data.storageClass }}
-      storageClassName: "{{ .Values.data.storageClass }}"
-    {{- end }}
-      resources:
-        requests:
-          storage: "{{ .Values.data.storage }}"
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - {{ .Values.data.persistence.accessMode | quote }}
+      {{- if hasKey .Values.data.persistence "storageClass" }}
+        storageClassName: {{ .Values.data.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.data.persistence.size | quote }}
+  {{- end }}

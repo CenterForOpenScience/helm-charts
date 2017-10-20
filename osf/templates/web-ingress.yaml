@@ -1,0 +1,48 @@
+{{- if (and .Values.web.enabled .Values.web.ingress.enabled) -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "osf.web.fullname" . }}
+  labels:
+    app: {{ template "osf.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.web.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+{{- if .Values.web.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.web.ingress.annotations | indent 4 }}
+{{- end }}
+spec:
+  rules:
+  {{- if .Values.sharejs.enabled }}
+    {{- $serviceName := .Values.sharejs.service.name }}
+    {{- $servicePort := .Values.sharejs.service.externalPort }}
+    {{- $ingressPath := .Values.sharejs.ingress.path }}
+    {{- range .Values.web.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+    {{- end }}
+  {{- end }}
+    {{- $serviceName := include "osf.web.fullname" . }}
+    {{- $servicePort := .Values.web.service.externalPort }}
+    {{- $ingressPath := .Values.web.ingress.path }}
+    {{- range .Values.web.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+    {{- end }}
+  {{- if .Values.web.ingress.tls }}
+  tls:
+{{ toYaml .Values.web.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end -}}

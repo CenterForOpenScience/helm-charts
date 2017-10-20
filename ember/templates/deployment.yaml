@@ -46,14 +46,14 @@ spec:
           command:
             - nginx
             - -c
-            - /nginx/nginx.conf
+            - /etc/nginx/nginx.conf
             - -g
             - daemon off;
           volumeMounts:
             - mountPath: /static
               name: static-volume
               readOnly: true
-            - mountPath: /nginx/nginx.conf
+            - mountPath: /etc/nginx/nginx.conf
               name: config-volume
               subPath: nginx.conf
               readOnly: true

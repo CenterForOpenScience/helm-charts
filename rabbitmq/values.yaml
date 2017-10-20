@@ -1,0 +1,88 @@
+## RabbitMQ image version
+## ref: https://hub.docker.com/_/rabbitmq/tags/
+##
+image:
+  repository: rabbitmq
+  tag: 3-management
+  pullPolicy: IfNotPresent
+
+## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
+configEnvs:
+  #RABBITMQ_NODENAME: rabbit@localhost
+  RABBITMQ_NODE_TYPE: stats
+  RABBITMQ_CLUSTER_NODE_NAME: ''
+  RABBITMQ_VHOST: /
+
+configFiles: {}
+
+secretEnvs:
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  RABBITMQ_USERNAME: 'guest'
+  ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
+  RABBITMQ_PASSWORD: 'guest'
+  ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
+  RABBITMQ_ERLANG_COOKIE: cookie
+
+secretFiles: {}
+
+## volumeMounts
+volumeMounts:
+  - name: data
+    mountPath: /var/lib/rabbitmq
+
+## TLS support. Generate certificates with OpenSSL
+tls:
+  enabled: false
+  files:
+    # Server Certificate
+    server_certificate.pem: |-
+      ...
+    # Server Key
+    server_key.pem: |-
+      ...
+    # Certificate Authority Chain
+    ca_certificate.pem: |-
+      ...
+
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+
+persistence:
+  enabled: true
+
+  ## A manually managed Persistent Volume and Claim
+  ## Requires persistence.enabled: true
+  ## If defined, PVC must be created manually before volume will be bound
+  # existingClaim:
+
+  ## rabbitmq data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  storageClass: ''
+  accessMode: ReadWriteOnce
+  size: 8Gi
+
+## Node labels for component pod assignment
+## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+
+service:
+  #annotations: {}
+  type: ClusterIP
+  # If using type: LoadBalancer
+  #loadBalancerIP: 0.0.0.0
+  ports:
+    amqp: 5672 # Change to 5671 for tls
+    stats: 15672
+    empd: 4369
+    dist: 25672

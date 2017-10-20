@@ -1,0 +1,68 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "rabbitmq.fullname" . }}
+  labels:
+    app: {{ template "rabbitmq.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ template "rabbitmq.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ template "rabbitmq.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          env:
+            {{- include "rabbitmq.environment" . | indent 12 }}
+          ports:
+            {{- range $name, $port := .Values.service.ports }}
+            - name: {{ $name }}
+              containerPort: {{ $port }}
+            {{- end }}
+          #livenessProbe:
+          #  exec:
+          #    command:
+          #      - rabbitmqctl
+          #      - status
+          #  initialDelaySeconds: 120
+          #  timeoutSeconds: 5
+          #  failureThreshold: 6
+          #readinessProbe:
+          #  exec:
+          #    command:
+          #      - rabbitmqctl
+          #      - status
+          #  initialDelaySeconds: 10
+          #  timeoutSeconds: 3
+          #  periodSeconds: 5
+          volumeMounts:
+            {{- include "rabbitmq.volumeMounts" . | indent 12 }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+        - name: data
+        {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "rabbitmq.fullname" .) }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        - name: config
+          configMap:
+            name: {{ template "rabbitmq.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "rabbitmq.fullname" . }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}

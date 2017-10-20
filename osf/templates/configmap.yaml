@@ -13,9 +13,14 @@ data:
 {{- $osfRegistries := (index .Values "osf-registries") }}
 {{- $osfReviews := (index .Values "osf-reviews") }}
 {{- $osfWeb := (index .Values "osf-web") }}
+default.conf: ''
 admin-nginx.conf: |-
   user nginx;
   worker_processes 1;
+
+  {{- range .Values.admin.nginx.modules }}
+  load_module {{ . }};
+  {{- end }}
 
   error_log /var/log/nginx/error.log warn;
   pid /var/run/nginx.pid;
@@ -67,12 +72,14 @@ admin-nginx.conf: |-
           }
 
           location /robots.txt {
-              alias /nginx/robots.txt;
+              alias /usr/share/nginx/html/robots.txt;
           }
 
           location /static {
               alias /static/code/admin;
           }
+
+          include /etc/nginx/conf.d/*.conf;
 
           location / {
               # Disable caching of application requests
@@ -91,6 +98,10 @@ admin-nginx.conf: |-
 api-nginx.conf: |-
   user nginx;
   worker_processes 1;
+
+  {{- range .Values.api.nginx.modules }}
+  load_module {{ . }};
+  {{- end }}
 
   error_log /var/log/nginx/error.log warn;
   pid /var/run/nginx.pid;
@@ -142,7 +153,7 @@ api-nginx.conf: |-
           }
 
           location /robots.txt {
-              alias /nginx/robots.txt;
+              alias /usr/share/nginx/html/robots.txt;
           }
 
           location /favicon.ico {
@@ -152,6 +163,8 @@ api-nginx.conf: |-
           location /v2/static {
               alias /static/code/api/static/vendor;
           }
+
+          include /etc/nginx/conf.d/*.conf;
 
           location / {
               # Disable caching of application requests
@@ -167,11 +180,10 @@ api-nginx.conf: |-
           }
       }
   }
-{{- if $osfPreprints.enabled }}
 web-nginx-osf-preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
       rewrite ^/preprints/(.*)$ /$1 break;
@@ -179,12 +191,10 @@ web-nginx-osf-preprints.conf: |-
       proxy_buffering off;
       proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
   }
-{{- end }}
-{{- if $osfRegistries.enabled }}
 web-nginx-osf-registries.conf: |-
   location /registries/ {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
       rewrite ^/registries/(.*)$ /$1 break;
@@ -192,12 +202,10 @@ web-nginx-osf-registries.conf: |-
       proxy_buffering off;
       proxy_pass http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }};
   }
-{{- end }}
-{{- if $osfReviews.enabled }}
 web-nginx-osf-reviews.conf: |-
   location /reviews/ {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
       rewrite ^/reviews/(.*)$ /$1 break;
@@ -205,21 +213,17 @@ web-nginx-osf-reviews.conf: |-
       proxy_buffering off;
       proxy_pass http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }};
   }
-{{- end }}
-{{- if $osfWeb.enabled }}
 web-nginx-osf-web.conf: |-
-  location /quickfiles/ {
+  location /ember_osf_web/ {
       {{- if .Values.prerender.enabled }}
-      include /nginx/prerender.conf;
+      include /etc/nginx/prerender.conf;
       {{- end }}
 
-      rewrite ^/quickfiles/(.*)$ /$1 break;
+      rewrite ^/ember_osf_web/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
       proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
   }
-{{- end }}
-{{- if .Values.prerender.enabled }}
 web-nginx-prerender.conf: |-
   set $prerender 0;
 
@@ -243,10 +247,13 @@ web-nginx-prerender.conf: |-
       rewrite .* /https://$host$request_uri? break;
       proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
   }
-{{- end }}
 web-nginx.conf: |-
   user nginx;
   worker_processes 1;
+
+  {{- range .Values.web.nginx.modules }}
+  load_module {{ . }};
+  {{- end }}
 
   error_log /var/log/nginx/error.log warn;
   pid /var/run/nginx.pid;
@@ -279,33 +286,65 @@ web-nginx.conf: |-
       gzip_vary on;
       gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
 
+      {{- if .Values.web.nginx.cache.enabled }}
       ##
       # Caching Settings
       ##
-      #
-      # # Pull cache-busting key out of query string
-      # map $args $args_first {
-      #     default $args;
-      #     ~^(?<first>.*?)&?_=\d+ $first;
-      # }
-      # map $args $args_rest {
-      #     default "";
-      #     ~^\?_=\d+&?(?<rest>.*)$ $rest;
-      #     ~_=\d+(?<rest>.*)$ $rest;
-      # }
-      #
-      # uwsgi_cache_path /cache/uwsgi keys_zone=osf_uwsgi_cache:10m inactive=120m;
-      # uwsgi_temp_path /cache/uwsgi-temp;
-      #
-      # proxy_cache_path /cache/proxy keys_zone=osf_proxy_cache:10m inactive=120m;
-      # proxy_temp_path /cache/proxy-temp;
+      
+      # Pull cache-busting key out of query string
+      map $args $args_first {
+          default $args;
+          ~^(?<first>.*?)&?_=\d+ $first;
+      }
+      map $args $args_rest {
+          default "";
+          ~^\?_=\d+&?(?<rest>.*)$ $rest;
+          ~_=\d+(?<rest>.*)$ $rest;
+      }
+      
+      uwsgi_cache_path /cache/uwsgi keys_zone=osf_uwsgi_cache:10m inactive=120m;
+      uwsgi_temp_path /cache/uwsgi-temp;
+      
+      proxy_cache_path /cache/proxy keys_zone=osf_proxy_cache:10m inactive=120m;
+      proxy_temp_path /cache/proxy-temp;
+      {{- end }}
 
+      {{- if .Values.web.nginx.preprintDomainSuffix }}
       server {
           listen {{ .Values.web.service.internalPort }};
+          server_name *.{{ .Values.web.nginx.preprintDomainSuffix }};
+
+          location ~* ^/(?!\w+/download/?$).* {
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
+              proxy_redirect off;
+              proxy_buffering off;
+              proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
+          }
+
+          location / {
+              # Pass requests to uwsgi application
+              include /etc/nginx/uwsgi_params;
+              uwsgi_buffering off;
+              uwsgi_request_buffering off;
+              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
+          }
+      }
+      {{- end }}
+
+      server {
+          listen {{ .Values.web.service.internalPort }} default_server;
           server_name _;
 
           client_max_body_size 25M;
           keepalive_timeout 15;
+
+          {{- if .Values.web.nginx.cache.enabled }}
+          uwsgi_cache osf_uwsgi_cache;
+          proxy_cache osf_proxy_cache;
+          {{- end }}
 
           root /static/code;
 
@@ -319,7 +358,7 @@ web-nginx.conf: |-
           }
 
           location /robots.txt {
-              alias /nginx/robots.txt;
+              alias /usr/share/nginx/html/robots.txt;
           }
 
           location ~ /static/addons/(.*?)/(.*) {
@@ -330,56 +369,44 @@ web-nginx.conf: |-
               alias /static/code/website/static/;
           }
 
-          {{- if $osfPreprints.enabled }}
-          include /nginx/osf-preprints.conf;
-          {{- end }}
-          {{- if $osfRegistries.enabled }}
-          include /nginx/osf-registries.conf;
-          {{- end }}
-          {{- if $osfReviews.enabled }}
-          include /nginx/osf-reviews.conf;
-          {{- end }}
-          {{- if $osfWeb.enabled }}
-          include /nginx/osf-web.conf;
-          {{- end }}
+          include /etc/nginx/conf.d/*.conf;
 
-          # # SHARE
-          # location /share/docs {
-          #     proxy_pass https://staging-share-registration.osf.io/api/v1/share/data/help;
-          #
-          #     proxy_set_header Host $host;
-          #     proxy_set_header X-Real-IP $remote_addr;
-          #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          #     proxy_set_header X-Forwarded-Host $host;
-          #     proxy_set_header X-Forwarded-Proto https;
-          # }
-          #
-          # # SHARE
-          # location /api/v1/share/data {
-          #     proxy_pass https://staging-share-registration.osf.io/api/v1/share/data;
-          #
-          #     proxy_redirect off;
-          #     proxy_set_header Host $host;
-          #     proxy_set_header X-Real-IP $remote_addr;
-          #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          #     proxy_set_header X-Forwarded-Host $host;
-          #     proxy_set_header X-Forwarded-Proto https;
-          # }
-          #
-          # # SHARE
-          # location /api/v1/share/documents/ {
-          #     rewrite /api/v1/share/documents(.*) /documents$1 break;
-          #     proxy_pass https://staging-share.osf.io;
-          # }
+          location ~* ^/(api/v1/)?share.*$ {
+              return 301 {{ .Values.share.url }};
+          }
 
           location / {
+              {{- if .Values.web.nginx.cache.enabled }}
+              set $agent_monitor 0;
+              if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish)") {
+                  set $agent_monitor 1;
+              }
+              # Caching configuration
+              uwsgi_cache_valid 200 1m;
+              uwsgi_cache_key $host$uri$args_first$args_rest;
+              # Default cache methods, specified for clarity.
+              uwsgi_cache_methods GET HEAD;
+              # Skip cache when:
+              # - logged in
+              # - using basic auth
+              # - view-only link
+              # - hmac signed
+              # - waterbutler provider
+              # - monitoring agent
+              uwsgi_cache_bypass $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+              uwsgi_no_cache $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+              uwsgi_cache_lock on;
+              uwsgi_cache_lock_timeout 30s;
+              uwsgi_cache_use_stale updating;
+              {{- end }}
+
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
 
               {{- if .Values.prerender.enabled }}
-              include /nginx/prerender.conf;
+              include /etc/nginx/prerender.conf;
               {{- end }}
 
               # Pass requests to uwsgi application

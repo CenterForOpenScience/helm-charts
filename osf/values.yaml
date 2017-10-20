@@ -6,29 +6,8 @@ image:
 nginx:
   image:
     repository: nginx
-    tag: "1"
+    tag: alpine
     pullPolicy: Always
-
-ingress:
-  ## If true, Ingress will be created
-  ##
-  enabled: false
-
-  ## Ingress annotations
-  ##
-  annotations: {}
-  #   kubernetes.io/ingress.class: nginx
-  #   kubernetes.io/tls-acme: 'true'
-
-  path: /
-
-  ## Ingress TLS configuration
-  ## Secrets must be manually created in the namespace
-  ##
-  tls: []
-  #   - secretName: example-tls
-  #     hosts:
-  #       - example.domain.com
 
 admin:
   enabled: true
@@ -36,6 +15,8 @@ admin:
   replicaCount: 1
 
   nginx:
+    modules: []
+      # - modules/path/to/dynamic_module.so
     resources: {}
       # limits:
       #   cpu: "1"
@@ -43,6 +24,7 @@ admin:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
+    volumeMounts: []
 
   resources: {}
     # limits:
@@ -67,11 +49,21 @@ admin:
     internalPort: 80
 
   ingress:
-    ## component server Ingress hostnames
-    ## Must be provided if Ingress is enabled
-    ##
+    enabled: false
+
+    annotations: {}
+    #   kubernetes.io/ingress.class: nginx
+    #   kubernetes.io/tls-acme: 'true'
+
+    path: /
+
     hosts: []
     #   - example.domain.com
+
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -80,6 +72,8 @@ admin:
 
   env:
     ALLOWED_HOSTS: "*"
+
+  volumeMounts: []
 
 api:
   enabled: true
@@ -87,6 +81,8 @@ api:
   replicaCount: 1
 
   nginx:
+    modules: []
+      # - modules/path/to/dynamic_module.so
     resources: {}
       # limits:
       #   cpu: "1"
@@ -94,6 +90,7 @@ api:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
+    volumeMounts: []
 
   resources: {}
     # limits:
@@ -118,11 +115,21 @@ api:
     internalPort: 80
 
   ingress:
-    ## component server Ingress hostnames
-    ## Must be provided if Ingress is enabled
-    ##
+    enabled: false
+
+    annotations: {}
+    #   kubernetes.io/ingress.class: nginx
+    #   kubernetes.io/tls-acme: 'true'
+
+    path: /
+
     hosts: []
     #   - example.domain.com
+
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -131,6 +138,8 @@ api:
 
   env:
     ALLOWED_HOSTS: "*"
+
+  volumeMounts: []
 
 beat:
   enabled: true
@@ -150,6 +159,8 @@ beat:
   nodeSelector: {}
 
   env: {}
+
+  volumeMounts: []
 
   persistence:
     enabled: true
@@ -186,6 +197,8 @@ collectstatic:
   networkPolicy:
     enabled: false
 
+  volumeMounts: []
+
 migration:
   enabled: true
   name: migration
@@ -208,12 +221,19 @@ migration:
   networkPolicy:
     enabled: false
 
+  volumeMounts: []
+
 web:
   enabled: true
   name: web
   replicaCount: 1
 
   nginx:
+    cache:
+      enabled: false
+    preprintDomainSuffix: ''
+    modules: []
+      # - modules/path/to/dynamic_module.so
     resources: {}
       # limits:
       #   cpu: "1"
@@ -221,7 +241,8 @@ web:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
-
+    volumeMounts: []
+    
   resources: {}
     # limits:
     #   cpu: "1"
@@ -245,11 +266,21 @@ web:
     internalPort: 80
 
   ingress:
-    ## component server Ingress hostnames
-    ## Must be provided if Ingress is enabled
-    ##
+    enabled: false
+
+    annotations: {}
+    #   kubernetes.io/ingress.class: nginx
+    #   kubernetes.io/tls-acme: 'true'
+
+    path: /
+
     hosts: []
     #   - example.domain.com
+
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -257,6 +288,20 @@ web:
   nodeSelector: {}
 
   env: {}
+
+  volumeMounts: []
+    # - mountPath: /etc/ssl/certs/ca-chain.cert.pem
+    #   name: secret-volume
+    #   subPath: worker-ca.cert.pem
+    #   readOnly: true
+    # - mountPath: /etc/ssl/certs/worker.pem
+    #   name: secret-volume
+    #   subPath: worker.pem
+    #   readOnly: true
+    # - mountPath: /etc/ssl/private/worker.key
+    #   name: secret-volume
+    #   subPath: worker.key
+    #   readOnly: true
 
 task:
   enabled: false
@@ -282,6 +327,8 @@ task:
   nodeSelector: {}
 
   env: {}
+
+  volumeMounts: []
 
   persistence:
     enabled: true
@@ -325,6 +372,8 @@ worker:
   networkPolicy:
     enabled: false
 
+  volumeMounts: []
+
 configEnvs:
   DEBUG: ""
   # GEVENT: "1"
@@ -363,6 +412,12 @@ secretFiles: {}
   # addons-wiki-local.py: |-
   #   ...
   # addons-zotero-local.py: |-
+  #   ...
+  # worker-ca.cert.pem: |-
+  #   ...
+  # worker.pem: |-
+  #   ...
+  # worker.key: |-
   #   ...
 
 volumeMounts:
@@ -458,6 +513,11 @@ sharejs:
   service:
     name: sharejs
     externalPort: 7007
+  ingress:
+    path: /sharejs
+
+share:
+  url: https://staging-share.osf.io
 
 postgresql:
   enabled: true

@@ -2,16 +2,16 @@
 kind: NetworkPolicy
 apiVersion: {{ .Values.networkPolicy.apiVersion }}
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "jenkins.fullname" . }}
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "jenkins.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
   podSelector:
     matchLabels:
-      app: {{ template "name" . }}
+      app: {{ template "jenkins.name" . }}
       component: {{ .Values.master.name }}
       release: {{ .Release.Name }}
   ingress:
@@ -22,7 +22,7 @@ spec:
     - from:
       - podSelector:
           matchLabels:
-            "jenkins/{{ template "fullname" . }}-agent": "true"
+            "jenkins/{{ template "jenkins.agent.fullname" . }}": "true"
       ports:
       - port: {{ .Values.agent.listenerPort }}
 {{- end }}

@@ -1,0 +1,34 @@
+{{- if (and .Values.admin.enabled .Values.admin.ingress.enabled) -}}
+{{- $serviceName := include "osf.admin.fullname" . -}}
+{{- $servicePort := .Values.admin.service.externalPort -}}
+{{- $ingressPath := .Values.admin.ingress.path -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "osf.admin.fullname" . }}
+  labels:
+    app: {{ template "osf.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.admin.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+{{- if .Values.admin.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.admin.ingress.annotations | indent 4 }}
+{{- end }}
+spec:
+  rules:
+    {{- range .Values.admin.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+    {{- end -}}
+  {{- if .Values.admin.ingress.tls }}
+  tls:
+{{ toYaml .Values.admin.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end -}}

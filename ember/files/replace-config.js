@@ -11,11 +11,12 @@ const config = JSON.parse(unescape(rawConfig));
 // Deep merge, overrides config with newConfig recursively
 (function deepMerge(newObj, oldObj) {
     for (const [key, val] of Object.entries(newObj)) {
-        if (val && typeof val === 'object' && !Array.isArray(val)) {
+        if (oldObj[key] && val && typeof val === 'object' && !Array.isArray(val)) {
             deepMerge(val, oldObj[key]);
-        } else {
-            oldObj[key] = newObj[key];
+            continue;
         }
+
+        oldObj[key] = newObj[key];
     }
 })(newConfig, config);
 
