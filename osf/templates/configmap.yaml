@@ -214,12 +214,12 @@ web-nginx-osf-reviews.conf: |-
       proxy_pass http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }};
   }
 web-nginx-osf-web.conf: |-
-  location /quickfiles/ {
+  location /ember_osf_web/ {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
 
-      rewrite ^/quickfiles/(.*)$ /$1 break;
+      rewrite ^/ember_osf_web/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
       proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
