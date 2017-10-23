@@ -1,48 +1,23 @@
-## Bitnami MongoDB image version
-## ref: https://hub.docker.com/r/bitnami/mongodb/tags/
-##
-image: bitnami/mongodb:3.4.9-r1
+image:
+  repository: mongo
+  tag: '3.4'
+  pullPolicy: IfNotPresent
 
-## Specify a imagePullPolicy
-## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
-## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
-##
-# imagePullPolicy:
-
-## MongoDB admin password
-## ref: https://github.com/bitnami/bitnami-docker-mongodb/blob/master/README.md#setting-the-root-password-on-first-run
-##
-# mongodbRootPassword:
-
-## MongoDB custom user and database
-## ref: https://github.com/bitnami/bitnami-docker-mongodb/blob/master/README.md#creating-a-user-and-database-on-first-run
-##
-# mongodbUsername:
-# mongodbPassword:
-# mongodbDatabase:
-
-## Kubernetes service type
-service:
-  name: mongodb
-  type: ClusterIP
-  # If using type: LoadBalancer
-  #loadBalancerIP: 0.0.0.0
-  externalPort: 27017
-  internalPort: mongodb
+terminationGracePeriodSeconds: 60
 
 ## Enable persistence using Persistent Volume Claims
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
 ##
 persistence:
-  enabled: true
+  enabled: false
   ## mongodb data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If set to "", storageClassName: "", which disables dynamic provisioning
   ## If undefined (the default) or set to null, no storageClassName spec is
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  # storageClass: "-"
+  storageClass: ssd
   accessMode: ReadWriteOnce
   size: 8Gi
 
@@ -53,3 +28,36 @@ resources: {}
 #  requests:
 #    memory: 256Mi
 #    cpu: 100m
+
+configEnvs:
+  MONGODB_DATABASE: ''
+
+secretEnvs:
+  MONGODB_USERNAME: ''
+  MONGODB_ROOT_PASSWORD: ''
+  MONGODB_PASSWORD: ''
+
+## TLS (SSL) configuration
+## https://docs.mongodb.com/manual/tutorial/configure-ssl/
+tls:
+  enabled: false
+  files:
+    ## cat mongodb-cert.key mongodb-cert.crt > mongodb.pem
+    mongodb.pem: |-
+      ...
+    ca.pem: |-
+      ...
+    ca-crl.pem: |-
+      ...
+    client.pem: |-
+      ...
+
+
+## Kubernetes service type
+service:
+  name: mongodb
+  type: ClusterIP
+  # If using type: LoadBalancer
+  #loadBalancerIP: 0.0.0.0
+  externalPort: 27017
+  internalPort: mongodb
