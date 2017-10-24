@@ -35,7 +35,7 @@ spec:
               chown -R mongodb:mongodb /etc/ssl /data/db &&
               chmod -R 0600 /etc/ssl/*
           volumeMounts:
-            {{- include "mongodb.volumeMounts" . | indent 12 }}
+            {{- include "mongodb.volumeMounts" . | nindent 12 }}
           {{- range $key := keys .Values.tls.files }}
             - name: secret
               mountPath: /certs/{{ $key }}
@@ -48,7 +48,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{ include "mongodb.environment" . | indent 12 }}
+            {{- include "mongodb.environment" . | nindent 12 }}
           command:
             - gosu
             - mongodb
@@ -64,22 +64,22 @@ spec:
             - name: mongodb
               containerPort: 27017
           livenessProbe:
-            {{- include "mongodb.probeExec" . | indent 12 }}
+            {{- include "mongodb.probeExec" . | nindent 12 }}
             initialDelaySeconds: 30
             timeoutSeconds: 5
           readinessProbe:
-            {{- include "mongodb.probeExec" . | indent 12 }}
+            {{- include "mongodb.probeExec" . | nindent 12 }}
             initialDelaySeconds: 5
             timeoutSeconds: 1
           volumeMounts:
-            {{- include "mongodb.volumeMounts" . | indent 12 }}
+            {{- include "mongodb.volumeMounts" . | nindent 12 }}
         {{- if .Values.resources }}
           resources:
-{{ toYaml .Values.resources | indent 10 }}
+            {{- toYaml .Values.resources | nindent 12 }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       volumes:
-        {{- include "mongodb.volumes" . | indent 8 }}
+        {{- include "mongodb.volumes" . | nindent 8 }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:

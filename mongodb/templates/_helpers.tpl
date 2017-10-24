@@ -15,7 +15,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "mongodb.environment" }}
+{{- define "mongodb.environment" -}}
 {{- $fullname := (include "mongodb.fullname" .) -}}
 {{- range $key := keys .Values.secretEnvs }}
 - name: {{ $key }}
@@ -33,7 +33,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end }}
 {{- end -}}
 
-{{- define "mongodb.probeExec" }}
+{{- define "mongodb.probeExec" -}}
 exec:
   command:
     - gosu
@@ -50,7 +50,7 @@ exec:
     - "db.adminCommand('ping')"
 {{- end -}}
 
-{{- define "mongodb.volumes" }}
+{{- define "mongodb.volumes" -}}
 - name: config
   configMap:
     name: {{ template "mongodb.fullname" . }}
@@ -67,7 +67,7 @@ exec:
 {{- end }}
 {{- end -}}
 
-{{- define "mongodb.volumeMounts" }}
+{{- define "mongodb.volumeMounts" -}}
 - name: data
   mountPath: /data/db
 {{- if .Values.tls.enabled }}
