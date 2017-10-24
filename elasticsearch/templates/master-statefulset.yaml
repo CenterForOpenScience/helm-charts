@@ -103,9 +103,11 @@ spec:
                 {{- if .Values.tls.enabled }}
                 --certificate /usr/share/elasticsearch/config/server_cert.pem
                 --private-key /usr/share/elasticsearch/config/server_key.pem
-                {{- end }}
                 --no-check-certificate
                 https://127.0.0.1:9200/_cluster/health?local=true
+                {{- else }}
+                http://127.0.0.1:9200/_cluster/health?local=true
+                {{- end }}
           initialDelaySeconds: 5
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
