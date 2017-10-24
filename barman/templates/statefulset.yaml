@@ -39,10 +39,6 @@ spec:
             - mountPath: /var/lib/barman
               name: data
               subPath: data
-            - mountPath: /entrypoint.sh
-              name: secret
-              subPath: certs-root.crt
-              readOnly: true
             - mountPath: /certs/root.crt
               name: secret
               subPath: certs-root.crt
