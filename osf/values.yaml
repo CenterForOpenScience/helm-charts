@@ -199,6 +199,16 @@ migration:
     #  cpu: 100m
     #  memory: 128Mi
 
+  persistence:
+    enabled: false
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 4Gi
+
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##

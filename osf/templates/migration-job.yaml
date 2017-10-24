@@ -45,6 +45,8 @@ spec:
             {{- end }}
 {{- if or .Values.volumeMounts .Values.migration.volumeMounts }}
           volumeMounts:
+            - mountPath: /log
+              name: log-volume
 {{ toYaml .Values.volumeMounts | indent 12 }}
 {{- if .Values.migration.volumeMounts }}
 {{ toYaml .Values.migration.volumeMounts | indent 12 }}
@@ -57,6 +59,13 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "osf.fullname" . }}
+        - name: log-volume
+        {{- if not .Values.migration.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.migration.persistence.existingClaim | default (include "osf.migration.fullname" .) }}
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
     {{- if .Values.migration.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.migration.nodeSelector | indent 8 }}
