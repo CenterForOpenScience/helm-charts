@@ -20,8 +20,39 @@ spec:
         app: {{ template "osf.name" . }}
         component: "{{ .Values.migration.name }}"
         release: {{ .Release.Name }}
+      annotations:
+        # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+        pod.beta.kubernetes.io/init-containers: |-
+          [
+              {
+                  "name": "chown",
+                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
+                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
+                  "command": [
+                      "/bin/sh",
+                      "-c",
+                      "chown -R www-data:www-data /log"
+                  ],
+                  "volumeMounts": [
+                      {"name":"log-volume","mountPath":"/log"}
+                  ]
+              }
+          ]
     spec:
       restartPolicy: Never
+      # initContainers:
+      #   - name: "chown"
+      #     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      #     imagePullPolicy: {{ .Values.image.pullPolicy }}
+      #     command:
+      #       - /bin/bash
+      #       - -c
+      #       - chown -R www-data:www-data /log
+      #     securityContext:
+      #       runAsUser: 0
+      #     volumeMounts:
+      #       - mountPath: /log
+      #         name: log-volume
       containers:
         - name: {{ .Values.migration.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
