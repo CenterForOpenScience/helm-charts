@@ -32,11 +32,10 @@ spec:
             - /bin/sh
             - -c
             - cp /certs/* /etc/ssl &&
-              chown -R mongodb:mongodb /etc/ssl &&
+              chown -R mongodb:mongodb /etc/ssl /data/db &&
               chmod -R 0600 /etc/ssl/*
           volumeMounts:
-            - name: certificates
-              mountPath: /etc/ssl
+            {{- include "mongodb.volumeMounts" . | indent 12 }}
           {{- range $key := keys .Values.tls.files }}
             - name: secret
               mountPath: /certs/{{ $key }}
@@ -81,17 +80,19 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       volumes:
         {{- include "mongodb.volumes" . | indent 8 }}
-{{- if .Values.persistence.enabled }}
+  {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
         accessModes:
-          - {{ .Values.persistence.accessMode | quote }}
+        {{- range .Values.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
       {{- if hasKey .Values.persistence "storageClass" }}
         storageClassName: {{ .Values.persistence.storageClass | quote }}
       {{- end }}
         resources:
           requests:
             storage: {{ .Values.persistence.size | quote }}
-{{- end }}
+  {{- end }}
