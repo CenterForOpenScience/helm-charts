@@ -1,4 +1,4 @@
-{{- if .Values.migration.persistence.enabled -}}
+{{- if .Values.migration.enabled -}}
 {{- if and .Values.migration.persistence.enabled (not .Values.migration.persistence.existingClaim) -}}
 kind: PersistentVolumeClaim
 apiVersion: v1

@@ -60,7 +60,7 @@ spec:
           secret:
             secretName: {{ template "osf.fullname" . }}
         - name: log-volume
-        {{- if not .Values.migration.persistence.enabled }}
+        {{- if .Values.migration.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.migration.persistence.existingClaim | default (include "osf.migration.fullname" .) }}
         {{- else }}
