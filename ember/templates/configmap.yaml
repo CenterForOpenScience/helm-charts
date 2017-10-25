@@ -76,7 +76,7 @@ nginx.conf: |-
       }
   }
 {{- end -}}
-{{- range $key, $value := merge .Values.configFiles (merge (include "ember.inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
+  {{- range $key, $value := merge .Values.configFiles (include "ember.inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml) }}
   {{ $key }}: |-
-{{ $value | indent 4 }}
-{{- end }}
+    {{- $value | nindent 4 }}
+  {{- end }}

@@ -48,7 +48,7 @@ spec:
             {{- include "lookit.environment" . | indent 12 }}
           {{- if .Values.volumeMounts }}
           volumeMounts:
-            {{ toYaml .Values.volumeMounts | nindent 12 }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
           {{- end }}
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}

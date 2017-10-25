@@ -8,7 +8,7 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 data:
-{{- define "inlineconfigs" }}
+{{- define "barman.inlineconfigs" }}
 cron.d-barman_schedule: |-
   # /etc/cron.d/barman_schedule: crontab entries for barman
   {{- range $key, $value := .Values.backups }}
@@ -16,7 +16,7 @@ cron.d-barman_schedule: |-
   {{- end }}
   # EOF
 {{- end -}}
-{{- range $key, $value := merge .Values.configFiles (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
+  {{- range $key, $value := merge .Values.configFiles (include "barman.inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml) }}
   {{ $key }}: |-
-{{ $value | indent 4 }}
-{{- end }}
+    {{- $value | nindent 4 }}
+  {{- end }}

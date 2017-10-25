@@ -8,7 +8,7 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 data:
-{{- define "inlineconfigs" }}
+{{- define "mfr.inlineconfigs" }}
 nginx.conf: |-
   user  nginx;
   worker_processes  1;
@@ -79,10 +79,10 @@ nginx.conf: |-
       }
   }
 {{- end -}}
-{{- range $key, $value := .Values.configEnvs }}
-  {{ $key }}: {{ $value | quote }}
-{{- end }}
-{{- range $key, $value := merge .Values.configFiles (merge (include "inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml)) }}
+  {{- range $key, $value := .Values.configEnvs }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- range $key, $value := merge .Values.configFiles (include "mfr.inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml) }}
   {{ $key }}: |-
-{{ $value | indent 4 }}
-{{- end }}
+    {{- $value | nindent 4 }}
+  {{- end }}

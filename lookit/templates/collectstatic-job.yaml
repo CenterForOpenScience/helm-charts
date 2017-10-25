@@ -37,8 +37,10 @@ spec:
           volumeMounts:
             {{- toYaml .Values.volumeMounts | nindent 12 }}
           {{- end }}
+          {{- if .Values.collectstatic.resources }}
           resources:
-            {{ toYaml .Values.collectstatic.resources | nindent 12 }}
+            {{- toYaml .Values.collectstatic.resources | nindent 12 }}
+          {{- end }}
       volumes:
         - name: config-volume
           configMap:
