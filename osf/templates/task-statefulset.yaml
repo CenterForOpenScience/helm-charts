@@ -87,14 +87,14 @@ spec:
           volumeMounts:
             - mountPath: /log
               name: log-volume
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts | indent 12 }}
-{{- end }}
-{{- if .Values.task.volumeMounts }}
-{{ toYaml .Values.task.volumeMounts | indent 12 }}
-{{- end }}
+            {{- if .Values.volumeMounts }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+            {{- end }}
+            {{- if .Values.task.volumeMounts }}
+            {{- toYaml .Values.task.volumeMounts | nindent 12 }}
+            {{- end }}
           resources:
-{{ toYaml .Values.task.resources | indent 12 }}
+            {{- toYaml .Values.task.resources | nindent 12 }}
       volumes:
         - name: config-volume
           configMap:
@@ -106,10 +106,10 @@ spec:
         - name: log-volume
           emptyDir: {}
         {{- end }}
-     {{- if .Values.task.nodeSelector }}
+      {{- if .Values.task.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.task.nodeSelector | indent 8 }}
-    {{- end }}
+        {{- toYaml .Values.task.nodeSelector | nindent 8 }}
+      {{- end }}
   {{- if .Values.task.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
@@ -117,9 +117,9 @@ spec:
       spec:
         accessModes:
           - {{ .Values.task.persistence.accessMode | quote }}
-      {{- if .Values.task.persistence.storageClass }}
+        {{- if .Values.task.persistence.storageClass }}
         storageClassName: {{ .Values.task.persistence.storageClass | quote }}
-      {{- end }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.task.persistence.size | quote }}

@@ -93,7 +93,7 @@ spec:
         - containerPort: 9300
           name: transport
         resources:
-{{ toYaml .Values.data.resources | indent 12 }}
+          {{- toYaml .Values.data.resources | nindent 12 }}
         readinessProbe:
           exec:
             command:
@@ -117,18 +117,18 @@ spec:
           name: config
           subPath: elasticsearch.yml
           readOnly: true
-{{- if hasPrefix "2." .Values.image.tag }}
+        {{- if hasPrefix "2." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/logging.yml
           name: config
           subPath: logging.yml
           readOnly: true
-{{- end }}
-{{- if hasPrefix "5." .Values.image.tag }}
+        {{- end }}
+        {{- if hasPrefix "5." .Values.image.tag }}
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
           name: config
           subPath: log4j2.properties
           readOnly: true
-{{- end }}
+        {{- end }}
         - name: config
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh

@@ -8,10 +8,10 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
   name: {{ template "elasticsearch.client.fullname" . }}
-{{- if .Values.client.service.annotations }}
+  {{- if .Values.client.service.annotations }}
   annotations:
-{{ toYaml .Values.client.service.annotations | indent 4 }}
-{{- end }}
+    {{- toYaml .Values.client.service.annotations | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.client.service.type }}
   {{- if and (eq .Values.client.service.type "LoadBalancer") .Values.client.service.loadBalancerIP }}
@@ -20,10 +20,10 @@ spec:
   ports:
     - port: 9200
       targetPort: http
-{{- if .Values.client.service.externalIPs }}
+  {{- if .Values.client.service.externalIPs }}
   externalIPs:
-{{ toYaml .Values.client.service.externalIPs | indent 4 }}
-{{- end }}
+    {{- toYaml .Values.client.service.externalIPs | nindent 4 }}
+  {{- end }}
   selector:
     app: {{ template "elasticsearch.name" . }}
     component: "{{ .Values.client.name }}"

@@ -33,12 +33,12 @@ spec:
             - --noinput
           env:
             {{- include "lookit.environment" . | indent 12 }}
+          {{- if .Values.volumeMounts }}
           volumeMounts:
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts | indent 12 }}
-{{- end }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
           resources:
-{{ toYaml .Values.collectstatic.resources | indent 12 }}
+            {{ toYaml .Values.collectstatic.resources | nindent 12 }}
       volumes:
         - name: config-volume
           configMap:

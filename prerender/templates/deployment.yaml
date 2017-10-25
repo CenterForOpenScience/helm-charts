@@ -46,8 +46,10 @@ spec:
               name: config-volume
               subPath: nginx.conf
               readOnly: true
+          {{- if .Values.nginx.resources }}
           resources:
-{{ toYaml .Values.nginx.resources | indent 12 }}
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
+          {{- end }}
         - name: nodejs
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -62,8 +64,10 @@ spec:
               name: config-volume
               subPath: server.js
               readOnly: true
+          {{- if .Values.resources }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
       volumes:
         - name: config-volume
           configMap:
@@ -73,5 +77,5 @@ spec:
             secretName: {{ template "prerender.fullname" . }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}

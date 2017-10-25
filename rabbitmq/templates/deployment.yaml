@@ -46,8 +46,10 @@ spec:
           #  periodSeconds: 5
           volumeMounts:
             {{- include "rabbitmq.volumeMounts" . | indent 12 }}
+          {{- if .Values.resources }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
       volumes:
         - name: data
         {{- if .Values.persistence.enabled }}
@@ -62,7 +64,7 @@ spec:
         - name: secret
           secret:
             secretName: {{ template "rabbitmq.fullname" . }}
-    {{- if .Values.nodeSelector }}
+      {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
-    {{- end }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}

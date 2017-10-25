@@ -68,7 +68,7 @@ spec:
               path: /
               port: {{ .Values.service.internalPort }}
           resources:
-{{ toYaml .Values.nginx.resources | indent 12 }}
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
       volumes:
         - name: static-volume
           emptyDir: {}
@@ -77,5 +77,5 @@ spec:
             name: {{ template "ember.fullname" . }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}

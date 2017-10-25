@@ -43,8 +43,10 @@ spec:
               name: config-volume
               subPath: robots.txt
               readOnly: true
+          {{- if .Values.nginx.resources }}
           resources:
-{{ toYaml .Values.nginx.resources | indent 12 }}
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
+          {{- end }}
         - name: nodejs
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -64,8 +66,10 @@ spec:
           readinessProbe:
             tcpSocket:
               port: {{ .Values.service.externalPort }}
+          {{- if .Values.resources }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
       volumes:
         - name: config-volume
           configMap:
@@ -73,7 +77,7 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "sharejs.fullname" . }}
-    {{- if .Values.nodeSelector }}
+      {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
-    {{- end }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}

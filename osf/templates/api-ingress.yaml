@@ -12,10 +12,10 @@ metadata:
     component: "{{ .Values.api.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-{{- if .Values.api.ingress.annotations }}
+  {{- if .Values.api.ingress.annotations }}
   annotations:
-{{ toYaml .Values.api.ingress.annotations | indent 4 }}
-{{- end }}
+    {{- toYaml .Values.api.ingress.annotations | nindent 4 }}
+  {{- end }}
 spec:
   rules:
     {{- range .Values.api.ingress.hosts }}
@@ -29,6 +29,6 @@ spec:
     {{- end -}}
   {{- if .Values.api.ingress.tls }}
   tls:
-{{ toYaml .Values.api.ingress.tls | indent 4 }}
+    {{- toYaml .Values.api.ingress.tls | nindent 4 }}
   {{- end -}}
 {{- end -}}

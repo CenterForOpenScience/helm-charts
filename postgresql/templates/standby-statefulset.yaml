@@ -54,8 +54,10 @@ spec:
                 - pg_isready --host $POD_IP 
             timeoutSeconds: 3
             periodSeconds: 5
+          {{- if .Values.standby.resources }}
           resources:
-{{ toYaml .Values.standby.resources | indent 12 }}
+            {{- toYaml .Values.standby.resources | nindent 12 }}
+          {{- end }}
           volumeMounts:
             {{- include "postgresql.volumeMounts" . | indent 12 }}
         {{- if .Values.metrics.enabled }}
@@ -75,8 +77,10 @@ spec:
               mountPath: /conf
               readOnly: true
           {{- end }}
+          {{- if .Values.metrics.resources }}
           resources:
-{{ toYaml .Values.metrics.resources | indent 12 }}
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+          {{- end }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.standby.terminationGracePeriodSeconds }}
       volumes:

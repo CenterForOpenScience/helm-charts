@@ -79,7 +79,7 @@ spec:
               readOnly: true
           {{- end }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         {{- if not .Values.persistence.enabled }}
         - name: data
@@ -93,7 +93,7 @@ spec:
             secretName: {{ template "barman.fullname" . }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:

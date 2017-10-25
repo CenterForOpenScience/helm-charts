@@ -34,4 +34,4 @@ spec:
             path: /
             port: {{ .Values.service.internalPort }}
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}

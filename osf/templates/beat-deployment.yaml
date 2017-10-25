@@ -89,23 +89,25 @@ spec:
               name: beat-volume
             - mountPath: /log
               name: log-volume
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts | indent 12 }}
-{{- end }}
-{{- if .Values.beat.volumeMounts }}
-{{ toYaml .Values.beat.volumeMounts | indent 12 }}
-{{- end }}
+            {{- if .Values.volumeMounts }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+            {{- end }}
+            {{- if .Values.beat.volumeMounts }}
+            {{- toYaml .Values.beat.volumeMounts | nindent 12 }}
+            {{- end }}
+          {{- if .Values.beat.resources }}
           resources:
-{{ toYaml .Values.beat.resources | indent 12 }}
+            {{- toYaml .Values.beat.resources | nindent 12 }}
+          {{- end }}
       volumes:
         # TODO: Remove when djang-celery-beat is configured
         - name: beat-volume
-        {{- if .Values.beat.persistence.enabled }}
+          {{- if .Values.beat.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.beat.persistence.existingClaim | default (include "osf.beat.fullname" .) }}
-        {{- else }}
+          {{- else }}
           emptyDir: {}
-        {{- end }}
+          {{- end }}
         - name: log-volume
           emptyDir: {}
         - name: config-volume
@@ -114,8 +116,8 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "osf.fullname" . }}
-    {{- if .Values.beat.nodeSelector }}
+      {{- if .Values.beat.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.beat.nodeSelector | indent 8 }}
-    {{- end }}
+        {{- toYaml .Values.beat.nodeSelector | nindent 8 }}
+      {{- end }}
 {{- end -}}

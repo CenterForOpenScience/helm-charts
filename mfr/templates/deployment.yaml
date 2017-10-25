@@ -45,7 +45,7 @@ spec:
               mountPath: /usr/share/nginx/html/robots.txt
               readOnly: true
           resources:
-{{ toYaml .Values.nginx.resources | indent 12 }}
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
         - name: tornado
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -73,7 +73,7 @@ spec:
             - name: localcache-volume
               mountPath: /tmp/mfrlocalcache
           resources:
-{{ toYaml .Values.tornado.resources | indent 12 }}
+            {{- toYaml .Values.tornado.resources | nindent 12 }}
         - name: unoconv
           image: "{{ .Values.unoconv.image.repository }}:{{ .Values.unoconv.image.tag }}"
           imagePullPolicy: {{ .Values.unoconv.image.pullPolicy }}
@@ -96,7 +96,7 @@ spec:
             - name: localcache-volume
               mountPath: /tmp/mfrlocalcache
           resources:
-{{ toYaml .Values.unoconv.resources | indent 12 }}
+            {{- toYaml .Values.unoconv.resources | nindent 12 }}
       volumes:
         - name: localcache-volume
           emptyDir: {}
@@ -106,7 +106,7 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "mfr.fullname" . }}
-    {{- if .Values.nodeSelector }}
+      {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}

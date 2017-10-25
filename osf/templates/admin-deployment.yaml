@@ -86,11 +86,11 @@ spec:
               name: config-volume
               subPath: admin-robots.txt
               readOnly: true
-{{- if .Values.admin.nginx.volumeMounts }}
-{{ toYaml .Values.admin.nginx.volumeMounts | indent 12 }}
-{{- end }}
+            {{- if .Values.admin.nginx.volumeMounts }}
+            {{- toYaml .Values.admin.nginx.volumeMounts | nindent 12 }}
+            {{- end }}
           resources:
-{{ toYaml .Values.admin.nginx.resources | indent 12 }}
+            {{- toYaml .Values.admin.nginx.resources | nindent 12 }}
         - name: uwsgi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -125,14 +125,16 @@ spec:
               name: config-volume
               subPath: admin-uwsgi.ini
               readOnly: true
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts | indent 12 }}
-{{- end }}
-{{- if .Values.admin.volumeMounts }}
-{{ toYaml .Values.admin.volumeMounts | indent 12 }}
-{{- end }}
+            {{- if .Values.volumeMounts }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+            {{- end }}
+            {{- if .Values.admin.volumeMounts }}
+            {{- toYaml .Values.admin.volumeMounts | nindent 12 }}
+            {{- end }}
+          {{- if .Values.admin.resources }}
           resources:
-{{ toYaml .Values.admin.resources | indent 12 }}
+            {{- toYaml .Values.admin.resources | nindent 12 }}
+          {{- end }}
       volumes:
         - name: static-volume
           emptyDir: {}
@@ -142,8 +144,8 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "osf.fullname" . }}
-    {{- if .Values.admin.nodeSelector }}
+      {{- if .Values.admin.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.admin.nodeSelector | indent 8 }}
-    {{- end }}
+        {{- toYaml .Values.admin.nodeSelector | nindent 8 }}
+      {{- end }}
 {{- end -}}

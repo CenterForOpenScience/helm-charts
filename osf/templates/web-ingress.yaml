@@ -9,13 +9,13 @@ metadata:
     component: "{{ .Values.web.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-{{- if .Values.web.ingress.annotations }}
+  {{- if .Values.web.ingress.annotations }}
   annotations:
-{{ toYaml .Values.web.ingress.annotations | indent 4 }}
-{{- end }}
+    {{- toYaml .Values.web.ingress.annotations | nindent 4 }}
+  {{- end }}
 spec:
   rules:
-  {{- if .Values.sharejs.enabled }}
+    {{- if .Values.sharejs.enabled }}
     {{- $serviceName := .Values.sharejs.service.name }}
     {{- $servicePort := .Values.sharejs.service.externalPort }}
     {{- $ingressPath := .Values.sharejs.ingress.path }}
@@ -28,7 +28,7 @@ spec:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
     {{- end }}
-  {{- end }}
+    {{- end }}
     {{- $serviceName := include "osf.web.fullname" . }}
     {{- $servicePort := .Values.web.service.externalPort }}
     {{- $ingressPath := .Values.web.ingress.path }}
@@ -43,6 +43,6 @@ spec:
     {{- end }}
   {{- if .Values.web.ingress.tls }}
   tls:
-{{ toYaml .Values.web.ingress.tls | indent 4 }}
+    {{- toYaml .Values.web.ingress.tls | nindent 4 }}
   {{- end -}}
 {{- end -}}

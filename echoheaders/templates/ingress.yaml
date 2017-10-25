@@ -4,7 +4,7 @@ kind: Ingress
 metadata:
 {{- if .Values.ingress.annotations }}
   annotations:
-{{ toYaml .Values.ingress.annotations | indent 4 }}
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
 {{- end }}
   labels:
     app: {{ template "name" . }}
@@ -13,15 +13,15 @@ metadata:
     release: {{ .Release.Name }}
   name: {{ template "fullname" . }}
 spec:
-{{- if .Values.ingress.tls }}
+  {{- if .Values.ingress.tls }}
   tls:
-{{ toYaml .Values.ingress.tls | indent 4 }}
-{{- end }}
+    {{ toYaml .Values.ingress.tls | nindent 4 }}
+  {{- end }}
   backend:
     serviceName: {{ template "fullname" . }}
     servicePort: 80
-{{- if .Values.ingress.rules }}
+  {{- if .Values.ingress.rules }}
   rules:
-{{ toYaml .Values.ingress.rules | indent 4 }}
-{{- end }}
+    {{- toYaml .Values.ingress.rules | nindent 4 }}
+  {{- end }}
 {{- end }}

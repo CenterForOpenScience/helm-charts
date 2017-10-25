@@ -32,10 +32,10 @@ spec:
             - migrate
           env:
             {{- include "lookit.environment" . | indent 12 }}
+          {{- if .Values.volumeMounts }}
           volumeMounts:
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts | indent 12 }}
-{{- end }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
       volumes:
         - name: config-volume
           configMap:

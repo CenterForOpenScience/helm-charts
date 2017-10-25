@@ -28,6 +28,6 @@ spec:
     {{- end -}}
   {{- if .Values.ingress.webhook.tls }}
   tls:
-{{ toYaml .Values.ingress.webhook.tls | indent 4 }}
+    {{- toYaml .Values.ingress.webhook.tls | nindent 4 }}
   {{- end -}}
 {{- end -}}

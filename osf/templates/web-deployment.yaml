@@ -126,11 +126,13 @@ spec:
               subPath: web-nginx-prerender.conf
               readOnly: true
             {{- end }}
-{{- if .Values.web.nginx.volumeMounts }}
-{{ toYaml .Values.web.nginx.volumeMounts | indent 12 }}
-{{- end }}
+            {{- if .Values.web.nginx.volumeMounts }}
+            {{- toYaml .Values.web.nginx.volumeMounts | nindent 12 }}
+            {{- end }}
+          {{- if .Values.web.nginx.resources }}
           resources:
-{{ toYaml .Values.web.nginx.resources | indent 12 }}
+            {{- toYaml .Values.web.nginx.resources | nindent 12 }}
+          {{- end }}
         - name: uwsgi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -181,14 +183,16 @@ spec:
               name: config-volume
               subPath: web-uwsgi.ini
               readOnly: true
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts | indent 12 }}
-{{- end }}
-{{- if .Values.web.volumeMounts }}
-{{ toYaml .Values.web.volumeMounts | indent 12 }}
-{{- end }}
+            {{- if .Values.volumeMounts }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+            {{- end }}
+            {{- if .Values.web.volumeMounts }}
+            {{- toYaml .Values.web.volumeMounts | nindent 12 }}
+            {{- end }}
+          {{- if .Values.web.resources }}
           resources:
-{{ toYaml .Values.web.resources | indent 12 }}
+            {{- toYaml .Values.web.resources | nindent 12 }}
+          {{- end }}
       volumes:
         - name: static-volume
           emptyDir: {}
@@ -204,6 +208,6 @@ spec:
         {{- end }}
     {{- if .Values.web.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.web.nodeSelector | indent 8 }}
+        {{- toYaml .Values.web.nodeSelector | nindent 8 }}
     {{- end }}
 {{- end -}}

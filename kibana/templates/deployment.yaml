@@ -21,7 +21,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{ if .Values.securityContext -}}
         securityContext:
-{{ toYaml .Values.securityContext | indent 10 }}
+          {{- toYaml .Values.securityContext | nindent 10 }}
         {{- end }}
         env:
         {{- range $key, $value :=  .Values.env }}
@@ -44,4 +44,4 @@ spec:
           initialDelaySeconds: 180
           periodSeconds: 10
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}

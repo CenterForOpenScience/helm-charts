@@ -43,8 +43,10 @@ spec:
               subPath: robots.txt
               mountPath: /usr/share/nginx/html/robots.txt
               readOnly: true
+          {{- if .Values.nginx.resources }}
           resources:
-{{ toYaml .Values.nginx.resources | indent 12 }}
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
+          {{- end }}
         - name: tornado
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -75,8 +77,10 @@ spec:
               mountPath: /data
             - name: pickles-volume
               mountPath: /pickles
+          {{- if .Values.tornado.resources }}
           resources:
-{{ toYaml .Values.tornado.resources | indent 12 }}
+            {{- toYaml .Values.tornado.resources | nindent 12 }}
+          {{- end }}
         - name: worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -113,8 +117,10 @@ spec:
               mountPath: /data
             - name: pickles-volume
               mountPath: /pickles
+          {{- if .Values.worker.resources }}
           resources:
-{{ toYaml .Values.worker.resources | indent 12 }}
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          {{- end }}
         - name: rabbitmq
           image: "{{ .Values.rabbitmq.image.repository }}:{{ .Values.rabbitmq.image.tag }}"
           imagePullPolicy: {{ .Values.rabbitmq.image.pullPolicy }}
@@ -159,8 +165,10 @@ spec:
           volumeMounts:
             - name: rabbitmq-data-volume
               mountPath: /bitnami/rabbitmq
+          {{- if .Values.rabbitmq.resources }}
           resources:
-{{ toYaml .Values.rabbitmq.resources | indent 12 }}
+            {{- toYaml .Values.rabbitmq.resources | nindent 12 }}
+          {{- end }}
       volumes:
         - name: rabbitmq-data-volume
           emptyDir: {}
@@ -174,7 +182,7 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "wb.fullname" . }}
-    {{- if .Values.nodeSelector }}
+      {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
-    {{- end }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}

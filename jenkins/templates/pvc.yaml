@@ -10,14 +10,14 @@ metadata:
     release: {{ .Release.Name }}
   {{- if .Values.persistence.annotations }}
   annotations:
-{{ toYaml .Values.persistence.annotations | indent 4 }}
+    {{- toYaml .Values.persistence.annotations | nindent 4 }}
   {{- end }}
 spec:
   accessModes:
-{{ toYaml .Values.persistence.accessModes | indent 4 }}
-{{- if hasKey .Values.persistence "storageClass" }}
+    {{- toYaml .Values.persistence.accessModes | nindent 4 }}
+  {{- if hasKey .Values.persistence "storageClass" }}
   storageClassName: "{{ .Values.persistence.storageClass }}"
-{{- end }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.persistence.size | quote }}

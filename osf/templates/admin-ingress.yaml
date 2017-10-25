@@ -12,10 +12,10 @@ metadata:
     component: "{{ .Values.admin.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-{{- if .Values.admin.ingress.annotations }}
+  {{- if .Values.admin.ingress.annotations }}
   annotations:
-{{ toYaml .Values.admin.ingress.annotations | indent 4 }}
-{{- end }}
+    {{- toYaml .Values.admin.ingress.annotations | nindent 4 }}
+  {{- end }}
 spec:
   rules:
     {{- range .Values.admin.ingress.hosts }}
@@ -29,6 +29,6 @@ spec:
     {{- end -}}
   {{- if .Values.admin.ingress.tls }}
   tls:
-{{ toYaml .Values.admin.ingress.tls | indent 4 }}
+    {{- toYaml .Values.admin.ingress.tls | nindent 4 }}
   {{- end -}}
 {{- end -}}
