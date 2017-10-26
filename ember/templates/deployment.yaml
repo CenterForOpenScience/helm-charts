@@ -17,6 +17,7 @@ spec:
       annotations:
         {{- include "ember.deploymentAnnotations" . | indent 8 }}
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+        {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
         pod.beta.kubernetes.io/init-containers: |-
           [
               {
@@ -29,16 +30,41 @@ spec:
                       "{{ if hasKey .Values.configFiles "config.json" -}} node /code/replace-config.js && {{ end -}} cp -Rf /code/dist/* /static/"
                   ],
                   "volumeMounts": [
-                      {"name":"static-volume","mountPath":"/static"}
+                      {"name":"static","mountPath":"/static"}
                       {{- if hasKey .Values.configFiles "config.json" -}}
                       ,
-                      {"name":"config-volume","readOnly":true,"mountPath":"/code/replace-config.js","subPath":"replace-config.js"},
-                      {"name":"config-volume","readOnly":true,"mountPath":"/code/config.json","subPath":"config.json"}
+                      {"name":"config","readOnly":true,"mountPath":"/code/replace-config.js","subPath":"replace-config.js"},
+                      {"name":"config","readOnly":true,"mountPath":"/code/config.json","subPath":"config.json"}
                       {{- end }}
                   ]
               }
           ]
+        {{- end }}
     spec:
+      {{- if and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8") }}
+      initContainers:
+        - name: {{ .Values.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - {{ if hasKey .Values.configFiles "config.json" -}} node /code/replace-config.js && {{ end -}}
+              cp -Rf /code/dist/* /static/
+          volumeMounts:
+            - name: static
+              mountPath: /static
+            {{- if hasKey .Values.configFiles "config.json" }}
+            - name: config
+              mountPath: /code/replace-config.js
+              subPath: replace-config.js
+              readOnly: true
+            - name: config
+              mountPath: /code/config.json
+              subPath: config.json
+              readOnly: true
+            {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Values.nginx.name }}
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -51,10 +77,10 @@ spec:
             - daemon off;
           volumeMounts:
             - mountPath: /static
-              name: static-volume
+              name: static
               readOnly: true
             - mountPath: /etc/nginx/nginx.conf
-              name: config-volume
+              name: config
               subPath: nginx.conf
               readOnly: true
           ports:
@@ -70,9 +96,9 @@ spec:
           resources:
             {{- toYaml .Values.nginx.resources | nindent 12 }}
       volumes:
-        - name: static-volume
+        - name: static
           emptyDir: {}
-        - name: config-volume
+        - name: config
           configMap:
             name: {{ template "ember.fullname" . }}
     {{- if .Values.nodeSelector }}
