@@ -22,6 +22,7 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+        {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
         pod.beta.kubernetes.io/init-containers: |-
           [
               {
@@ -38,21 +39,24 @@ spec:
                   ]
               }
           ]
+        {{- end }}
     spec:
       restartPolicy: Never
-      # initContainers:
-      #   - name: "chown"
-      #     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-      #     imagePullPolicy: {{ .Values.image.pullPolicy }}
-      #     command:
-      #       - /bin/bash
-      #       - -c
-      #       - chown -R www-data:www-data /log
-      #     securityContext:
-      #       runAsUser: 0
-      #     volumeMounts:
-      #       - mountPath: /log
-      #         name: log-volume
+      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
+      initContainers:
+        - name: chown
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - chown -R www-data:www-data /log
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /log
+              name: log-volume
+      {{- end }}
       containers:
         - name: {{ .Values.migration.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

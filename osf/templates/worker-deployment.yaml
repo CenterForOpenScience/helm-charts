@@ -20,6 +20,7 @@ spec:
       annotations:
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+        {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
         {{- if not .Values.task.enabled }}
         pod.beta.kubernetes.io/init-containers: |-
           [
@@ -38,22 +39,25 @@ spec:
               }
           ]
         {{- end }}
+        {{- end }}
     spec:
-      # {{- if not .Values.task.enabled }}
-      # initContainers:
-      #   - name: "chown"
-      #     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-      #     imagePullPolicy: {{ .Values.image.pullPolicy }}
-      #     command:
-      #       - /bin/bash
-      #       - -c
-      #       - chown -R www-data:www-data /log
-      #     securityContext:
-      #       runAsUser: 0
-      #     volumeMounts:
-      #       - mountPath: /log
-      #         name: log-volume
-      # {{- end }}
+      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
+      {{- if not .Values.task.enabled }}
+      initContainers:
+        - name: "chown"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - chown -R www-data:www-data /log
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /log
+              name: log-volume
+      {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Values.worker.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
