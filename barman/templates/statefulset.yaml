@@ -22,39 +22,13 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
+        pod.beta.kubernetes.io/init-containers: |-
+          {{- (include "barman.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
+        {{- end }}
     spec:
-      {{- if .Values.tls.enabled }}
-      initContainers:
-        - name: certificates
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/bash
-            - -c
-            - mkdir -p /var/lib/barman/.postgresql/ &&
-              cp -f /certs/{postgresql,root}.* /var/lib/barman/.postgresql/ &&
-              chown -R barman:barman /var/lib/barman/.postgresql &&
-              chmod -R 0600 /var/lib/barman/.postgresql/*
-          volumeMounts:
-            - mountPath: /var/lib/barman
-              name: data
-              subPath: data
-            - mountPath: /certs/root.crt
-              name: secret
-              subPath: certs-root.crt
-              readOnly: true
-            - mountPath: /certs/root.crl
-              name: secret
-              subPath: certs-root.crl
-              readOnly: true
-            - mountPath: /certs/postgresql.crt
-              name: secret
-              subPath: certs-postgresql.crt
-              readOnly: true
-            - mountPath: /certs/postgresql.key
-              name: secret
-              subPath: certs-postgresql.key
-              readOnly: true
+      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
+      {{- include "barman.initContainers" . | nindent 6 }}
       {{- end }}
       containers:
         - name: barman
