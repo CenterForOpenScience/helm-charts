@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: {{ template "cas.fullname" . }}
@@ -17,7 +17,14 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
+        pod.beta.kubernetes.io/init-containers: |-
+          {{- (include "cas.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
+        {{- end }}
     spec:
+      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
+      {{- include "cas.initContainers" . | nindent 6 }}
+      {{- end }}
       containers:
         - name: apache
           image: "{{ .Values.apache.image.repository }}:{{ .Values.apache.image.tag }}"
@@ -42,12 +49,12 @@ spec:
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
           volumeMounts:
-            {{- include "cas.apache.volumeMounts" . | indent 12 }}
+            {{- include "cas.apache.volumeMounts" . | nindent 12 }}
         - name: jetty
           image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
           imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
           env:
-            {{- include "cas.environment" . | indent 12 }}
+            {{- include "cas.environment" . | nindent 12 }}
           ports:
             - name: http
               containerPort: {{ .Values.service.externalPort }}
@@ -62,9 +69,9 @@ spec:
               port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 10
           volumeMounts:
-            {{- include "cas.jetty.volumeMounts" . | indent 12 }}
+            {{- include "cas.jetty.volumeMounts" . | nindent 12 }}
       volumes:
-        {{- include "cas.volumes" . | indent 8 }}
+        {{- include "cas.volumes" . | nindent 8 }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
