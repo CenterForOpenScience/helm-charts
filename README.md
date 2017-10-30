@@ -38,3 +38,4 @@ kubernetes/charts@f8d3a1197e4a7167143d42d2081fb05aab1ba396 : stable/nginx-ingres
 
 ## elasticsearch
 https://github.com/cos-forks/kubernetes-charts/tree/feature/elasticsearch-v5 : incubator/elasticsearch
+ - https://github.com/kubernetes/charts/pull/2530
