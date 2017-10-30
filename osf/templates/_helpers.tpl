@@ -122,7 +122,7 @@ checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sh
 checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
 {{- end -}}
 
-{{- define "osf.environment" }}
+{{- define "osf.environment" -}}
 {{- if .Values.postgresql.enabled }}
 - name: OSF_DB_HOST
   value: {{ template "postgresql.fullname" . }}
@@ -169,5 +169,212 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
     secretKeyRef:
       name: {{ $fullname }}
       key: {{ $key }}
+{{- end }}
+{{- end -}}
+
+{{- define "osf.certificates.initContainer" -}}
+{{- if .Values.tls.enabled }}
+- name: certificates
+  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+  imagePullPolicy: {{ .Values.image.pullPolicy }}
+  command:
+    - /bin/sh
+    - -c
+    - export dir=/var/www/.postgresql && 
+      cp -f /certs/.* ${dir} && 
+      chown -R www-data:www-data ${dir} && 
+      chmod -R 0600 ${dir}/*
+  volumeMounts:
+    - mountPath: /var/www/.postgresql
+      name: certs
+    {{- range $key := keys .Values.tls.files }}
+    - mountPath: /certs/{{ $key }}
+      name: secret
+      subPath: certs-{{ $key }}
+      readOnly: true
+    {{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+admin initContainers
+*/}}
+{{- define "osf.admin.initContainers" -}}
+initContainers:
+{{- if or (not .Values.collectstatic.enabled) .Values.tls.enabled }}
+  {{- if not .Values.collectstatic.enabled }}
+  - name: {{ .Values.collectstatic.name }}
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/sh
+      - -c
+      - mkdir -p /static/code/admin &&
+        cp -Rf /code/static_root/* /static/code/admin
+    volumeMounts:
+      - mountPath: /static
+        name: static
+  {{- end }}
+  {{- include "osf.certificates.initContainer" . | nindent 2 }}
+  {{- else }} []
+  {{- end }}
+{{- end -}}
+
+
+{{/*
+api initContainers
+*/}}
+{{- define "osf.api.initContainers" -}}
+initContainers:
+  {{- if or (not .Values.collectstatic.enabled) .Values.tls.enabled }}
+  {{- if not .Values.collectstatic.enabled }}
+  - name: {{ .Values.collectstatic.name }}
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/sh
+      - -c
+      - mkdir -p /static/code/api &&
+        cp -Rf /code/api/static /static/code/api
+    volumeMounts:
+      - mountPath: /static
+        name: static
+  {{- end }}
+  {{- include "osf.certificates.initContainer" . | nindent 2 }}
+  {{- else }} []
+  {{- end }}
+{{- end -}}
+
+{{/*
+beat initContainers
+*/}}
+{{- define "osf.beat.initContainers" -}}
+initContainers:
+  - name: chown
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/bash
+      - -c
+      - chown -R www-data:www-data /beat &&
+        chown -R www-data:www-data /log
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - mountPath: /beat
+        name: beat
+      - mountPath: /log
+        name: log
+  {{- include "osf.certificates.initContainer" . | nindent 2 }}
+{{- end -}}
+
+{{/*
+migration initContainers
+*/}}
+{{- define "osf.migration.initContainers" -}}
+initContainers:
+  - name: chown
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/bash
+      - -c
+      - chown -R www-data:www-data /log
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - mountPath: /log
+        name: log
+  {{- include "osf.certificates.initContainer" . | nindent 2 }}
+{{- end -}}
+
+{{/*
+task initContainers
+*/}}
+{{- define "osf.task.initContainers" -}}
+initContainers:
+  - name: chown
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/bash
+      - -c
+      - chown -R www-data:www-data /log
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - mountPath: /log
+        name: log-volume
+  {{- include "osf.certificates.initContainer" . | nindent 2 }}
+{{- end -}}
+
+{{/*
+web initContainers
+*/}}
+{{- define "osf.web.initContainers" -}}
+initContainers:
+  {{- if or (not .Values.collectstatic.enabled) .Values.tls.enabled }}
+  {{- if not .Values.collectstatic.enabled }}
+  - name: {{ .Values.collectstatic.name }}
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/sh
+      - -c
+      - mkdir -p /static/code/website &&
+        cp -Rf /code/website/static /static/code/website &&
+        find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
+    volumeMounts:
+      - mountPath: /static
+        name: static-volume
+  {{- end }}
+  {{- include "osf.certificates.initContainer" . | nindent 2 }}
+  {{- else }} []
+  {{- end }}
+{{- end -}}
+
+{{/*
+worker initContainers
+*/}}
+{{- define "osf.worker.initContainers" -}}
+initContainers:
+  {{- if or (not .Values.task.enabled) .Values.tls.enabled }}
+  {{- if not .Values.task.enabled }}
+  - name: chown
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/bash
+      - -c
+      - chown -R www-data:www-data /log
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - mountPath: /log
+        name: log-volume
+  {{- end }}
+  {{- include "osf.certificates.initContainer" . | nindent 2 }}
+  {{- else }} []
+  {{- end }}
+{{- end -}}
+
+{{- define "osf.volumes" -}}
+- name: certs
+  emptyDir: {}
+- name: config
+  configMap:
+    name: {{ template "osf.fullname" . }}
+- name: secret
+  secret:
+    secretName: {{ template "osf.fullname" . }}
+{{- end -}}
+
+{{- define "osf.volumeMounts" -}}
+{{- if .Values.volumeMounts }}
+{{ toYaml .Values.volumeMounts }}
+{{- end }}
+{{- if .Values.tls.enabled }}
+- mountPath: /var/www/.postgresql
+  name: certs
 {{- end }}
 {{- end -}}

@@ -22,41 +22,11 @@ spec:
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
         pod.beta.kubernetes.io/init-containers: |-
-          [
-              {
-                  "name": "chown",
-                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
-                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
-                  "command": [
-                      "/bin/sh",
-                      "-c",
-                      "chown -R www-data:www-data /beat && chown -R www-data:www-data /log"
-                  ],
-                  "volumeMounts": [
-                      {"name":"beat-volume","mountPath":"/beat"},
-                      {"name":"log-volume","mountPath":"/log"}
-                  ]
-              }
-          ]
+          {{- (include "osf.beat.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
         {{- end }}
     spec:
       {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      initContainers:
-        - name: chown
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/bash
-            - -c
-            - chown -R www-data:www-data /beat &&
-              chown -R www-data:www-data /log
-          securityContext:
-            runAsUser: 0
-          volumeMounts:
-            - mountPath: /beat
-              name: beat-volume
-            - mountPath: /log
-              name: log-volume
+      {{- include "osf.beat.initContainers" . | nindent 6 }}
       {{- end }}
       containers:
         - name: {{ .Values.beat.name }}
@@ -76,7 +46,7 @@ spec:
               value: api.base.settings
             - name: LOG_PATH
               value: /log
-            {{- include "osf.environment" . | indent 12 }}
+            {{- include "osf.environment" . | nindent 12 }}
             {{- range $key, $value := .Values.beat.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -90,12 +60,10 @@ spec:
           #         - chmod o+w /beat
           volumeMounts:
             - mountPath: /beat
-              name: beat-volume
+              name: beat
             - mountPath: /log
-              name: log-volume
-            {{- if .Values.volumeMounts }}
-            {{- toYaml .Values.volumeMounts | nindent 12 }}
-            {{- end }}
+              name: log
+            {{- include "osf.volumeMounts" . | nindent 12 }}
             {{- if .Values.beat.volumeMounts }}
             {{- toYaml .Values.beat.volumeMounts | nindent 12 }}
             {{- end }}
@@ -104,22 +72,17 @@ spec:
             {{- toYaml .Values.beat.resources | nindent 12 }}
           {{- end }}
       volumes:
+        {{- include "osf.volumes" . | nindent 8 }}
         # TODO: Remove when djang-celery-beat is configured
-        - name: beat-volume
+        - name: beat
           {{- if .Values.beat.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.beat.persistence.existingClaim | default (include "osf.beat.fullname" .) }}
           {{- else }}
           emptyDir: {}
           {{- end }}
-        - name: log-volume
+        - name: log
           emptyDir: {}
-        - name: config-volume
-          configMap:
-            name: {{ template "osf.fullname" . }}
-        - name: secret-volume
-          secret:
-            secretName: {{ template "osf.fullname" . }}
       {{- if .Values.beat.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.beat.nodeSelector | nindent 8 }}
