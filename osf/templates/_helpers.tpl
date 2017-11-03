@@ -304,7 +304,7 @@ initContainers:
       runAsUser: 0
     volumeMounts:
       - mountPath: /log
-        name: log-volume
+        name: log
   {{- include "osf.certificates.initContainer" . | nindent 2 }}
 {{- end -}}
 
@@ -326,7 +326,7 @@ initContainers:
         find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
     volumeMounts:
       - mountPath: /static
-        name: static-volume
+        name: static
   {{- end }}
   {{- include "osf.certificates.initContainer" . | nindent 2 }}
   {{- else }} []
@@ -351,7 +351,7 @@ initContainers:
       runAsUser: 0
     volumeMounts:
       - mountPath: /log
-        name: log-volume
+        name: log
   {{- end }}
   {{- include "osf.certificates.initContainer" . | nindent 2 }}
   {{- else }} []

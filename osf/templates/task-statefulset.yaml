@@ -64,7 +64,7 @@ spec:
             {{- end }}
           volumeMounts:
             - mountPath: /log
-              name: log-volume
+              name: log
             {{- include "osf.volumeMounts" . | nindent 12 }}
             {{- if .Values.task.volumeMounts }}
             {{- toYaml .Values.task.volumeMounts | nindent 12 }}
@@ -72,14 +72,14 @@ spec:
           resources:
             {{- toYaml .Values.task.resources | nindent 12 }}
       volumes:
-        - name: config-volume
+        - name: config
           configMap:
             name: {{ template "osf.fullname" . }}
-        - name: secret-volume
+        - name: secret
           secret:
             secretName: {{ template "osf.fullname" . }}
         {{- if not .Values.task.persistence.enabled }}
-        - name: log-volume
+        - name: log
           emptyDir: {}
         {{- end }}
       {{- if .Values.task.nodeSelector }}
@@ -89,7 +89,7 @@ spec:
   {{- if .Values.task.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: log-volume
+        name: log
       spec:
         accessModes:
           - {{ .Values.task.persistence.accessMode | quote }}
