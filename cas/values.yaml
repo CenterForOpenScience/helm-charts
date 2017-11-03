@@ -98,8 +98,28 @@ secretFiles:
   shibboleth/sp-key.pem: |-
     
 
+# Database connection TLS
+tls:
+  enabled: false
+  files:
+    # Root Certificate
+    root.crt: |-
+
+    # CAS database key
+    postgresql.pk8: |-
+      
+    # CAS database certificate
+    postgresql.crt: |-
+      
+    # OSF database key
+    osf.pk8: |-
+      
+    # OSF database certificate
+    osf.crt: |-
+    
+
 postgresql:
-  enabled: true
+  enabled: false
   ## postgres image repository
   image: "postgres"
   ## postgres image version

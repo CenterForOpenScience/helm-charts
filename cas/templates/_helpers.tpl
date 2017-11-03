@@ -26,13 +26,46 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Volumes
 */}}
-{{- define "cas.volumes" }}
-- name: config-volume
+{{- define "cas.volumes" -}}
+- name: config
   configMap:
     name: {{ template "cas.fullname" . }}
-- name: secret-volume
+- name: secret
   secret:
     secretName: {{ template "cas.fullname" . }}
+{{- if .Values.tls.enabled }}
+- name: certs
+  emptyDir: {}
+{{- end }}
+{{- end -}}
+
+{{/*
+Init Containers
+*/}}
+{{- define "cas.initContainers" -}}
+initContainers:
+  {{- if .Values.tls.enabled }}
+  - name: certificates
+    image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
+    imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
+    command:
+      - /bin/sh
+      - -c
+      - export dir=/var/www/.postgresql && 
+        cp -f /certs/.* ${dir} && 
+        chown -R www-data:www-data ${dir} && 
+        chmod -R 0600 ${dir}/*
+    volumeMounts:
+      - mountPath: /var/www/.postgresql
+        name: certs
+      {{- range $key := keys .Values.tls.files }}
+      - mountPath: /certs/{{ $key }}
+        name: secret
+        subPath: certs-{{ $key }}
+        readOnly: true
+      {{- end }}
+  {{- else }} []
+  {{- end }}
 {{- end -}}
 
 {{/*
@@ -67,15 +100,15 @@ shibboleth/incommon-idp-signature.pem: /etc/shibboleth/incommon-idp-signature.pe
 shibboleth/sp-cert.pem: /etc/shibboleth/sp-cert.pem
 shibboleth/sp-key.pem: /etc/shibboleth/sp-key.pem
 {{- end -}}
-{{- define "cas.apache.volumeMounts" }}
+{{- define "cas.apache.volumeMounts" -}}
 {{- range $key, $value := (include "cas.apache.filemapConfig" . | fromYaml) }}
-- name: config-volume
+- name: config
   subPath: {{ $key | replace "/" "-" }}
   mountPath: {{ $value }}
   readOnly: true
 {{- end -}}
 {{- range $key, $value := (include "cas.apache.filemapSecret" . | fromYaml) }}
-- name: secret-volume
+- name: secret
   subPath: {{ $key | replace "/" "-" }}
   mountPath: {{ $value }}
   #readOnly: true
@@ -103,19 +136,23 @@ services/preprints-osf.json: /code/etc/services/preprints-osf.json
 {{ $filename }}: /code/etc/{{ $filename }}
 {{- end -}}
 {{- end -}}
-{{- define "cas.jetty.volumeMounts" }}
+{{- define "cas.jetty.volumeMounts" -}}
 {{- range $key, $value := (include "cas.jetty.filemapConfig" . | fromYaml) }}
-- name: config-volume
+- name: config
   subPath: {{ $key | replace "/" "-" }}
   mountPath: {{ $value }}
   readOnly: true
 {{- end -}}
+{{- if .Values.tls.enabled }}
+- mountPath: /var/www/.postgresql
+  name: certs
+{{- end }}
 {{- end -}}
 
 {{/*
 Jetty environment variables
 */}}
-{{- define "cas.environment" }}
+{{- define "cas.environment" -}}
 {{- if .Values.postgresql.enabled }}
 - name: DATABASE_HOST
   value: {{ template "postgresql.fullname" . }}
