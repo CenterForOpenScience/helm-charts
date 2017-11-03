@@ -283,15 +283,15 @@ web:
 
   volumeMounts: []
     # - mountPath: /etc/ssl/certs/ca-chain.cert.pem
-    #   name: secret-volume
+    #   name: secret
     #   subPath: worker-ca.cert.pem
     #   readOnly: true
     # - mountPath: /etc/ssl/certs/worker.pem
-    #   name: secret-volume
+    #   name: secret
     #   subPath: worker.pem
     #   readOnly: true
     # - mountPath: /etc/ssl/private/worker.key
-    #   name: secret-volume
+    #   name: secret
     #   subPath: worker.key
     #   readOnly: true
 
@@ -408,59 +408,59 @@ secretFiles: {}
 
 volumeMounts:
   - mountPath: /code/admin/base/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: admin-local.py
     readOnly: true
   - mountPath: /code/api/base/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: api-local.py
     readOnly: true
   - mountPath: /code/website/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: web-local.py
     readOnly: true
   - mountPath: /code/addons/bitbucket/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-bitbucket-local.py
     readOnly: true
   - mountPath: /code/addons/box/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-box-local.py
     readOnly: true
   - mountPath: /code/addons/dataverse/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-dataverse-local.py
     readOnly: true
   - mountPath: /code/addons/dropbox/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-dropbox-local.py
     readOnly: true
   - mountPath: /code/addons/figshare/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-figshare-local.py
     readOnly: true
   - mountPath: /code/addons/github/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-github-local.py
     readOnly: true
   - mountPath: /code/addons/googledrive/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-googledrive-local.py
     readOnly: true
   - mountPath: /code/addons/mendeley/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-mendeley-local.py
     readOnly: true
   - mountPath: /code/addons/osfstorage/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-osfstorage-local.py
     readOnly: true
   - mountPath: /code/addons/wiki/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-wiki-local.py
     readOnly: true
   - mountPath: /code/addons/zotero/settings/local.py
-    name: secret-volume
+    name: secret
     subPath: addons-zotero-local.py
     readOnly: true
 
@@ -579,7 +579,7 @@ postgresql:
     #  memory: 256Mi
 
 rabbitmq:
-  enabled: true
+  enabled: false
   image: bitnami/rabbitmq:3.6.11-r1
 
   ## Specify a imagePullPolicy
@@ -660,7 +660,7 @@ rabbitmq:
       cpu: 100m
 
 elasticsearch:
-  enabled: true
+  enabled: false
 
   image:
     repository: "centerforopenscience/elasticsearch"
