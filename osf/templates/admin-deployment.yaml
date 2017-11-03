@@ -21,12 +21,41 @@ spec:
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
+        {{- if not .Values.collectstatic.enabled }}
         pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "osf.admin.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
+          [
+              {
+                  "name": "{{ .Values.collectstatic.name }}",
+                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
+                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
+                  "command": [
+                      "/bin/sh",
+                      "-c",
+                      "mkdir -p /static/code/admin && cp -Rf /code/static_root/* /static/code/admin"
+                  ],
+                  "volumeMounts": [
+                      {"name":"static-volume","mountPath":"/static"}
+                  ]
+              }
+          ]
+        {{- end }}
         {{- end }}
     spec:
       {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "osf.admin.initContainers" . | nindent 6 }}
+      {{- if not .Values.collectstatic.enabled }}
+      initContainers:
+        - name: {{ .Values.collectstatic.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - mkdir -p /static/code/admin &&
+              cp -Rf /code/static_root/* /static/code/admin
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+      {{- end }}
       {{- end }}
       containers:
         - name: nginx
@@ -48,17 +77,17 @@ spec:
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /static
-              name: static
+              name: static-volume
             - mountPath: /etc/nginx/nginx.conf
-              name: config
+              name: config-volume
               subPath: admin-nginx.conf
               readOnly: true
             - mountPath: /etc/nginx/conf.d/default.conf
-              name: config
+              name: config-volume
               subPath: default.conf
               readOnly: true
             - mountPath: /usr/share/nginx/html/robots.txt
-              name: config
+              name: config-volume
               subPath: admin-robots.txt
               readOnly: true
             {{- if .Values.admin.nginx.volumeMounts }}
@@ -81,7 +110,7 @@ spec:
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: admin.base.settings
-            {{- include "osf.environment" . | nindent 12 }}
+            {{- include "osf.environment" . | indent 12 }}
             {{- range $key, $value := .Values.admin.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -97,10 +126,12 @@ spec:
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /etc/uwsgi/uwsgi.ini
-              name: config
+              name: config-volume
               subPath: admin-uwsgi.ini
               readOnly: true
-            {{- include "osf.volumeMounts" . | nindent 12 }}
+            {{- if .Values.volumeMounts }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+            {{- end }}
             {{- if .Values.admin.volumeMounts }}
             {{- toYaml .Values.admin.volumeMounts | nindent 12 }}
             {{- end }}
@@ -109,9 +140,14 @@ spec:
             {{- toYaml .Values.admin.resources | nindent 12 }}
           {{- end }}
       volumes:
-        {{- include "osf.volumes" . | nindent 8 }}
-        - name: static
+        - name: static-volume
           emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: {{ template "osf.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "osf.fullname" . }}
       {{- if .Values.admin.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.admin.nodeSelector | nindent 8 }}

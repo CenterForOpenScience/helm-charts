@@ -23,12 +23,39 @@ spec:
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
         {{- if not .Values.collectstatic.enabled }}
         pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "osf.api.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
+          [
+              {
+                  "name": "{{ .Values.collectstatic.name }}",
+                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
+                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
+                  "command": [
+                      "/bin/sh",
+                      "-c",
+                      "mkdir -p /static/code/api && cp -Rf /code/api/static /static/code/api"
+                  ],
+                  "volumeMounts": [
+                      {"name":"static-volume","mountPath":"/static"}
+                  ]
+              }
+          ]
         {{- end }}
         {{- end }}
     spec:
       {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "osf.api.initContainers" . | nindent 6 }}
+      {{- if not .Values.collectstatic.enabled }}
+      initContainers:
+        - name: {{ .Values.collectstatic.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - mkdir -p /static/code/api &&
+              cp -Rf /code/api/static /static/code/api
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume
+      {{- end }}
       {{- end }}
       containers:
         - name: nginx
@@ -50,17 +77,17 @@ spec:
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /static
-              name: static
+              name: static-volume
             - mountPath: /etc/nginx/nginx.conf
-              name: config
+              name: config-volume
               subPath: api-nginx.conf
               readOnly: true
             - mountPath: /etc/nginx/conf.d/default.conf
-              name: config
+              name: config-volume
               subPath: default.conf
               readOnly: true
             - mountPath: /usr/share/nginx/html/robots.txt
-              name: config
+              name: config-volume
               subPath: api-robots.txt
               readOnly: true
             {{- if .Values.api.nginx.volumeMounts }}
@@ -85,7 +112,7 @@ spec:
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
-            {{- include "osf.environment" . | nindent 12 }}
+            {{- include "osf.environment" . | indent 12 }}
             {{- range $key, $value := .Values.api.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -101,10 +128,12 @@ spec:
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /etc/uwsgi/uwsgi.ini
-              name: config
+              name: config-volume
               subPath: api-uwsgi.ini
               readOnly: true
-            {{- include "osf.volumeMounts" . | nindent 12 }}
+            {{- if .Values.volumeMounts }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+            {{- end }}
             {{- if .Values.api.volumeMounts }}
             {{- toYaml .Values.api.volumeMounts | nindent 12 }}
             {{- end }}
@@ -113,9 +142,14 @@ spec:
             {{- toYaml .Values.api.resources | nindent 12 }}
           {{- end }}
       volumes:
-        {{- include "osf.volumes" . | nindent 8 }}
-        - name: static
+        - name: static-volume
           emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: {{ template "osf.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "osf.fullname" . }}
       {{- if .Values.api.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.api.nodeSelector | nindent 8 }}

@@ -24,12 +24,38 @@ spec:
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
         pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "osf.migration.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
+          [
+              {
+                  "name": "chown",
+                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
+                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
+                  "command": [
+                      "/bin/sh",
+                      "-c",
+                      "chown -R www-data:www-data /log"
+                  ],
+                  "volumeMounts": [
+                      {"name":"log-volume","mountPath":"/log"}
+                  ]
+              }
+          ]
         {{- end }}
     spec:
       restartPolicy: Never
       {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "osf.migration.initContainers" . | nindent 6 }}
+      initContainers:
+        - name: chown
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - chown -R www-data:www-data /log
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /log
+              name: log-volume
       {{- end }}
       containers:
         - name: {{ .Values.migration.name }}
@@ -47,7 +73,7 @@ spec:
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
-            {{- include "osf.environment" . | nindent 12 }}
+            {{- include "osf.environment" . | indent 12 }}
             {{- range $key, $value := .Values.migration.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -55,21 +81,26 @@ spec:
           {{- if or .Values.volumeMounts .Values.migration.volumeMounts }}
           volumeMounts:
             - mountPath: /log
-              name: log
-            {{- include "osf.volumeMounts" . | nindent 12 }}
+              name: log-volume
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
             {{- if .Values.migration.volumeMounts }}
             {{- toYaml .Values.migration.volumeMounts | nindent 12 }}
             {{- end }}
           {{- end }}
       volumes:
-        {{- include "osf.volumes" . | nindent 8 }}
-        - name: log
-          {{- if .Values.migration.persistence.enabled }}
+        - name: config-volume
+          configMap:
+            name: {{ template "osf.fullname" . }}
+        - name: secret-volume
+          secret:
+            secretName: {{ template "osf.fullname" . }}
+        - name: log-volume
+        {{- if .Values.migration.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.migration.persistence.existingClaim | default (include "osf.migration.fullname" .) }}
-          {{- else }}
+        {{- else }}
           emptyDir: {}
-          {{- end }}
+        {{- end }}
       {{- if .Values.migration.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.migration.nodeSelector | nindent 8 }}

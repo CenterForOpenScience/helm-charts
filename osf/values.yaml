@@ -505,25 +505,8 @@ sharejs:
 share:
   url: https://staging-share.osf.io
 
-# Database connection TLS
-tls:
-  enabled: false
-  files:
-    # Root Certificate
-    root.crt: |-
-
-    # Root Certificate Revocation List
-    root.crl: |-
-      
-    # Database key
-    postgresql.key: |-
-      
-    # Database certificate
-    postgresql.crt: |-
-    
-
 postgresql:
-  enabled: false
+  enabled: true
 
   image: "postgres"
   imageTag: "9.6"
