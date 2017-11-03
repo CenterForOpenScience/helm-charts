@@ -25,42 +25,12 @@ spec:
         {{- include "osf.deploymentAnnotations" . | indent 8 }}
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
-        {{- if not .Values.collectstatic.enabled }}
         pod.beta.kubernetes.io/init-containers: |-
-          [
-              {
-                  "name": "{{ .Values.collectstatic.name }}",
-                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
-                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
-                  "command": [
-                      "/bin/sh",
-                      "-c",
-                      "mkdir -p /static/code/website && cp -Rf /code/website/static /static/code/website && find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/"
-                  ],
-                  "volumeMounts": [
-                      {"name":"static-volume","mountPath":"/static"}
-                  ]
-              }
-          ]
-        {{- end }}
+          {{- (include "osf.web.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
         {{- end }}
     spec:
       {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- if not .Values.collectstatic.enabled }}
-      initContainers:
-        - name: {{ .Values.collectstatic.name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/sh
-            - -c
-            - mkdir -p /static/code/website &&
-              cp -Rf /code/website/static /static/code/website &&
-              find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
-          volumeMounts:
-            - mountPath: /static
-              name: static-volume
-      {{- end }}
+      {{- include "osf.web.initContainers" . | nindent 6 }}
       {{- end }}
       containers:
         - name: nginx
@@ -82,51 +52,51 @@ spec:
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /static
-              name: static-volume
+              name: static
               readOnly: true
             {{- if .Values.web.nginx.cache.enabled }}
             - mountPath: /cache
-              name: cache-volume
+              name: cache
             {{- end }}
             - mountPath: /etc/nginx/nginx.conf
-              name: config-volume
+              name: config
               subPath: web-nginx.conf
               readOnly: true
             - mountPath: /etc/nginx/conf.d/default.conf
-              name: config-volume
+              name: config
               subPath: default.conf
               readOnly: true
             - mountPath: /usr/share/nginx/html/robots.txt
-              name: config-volume
+              name: config
               subPath: web-robots.txt
               readOnly: true
             {{- if $osfPreprints.enabled }}
             - mountPath: /etc/nginx/conf.d/osf-preprints.conf
-              name: config-volume
+              name: config
               subPath: web-nginx-osf-preprints.conf
               readOnly: true
             {{- end }}
             {{- if $osfRegistries.enabled }}
             - mountPath: /etc/nginx/conf.d/osf-registries.conf
-              name: config-volume
+              name: config
               subPath: web-nginx-osf-registries.conf
               readOnly: true
             {{- end }}
             {{- if $osfReviews.enabled }}
             - mountPath: /etc/nginx/conf.d/osf-reviews.conf
-              name: config-volume
+              name: config
               subPath: web-nginx-osf-reviews.conf
               readOnly: true
             {{- end }}
             {{- if $osfWeb.enabled }}
             - mountPath: /etc/nginx/conf.d/osf-web.conf
-              name: config-volume
+              name: config
               subPath: web-nginx-osf-web.conf
               readOnly: true
             {{- end }}
             {{- if .Values.prerender.enabled }}
             - mountPath: /etc/nginx/prerender.conf
-              name: config-volume
+              name: config
               subPath: web-nginx-prerender.conf
               readOnly: true
             {{- end }}
@@ -168,7 +138,7 @@ spec:
             - name: OSF_WEB_URL
               value: http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }}/
             {{- end }}
-            {{- include "osf.environment" . | indent 12 }}
+            {{- include "osf.environment" . | nindent 12 }}
             {{- range $key, $value := .Values.web.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -184,12 +154,10 @@ spec:
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /etc/uwsgi/uwsgi.ini
-              name: config-volume
+              name: config
               subPath: web-uwsgi.ini
               readOnly: true
-            {{- if .Values.volumeMounts }}
-            {{- toYaml .Values.volumeMounts | nindent 12 }}
-            {{- end }}
+            {{- include "osf.volumeMounts" . | nindent 12 }}
             {{- if .Values.web.volumeMounts }}
             {{- toYaml .Values.web.volumeMounts | nindent 12 }}
             {{- end }}
@@ -198,20 +166,15 @@ spec:
             {{- toYaml .Values.web.resources | nindent 12 }}
           {{- end }}
       volumes:
-        - name: static-volume
+        {{- include "osf.volumes" . | nindent 8 }}
+        - name: static
           emptyDir: {}
-        - name: config-volume
-          configMap:
-            name: {{ template "osf.fullname" . }}
-        - name: secret-volume
-          secret:
-            secretName: {{ template "osf.fullname" . }}
         {{- if .Values.web.nginx.cache.enabled }}
-        - name: cache-volume
+        - name: cache
           emptyDir: {}
         {{- end }}
-    {{- if .Values.web.nodeSelector }}
+      {{- if .Values.web.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.web.nodeSelector | nindent 8 }}
-    {{- end }}
+      {{- end }}
 {{- end -}}

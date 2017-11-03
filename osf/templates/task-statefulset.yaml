@@ -27,37 +27,11 @@ spec:
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
         pod.beta.kubernetes.io/init-containers: |-
-          [
-              {
-                  "name": "chown",
-                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
-                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
-                  "command": [
-                      "/bin/sh",
-                      "-c",
-                      "chown -R www-data:www-data /log"
-                  ],
-                  "volumeMounts": [
-                      {"name":"log-volume","mountPath":"/log"}
-                  ]
-              }
-          ]
+          {{- (include "osf.task.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
         {{- end }}
     spec:
       {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      initContainers:
-        - name: chown
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/bash
-            - -c
-            - chown -R www-data:www-data /log
-          securityContext:
-            runAsUser: 0
-          volumeMounts:
-            - mountPath: /log
-              name: log-volume
+      {{- include "osf.task.initContainers" . | nindent 6 }}
       {{- end }}
       containers:
         - name: {{ .Values.task.name }}
@@ -83,7 +57,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            {{- include "osf.environment" . | indent 12 }}
+            {{- include "osf.environment" . | nindent 12 }}
             {{- range $key, $value := .Values.task.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
@@ -91,9 +65,7 @@ spec:
           volumeMounts:
             - mountPath: /log
               name: log-volume
-            {{- if .Values.volumeMounts }}
-            {{- toYaml .Values.volumeMounts | nindent 12 }}
-            {{- end }}
+            {{- include "osf.volumeMounts" . | nindent 12 }}
             {{- if .Values.task.volumeMounts }}
             {{- toYaml .Values.task.volumeMounts | nindent 12 }}
             {{- end }}
