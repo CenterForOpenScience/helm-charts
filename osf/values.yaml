@@ -511,7 +511,6 @@ tls:
 
   elasticsearch:
     enabled: false
-    # TODO check mountPath and client cert filenames
     mountPath: /var/www/.elasticsearch
     files:
       cacert.pem: |-
@@ -552,8 +551,14 @@ tls:
     enabled: false
     mountPath: /var/www/.mongodb
     files:
-      mongodb.pem: |-
-
+      ca.pem: |-
+        
+      crl.pem: |-
+        
+      client.pem: |-
+        
+      key.pem: |-
+        
 
 postgresql:
   enabled: false
