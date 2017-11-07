@@ -505,22 +505,55 @@ sharejs:
 share:
   url: https://staging-share.osf.io
 
-# Database connection TLS
+# Client-side TLS
 tls:
   enabled: false
-  files:
-    # Root Certificate
-    root.crt: |-
 
-    # Root Certificate Revocation List
-    root.crl: |-
-      
-    # Database key
-    postgresql.key: |-
-      
-    # Database certificate
-    postgresql.crt: |-
-    
+  elasticsearch:
+    enabled: false
+    # TODO check mountPath and client cert filenames
+    mountPath: /var/www/.elasticsearch
+    files:
+      cacert.pem: |-
+        
+      client_cert.pem: |-
+        
+      client_key.pem: |-
+        
+
+  postgresql:
+    enabled: false
+    mountPath: /var/www/.postgresql
+    files:
+      # Root Certificate
+      root.crt: |-
+
+      # Root Certificate Revocation List
+      root.crl: |-
+        
+      # Database key
+      postgresql.key: |-
+        
+      # Database certificate
+      postgresql.crt: |-
+  
+  rabbitmq:
+    enabled: false
+    mountPath: /var/www/.rabbitmq
+    files:
+      worker.key: |-
+        
+      worker.pem: |-
+        
+      ca-chain.cert.pem: |-
+        
+
+  mongodb:
+    enabled: false
+    mountPath: /var/www/.mongodb
+    files:
+      mongodb.pem: |-
+
 
 postgresql:
   enabled: false

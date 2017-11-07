@@ -23,7 +23,7 @@ spec:
         component: "{{ .Values.task.name }}"
         release: {{ .Release.Name }}
       annotations:
-        {{- include "osf.deploymentAnnotations" . | indent 8 }}
+        {{- include "osf.deploymentAnnotations" . | nindent 8 }}
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
         pod.beta.kubernetes.io/init-containers: |-

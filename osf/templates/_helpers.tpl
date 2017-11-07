@@ -117,7 +117,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Overridable deployment annotations
 */}}
-{{- define "osf.deploymentAnnotations" }}
+{{- define "osf.deploymentAnnotations" -}}
 checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
 {{- end -}}
@@ -180,18 +180,26 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
   command:
     - /bin/sh
     - -c
-    - export dir=/var/www/.postgresql && 
-      cp -f /certs/.* ${dir} && 
-      chown -R www-data:www-data ${dir} && 
-      chmod -R 0600 ${dir}/*
+    - |-
+      {{- range $app, $tls := omit .Values.tls "enabled" }}
+      {{- if $tls.enabled }}
+      cp -f /certs/{{ $app }}/* {{ $tls.mountPath }}
+      chown -R www-data:www-data {{ $tls.mountPath }}
+      chmod -R 0600 {{ $tls.mountPath }}/*
+      {{- end }}
+      {{- end }}
   volumeMounts:
-    - mountPath: /var/www/.postgresql
-      name: certs
-    {{- range $key := keys .Values.tls.files }}
-    - mountPath: /certs/{{ $key }}
+    {{- range $app, $tls := omit .Values.tls "enabled" }}
+    {{- if $tls.enabled }}
+    - name: certs-{{ $app }}
+      mountPath: {{ $tls.mountPath }}
+    {{- range $key := keys $tls.files }}
+    - mountPath: /certs/{{ $app }}/{{ $key }}
       name: secret
-      subPath: certs-{{ $key }}
+      subPath: certs-{{ $app }}-{{ $key }}
       readOnly: true
+    {{- end }}
+    {{- end }}
     {{- end }}
 {{- end }}
 {{- end }}
@@ -359,8 +367,14 @@ initContainers:
 {{- end -}}
 
 {{- define "osf.volumes" -}}
-- name: certs
+{{- if .Values.tls.enabled }}
+{{- range $app, $tls := omit .Values.tls "enabled" }}
+{{- if $tls.enabled }}
+- name: certs-{{ $app }}
   emptyDir: {}
+{{- end }}
+{{- end }}
+{{- end }}
 - name: config
   configMap:
     name: {{ template "osf.fullname" . }}
@@ -370,11 +384,15 @@ initContainers:
 {{- end -}}
 
 {{- define "osf.volumeMounts" -}}
-{{- if .Values.volumeMounts }}
-{{ toYaml .Values.volumeMounts }}
-{{- end }}
+{{- if .Values.volumeMounts -}}
+{{- toYaml .Values.volumeMounts }}
+{{- end -}}
 {{- if .Values.tls.enabled }}
-- mountPath: /var/www/.postgresql
-  name: certs
+{{- range $app, $tls := omit .Values.tls "enabled" }}
+{{- if $tls.enabled }}
+- name: certs-{{ $app }}
+  mountPath: {{ $tls.mountPath }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end -}}
