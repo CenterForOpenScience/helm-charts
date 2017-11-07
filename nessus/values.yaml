@@ -1,0 +1,57 @@
+## Nessus
+##
+image:
+  repository: us.gcr.io/cos-containers/nessus
+  tag: 6.11.2
+  pullPolicy: IfNotPresent
+
+resources: {}
+  #limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  #requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+persistence:
+  enabled: true
+  # storageClass:
+  accessMode: ReadWriteOnce
+  size: 10Gi
+
+## Node labels for component pod assignment
+## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+##
+nodeSelector: {}
+
+service:
+  name: https
+  type: ClusterIP
+  externalPort: 443
+  internalPort: 8834
+  annotations: {}
+    # service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
+
+tls:
+  enabled: false
+  files:
+    # https://docs.tenable.com/nessus/Content/CustomSSLCertificates.htm
+    servercert.pem: |-
+      ...
+    serverkey.pem: |-
+      ...
+
+ingress:
+  enabled: false
+  # Used to create Ingress record (should used with service.type: ClusterIP).
+  hosts:
+    - chart-example.local
+  path: /
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
