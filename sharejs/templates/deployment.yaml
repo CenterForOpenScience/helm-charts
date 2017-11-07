@@ -15,7 +15,7 @@ spec:
         app: {{ template "sharejs.name" . }}
         release: {{ .Release.Name }}
       annotations:
-        {{- include "sharejs.deploymentAnnotations" . | indent 8 }}
+        {{- include "sharejs.deploymentAnnotations" . | nindent 8 }}
     spec:
       containers:
         - name: nginx
@@ -51,7 +51,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- if .Values.mongodb.enabled }}
+            {{- if and .Values.mongodb.enabled (hasKey .Values.configEnvs "SHAREJS_DB_URL" | not) }}
             - name: SHAREJS_DB_URL
               value: "mongodb://{{ include "mongodb.fullname" . }}:27017/{{ .Values.mongodb.mongodbDatabase }}"
             {{- end }}
@@ -59,7 +59,7 @@ spec:
               value: "0.0.0.0"
             - name: SHAREJS_SERVER_PORT
               value: "{{ .Values.service.externalPort }}"
-            {{- include "sharejs.environment" . | indent 12 }}
+            {{- include "sharejs.environment" . | nindent 12 }}
           ports:
             - name: http
               containerPort: {{ .Values.service.externalPort }}

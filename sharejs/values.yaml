@@ -55,6 +55,8 @@ ingress:
 
 configEnvs: {}
   # SHAREJS_CORS_ALLOW_ORIGIN: https://domain.example.com
+  ## if mongodb.enabled = false
+  # SHAREJS_DB_URL: mongodb://host:27017/sharejs?ssl=true
 
 configFiles: {}
   # Override configmap files here (and delete the {} above), e.g.:
@@ -70,7 +72,7 @@ secretFiles: {}
   #   ...
 
 mongodb:
-  enabled: true
+  enabled: false
 
   ## Bitnami MongoDB image version
   ## ref: https://hub.docker.com/r/bitnami/mongodb/tags/

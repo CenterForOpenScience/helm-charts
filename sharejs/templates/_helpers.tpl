@@ -27,25 +27,25 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Overridable deployment annotations
 */}}
-{{- define "sharejs.deploymentAnnotations" }}
+{{- define "sharejs.deploymentAnnotations" -}}
 checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
 {{- end -}}
 
-{{- define "sharejs.environment" }}
+{{- define "sharejs.environment" -}}
 {{- $fullname := include "sharejs.fullname" . -}}
-{{- range $key, $value := .Values.configEnvs }}
+{{- range $key := keys .Values.configEnvs -}}
 - name: {{ $key }}
   valueFrom:
     configMapKeyRef:
       name: {{ $fullname }}
       key: {{ $key }}
 {{- end }}
-{{- range $key, $value := .Values.secretEnvs }}
+{{- range $key := keys .Values.secretEnvs }}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
       name: {{ $fullname }}
       key: {{ $key }}
-{{- end }}
+{{- end -}}
 {{- end -}}
