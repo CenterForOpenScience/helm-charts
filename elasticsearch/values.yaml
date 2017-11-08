@@ -61,6 +61,16 @@ client:
   replicas: 2
   heapSize: "512m"
   antiAffinity: "soft"
+  # additionalAffinities:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 50
+  #         preference:
+  #           matchExpressions:
+  #             - key: cloud.google.com/gke-preemptible
+  #               operator: NotIn
+  #               values:
+  #                 - "true"
   service:
     #annotations: {}
     type: ClusterIP
@@ -80,6 +90,16 @@ master:
   replicas: 3
   heapSize: "512m"
   antiAffinity: "soft"
+  # additionalAffinities:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 50
+  #         preference:
+  #           matchExpressions:
+  #             - key: cloud.google.com/gke-preemptible
+  #               operator: NotIn
+  #               values:
+  #                 - "true"
   budget:
     minAvailable: 1
   persistence:
@@ -103,6 +123,16 @@ data:
   # storageClass: "ssd"
   terminationGracePeriodSeconds: 3600
   antiAffinity: "soft"
+  # additionalAffinities:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 50
+  #         preference:
+  #           matchExpressions:
+  #             - key: cloud.google.com/gke-preemptible
+  #               operator: NotIn
+  #               values:
+  #                 - "true"
   budget:
     minAvailable: 1
   persistence:

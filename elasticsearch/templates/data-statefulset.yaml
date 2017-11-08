@@ -19,8 +19,11 @@ spec:
         release: {{ .Release.Name }}
     spec:
       serviceAccountName: {{ template "elasticsearch.fullname" . }}
-      {{- if eq .Values.data.antiAffinity "hard" }}
       affinity:
+        {{- if .Values.data.additionalAffinities }}
+        {{ toYaml .Values.data.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.data.antiAffinity "hard" }}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - topologyKey: "kubernetes.io/hostname"
@@ -29,8 +32,7 @@ spec:
                   app: "{{ template "elasticsearch.name" . }}"
                   release: "{{ .Release.Name }}"
                   component: "{{ .Values.data.name }}"
-      {{- else if eq .Values.data.antiAffinity "soft" }}
-      affinity:
+        {{- else if eq .Values.data.antiAffinity "soft" }}
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
@@ -41,7 +43,7 @@ spec:
                   app: "{{ template "elasticsearch.name" . }}"
                   release: "{{ .Release.Name }}"
                   component: "{{ .Values.data.name }}"
-      {{- end }}
+        {{- end }}
       initContainers:
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
       # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
