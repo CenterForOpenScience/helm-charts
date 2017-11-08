@@ -34,7 +34,7 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 
 {{- define "sharejs.environment" -}}
 {{- $fullname := include "sharejs.fullname" . -}}
-{{- range $key := keys .Values.configEnvs -}}
+{{- range $key := keys .Values.configEnvs }}
 - name: {{ $key }}
   valueFrom:
     configMapKeyRef:
