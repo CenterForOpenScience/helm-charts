@@ -72,12 +72,7 @@ spec:
           resources:
             {{- toYaml .Values.task.resources | nindent 12 }}
       volumes:
-        - name: config
-          configMap:
-            name: {{ template "osf.fullname" . }}
-        - name: secret
-          secret:
-            secretName: {{ template "osf.fullname" . }}
+        {{- include "osf.volumes" . | nindent 12 }}
         {{- if not .Values.task.persistence.enabled }}
         - name: log
           emptyDir: {}
