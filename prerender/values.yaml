@@ -44,7 +44,8 @@ service:
 ingress:
   enabled: false
   # Used to create an Ingress record.
-  path: /
+  paths:
+    - /
   hosts:
     - chart-example.local
   annotations:

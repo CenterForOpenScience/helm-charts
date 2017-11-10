@@ -1,7 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $serviceName := include "nessus.fullname" . -}}
 {{- $servicePort := .Values.service.externalPort -}}
-{{- $ingressPath := .Values.ingress.path -}}
+{{- $ingressPaths := .Values.ingress.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -21,10 +21,12 @@ spec:
     - host: {{ . }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          {{- range $ingressPaths }}
+          - path: {{ . }}
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
+          {{- end -}}
     {{- end -}}
   {{- if .Values.ingress.tls }}
   tls:

@@ -46,7 +46,8 @@ ingress:
   # Used to create Ingress record (should used with service.type: ClusterIP).
   hosts:
     - chart-example.local
-  path: /
+  paths:
+    - /
   annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"

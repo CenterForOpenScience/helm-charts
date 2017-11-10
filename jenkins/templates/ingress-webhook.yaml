@@ -1,6 +1,7 @@
 {{- if and .Values.ingress.enabled .Values.ingress.webhook.enabled -}}
 {{- $serviceName := include "jenkins.fullname" . -}}
 {{- $servicePort := .Values.service.externalWebhookPort -}}
+{{- $ingressPaths := .Values.ingress.webhook.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -21,10 +22,12 @@ spec:
     - host: {{ $host }}
       http:
         paths:
-          - path: /*
+          {{- range $ingressPaths }}
+          - path: {{ . }}
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
+          {{- end -}}
     {{- end -}}
   {{- if .Values.ingress.webhook.tls }}
   tls:
