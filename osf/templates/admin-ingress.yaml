@@ -1,7 +1,7 @@
 {{- if (and .Values.admin.enabled .Values.admin.ingress.enabled) -}}
 {{- $serviceName := include "osf.admin.fullname" . -}}
 {{- $servicePort := .Values.admin.service.externalPort -}}
-{{- $ingressPath := .Values.admin.ingress.path -}}
+{{- $ingressPaths := .Values.admin.ingress.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -22,10 +22,12 @@ spec:
     - host: {{ . }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          {{- range $ingressPaths }}
+          - path: {{ . }}
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
+          {{- end -}}
     {{- end -}}
   {{- if .Values.admin.ingress.tls }}
   tls:

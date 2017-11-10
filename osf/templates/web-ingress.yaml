@@ -15,31 +15,31 @@ metadata:
   {{- end }}
 spec:
   rules:
-    {{- if .Values.sharejs.enabled }}
-    {{- $serviceName := .Values.sharejs.service.name }}
-    {{- $servicePort := .Values.sharejs.service.externalPort }}
-    {{- $ingressPath := .Values.sharejs.ingress.path }}
-    {{- range .Values.web.ingress.hosts }}
-    - host: {{ . }}
-      http:
-        paths:
-          - path: {{ $ingressPath }}
-            backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
-    {{- end }}
-    {{- end }}
     {{- $serviceName := include "osf.web.fullname" . }}
     {{- $servicePort := .Values.web.service.externalPort }}
-    {{- $ingressPath := .Values.web.ingress.path }}
+    {{- $ingressPaths := .Values.web.ingress.paths }}
+    {{- $shareJSEnabled := .Values.sharejs.enabled }}
+    {{- $shareJSServiceName := .Values.sharejs.service.name }}
+    {{- $shareJSServicePort := .Values.sharejs.service.externalPort }}
+    {{- $shareJSIngressPaths := .Values.sharejs.ingress.paths }}
     {{- range .Values.web.ingress.hosts }}
     - host: {{ . }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          {{- if $shareJSEnabled }}
+          {{- range $shareJSIngressPaths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $shareJSServiceName }}
+              servicePort: {{ $shareJSServicePort }}
+          {{- end }}
+          {{- end }}
+          {{- range $ingressPaths }}
+          - path: {{ . }}
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
+          {{- end }}
     {{- end }}
   {{- if .Values.web.ingress.tls }}
   tls:

@@ -47,16 +47,13 @@ admin:
 
   ingress:
     enabled: false
-
     annotations: {}
     #   kubernetes.io/ingress.class: nginx
     #   kubernetes.io/tls-acme: 'true'
-
-    path: /
-
+    paths:
+      - /
     hosts: []
     #   - example.domain.com
-
     tls: []
       # - secretName: example-tls
       #   hosts:
@@ -110,16 +107,13 @@ api:
 
   ingress:
     enabled: false
-
     annotations: {}
     #   kubernetes.io/ingress.class: nginx
     #   kubernetes.io/tls-acme: 'true'
-
-    path: /
-
+    paths:
+      - /
     hosts: []
     #   - example.domain.com
-
     tls: []
       # - secretName: example-tls
       #   hosts:
@@ -259,16 +253,13 @@ web:
 
   ingress:
     enabled: false
-
     annotations: {}
     #   kubernetes.io/ingress.class: nginx
     #   kubernetes.io/tls-acme: 'true'
-
-    path: /
-
+    paths:
+      - /
     hosts: []
     #   - example.domain.com
-
     tls: []
       # - secretName: example-tls
       #   hosts:
