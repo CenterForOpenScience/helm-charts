@@ -119,21 +119,18 @@ shibboleth/sp-key.pem: /etc/shibboleth/sp-key.pem
 Jetty volume mounts
 */}}
 {{- define "cas.jetty.filemapConfig" }}
-cas.properties: /code/etc/cas.properties
-jetty/institutions-auth.xsl: /code/etc/institutions-auth.xsl
-log4j2.xml: /code/etc/log4j2.xml
-jetty/jetty-http.xml: /code/etc/jetty/jetty-http.xml
-jetty/jetty-context.xml: /code/etc/jetty/jetty-context.xml
-jetty/jetty.xml: /code/etc/jetty/jetty.xml
-services/cas.json: /code/etc/services/cas.json
-services/oauth2.json: /code/etc/services/oauth2.json
-services/osf.json: /code/etc/services/osf.json
-services/osf-campaigns-erpc.json: /code/etc/services/osf-campaigns-erpc.json
-services/osf-campaigns-prereg.json: /code/etc/services/osf-campaigns-prereg.json
-services/preprints-osf.json: /code/etc/services/preprints-osf.json
+cas.properties: /etc/cas/cas.properties
+institutions-auth.xsl: /etc/cas/institutions-auth.xsl
+log4j2.xml: /etc/cas/log4j2.xml
+services/cas.json: /etc/cas/services/cas.json
+services/oauth2.json: /etc/cas/services/oauth2.json
+services/osf.json: /etc/cas/services/osf.json
+services/osf-campaigns-erpc.json: /etc/cas/services/osf-campaigns-erpc.json
+services/osf-campaigns-prereg.json: /etc/cas/services/osf-campaigns-prereg.json
+services/preprints-osf.json: /etc/cas/services/preprints-osf.json
 {{- range $key, $val := (include "cas.preprint-services" . | fromYaml) }}
 {{- $filename := printf "services/preprints-%s.json" $key }}
-{{ $filename }}: /code/etc/{{ $filename }}
+{{ $filename }}: /etc/cas/{{ $filename }}
 {{- end -}}
 {{- end -}}
 {{- define "cas.jetty.volumeMounts" -}}
@@ -153,6 +150,8 @@ services/preprints-osf.json: /code/etc/services/preprints-osf.json
 Jetty environment variables
 */}}
 {{- define "cas.environment" -}}
+- name: SESSION_SECURE_COOKIES
+  value: "true"
 {{- if .Values.postgresql.enabled }}
 - name: DATABASE_HOST
   value: {{ template "postgresql.fullname" . }}

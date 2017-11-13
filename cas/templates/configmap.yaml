@@ -342,7 +342,7 @@ cas.properties: |-
   # The encryption secret key. By default, must be a octet string of size 256.
   osf.api.institutions.auth.jweSecret=${OSF_JWE_SECRET}
   osf.api.institutions.auth.jwtSecret=${OSF_JWT_SECRET}
-  osf.api.institutions.auth.xslLocation=file:institutions-auth.xsl
+  osf.api.institutions.auth.xslLocation=file:/etc/cas/institutions-auth.xsl
 
   ##
   # Open Science Framework Postgres Database
@@ -518,7 +518,7 @@ cas.properties: |-
   # JSON Service Registry
   #
   # Directory location where JSON service files may be found.
-  #service.registry.config.location=classpath:services
+  service.registry.config.location=file:/etc/cas/services
 
   ##
   # Service Registry Periodic Reloading Scheduler
@@ -535,8 +535,7 @@ cas.properties: |-
   # Default sourced from WEB-INF/spring-configuration/log4jConfiguration.xml:
   #
   # It is often time helpful to externalize log4j.xml to a system path to preserve settings between upgrades.
-  # e.g. log4j.config.location=/etc/cas/log4j2.xml
-  log4j.config.location=classpath:log4j2.xml
+  log4j.config.location=file:/etc/cas/log4j2.xml
 
   ##
   # Metrics
@@ -581,77 +580,27 @@ cas.properties: |-
   cas.throttle.repeatInterval = 1000
 log4j2.xml: |-
   <?xml version="1.0" encoding="UTF-8" ?>
-
-  <!--
-
-      Licensed to Apereo under one or more contributor license
-      agreements. See the NOTICE file distributed with this work
-      for additional information regarding copyright ownership.
-      Apereo licenses this file to you under the Apache License,
-      Version 2.0 (the "License"); you may not use this file
-      except in compliance with the License.  You may obtain a
-      copy of the License at the following location:
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-      Unless required by applicable law or agreed to in writing,
-      software distributed under the License is distributed on an
-      "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-      KIND, either express or implied.  See the License for the
-      specific language governing permissions and limitations
-      under the License.
-
-  -->
-
-  <!-- Specify the refresh internal in seconds. -->
   <Configuration monitorInterval="60">
       <Appenders>
           <Console name="Console" target="SYSTEM_OUT">
               <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n" />
           </Console>
-          <!-- <File name="perfStats" fileName="/log/perfStats.log" append="true">
-              <PatternLayout pattern="%m%n" />
-          </File> -->
           <Raven name="Sentry">
               <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
               <DSN>{{ .Values.sentryDSN }}</DSN>
           </Raven>
       </Appenders>
       <Loggers>
-          <!-- <Logger name="org.jasig" level="info" additivity="false">
+          <Logger name="io.cos" level="info" additivity="false">
               <AppenderRef ref="Console" />
           </Logger>
-          <Logger name="org.springframework" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger>
-          <Logger name="org.springframework.webflow" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger>
-          <Logger name="org.springframework.web" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger>
-          <Logger name="org.springframework.security" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger>
-          <Logger name="org.hibernate" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger>
-          <Logger name="org.jasig.cas.web.flow" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger>
-          <Logger name="com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger> -->
-          <!-- <Logger name="io.cos.cas.authentication.handler.support" level="debug" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger> -->
-          <Logger name="org.slf4j.impl.CasDelegatingLogger" level="error" additivity="false">
+          <Logger name="org.jasig" level="info" additivity="false">
               <AppenderRef ref="Console" />
           </Logger>
           <Logger name="perfStatsLogger" level="error" additivity="false">
               <AppenderRef ref="Console" />
           </Logger>
-          <Root level="info">
+          <Root level="warn">
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Root>
