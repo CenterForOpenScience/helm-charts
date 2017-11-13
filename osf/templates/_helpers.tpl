@@ -209,7 +209,18 @@ admin initContainers
 */}}
 {{- define "osf.admin.initContainers" -}}
 initContainers:
-{{- if or (not .Values.collectstatic.enabled) .Values.tls.enabled }}
+  - name: chown
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    command:
+      - /bin/sh
+      - -c
+      - chown -R www-data:www-data /log
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - mountPath: /log
+        name: log
   {{- if not .Values.collectstatic.enabled }}
   - name: {{ .Values.collectstatic.name }}
     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -224,10 +235,7 @@ initContainers:
         name: static
   {{- end }}
   {{- include "osf.certificates.initContainer" . | nindent 2 }}
-  {{- else }} []
-  {{- end }}
 {{- end -}}
-
 
 {{/*
 api initContainers

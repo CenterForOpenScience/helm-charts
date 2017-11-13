@@ -1,5 +1,4 @@
-{{- if .Values.migration.enabled -}}
-{{- if and .Values.migration.persistence.enabled (not .Values.migration.persistence.existingClaim) -}}
+{{- if and .Values.migration.enabled .Values.migration.persistence.enabled (not .Values.migration.persistence.existingClaim) -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -22,5 +21,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.migration.persistence.size | quote }}
-{{- end -}}
 {{- end -}}

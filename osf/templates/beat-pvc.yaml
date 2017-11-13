@@ -1,6 +1,5 @@
 {{- /* TODO: Remove when djang-celery-beat is configured */ -}}
-{{- if .Values.beat.enabled -}}
-{{- if and .Values.beat.persistence.enabled (not .Values.beat.persistence.existingClaim) -}}
+{{- if and .Values.beat.enabled .Values.beat.persistence.enabled (not .Values.beat.persistence.existingClaim) -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -23,5 +22,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.beat.persistence.size | quote }}
-{{- end -}}
 {{- end -}}

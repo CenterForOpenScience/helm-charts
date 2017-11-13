@@ -1,0 +1,24 @@
+{{- if and .Values.admin.enabled .Values.admin.persistence.enabled (not .Values.admin.persistence.existingClaim) -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "osf.admin.fullname" . }}
+  labels:
+    app: {{ template "osf.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.admin.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  annotations:
+  {{- if .Values.admin.persistence.storageClass }}
+    volume.beta.kubernetes.io/storage-class: {{ .Values.admin.persistence.storageClass | quote }}
+  {{- else }}
+    volume.alpha.kubernetes.io/storage-class: default
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.admin.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.admin.persistence.size | quote }}
+{{- end -}}

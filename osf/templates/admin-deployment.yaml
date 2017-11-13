@@ -96,6 +96,8 @@ spec:
               port: {{ .Values.admin.service.externalPort }}
             initialDelaySeconds: 10
           volumeMounts:
+            - mountPath: /log
+              name: log
             - mountPath: /etc/uwsgi/uwsgi.ini
               name: config
               subPath: admin-uwsgi.ini
@@ -112,6 +114,13 @@ spec:
         {{- include "osf.volumes" . | nindent 8 }}
         - name: static
           emptyDir: {}
+        - name: log
+          {{- if .Values.admin.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.admin.persistence.existingClaim | default (include "osf.admin.fullname" .) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
       {{- if .Values.admin.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.admin.nodeSelector | nindent 8 }}
