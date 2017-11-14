@@ -20,7 +20,7 @@ spec:
       serviceAccountName: {{ template "elasticsearch.fullname" . }}
       affinity:
         {{- if .Values.client.additionalAffinities }}
-        {{ toYaml .Values.client.additionalAffinities | nindent 8 }}
+        {{- toYaml .Values.client.additionalAffinities | nindent 8 }}
         {{- end }}
         {{- if eq .Values.client.antiAffinity "hard" }}
         podAntiAffinity:
@@ -34,14 +34,14 @@ spec:
         {{- else if eq .Values.client.antiAffinity "soft" }}
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              topologyKey: kubernetes.io/hostname
-              labelSelector:
-                matchLabels:
-                  app: "{{ template "elasticsearch.name" . }}"
-                  release: "{{ .Release.Name }}"
-                  component: "{{ .Values.client.name }}"
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: "{{ template "elasticsearch.name" . }}"
+                    release: "{{ .Release.Name }}"
+                    component: "{{ .Values.client.name }}"
         {{- end }}
       initContainers:
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
