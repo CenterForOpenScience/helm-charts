@@ -27,6 +27,31 @@ spec:
         {{- end }}
         {{- end }}
     spec:
+      affinity:
+        {{- if .Values.api.additionalAffinities }}
+        {{- toYaml .Values.api.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.api.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "osf.name" . }}
+                  release: "{{ .Release.Name }}"
+                  component: "{{ .Values.api.name }}"
+        {{- else if eq .Values.api.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "osf.name" . }}
+                    release: "{{ .Release.Name }}"
+                    component: "{{ .Values.api.name }}"
+        {{- end }}
       {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
       {{- include "osf.api.initContainers" . | nindent 6 }}
       {{- end }}
