@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: {{ template "mfr.fullname" . }}
@@ -15,8 +15,31 @@ spec:
         app: {{ template "mfr.name" . }}
         release: {{ .Release.Name }}
       annotations:
-        {{- include "mfr.deploymentAnnotations" . | indent 8 }}
+        {{- include "mfr.deploymentAnnotations" . | nindent 8 }}
     spec:
+      affinity:
+        {{- if .Values.additionalAffinities }}
+        {{- toYaml .Values.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "mfr.name" . }}
+                  release: {{ .Release.Name }}
+        {{- else if eq .Values.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "mfr.name" . }}
+                    release: {{ .Release.Name }}
+        {{- end }}
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -36,11 +59,11 @@ spec:
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
           volumeMounts:
-            - name: config-volume
+            - name: config
               subPath: nginx.conf
               mountPath: /etc/nginx/nginx.conf
               readOnly: true
-            - name: config-volume
+            - name: config
               subPath: robots.txt
               mountPath: /usr/share/nginx/html/robots.txt
               readOnly: true
@@ -55,7 +78,7 @@ spec:
             - invoke
             - server
           env:
-            {{- include "mfr.environment" . | indent 12 }}
+            {{- include "mfr.environment" . | nindent 12 }}
             - name: ENV
               value: kube
           ports:
@@ -66,11 +89,11 @@ spec:
               path: /status
               port: {{ .Values.service.externalPort }}
           volumeMounts:
-            - name: secret-volume
+            - name: secret
               subPath: settings.json
               mountPath: /home/.cos/mfr-kube.json
               readOnly: true
-            - name: localcache-volume
+            - name: localcache
               mountPath: /tmp/mfrlocalcache
           resources:
             {{- toYaml .Values.tornado.resources | nindent 12 }}
@@ -93,20 +116,20 @@ spec:
             - name: unoconv
               containerPort: 2002
           volumeMounts:
-            - name: localcache-volume
+            - name: localcache
               mountPath: /tmp/mfrlocalcache
           resources:
             {{- toYaml .Values.unoconv.resources | nindent 12 }}
       volumes:
-        - name: localcache-volume
+        - name: localcache
           emptyDir: {}
-        - name: config-volume
+        - name: config
           configMap:
             name: {{ template "mfr.fullname" . }}
-        - name: secret-volume
+        - name: secret
           secret:
             secretName: {{ template "mfr.fullname" . }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
-    {{- end }}
+      {{- end }}

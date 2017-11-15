@@ -27,12 +27,12 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Overridable deployment annotations
 */}}
-{{- define "wb.deploymentAnnotations" }}
+{{- define "wb.deploymentAnnotations" -}}
 checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
 {{- end -}}
 
-{{- define "wb.environment" }}
+{{- define "wb.environment" -}}
 {{- $fullname := include "wb.fullname" . -}}
 {{- range $key, $value := .Values.configEnvs }}
 - name: {{ $key }}

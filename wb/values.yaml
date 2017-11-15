@@ -8,6 +8,8 @@ image:
   tag: develop
   pullPolicy: Always
 
+antiAffinity: soft
+
 nginx:
   image:
     repository: nginx
