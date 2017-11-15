@@ -8,6 +8,8 @@ image:
   tag: latest
   pullPolicy: Always
 
+antiAffinity: soft
+
 resources: {}
   #limits:
   #  cpu: 100m
