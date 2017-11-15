@@ -15,30 +15,11 @@ spec:
         app: {{ template "ember.name" . }}
         release: {{ .Release.Name }}
       annotations:
-        {{- include "ember.deploymentAnnotations" . | indent 8 }}
+        {{- include "ember.deploymentAnnotations" . | nindent 8 }}
         # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
-        pod.beta.kubernetes.io/init-containers: |-
-          [
-              {
-                  "name": "{{ .Values.name }}",
-                  "image": "{{ .Values.image.repository }}:{{ .Values.image.tag }}",
-                  "imagePullPolicy": "{{ .Values.image.pullPolicy }}",
-                  "command": [
-                      "/bin/sh",
-                      "-c",
-                      "{{ if hasKey .Values.configFiles "config.json" -}} node /code/replace-config.js && {{ end -}} cp -Rf /code/dist/* /static/"
-                  ],
-                  "volumeMounts": [
-                      {"name":"static","mountPath":"/static"}
-                      {{- if hasKey .Values.configFiles "config.json" -}}
-                      ,
-                      {"name":"config","readOnly":true,"mountPath":"/code/replace-config.js","subPath":"replace-config.js"},
-                      {"name":"config","readOnly":true,"mountPath":"/code/config.json","subPath":"config.json"}
-                      {{- end }}
-                  ]
-              }
-          ]
+        pod.alpha.kubernetes.io/init-containers: null
+        pod.beta.kubernetes.io/init-containers: null
         {{- end }}
     spec:
       affinity:
@@ -64,7 +45,6 @@ spec:
                     app: {{ template "ember.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
-      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
       initContainers:
         - name: {{ .Values.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -72,7 +52,10 @@ spec:
           command:
             - /bin/sh
             - -c
-            - {{ if hasKey .Values.configFiles "config.json" -}} node /code/replace-config.js && {{ end -}}
+            - |-
+              {{ if hasKey .Values.configFiles "config.json" -}}
+              node /code/replace-config.js
+              {{- end }}
               cp -Rf /code/dist/* /static/
           volumeMounts:
             - name: static
@@ -87,7 +70,6 @@ spec:
               subPath: config.json
               readOnly: true
             {{- end }}
-      {{- end }}
       containers:
         - name: {{ .Values.nginx.name }}
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"

@@ -18,8 +18,8 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
-        pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "cas.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
+        pod.alpha.kubernetes.io/init-containers: null
+        pod.beta.kubernetes.io/init-containers: null
         {{- end }}
     spec:
       affinity:
@@ -45,8 +45,28 @@ spec:
                     app: {{ template "cas.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
-      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "cas.initContainers" . | nindent 6 }}
+      {{- if .Values.tls.enabled }}
+      initContainers:
+        - name: certificates
+          image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
+          imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              export dir=/var/www/.postgresql
+              cp -f /certs/.* ${dir}
+              chown -R www-data:www-data ${dir}
+              chmod -R 0600 ${dir}/*
+          volumeMounts:
+            - mountPath: /var/www/.postgresql
+              name: certs
+            {{- range $key := keys .Values.tls.files }}
+            - mountPath: /certs/{{ $key }}
+              name: secret
+              subPath: certs-{{ $key }}
+              readOnly: true
+            {{- end }}
       {{- end }}
       containers:
         - name: apache

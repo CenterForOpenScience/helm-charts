@@ -23,12 +23,33 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
-        pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "barman.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
+        pod.alpha.kubernetes.io/init-containers: null
+        pod.beta.kubernetes.io/init-containers: null
         {{- end }}
     spec:
-      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "barman.initContainers" . | nindent 6 }}
+      {{- if .Values.tls.enabled }}
+      initContainers:
+        - name: certificates
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - export dir=/var/lib/barman/.postgresql && 
+              mkdir -p ${dir} && 
+              cp -f /certs/.* ${dir} && 
+              chown -R barman:barman ${dir} && 
+              chmod -R 0600 ${dir}/*
+          volumeMounts:
+            - mountPath: /var/lib/barman
+              name: data
+              subPath: data
+            {{- range $key := keys .Values.tls.files }}
+            - mountPath: /certs/{{ $key }}
+              name: secret
+              subPath: certs-{{ $key }}
+              readOnly: true
+            {{- end }}
       {{- end }}
       containers:
         - name: barman

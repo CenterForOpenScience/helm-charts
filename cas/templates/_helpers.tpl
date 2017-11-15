@@ -40,35 +40,6 @@ Volumes
 {{- end -}}
 
 {{/*
-Init Containers
-*/}}
-{{- define "cas.initContainers" -}}
-initContainers:
-  {{- if .Values.tls.enabled }}
-  - name: certificates
-    image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
-    imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
-    command:
-      - /bin/sh
-      - -c
-      - export dir=/var/www/.postgresql && 
-        cp -f /certs/.* ${dir} && 
-        chown -R www-data:www-data ${dir} && 
-        chmod -R 0600 ${dir}/*
-    volumeMounts:
-      - mountPath: /var/www/.postgresql
-        name: certs
-      {{- range $key := keys .Values.tls.files }}
-      - mountPath: /certs/{{ $key }}
-        name: secret
-        subPath: certs-{{ $key }}
-        readOnly: true
-      {{- end }}
-  {{- else }} []
-  {{- end }}
-{{- end -}}
-
-{{/*
 Apache volume mounts
 */}}
 {{- define "cas.apache.filemapConfig" }}

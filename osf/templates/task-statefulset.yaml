@@ -24,11 +24,6 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         {{- include "osf.deploymentAnnotations" . | nindent 8 }}
-        # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
-        {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
-        pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "osf.task.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
-        {{- end }}
     spec:
       affinity:
         {{- if .Values.task.additionalAffinities }}
@@ -55,9 +50,20 @@ spec:
                     release: "{{ .Release.Name }}"
                     component: "{{ .Values.task.name }}"
         {{- end }}
-      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "osf.task.initContainers" . | nindent 6 }}
-      {{- end }}
+      initContainers:
+        - name: chown
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - chown -R www-data:www-data /log
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /log
+              name: log
+        {{- include "osf.certificates.initContainer" . | nindent 8 }}
       containers:
         - name: {{ .Values.task.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

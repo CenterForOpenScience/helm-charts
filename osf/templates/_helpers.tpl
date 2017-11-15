@@ -120,6 +120,11 @@ Overridable deployment annotations
 {{- define "osf.deploymentAnnotations" -}}
 checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+# Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
+{{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
+pod.alpha.kubernetes.io/init-containers: null
+pod.beta.kubernetes.io/init-containers: null
+{{- end }}
 {{- end -}}
 
 {{- define "osf.environment" -}}
@@ -203,176 +208,6 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
     {{- end }}
 {{- end }}
 {{- end }}
-
-{{/*
-admin initContainers
-*/}}
-{{- define "osf.admin.initContainers" -}}
-initContainers:
-  - name: chown
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/sh
-      - -c
-      - chown -R www-data:www-data /log
-    securityContext:
-      runAsUser: 0
-    volumeMounts:
-      - mountPath: /log
-        name: log
-  {{- if not .Values.collectstatic.enabled }}
-  - name: {{ .Values.collectstatic.name }}
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/sh
-      - -c
-      - mkdir -p /static/code/admin &&
-        cp -Rf /code/static_root/* /static/code/admin
-    volumeMounts:
-      - mountPath: /static
-        name: static
-  {{- end }}
-  {{- include "osf.certificates.initContainer" . | nindent 2 }}
-{{- end -}}
-
-{{/*
-api initContainers
-*/}}
-{{- define "osf.api.initContainers" -}}
-initContainers:
-  {{- if or (not .Values.collectstatic.enabled) .Values.tls.enabled }}
-  {{- if not .Values.collectstatic.enabled }}
-  - name: {{ .Values.collectstatic.name }}
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/sh
-      - -c
-      - mkdir -p /static/code/api &&
-        cp -Rf /code/api/static /static/code/api
-    volumeMounts:
-      - mountPath: /static
-        name: static
-  {{- end }}
-  {{- include "osf.certificates.initContainer" . | nindent 2 }}
-  {{- else }} []
-  {{- end }}
-{{- end -}}
-
-{{/*
-beat initContainers
-*/}}
-{{- define "osf.beat.initContainers" -}}
-initContainers:
-  - name: chown
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/bash
-      - -c
-      - chown -R www-data:www-data /beat &&
-        chown -R www-data:www-data /log
-    securityContext:
-      runAsUser: 0
-    volumeMounts:
-      - mountPath: /beat
-        name: beat
-      - mountPath: /log
-        name: log
-  {{- include "osf.certificates.initContainer" . | nindent 2 }}
-{{- end -}}
-
-{{/*
-migration initContainers
-*/}}
-{{- define "osf.migration.initContainers" -}}
-initContainers:
-  - name: chown
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/bash
-      - -c
-      - chown -R www-data:www-data /log
-    securityContext:
-      runAsUser: 0
-    volumeMounts:
-      - mountPath: /log
-        name: log
-  {{- include "osf.certificates.initContainer" . | nindent 2 }}
-{{- end -}}
-
-{{/*
-task initContainers
-*/}}
-{{- define "osf.task.initContainers" -}}
-initContainers:
-  - name: chown
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/bash
-      - -c
-      - chown -R www-data:www-data /log
-    securityContext:
-      runAsUser: 0
-    volumeMounts:
-      - mountPath: /log
-        name: log
-  {{- include "osf.certificates.initContainer" . | nindent 2 }}
-{{- end -}}
-
-{{/*
-web initContainers
-*/}}
-{{- define "osf.web.initContainers" -}}
-initContainers:
-  {{- if or (not .Values.collectstatic.enabled) .Values.tls.enabled }}
-  {{- if not .Values.collectstatic.enabled }}
-  - name: {{ .Values.collectstatic.name }}
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/sh
-      - -c
-      - mkdir -p /static/code/website &&
-        cp -Rf /code/website/static /static/code/website &&
-        find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
-    volumeMounts:
-      - mountPath: /static
-        name: static
-  {{- end }}
-  {{- include "osf.certificates.initContainer" . | nindent 2 }}
-  {{- else }} []
-  {{- end }}
-{{- end -}}
-
-{{/*
-worker initContainers
-*/}}
-{{- define "osf.worker.initContainers" -}}
-initContainers:
-  {{- if or (not .Values.task.enabled) .Values.tls.enabled }}
-  {{- if not .Values.task.enabled }}
-  - name: chown
-    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: {{ .Values.image.pullPolicy }}
-    command:
-      - /bin/bash
-      - -c
-      - chown -R www-data:www-data /log
-    securityContext:
-      runAsUser: 0
-    volumeMounts:
-      - mountPath: /log
-        name: log
-  {{- end }}
-  {{- include "osf.certificates.initContainer" . | nindent 2 }}
-  {{- else }} []
-  {{- end }}
-{{- end -}}
 
 {{- define "osf.volumes" -}}
 {{- if .Values.tls.enabled }}

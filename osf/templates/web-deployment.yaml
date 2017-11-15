@@ -23,11 +23,6 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         {{- include "osf.deploymentAnnotations" . | nindent 8 }}
-        # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
-        {{- if and (eq .Capabilities.KubeVersion.Major "1") (lt .Capabilities.KubeVersion.Minor "8") }}
-        pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "osf.web.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
-        {{- end }}
     spec:
       affinity:
         {{- if .Values.web.additionalAffinities }}
@@ -54,8 +49,23 @@ spec:
                     release: "{{ .Release.Name }}"
                     component: "{{ .Values.web.name }}"
         {{- end }}
-      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "osf.web.initContainers" . | nindent 6 }}
+      {{- if or (not .Values.collectstatic.enabled) .Values.tls.enabled }}
+      initContainers:
+        {{- if not .Values.collectstatic.enabled }}
+        - name: {{ .Values.collectstatic.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - mkdir -p /static/code/website &&
+              cp -Rf /code/website/static /static/code/website &&
+              find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
+          volumeMounts:
+            - mountPath: /static
+              name: static
+        {{- end }}
+        {{- include "osf.certificates.initContainer" . | nindent 8 }}
       {{- end }}
       containers:
         - name: nginx

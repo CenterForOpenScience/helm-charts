@@ -18,6 +18,6 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Overridable deployment annotations
 */}}
-{{- define "ember.deploymentAnnotations" }}
+{{- define "ember.deploymentAnnotations" -}}
 checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 {{- end -}}

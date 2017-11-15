@@ -19,11 +19,6 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         {{- include "osf.deploymentAnnotations" . | nindent 8 }}
-        # Init containers not updated on upgrade : https://github.com/kubernetes/helm/issues/2702
-        {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-        pod.beta.kubernetes.io/init-containers: |-
-          {{- (include "osf.worker.initContainers" . | fromYaml).initContainers | toJson | nindent 10 }}
-        {{- end }}
     spec:
       affinity:
         {{- if .Values.worker.additionalAffinities }}
@@ -50,9 +45,24 @@ spec:
                     release: "{{ .Release.Name }}"
                     component: "{{ .Values.worker.name }}"
         {{- end }}
-      {{- if or (gt .Capabilities.KubeVersion.Major "1") (and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "8")) }}
-      {{- include "osf.worker.initContainers" . | nindent 6 }}
-      {{- end }}
+      {{- if or (not .Values.task.enabled) .Values.tls.enabled }}
+      initContainers:
+        {{- if not .Values.task.enabled }}
+        - name: chown
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - chown -R www-data:www-data /log
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /log
+              name: log
+        {{- end }}
+        {{- include "osf.certificates.initContainer" . | nindent 8 }}
+        {{- end }}
       containers:
         - name: {{ .Values.worker.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
