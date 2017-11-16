@@ -25,8 +25,8 @@ initContainers:
       - /bin/sh
       - -c
       - export dir=/opt/nessus/var/nessus/CA && 
-        mkdir -p ${dir} && 
-        cp -f /certs/.* ${dir} && 
+        mkdir -p ${dir} &&
+        cp -f /certs/* ${dir} &&
         chown -R root:root ${dir} &&
         chmod -R 0400 ${dir}/*
     volumeMounts:

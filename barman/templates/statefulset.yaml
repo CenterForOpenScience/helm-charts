@@ -35,10 +35,10 @@ spec:
           command:
             - /bin/sh
             - -c
-            - export dir=/var/lib/barman/.postgresql && 
-              mkdir -p ${dir} && 
-              cp -f /certs/.* ${dir} && 
-              chown -R barman:barman ${dir} && 
+            - export dir=/var/lib/barman/.postgresql &&
+              mkdir -p ${dir} &&
+              cp -f /certs/* ${dir} &&
+              chown -R barman:barman ${dir} &&
               chmod -R 0600 ${dir}/*
           volumeMounts:
             - mountPath: /var/lib/barman

@@ -55,7 +55,7 @@ spec:
             - -c
             - |-
               export dir=/var/www/.postgresql
-              cp -f /certs/.* ${dir}
+              cp -f /certs/* ${dir}
               chown -R www-data:www-data ${dir}
               chmod -R 0600 ${dir}/*
           volumeMounts:
