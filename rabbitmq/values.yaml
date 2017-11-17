@@ -6,6 +6,10 @@ image:
   tag: 3-management
   pullPolicy: IfNotPresent
 
+antiAffinity: soft
+
+terminationGracePeriodSeconds: 60
+
 ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq#environment-variables
 configEnvs:
   #RABBITMQ_NODENAME: rabbit@localhost
