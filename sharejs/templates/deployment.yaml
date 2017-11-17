@@ -40,6 +40,34 @@ spec:
                     app: {{ template "sharejs.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
+      {{- if and .Values.tls.enabled .Values.tls.files }}
+      initContainers:
+        - name: certificates
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              cp -Rf /certs/* /etc/ssl/mongo
+              chown -R node:node /etc/ssl/mongo
+              chmod -R 0600 /etc/ssl/mongo
+          volumeMounts:
+            - name: certs
+              mountPath: /etc/ssl/mongo
+            {{- range $key := keys .Values.tls.files }}
+            - mountPath: /certs/{{ $key }}
+              name: secret
+              subPath: certs-{{ $key }}
+              readOnly: true
+            {{- end }}
+            {{- range $key := keys .Values.tls.caFiles }}
+            - mountPath: /certs/CAs/{{ $key }}
+              name: secret
+              subPath: certs-{{ $key }}
+              readOnly: true
+            {{- end }}
+      {{- end }}
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -59,11 +87,11 @@ spec:
               port: {{ .Values.service.internalPort }}
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf
-              name: config-volume
+              name: config
               subPath: nginx.conf
               readOnly: true
             - mountPath: /usr/share/nginx/html/robots.txt
-              name: config-volume
+              name: config
               subPath: robots.txt
               readOnly: true
           {{- if .Values.nginx.resources }}
@@ -89,17 +117,24 @@ spec:
           readinessProbe:
             tcpSocket:
               port: {{ .Values.service.externalPort }}
+          volumeMounts:
+            - name: certs
+              mountPath: /etc/ssl/mongo
           {{- if .Values.resources }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
       volumes:
-        - name: config-volume
+        - name: config
           configMap:
             name: {{ template "sharejs.fullname" . }}
-        - name: secret-volume
+        - name: secret
           secret:
             secretName: {{ template "sharejs.fullname" . }}
+        {{- if and .Values.tls.enabled .Values.tls.files }}
+        - name: certs
+          emptyDir: {}
+        {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}

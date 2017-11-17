@@ -47,5 +47,19 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
     secretKeyRef:
       name: {{ $fullname }}
       key: {{ $key }}
-{{- end -}}
+{{- end }}
+{{- if .Values.tls.enabled }}
+- name: MONGO_SSL
+  value: 'true'
+{{- if .Values.tls.files }}
+- name: MONGO_SSL_CERT_FILE
+  value: /etc/ssl/mongo/cert.pem
+- name: MONGO_SSL_KEY_FILE
+  value: /etc/ssl/mongo/key.pem
+{{- end }}
+{{- if .Values.tls.caFiles }}
+- name: MONGO_SSL_CA_DIR
+  value: /etc/ssl/mongo/CAs/
+{{- end }}
+{{- end }}
 {{- end -}}

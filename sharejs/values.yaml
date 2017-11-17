@@ -76,6 +76,22 @@ secretFiles: {}
   # secret.json: |-
   #   ...
 
+tls:
+  enabled: true
+
+  files:
+    cert.pem: |-
+      ...
+    key.pem: |-
+      ...
+
+  # CA certs should be named in order
+  caFiles:
+    '0-intermedate.pem': |-
+      ...
+    '1-root.pem': |-
+      ...
+
 mongodb:
   enabled: false
 
