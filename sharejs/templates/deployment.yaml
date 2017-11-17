@@ -51,7 +51,7 @@ spec:
             - |-
               cp -Rf /certs/* /etc/ssl/mongo
               chown -R node:node /etc/ssl/mongo
-              chmod -R 0600 /etc/ssl/mongo
+              chmod -R 0500 /etc/ssl/mongo
           volumeMounts:
             - name: certs
               mountPath: /etc/ssl/mongo
