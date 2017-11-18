@@ -11,6 +11,10 @@ metadata:
 spec:
   serviceName: {{ template "elasticsearch.data.fullname" . }}
   replicas: {{ .Values.data.replicas }}
+  {{- if .Values.data.updateStrategy }}
+  updateStrategy:
+    {{- toYaml .Values.data.updateStrategy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:

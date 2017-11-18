@@ -71,6 +71,11 @@ client:
   #               operator: NotIn
   #               values:
   #                 - "true"
+  # strategy:
+  #   rollingUpdate:
+  #     maxSurge: 25%
+  #     maxUnavailable: 25%
+  #   type: RollingUpdate
   service:
     #annotations: {}
     type: ClusterIP
@@ -100,6 +105,10 @@ master:
   #               operator: NotIn
   #               values:
   #                 - "true"
+  # updateStrategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     partition: 1
   budget:
     minAvailable: 1
   persistence:
@@ -133,6 +142,10 @@ data:
   #               operator: NotIn
   #               values:
   #                 - "true"
+  # updateStrategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     partition: 1
   budget:
     minAvailable: 1
   persistence:

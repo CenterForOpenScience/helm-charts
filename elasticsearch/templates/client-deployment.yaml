@@ -10,6 +10,10 @@ metadata:
   name: {{ template "elasticsearch.client.fullname" . }}
 spec:
   replicas: {{ .Values.client.replicas }}
+  {{- if .Values.client.strategy }}
+  strategy:
+    {{- toYaml .Values.client.strategy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
