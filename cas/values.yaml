@@ -1,9 +1,15 @@
 # Default values for cas.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-replicaCount: 2
+replicaCount: 1
 
 antiAffinity: soft
+
+# strategy:
+#   rollingUpdate:
+#     maxSurge: 25%
+#     maxUnavailable: 25%
+#   type: RollingUpdate
 
 apache:
   image:
