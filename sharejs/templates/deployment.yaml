@@ -61,11 +61,13 @@ spec:
               subPath: certs-{{ $key }}
               readOnly: true
             {{- end }}
+            {{- if .Values.tls.caFiles }}
             {{- range $key := keys .Values.tls.caFiles }}
             - mountPath: /certs/CAs/{{ $key }}
               name: secret
               subPath: certs-{{ $key }}
               readOnly: true
+            {{- end }}
             {{- end }}
       {{- end }}
       containers:
