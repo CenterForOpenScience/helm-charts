@@ -117,7 +117,8 @@ spec:
             - name: http
               containerPort: {{ .Values.service.externalPort }}
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthz
               port: {{ .Values.service.externalPort }}
           {{- if and .Values.tls.enabled .Values.tls.files }}
           volumeMounts:
