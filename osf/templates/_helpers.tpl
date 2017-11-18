@@ -145,16 +145,22 @@ pod.beta.kubernetes.io/init-containers: null
 - name: RABBITMQ_HOST
   value: {{ template "rabbitmq.fullname" . }}
 - name: RABBITMQ_PORT
-  value: {{ .Values.rabbitmq.rabbitmqNodePort | quote }}
+  value: {{ .Values.rabbitmq.service.ports.amqp | quote }}
 - name: RABBITMQ_VHOST
-  value: {{ .Values.rabbitmq.rabbitmqVhost | quote }}
+  valueFrom:
+    configMapKeyRef:
+      name: {{ template "rabbitmq.fullname" . }}
+      key: RABBITMQ_VHOST
 - name: RABBITMQ_USERNAME
-  value: {{ .Values.rabbitmq.rabbitmqUsername | quote }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ template "rabbitmq.fullname" . }}
+      key: RABBITMQ_USERNAME
 - name: RABBITMQ_PASSWORD
   valueFrom:
     secretKeyRef:
       name: {{ template "rabbitmq.fullname" . }}
-      key: rabbitmq-password
+      key: RABBITMQ_PASSWORD
 {{- end }}
 {{- if .Values.elasticsearch.enabled }}
 - name: ELASTIC_URI
