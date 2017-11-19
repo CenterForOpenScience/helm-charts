@@ -13,6 +13,24 @@ imagePullPolicy: IfNotPresent
 ## Replicas Set count
 replicasCount: 1
 
+antiAffinity: "soft"
+# additionalAffinities:
+#   nodeAffinity:
+#     preferredDuringSchedulingIgnoredDuringExecution:
+#       - weight: 50
+#         preference:
+#           matchExpressions:
+#             - key: cloud.google.com/gke-preemptible
+#               operator: NotIn
+#               values:
+#                 - "true"
+
+# strategy:
+#   rollingUpdate:
+#     maxSurge: 25%
+#     maxUnavailable: 25%
+#   type: RollingUpdate
+
 ## Set the GCP service account key JSON file.
 ## Service account has access be set to Cloud SQL instances
 ## the key must be encoded with base64

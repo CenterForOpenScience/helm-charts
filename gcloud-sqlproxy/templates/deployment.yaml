@@ -4,23 +4,51 @@ kind: Deployment
 metadata:
   name: {{ template "gcloud-sqlproxy.fullname" . }}
   labels:
-    app: {{ template "gcloud-sqlproxy.fullname" . }}
+    app: {{ template "gcloud-sqlproxy.name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 spec:
   replicas: {{ .Values.replicasCount }}
+  {{- if .Values.strategy }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
-        app: {{ template "gcloud-sqlproxy.fullname" . }}
+        app: {{ template "gcloud-sqlproxy.name" . }}
+        release: {{ .Release.Name }}
     spec:
+      affinity:
+        {{- if .Values.additionalAffinities }}
+        {{- toYaml .Values.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "gcloud-sqlproxy.name" . }}
+                  release: "{{ .Release.Name }}"
+        {{- else if eq .Values.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "gcloud-sqlproxy.name" . }}
+                    release: "{{ .Release.Name }}"
+        {{- end }}
       containers:
       - name: sqlproxy
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
         imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}
         command: ["/cloud_sql_proxy", "--dir=/cloudsql",
                   "-instances={{ .Values.cloudsql.instance }}=tcp:0.0.0.0:{{ .Values.cloudsql.port }}",
                   "-credential_file=/secrets/cloudsql/credentials.json"]
