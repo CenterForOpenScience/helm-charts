@@ -3,6 +3,8 @@ image:
   tag: '3.4'
   pullPolicy: IfNotPresent
 
+antiAffinity: soft
+
 terminationGracePeriodSeconds: 60
 
 ## Enable persistence using Persistent Volume Claims
