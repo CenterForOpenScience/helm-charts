@@ -54,10 +54,13 @@ spec:
         - name: certificates
           image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
           imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
+          securityContext:
+            runAsUser: 0
           command:
             - /bin/sh
             - -c
             - |-
+              set -ex
               export dir=/home/jetty/.postgresql
               cp -f /certs/* ${dir}
               chown -R jetty:jetty ${dir}
