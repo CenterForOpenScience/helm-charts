@@ -22,6 +22,31 @@ spec:
         component: "{{ .Values.defaultBackend.name }}"
         release: {{ .Release.Name }}
     spec:
+      affinity:
+        {{- if .Values.defaultBackend.additionalAffinities }}
+        {{- toYaml .Values.defaultBackend.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.defaultBackend.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  component: "{{ .Values.defaultBackend.name }}"
+                  release: {{ .Release.Name }}
+        {{- else if eq .Values.defaultBackend.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "name" . }}
+                    component: "{{ .Values.defaultBackend.name }}"
+                    release: {{ .Release.Name }}
+        {{- end }}
       containers:
         - name: {{ template "name" . }}-{{ .Values.defaultBackend.name }}
           image: "{{ .Values.defaultBackend.image.repository }}:{{ .Values.defaultBackend.image.tag }}"
@@ -53,29 +78,6 @@ spec:
     {{- if .Values.defaultBackend.tolerations }}
       tolerations:
 {{ toYaml .Values.defaultBackend.tolerations | indent 8 }}
-    {{- end }}
-    {{- if eq .Values.defaultBackend.antiAffinity "hard" }}
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: "kubernetes.io/hostname"
-              labelSelector:
-                matchLabels:
-                  app: {{ template "name" . }}
-                  component: "{{ .Values.defaultBackend.name }}"
-                  release: {{ .Release.Name }}
-    {{- else if eq .Values.defaultBackend.antiAffinity "soft" }}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              topologyKey: kubernetes.io/hostname
-              labelSelector:
-                matchLabels:
-                  app: {{ template "name" . }}
-                  component: "{{ .Values.defaultBackend.name }}"
-                  release: {{ .Release.Name }}
     {{- end }}
       terminationGracePeriodSeconds: 60
 {{- end }}

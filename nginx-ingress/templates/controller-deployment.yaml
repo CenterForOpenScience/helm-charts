@@ -23,6 +23,31 @@ spec:
         component: "{{ .Values.controller.name }}"
         release: {{ .Release.Name }}
     spec:
+      affinity:
+        {{- if .Values.controller.additionalAffinities }}
+        {{- toYaml .Values.controller.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.controller.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  component: "{{ .Values.controller.name }}"
+                  release: {{ .Release.Name }}
+        {{- else if eq .Values.controller.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "name" . }}
+                    component: "{{ .Values.controller.name }}"
+                    release: {{ .Release.Name }}
+        {{- end }}
       containers:
         - name: {{ template "name" . }}-{{ .Values.controller.name }}
           image: "{{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag }}"
@@ -133,29 +158,6 @@ spec:
     {{- if .Values.controller.tolerations }}
       tolerations:
 {{ toYaml .Values.controller.tolerations | indent 8 }}
-    {{- end }}
-    {{- if eq .Values.controller.antiAffinity "hard" }}
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: "kubernetes.io/hostname"
-              labelSelector:
-                matchLabels:
-                  app: {{ template "name" . }}
-                  component: "{{ .Values.controller.name }}"
-                  release: {{ .Release.Name }}
-    {{- else if eq .Values.controller.antiAffinity "soft" }}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 1
-            podAffinityTerm:
-              topologyKey: kubernetes.io/hostname
-              labelSelector:
-                matchLabels:
-                  app: {{ template "name" . }}
-                  component: "{{ .Values.controller.name }}"
-                  release: {{ .Release.Name }}
     {{- end }}
       serviceAccountName: {{ if .Values.rbac.create }}{{ template "fullname" . }}{{ else }}"{{ .Values.rbac.serviceAccountName }}"{{ end }}
       terminationGracePeriodSeconds: 60
