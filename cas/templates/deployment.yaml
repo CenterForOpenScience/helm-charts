@@ -63,7 +63,7 @@ spec:
               chown -R jetty:jetty ${dir}
               chmod -R 0600 ${dir}/*
           volumeMounts:
-            - mountPath: /var/www/.postgresql
+            - mountPath: /home/jetty/.postgresql
               name: certs
             {{- range $key := keys .Values.tls.files }}
             - mountPath: /certs/{{ $key }}

@@ -112,7 +112,7 @@ services/preprints-osf.json: /etc/cas/services/preprints-osf.json
   readOnly: true
 {{- end -}}
 {{- if .Values.tls.enabled }}
-- mountPath: /var/www/.postgresql
+- mountPath: /home/jetty/.postgresql
   name: certs
 {{- end }}
 {{- end -}}
