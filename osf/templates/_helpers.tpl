@@ -155,12 +155,12 @@ pod.beta.kubernetes.io/init-containers: null
   valueFrom:
     secretKeyRef:
       name: {{ template "rabbitmq.fullname" . }}
-      key: RABBITMQ_USERNAME
+      key: RABBITMQ_DEFAULT_USER
 - name: RABBITMQ_PASSWORD
   valueFrom:
     secretKeyRef:
       name: {{ template "rabbitmq.fullname" . }}
-      key: RABBITMQ_PASSWORD
+      key: RABBITMQ_DEFAULT_PASS
 {{- end }}
 {{- if .Values.elasticsearch.enabled }}
 - name: ELASTIC_URI
