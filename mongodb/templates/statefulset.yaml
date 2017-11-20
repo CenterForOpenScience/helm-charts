@@ -55,7 +55,7 @@ spec:
             - /bin/sh
             - -c
             - cp /certs/* /etc/ssl &&
-              chown -R mongodb:mongodb /etc/ssl /data/db &&
+              chown -R mongodb:mongodb /etc/ssl &&
               chmod -R 0600 /etc/ssl/*
           volumeMounts:
             {{- include "mongodb.volumeMounts" . | nindent 12 }}
@@ -72,11 +72,8 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- include "mongodb.environment" . | nindent 12 }}
-          command:
-            - gosu
-            - mongodb
-            - mongod
           {{- if .Values.tls.enabled }}
+          args:
             - --sslMode=requireSSL
             - --sslDisabledProtocols=TLS1_0,TLS1_1
             - --sslPEMKeyFile=/etc/ssl/mongodb.pem
