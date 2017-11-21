@@ -75,6 +75,15 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          # WORKAROUND: Cron and Crontab files not executed in Docker
+          # https://stackoverflow.com/a/38850273
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - touch /etc/crontab /etc/cron.d/* || true
       volumes:
         {{- if not .Values.persistence.enabled }}
         - name: data
