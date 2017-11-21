@@ -121,10 +121,10 @@ tls:
       
   # Files already base64 encoded
   base64Files:
-    # CAS database key (PK8 Format)
-    postgresql.key: ''
-    # OSF database key (PK8 Format)
-    osf.key: ''
+    # CAS database key (PK8 DER Format, must be named postgresql.pk8 unless otherwise specified)
+    postgresql.pk8: ''
+    # OSF database key (PK8 DER Format)
+    osf.pk8: ''
 
 postgresql:
   enabled: false
