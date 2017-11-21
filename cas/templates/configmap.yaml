@@ -395,7 +395,7 @@ cas.properties: |-
   database.hibernate.batchSize=1
   database.hibernate.showSql=false
   database.driverClass=org.postgresql.Driver
-  database.url=jdbc:postgresql://${DATABASE_HOST}/${DATABASE_NAME}?targetServerType=master
+  database.url=${DATABASE_URL}
   database.user=${DATABASE_USER}
   database.password=${DATABASE_PASSWORD}
 

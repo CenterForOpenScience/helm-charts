@@ -93,8 +93,7 @@ secretEnvs:
   TGC_ENCRYPTION_KEY: ''
   TGC_SIGNING_KEY: ''
   ## If postgresql.enabled is false
-  # DATABASE_HOST: ''
-  # DATABASE_NAME: ''
+  # DATABASE_URL: ''
   # DATABASE_USER: ''
   # DATABASE_PASSWORD: ''
 
@@ -113,19 +112,19 @@ tls:
   files:
     # Root Certificate
     root.crt: |-
-
-    # CAS database key (PK8 Format)
-    postgresql.key: |-
       
     # CAS database certificate
     postgresql.crt: |-
       
-    # OSF database key (PK8 Format)
-    osf.key: |-
-      
     # OSF database certificate
     osf.crt: |-
-    
+      
+  # Files already base64 encoded
+  base64Files:
+    # CAS database key (PK8 Format)
+    postgresql.key: ''
+    # OSF database key (PK8 Format)
+    osf.key: ''
 
 postgresql:
   enabled: false

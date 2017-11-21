@@ -64,11 +64,18 @@ spec:
               export dir=/home/jetty/.postgresql
               cp -f /certs/* ${dir}
               chown -R jetty:jetty ${dir}
+              chmod 0700 ${dir}
               chmod -R 0600 ${dir}/*
           volumeMounts:
             - mountPath: /home/jetty/.postgresql
               name: certs
             {{- range $key := keys .Values.tls.files }}
+            - mountPath: /certs/{{ $key }}
+              name: secret
+              subPath: certs-{{ $key }}
+              readOnly: true
+            {{- end }}
+            {{- range $key := keys .Values.tls.base64Files }}
             - mountPath: /certs/{{ $key }}
               name: secret
               subPath: certs-{{ $key }}
