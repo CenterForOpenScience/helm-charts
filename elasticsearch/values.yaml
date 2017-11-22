@@ -71,6 +71,8 @@ client:
   #               operator: NotIn
   #               values:
   #                 - "true"
+  budget:
+    minAvailable: 1
   # strategy:
   #   rollingUpdate:
   #     maxSurge: 25%
@@ -92,7 +94,7 @@ client:
 
 master:
   name: master
-  replicas: 3
+  replicas: 2
   heapSize: "512m"
   antiAffinity: "soft"
   # additionalAffinities:
