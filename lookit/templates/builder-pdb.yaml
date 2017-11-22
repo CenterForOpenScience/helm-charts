@@ -1,7 +1,7 @@
 {{- if .Values.builder.budget.minAvailable -}}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
-metaworker:
+metadata:
   name: "{{ template "lookit.builder.fullname" . }}"
   labels:
     app: {{ template "lookit.name" . }}

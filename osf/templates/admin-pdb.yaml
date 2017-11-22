@@ -1,7 +1,7 @@
 {{- if .Values.admin.budget.minAvailable -}}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
-metaworker:
+metadata:
   name: "{{ template "osf.admin.fullname" . }}"
   labels:
     app: {{ template "osf.name" . }}
