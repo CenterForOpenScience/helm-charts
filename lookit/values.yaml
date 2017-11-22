@@ -23,6 +23,9 @@ web:
   name: web
   replicaCount: 1
 
+  budget:
+    minAvailable: 0
+
   nginx:
     image:
       repository: nginx
@@ -60,6 +63,9 @@ builder:
   name: builder
   replicaCount: 1
 
+  budget:
+    minAvailable: 0
+
   concurrency: 1
   maxTasksPerChild: 5
   queues: builds,cleanup
@@ -95,6 +101,9 @@ worker:
   enabled: true
   name: worker
   replicaCount: 1
+
+  budget:
+    minAvailable: 0
 
   concurrency: 1
   maxTasksPerChild: 5

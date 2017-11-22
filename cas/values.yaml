@@ -11,6 +11,9 @@ antiAffinity: soft
 #     maxUnavailable: 25%
 #   type: RollingUpdate
 
+budget:
+  minAvailable: 0
+
 apache:
   image:
     repository: quay.io/centerforopenscience/shibboleth

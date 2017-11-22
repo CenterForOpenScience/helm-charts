@@ -10,6 +10,9 @@ controller:
 
   antiAffinity: "soft"
 
+  budget:
+    minAvailable: 1
+
   config: {}
 
   # Required for use with CNI based kubernetes installations (such as ones set up by kubeadm),
@@ -149,6 +152,9 @@ defaultBackend:
     pullPolicy: IfNotPresent
 
   antiAffinity: "soft"
+
+  budget:
+    minAvailable: 1
 
   extraArgs: {}
 

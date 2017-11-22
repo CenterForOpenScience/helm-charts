@@ -16,6 +16,9 @@ admin:
 
   antiAffinity: soft
 
+  budget:
+    minAvailable: 0
+
   nginx:
     modules: []
       # - modules/path/to/dynamic_module.so
@@ -87,6 +90,9 @@ api:
   replicaCount: 1
 
   antiAffinity: soft
+
+  budget:
+    minAvailable: 0
 
   nginx:
     modules: []
@@ -235,6 +241,9 @@ web:
 
   antiAffinity: soft
 
+  budget:
+    minAvailable: 0
+
   nginx:
     cache:
       enabled: false
@@ -311,6 +320,9 @@ task:
 
   antiAffinity: soft
 
+  budget:
+    minAvailable: 0
+
   concurrency: 2
   logLevel: INFO
   # maxTasksPerChild: 5
@@ -345,6 +357,9 @@ worker:
   replicaCount: 1
 
   antiAffinity: soft
+
+  budget:
+    minAvailable: 0
 
   concurrency: 1
   logLevel: INFO

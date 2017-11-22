@@ -1,0 +1,19 @@
+{{- if .Values.defaultBackend.budget.minAvailable -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "defaultBackend.fullname" . }}"
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.defaultBackend.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      component: "{{ .Values.defaultBackend.name }}"
+      release: {{ .Release.Name }}
+  minAvailable: {{ .Values.defaultBackend.budget.minAvailable }}
+{{- end -}}

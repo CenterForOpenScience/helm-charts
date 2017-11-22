@@ -1,0 +1,19 @@
+{{- if .Values.task.budget.minAvailable -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metaworker:
+  name: "{{ template "osf.task.fullname" . }}"
+  labels:
+    app: {{ template "osf.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.task.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "osf.name" . }}
+      component: "{{ .Values.task.name }}"
+      release: {{ .Release.Name }}
+  minAvailable: {{ .Values.task.budget.minAvailable }}
+{{- end -}}
