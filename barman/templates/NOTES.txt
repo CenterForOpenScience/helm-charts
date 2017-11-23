@@ -43,7 +43,7 @@ Initialize any new backups by performing the following steps on your Barman serv
 
     barman receive-wal --create-slot <server_name>
 
-  * Reset WAL log to perofrm first replication.
+  * Reset WAL log to perform first replication.
 
     barman switch-xlog --force --archive <server_name>
 
