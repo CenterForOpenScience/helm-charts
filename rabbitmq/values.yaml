@@ -85,6 +85,8 @@ service:
   type: ClusterIP
   # If using type: LoadBalancer
   #loadBalancerIP: 0.0.0.0
+  #loadBalancerSourceRanges:
+  #  - 0.0.0.0/0
   ports:
     amqp: 5672 # Change to 5671 for tls
     stats: 15672

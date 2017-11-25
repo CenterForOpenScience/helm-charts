@@ -14,8 +14,19 @@ metadata:
   {{- end }}
 spec:
   type: {{ .Values.client.service.type }}
-  {{- if and (eq .Values.client.service.type "LoadBalancer") .Values.client.service.loadBalancerIP }}
+  {{- if eq .Values.client.service.type "LoadBalancer" }}
+  {{- if .Values.client.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.client.service.loadBalancerIP | quote }}
+  {{- end }}
+  {{- if .Values.client.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range .Values.client.service.loadBalancerSourceRanges }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.client.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.client.service.externalTrafficPolicy }}
   {{- end }}
   ports:
     - port: 9200

@@ -83,6 +83,8 @@ client:
     type: ClusterIP
     # If using type: LoadBalancer
     #loadBalancerIP: 0.0.0.0
+    #loadBalancerSourceRanges:
+    #  - 0.0.0.0/0
     externalIPs: []
   resources:
     limits:

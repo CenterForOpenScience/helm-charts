@@ -16,6 +16,8 @@ master:
     type: ClusterIP
     # If using type: LoadBalancer
     #loadBalancerIP: 0.0.0.0
+    #loadBalancerSourceRanges:
+    #  - 0.0.0.0/0
     port: 5432
     externalIPs: []
   terminationGracePeriodSeconds: 3600
@@ -34,6 +36,8 @@ standby:
     type: ClusterIP
     # If using type: LoadBalancer
     #loadBalancerIP: 0.0.0.0
+    #loadBalancerSourceRanges:
+    #  - 0.0.0.0/0
     port: 5432
     externalIPs: []
   terminationGracePeriodSeconds: 3600

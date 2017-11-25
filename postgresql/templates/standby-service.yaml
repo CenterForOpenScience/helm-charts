@@ -20,8 +20,19 @@ metadata:
   {{- end }}
 spec:
   type: {{ .Values.standby.service.type }}
-  {{- if and (eq .Values.standby.service.type "LoadBalancer") .Values.standby.service.loadBalancerIP }}
+  {{- if eq .Values.standby.service.type "LoadBalancer" }}
+  {{- if .Values.standby.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.standby.service.loadBalancerIP | quote }}
+  {{- end }}
+  {{- if .Values.standby.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range .Values.standby.service.loadBalancerSourceRanges }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.standby.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.standby.service.externalTrafficPolicy }}
   {{- end }}
   ports:
     - name: postgresql

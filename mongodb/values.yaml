@@ -62,5 +62,7 @@ service:
   type: ClusterIP
   # If using type: LoadBalancer
   #loadBalancerIP: 0.0.0.0
+  #loadBalancerSourceRanges:
+  #  - 0.0.0.0/0
   externalPort: 27017
   internalPort: mongodb
