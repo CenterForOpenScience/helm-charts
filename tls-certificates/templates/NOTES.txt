@@ -1,0 +1,17 @@
+Add the following to your ingress:
+
+```yaml
+
+ingress:
+  hosts:
+    {{- range $i, $key := keys .Values.certificates }}
+    - <host-{{ $i }}>
+    {{- end }}
+  tls:
+    {{- range $i, $key := keys .Values.certificates }}
+    - secretName: {{ $key }}-tls
+      hosts:
+        - <host-{{ $i }}>
+    {{- end }}
+
+```
