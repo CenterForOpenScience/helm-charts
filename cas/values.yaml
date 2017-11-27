@@ -32,6 +32,7 @@ jetty:
     repository: quay.io/centerforopenscience/cas
     tag: develop
     pullPolicy: Always
+  heapSize: 512m
   resources: {}
     #limits:
     #  cpu: 1

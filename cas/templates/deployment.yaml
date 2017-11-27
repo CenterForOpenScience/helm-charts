@@ -105,12 +105,16 @@ spec:
               path: /Shibboleth.sso/Status
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
+          resources:
+            {{- toYaml .Values.apache.resources | nindent 12 }}
           volumeMounts:
             {{- include "cas.apache.volumeMounts" . | nindent 12 }}
         - name: jetty
           image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
           imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
           env:
+            - name: JAVA_OPTIONS
+              value: "-Xms{{ .Values.jetty.heapSize }} -Xmx{{ .Values.jetty.heapSize }}"
             {{- include "cas.environment" . | nindent 12 }}
           ports:
             - name: http
@@ -125,6 +129,8 @@ spec:
               path: /login
               port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 10
+          resources:
+            {{- toYaml .Values.jetty.resources | nindent 12 }}
           volumeMounts:
             {{- include "cas.jetty.volumeMounts" . | nindent 12 }}
       volumes:
