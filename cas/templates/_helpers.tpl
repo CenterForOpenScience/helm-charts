@@ -27,6 +27,8 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Volumes
 */}}
 {{- define "cas.volumes" -}}
+- name: services
+  emptyDir: {}
 - name: config
   configMap:
     name: {{ template "cas.fullname" . }}
@@ -105,6 +107,8 @@ services/preprints-osf.json: /etc/cas/services/preprints-osf.json
 {{- end -}}
 {{- end -}}
 {{- define "cas.jetty.volumeMounts" -}}
+- mountPath: /etc/cas/services
+  name: services
 {{- range $key, $value := (include "cas.jetty.filemapConfig" . | fromYaml) }}
 - name: config
   subPath: {{ $key | replace "/" "-" }}
