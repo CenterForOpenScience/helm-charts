@@ -292,8 +292,8 @@ cas.properties: |-
   ##
   # Google Analytics
   #
-  google.analytics.id=
-  google.analytics.autoLink=
+  google.analytics.id=${GOOGLE_ANALYTICS_ID:}
+  google.analytics.autoLink=${GOOGLE_ANALYTICS_AUTOLINK:}
 
   ##
   # CAS Login and Logout URLs
@@ -311,14 +311,14 @@ cas.properties: |-
   # Authentication Delegation: Clients
   #
   # CAS: Ferris State University
-  cas.ferris.login.url=https://lpcas.ferris.edu/cas-web/login
-  cas.ferris.client.name=ferris
-  cas.ferris.cas.protocol=CAS20
+  cas.ferris.login.url=${CAS_FERRIS_LOGIN_URL:https://lpcas.ferris.edu/cas-web/login}
+  cas.ferris.client.name=${CAS_FERRIS_CLIENT_NAME:ferris}
+  cas.ferris.cas.protocol=${CAS_FERRIS_CAS_PROTOCOL:CAS20}
   #
   # CAS: Oklahoma State University
   cas.okstate.login.url=${CAS_OKSTATE_LOGIN_URL:https://stgcas.okstate.edu/cas/login}
   cas.okstate.client.name=${CAS_OKSTATE_CLIENT_NAME:okstate}
-  cas.okstate.cas.protocol=SAML
+  cas.okstate.cas.protocol=${CAS_OKSTATE_CAS_PROTOCOL:SAML}
 
   ##
   # OAuth: ORCID
@@ -467,7 +467,7 @@ cas.properties: |-
   # tgt.timeToKillInSeconds=7200
   #
   # Long term authentication session length in seconds (30 days)
-  tgt.rememberMeDuration=2592000
+  tgt.rememberMeDuration=${TGT_REMEMBER_ME_DURATION:2592000}
 
   ##
   # Service Ticket Timeout
@@ -475,7 +475,7 @@ cas.properties: |-
   #
   # Service Ticket timeout - typically kept short as a control against replay attacks, default is 10s.  You'll want to
   # increase this timeout if you are manually testing service ticket creation/validation via tamperdata or similar tools
-  st.timeToKillInSeconds=60
+  st.timeToKillInSeconds=${ST_TIME_TO_KILL_IN_SECONDS:60}
 
   ##
   # Http Client Settings
@@ -542,7 +542,7 @@ cas.properties: |-
   # Default sourced from WEB-INF/spring-configuration/metricsConfiguration.xml:
   #
   # Define how often should metric data be reported. Default is 30 seconds.
-  # metrics.refresh.internal=30s
+  metrics.refresh.internal=${METRICS_REFRESH_INTERNAL:9999s}
 
   ##
   # Encoding
@@ -574,10 +574,10 @@ cas.properties: |-
 
   ##
   # Login Throttle
-  cas.throttle.failureRangeInSeconds = 1
-  cas.throttle.failureThreshold = 1000
-  cas.throttle.startDelay = 1000
-  cas.throttle.repeatInterval = 1000
+  cas.throttle.failureRangeInSeconds = ${CAS_THROTTLE_FAILURE_RANGE_IN_SECONDS:1}
+  cas.throttle.failureThreshold = ${CAS_THROTTLE_FAILURE_THRESHOLD:1000}
+  cas.throttle.startDelay = ${CAS_THROTTLE_STARTDELAY:1000}
+  cas.throttle.repeatInterval = ${CAS_THROTTLE_REPEAT_INTERVAL:1000}
 log4j2.xml: |-
   <?xml version="1.0" encoding="UTF-8" ?>
   <Configuration monitorInterval="60">
@@ -597,7 +597,7 @@ log4j2.xml: |-
           <Logger name="org.jasig" level="info" additivity="false">
               <AppenderRef ref="Console" />
           </Logger>
-          <Logger name="perfStatsLogger" level="error" additivity="false">
+          <Logger name="perfStatsLogger" level="off" additivity="false">
               <AppenderRef ref="Console" />
           </Logger>
           <Root level="warn">
