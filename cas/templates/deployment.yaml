@@ -86,6 +86,8 @@ spec:
         - name: apache
           image: "{{ .Values.apache.image.repository }}:{{ .Values.apache.image.tag }}"
           imagePullPolicy: {{ .Values.apache.image.pullPolicy }}
+          env:
+            {{- include "cas.apache.environment" . | nindent 12 }}
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}
@@ -113,9 +115,7 @@ spec:
           image: "{{ .Values.jetty.image.repository }}:{{ .Values.jetty.image.tag }}"
           imagePullPolicy: {{ .Values.jetty.image.pullPolicy }}
           env:
-            - name: JAVA_OPTIONS
-              value: "-Xms{{ .Values.jetty.heapSize }} -Xmx{{ .Values.jetty.heapSize }}"
-            {{- include "cas.environment" . | nindent 12 }}
+            {{- include "cas.jetty.environment" . | nindent 12 }}
           ports:
             - name: http
               containerPort: {{ .Values.service.externalPort }}
@@ -132,9 +132,26 @@ spec:
           resources:
             {{- toYaml .Values.jetty.resources | nindent 12 }}
           volumeMounts:
+            - mountPath: /etc/cas
+              name: cas
+            {{- if .Values.tls.enabled }}
+            - mountPath: /home/jetty/.postgresql
+              name: certs
+            {{- end }}
             {{- include "cas.jetty.volumeMounts" . | nindent 12 }}
       volumes:
-        {{- include "cas.volumes" . | nindent 8 }}
+        - name: cas
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: {{ template "cas.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "cas.fullname" . }}
+        {{- if .Values.tls.enabled }}
+        - name: certs
+          emptyDir: {}
+        {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}

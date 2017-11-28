@@ -8,7 +8,7 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 data:
-{{- define "cas.preprint-services" }}
+{{- define "cas.jetty.preprint-services" }}
 agrixiv:
   id: '203948234207244'
   name: AgriXiv Preprints
@@ -79,7 +79,7 @@ thesiscommons:
   name: Thesis Commons
   domain: thesiscommons.org
 {{- end -}}
-{{- define "cas.inlineconfigs" }}
+{{- define "cas.apache.inlineconfigs" }}
 shibboleth/shibboleth2.xml: |-
   <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
       xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
@@ -216,7 +216,7 @@ shibboleth/shibboleth2.xml: |-
       <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
 
   </SPConfig>
-sites-enabled/default.conf: |-
+apache2/sites-enabled/default.conf: |-
   <VirtualHost *:{{ .Values.service.internalPort }}>
     ServerName health
     LoadModule status_module "modules/mod_status.so"
@@ -267,6 +267,8 @@ sites-enabled/default.conf: |-
       SetHandler shib
     </Location>
   </VirtualHost>
+{{- end -}}
+{{- define "cas.jetty.inlineconfigs" }}
 cas.properties: |-
   #
   # Licensed to Apereo under one or more contributor license
@@ -860,7 +862,7 @@ services/preprints-osf.json: |-
 {{- $domainOverride := .Values.preprintProviderDomains.override -}}
 {{- $domainPrefix := .Values.preprintProviderDomains.prefix -}}
 {{- $domainSuffix := .Values.preprintProviderDomains.suffix -}}
-{{- range $key, $val := (include "cas.preprint-services" . | fromYaml) }}
+{{- range $key, $val := (include "cas.jetty.preprint-services" . | fromYaml) }}
 services/preprints-{{ $key }}.json: |-
   {
       "@class": "org.jasig.cas.services.RegexRegisteredService",
@@ -920,17 +922,34 @@ services/preprints-{{ $key }}.json: |-
       }
   }
 {{- end -}}
-
 {{- end -}}
 
-{{- define "cas.fileconfigs" -}}
-{{- range $path, $bytes := .Files.Glob "files/**" }}
-{{ $path | trimPrefix "files/" }}: |-
+{{- define "cas.apache.fileconfigs" -}}
+{{- range $path, $bytes := .Files.Glob "files/apache/**" }}
+{{ $path | trimPrefix "files/apache/" }}: |-
 {{ printf "%s" $bytes | indent 2 }}
 {{- end -}}
 {{- end -}}
 
-{{- range $key, $value := merge (include "cas.fileconfigs" . | fromYaml) (include "cas.inlineconfigs" . | fromYaml) .Values.configFiles }}
-  {{ $key | replace "/" "-" }}: |-
-{{ $value | indent 4 }}
+{{- define "cas.jetty.fileconfigs" -}}
+{{- range $path, $bytes := .Files.Glob "files/jetty/**" }}
+{{ $path | trimPrefix "files/jetty/" }}: |-
+{{ printf "%s" $bytes | indent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{- range $key, $value := .Values.apache.configEnvs }}
+  apache-{{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- range $key, $value := merge (include "cas.apache.fileconfigs" . | fromYaml) (include "cas.apache.inlineconfigs" . | fromYaml) .Values.apache.configFiles }}
+  apache-{{ $key | replace "/" "-" }}: |-
+    {{- $value | nindent 4 }}
+{{- end }}
+
+{{- range $key, $value := .Values.jetty.configEnvs }}
+  jetty-{{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- range $key, $value := merge (include "cas.jetty.fileconfigs" . | fromYaml) (include "cas.jetty.inlineconfigs" . | fromYaml) .Values.jetty.configFiles }}
+  jetty-{{ $key | replace "/" "-" }}: |-
+    {{- $value | nindent 4 }}
 {{- end }}

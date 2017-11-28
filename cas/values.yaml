@@ -26,13 +26,24 @@ apache:
     #requests:
     #  cpu: 100m
     #  memory: 128Mi
+  configEnvs: {}
+  configFiles: {}
+  secretEnvs: {}
+  secretFiles: {}
+    # shibboleth/incommon-idp-signature.pem: |-
+      
+    # shibboleth/sp-cert.pem: |-
+      
+    # shibboleth/sp-key.pem: |-
+      
+    # shibboelth/shibboleth2.xml: |-
+      
 
 jetty:
   image:
     repository: quay.io/centerforopenscience/cas
     tag: develop
     pullPolicy: Always
-  heapSize: 512m
   resources: {}
     #limits:
     #  cpu: 1
@@ -40,6 +51,24 @@ jetty:
     #requests:
     #  cpu: 100m
     #  memory: 128Mi
+  configEnvs:
+    JAVA_OPTIONS: -Xms512m -Xmx512m
+  configFiles: {}
+  secretEnvs:
+    OAUTH_ORCID_CLIENT_ID: ''
+    OAUTH_ORCID_CLIENT_SECRET: ''
+    OSF_DB_URL: 'jdbc:postgresql://osf-postgresql.namespace/osf?targetServerType=master'
+    OSF_DB_USER: ''
+    OSF_DB_PASSWORD: ''
+    OSF_JWE_SECRET: ''
+    OSF_JWT_SECRET: ''
+    TGC_ENCRYPTION_KEY: ''
+    TGC_SIGNING_KEY: ''
+    ## If postgresql.enabled is false
+    # DATABASE_URL: ''
+    # DATABASE_USER: ''
+    # DATABASE_PASSWORD: ''
+  secretFiles: {}
 
 horizontalPodAutoscaler:
   enabled: false
@@ -78,37 +107,6 @@ preprintProviderDomains:
 
 ### https://sentry.cos.io/sentry/{project}/settings/keys/
 sentryDSN: ''
-
-# environment variables
-configEnvs: {}
-
-# override files here
-configFiles: {}
-
-# secret environment variables 
-secretEnvs:
-  OAUTH_ORCID_CLIENT_ID: ''
-  OAUTH_ORCID_CLIENT_SECRET: ''
-  OSF_DB_URL: 'jdbc:postgresql://osf-postgresql.namespace/osf?targetServerType=master'
-  OSF_DB_USER: ''
-  OSF_DB_PASSWORD: ''
-  OSF_JWE_SECRET: ''
-  OSF_JWT_SECRET: ''
-  TGC_ENCRYPTION_KEY: ''
-  TGC_SIGNING_KEY: ''
-  ## If postgresql.enabled is false
-  # DATABASE_URL: ''
-  # DATABASE_USER: ''
-  # DATABASE_PASSWORD: ''
-
-# secret files
-secretFiles:
-  shibboleth/incommon-idp-signature.pem: |-
-    
-  shibboleth/sp-cert.pem: |-
-    
-  shibboleth/sp-key.pem: |-
-    
 
 # Database connection TLS
 tls:
