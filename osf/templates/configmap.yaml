@@ -371,7 +371,7 @@ web-nginx.conf: |-
 
           include /etc/nginx/conf.d/*.conf;
 
-          location ~* ^/(api/v1/)?share.*$ {
+          location ~* ^/share(/?$|/.*) {
               return 301 {{ .Values.share.url }};
           }
 
