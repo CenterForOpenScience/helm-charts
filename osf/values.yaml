@@ -417,21 +417,23 @@ secretFiles: {}
   #   ...
   # addons-dropbox-local.py: |-
   #   ...
+  # addons-figshare-local.py: |-
+  #   ...
   # addons-github-local.py: |-
   #   ...
+  # addons-gitlab-local.py: |-
+  #   ...
   # addons-googledrive-local.py: |-
+  #   ...
+  # addons-mendeley-local.py: |-
+  #   ...
+  # addons-onedrive-local.py: |-
   #   ...
   # addons-osfstorage-local.py: |-
   #   ...
   # addons-wiki-local.py: |-
   #   ...
   # addons-zotero-local.py: |-
-  #   ...
-  # worker-ca.cert.pem: |-
-  #   ...
-  # worker.pem: |-
-  #   ...
-  # worker.key: |-
   #   ...
 
 volumeMounts:
@@ -471,9 +473,9 @@ volumeMounts:
     name: secret
     subPath: addons-github-local.py
     readOnly: true
-  - mountPath: /code/addons/onedrive/settings/local.py
+  - mountPath: /code/addons/gitlab/settings/local.py
     name: secret
-    subPath: addons-onedrive-local.py
+    subPath: addons-gitlab-local.py
     readOnly: true
   - mountPath: /code/addons/googledrive/settings/local.py
     name: secret
@@ -482,6 +484,10 @@ volumeMounts:
   - mountPath: /code/addons/mendeley/settings/local.py
     name: secret
     subPath: addons-mendeley-local.py
+    readOnly: true
+  - mountPath: /code/addons/onedrive/settings/local.py
+    name: secret
+    subPath: addons-onedrive-local.py
     readOnly: true
   - mountPath: /code/addons/osfstorage/settings/local.py
     name: secret
