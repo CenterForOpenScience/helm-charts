@@ -28,14 +28,6 @@
         <Rule xsi:type="saml:AttributeScopeMatchesShibMDScope"/>
     </afp:PermitValueRule>
 
-    <afp:AttributeFilterPolicy id="releaseFromUGent">
-        <afp:PolicyRequirementRule xsi:type="basic:AttributeRequesterString" value="https://identity.ugent.be/simplesaml/saml2/idp/metadata.php"/>
-
-        <afp:AttributeRule attributeID="eppn">
-            <afp:PermitValueRule xsi:type="basic:ANY" />
-        </afp:AttributeRule>
-    </afp:AttributeFilterPolicy>
-
     <afp:AttributeFilterPolicy>
         <!-- This policy is in effect in all cases. -->
         <afp:PolicyRequirementRule xsi:type="ANY"/>
