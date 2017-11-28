@@ -930,11 +930,7 @@ services/preprints-{{ $key }}.json: |-
 {{- end -}}
 {{- end -}}
 
-{{- range $key, $value := .Values.configFiles }}
-  {{ $key | replace "/" "-" }}: |-
-{{ $value | indent 4 }}
-{{- end }}
-{{- range $key, $value := merge (include "cas.inlineconfigs" . | fromYaml) (include "cas.fileconfigs" . | fromYaml) }}
+{{- range $key, $value := merge (include "cas.fileconfigs" . | fromYaml) (include "cas.inlineconfigs" . | fromYaml) .Values.configFiles }}
   {{ $key | replace "/" "-" }}: |-
 {{ $value | indent 4 }}
 {{- end }}
