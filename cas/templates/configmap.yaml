@@ -941,7 +941,7 @@ services/preprints-{{ $key }}.json: |-
 {{- range $key, $value := .Values.apache.configEnvs }}
   apache-{{ $key }}: {{ $value | quote }}
 {{- end }}
-{{- range $key, $value := merge (include "cas.apache.fileconfigs" . | fromYaml) (include "cas.apache.inlineconfigs" . | fromYaml) .Values.apache.configFiles }}
+{{- range $key, $value := merge .Values.apache.configFiles (include "cas.apache.inlineconfigs" . | fromYaml) (include "cas.apache.fileconfigs" . | fromYaml) }}
   apache-{{ $key | replace "/" "-" }}: |-
     {{- $value | nindent 4 }}
 {{- end }}
@@ -949,7 +949,7 @@ services/preprints-{{ $key }}.json: |-
 {{- range $key, $value := .Values.jetty.configEnvs }}
   jetty-{{ $key }}: {{ $value | quote }}
 {{- end }}
-{{- range $key, $value := merge (include "cas.jetty.fileconfigs" . | fromYaml) (include "cas.jetty.inlineconfigs" . | fromYaml) .Values.jetty.configFiles }}
+{{- range $key, $value := merge .Values.jetty.configFiles (include "cas.jetty.inlineconfigs" . | fromYaml) (include "cas.jetty.fileconfigs" . | fromYaml) }}
   jetty-{{ $key | replace "/" "-" }}: |-
     {{- $value | nindent 4 }}
 {{- end }}

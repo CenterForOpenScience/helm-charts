@@ -36,7 +36,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Apache volume mounts
 */}}
 {{- define "cas.apache.volumeMounts" }}
-{{- range $key := keys (merge (include "cas.apache.fileconfigs" . | fromYaml) (include "cas.apache.inlineconfigs" . | fromYaml) .Values.apache.configFiles) }}
+{{- range $key := keys (merge .Values.apache.configFiles (include "cas.apache.inlineconfigs" . | fromYaml) (include "cas.apache.fileconfigs" . | fromYaml)) }}
 - mountPath: /etc/{{ $key }}
   name: config
   subPath: apache-{{ $key | replace "/" "-" }}
@@ -51,7 +51,7 @@ Apache volume mounts
 {{- end }}
 
 {{- define "cas.jetty.volumeMounts" }}
-{{- range $key := keys (merge (include "cas.jetty.fileconfigs" . | fromYaml) (include "cas.jetty.inlineconfigs" . | fromYaml) .Values.jetty.configFiles) }}
+{{- range $key := keys (merge .Values.jetty.configFiles (include "cas.jetty.inlineconfigs" . | fromYaml) (include "cas.jetty.fileconfigs" . | fromYaml)) }}
 - mountPath: /etc/cas/{{ $key }}
   name: config
   subPath: jetty-{{ $key | replace "/" "-" }}
