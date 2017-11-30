@@ -1,6 +1,4 @@
 {{- if (and .Values.admin.enabled .Values.admin.ingress.enabled) -}}
-{{- $serviceName := include "osf.admin.fullname" . -}}
-{{- $servicePort := .Values.admin.service.externalPort -}}
 {{- $ingressPaths := .Values.admin.ingress.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -18,6 +16,9 @@ metadata:
   {{- end }}
 spec:
   rules:
+    {{- if .Values.maintenance.enabled }}
+    {{- $serviceName := include "maintenance.fullname" . -}}
+    {{- $servicePort := .Values.maintenance.service.externalPort -}}
     {{- range .Values.admin.ingress.hosts }}
     - host: {{ . }}
       http:
@@ -28,6 +29,21 @@ spec:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
           {{- end -}}
+    {{- end -}}
+    {{- else -}}
+    {{- $serviceName := include "osf.admin.fullname" . -}}
+    {{- $servicePort := .Values.admin.service.externalPort -}}
+    {{- range .Values.admin.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- range $ingressPaths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+          {{- end -}}
+    {{- end -}}
     {{- end -}}
   {{- if .Values.admin.ingress.tls }}
   tls:

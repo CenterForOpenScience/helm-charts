@@ -1,4 +1,5 @@
 {{- if (and .Values.web.enabled .Values.web.ingress.enabled) -}}
+{{- $ingressPaths := .Values.web.ingress.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -15,13 +16,27 @@ metadata:
   {{- end }}
 spec:
   rules:
-    {{- $serviceName := include "osf.web.fullname" . }}
-    {{- $servicePort := .Values.web.service.externalPort }}
-    {{- $ingressPaths := .Values.web.ingress.paths }}
-    {{- $shareJSEnabled := .Values.sharejs.enabled }}
-    {{- $shareJSServiceName := .Values.sharejs.service.name }}
-    {{- $shareJSServicePort := .Values.sharejs.service.externalPort }}
-    {{- $shareJSIngressPaths := .Values.sharejs.ingress.paths }}
+    {{- if .Values.maintenance.enabled }}
+    {{- $serviceName := include "maintenance.fullname" . -}}
+    {{- $servicePort := .Values.maintenance.service.externalPort -}}
+    {{- range .Values.api.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- range $ingressPaths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+          {{- end -}}
+    {{- end -}}
+    {{- else -}}
+    {{- $shareJSEnabled := .Values.sharejs.enabled -}}
+    {{- $shareJSServiceName := .Values.sharejs.service.name -}}
+    {{- $shareJSServicePort := .Values.sharejs.service.externalPort -}}
+    {{- $shareJSIngressPaths := .Values.sharejs.ingress.paths -}}
+    {{- $serviceName := include "osf.web.fullname" . -}}
+    {{- $servicePort := .Values.web.service.externalPort -}}
     {{- range .Values.web.ingress.hosts }}
     - host: {{ . }}
       http:
@@ -40,7 +55,8 @@ spec:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
           {{- end }}
-    {{- end }}
+    {{- end -}}
+    {{- end -}}
   {{- if .Values.web.ingress.tls }}
   tls:
     {{- toYaml .Values.web.ingress.tls | nindent 4 }}

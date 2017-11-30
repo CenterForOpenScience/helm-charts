@@ -1,6 +1,4 @@
 {{- if .Values.ingress.enabled -}}
-{{- $serviceName := include "cas.fullname" . -}}
-{{- $servicePort := .Values.service.externalPort -}}
 {{- $ingressPaths := .Values.ingress.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -17,8 +15,11 @@ metadata:
     {{- end }}
 spec:
   rules:
-    {{- range $host := .Values.ingress.hosts }}
-    - host: {{ $host }}
+    {{- if .Values.maintenance.enabled }}
+    {{- $serviceName := include "maintenance.fullname" . -}}
+    {{- $servicePort := .Values.maintenance.service.externalPort -}}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . }}
       http:
         paths:
           {{- range $ingressPaths }}
@@ -27,6 +28,21 @@ spec:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
           {{- end -}}
+    {{- end -}}
+    {{- else -}}
+    {{- $serviceName := include "cas.fullname" . -}}
+    {{- $servicePort := .Values.service.externalPort -}}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- range $ingressPaths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+          {{- end -}}
+    {{- end -}}
     {{- end -}}
   {{- if .Values.ingress.tls }}
   tls:

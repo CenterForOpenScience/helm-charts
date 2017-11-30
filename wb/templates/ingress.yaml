@@ -17,6 +17,9 @@ metadata:
     {{- end }}
 spec:
   rules:
+    {{- if .Values.maintenance.enabled }}
+    {{- $serviceName := include "maintenance.fullname" . -}}
+    {{- $servicePort := .Values.maintenance.service.externalPort -}}
     {{- range .Values.ingress.hosts }}
     - host: {{ . }}
       http:
@@ -27,6 +30,21 @@ spec:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
           {{- end -}}
+    {{- end -}}
+    {{- else -}}
+    {{- $serviceName := include "wb.fullname" . -}}
+    {{- $servicePort := .Values.service.externalPort -}}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- range $ingressPaths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: {{ $servicePort }}
+          {{- end -}}
+    {{- end -}}
     {{- end -}}
   {{- if .Values.ingress.tls }}
   tls:

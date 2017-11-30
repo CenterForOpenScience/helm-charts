@@ -1,0 +1,5 @@
+dependencies:
+  - name: maintenance
+    version: 0.1.0
+    repository: file://../maintenance
+    condition: maintenance.enabled, global.maintenance.enabled

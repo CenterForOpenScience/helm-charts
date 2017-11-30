@@ -3,6 +3,10 @@ dependencies:
     version: 0.1.10
     repository: file://../elasticsearch
     condition: elasticsearch.enabled, global.elasticsearch.enabled
+  - name: maintenance
+    version: 0.1.0
+    repository: file://../maintenance
+    condition: maintenance.enabled, global.maintenance.enabled
   - name: postgresql
     version: 0.8.1
     repository: https://kubernetes-charts.storage.googleapis.com
