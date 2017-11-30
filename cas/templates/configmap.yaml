@@ -241,8 +241,7 @@ apache2/sites-enabled/default.conf: |-
     SetEnvIfNoCase User-Agent "googlehc" dontlog
     RewriteRule ^/ - [L,R=200]
 
-    RewriteEngine On
-    RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+    RewriteCond %{HTTP:X-Forwarded-Proto} http [NC]
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     <Location />
