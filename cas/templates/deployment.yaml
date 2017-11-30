@@ -98,7 +98,7 @@ spec:
                   value: health
               path: /healthz
               port: {{ .Values.service.internalPort }}
-            initialDelaySeconds: 60
+            initialDelaySeconds: 300
           readinessProbe:
             httpGet:
               httpHeaders:
@@ -123,7 +123,7 @@ spec:
             httpGet:
               path: /login
               port: {{ .Values.service.externalPort }}
-            initialDelaySeconds: 60
+            initialDelaySeconds: 300
           readinessProbe:
             httpGet:
               path: /login
