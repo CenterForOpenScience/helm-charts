@@ -241,9 +241,9 @@ apache2/sites-enabled/default.conf: |-
     SetEnvIfNoCase User-Agent "googlehc" dontlog
     RewriteRule ^/ - [L,R=200]
 
-    # Redirect too many times -- need to fix
-    #RewriteCond %{HTTP:X-Forwarded-Proto} http [NC]
-    #RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # Redirect HTTP to HTTPS
+    RewriteCond %{HTTP:X-Forwarded-Proto} =http [NC]
+    RewriteRule . https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
 
     <Location />
       # ShibDisable on
