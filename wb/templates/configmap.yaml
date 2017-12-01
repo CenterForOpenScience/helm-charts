@@ -41,7 +41,7 @@ nginx.conf: |-
       gzip_proxied any;
       gzip_disable "msie6";
       gzip_min_length 1400;
-      gzip_vary on;
+      gzip_vary off; # Needs to be off because some files will not render properly when it's on (sets the Accept header)
       gzip_buffers 4 32k;
       gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml text/javascript application/json application/vnd.api+json;
 
