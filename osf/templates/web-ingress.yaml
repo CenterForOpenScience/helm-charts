@@ -19,7 +19,7 @@ spec:
     {{- if .Values.maintenance.enabled }}
     {{- $serviceName := include "maintenance.fullname" . -}}
     {{- $servicePort := .Values.maintenance.service.externalPort -}}
-    {{- range .Values.api.ingress.hosts }}
+    {{- range .Values.web.ingress.hosts }}
     - host: {{ . }}
       http:
         paths:
