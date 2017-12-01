@@ -27,7 +27,7 @@ resources: {}
 
 service:
   name: nginx
-  type: ClusterIP
+  type: NodePort
   externalPort: 80
   internalPort: 80
 
