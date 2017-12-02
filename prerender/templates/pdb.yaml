@@ -1,0 +1,17 @@
+{{- if .Values.budget.minAvailable -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "prerender.fullname" . }}"
+  labels:
+    app: {{ template "prerender.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "prerender.name" . }}
+      release: {{ .Release.Name }}
+  minAvailable: {{ .Values.budget.minAvailable }}
+{{- end -}}
