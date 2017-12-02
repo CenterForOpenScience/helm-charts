@@ -73,10 +73,12 @@ admin-nginx.conf: |-
 
           location /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
+              try_files $uri $uri/ /index.html;
           }
 
           location /static {
               alias /static/code/admin;
+              try_files $uri $uri/ /index.html;
           }
 
           include /etc/nginx/conf.d/*.conf;
@@ -154,14 +156,17 @@ api-nginx.conf: |-
 
           location /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
+              try_files $uri $uri/ /index.html;
           }
 
           location /favicon.ico {
               alias /static/code/website/static/favicon.ico;
+              try_files $uri $uri/ /index.html;
           }
 
           location /v2/static {
               alias /static/code/api/static/vendor;
+              try_files $uri $uri/ /index.html;
           }
 
           include /etc/nginx/conf.d/*.conf;
@@ -374,14 +379,17 @@ web-nginx.conf: |-
 
           location /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
+              try_files $uri $uri/ /index.html;
           }
 
           location ~ /static/addons/(.*?)/(.*) {
               alias /static/code/addons/$1/static/$2;
+              try_files $uri $uri/ /index.html;
           }
 
           location /static/ {
               alias /static/code/website/static/;
+              try_files $uri $uri/ /index.html;
           }
 
           include /etc/nginx/conf.d/*.conf;
