@@ -247,9 +247,13 @@ web:
   nginx:
     cache:
       enabled: false
+      guids: []
+        # - di8cg
     preprintDomainSuffix: ''
     modules: []
       # - modules/path/to/dynamic_module.so
+    additionalRewrites: []
+      # - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
     resources: {}
       # limits:
       #   cpu: "1"

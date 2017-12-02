@@ -89,8 +89,8 @@ admin-nginx.conf: |-
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
-              uwsgi_buffering off;
-              uwsgi_request_buffering off;
+              # WARNING: Turning off uwsgi buffering will disable nginx caching.
+              # uwsgi_buffering off;
               uwsgi_pass uwsgi://127.0.0.1:{{ .Values.admin.service.externalPort }};
           }
       }
@@ -174,8 +174,8 @@ api-nginx.conf: |-
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
-              uwsgi_buffering off;
-              uwsgi_request_buffering off;
+              # WARNING: Turning off uwsgi buffering will disable nginx caching.
+              # uwsgi_buffering off;
               uwsgi_pass uwsgi://127.0.0.1:{{ .Values.api.service.externalPort }};
           }
       }
@@ -247,6 +247,29 @@ web-nginx-prerender.conf: |-
       rewrite .* /https://$host$request_uri? break;
       proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
   }
+web-nginx-uwsgi-cache.conf: |-
+  set $agent_monitor 0;
+  if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish)") {
+      set $agent_monitor 1;
+  }
+
+  # Caching configuration
+  uwsgi_cache osf_uwsgi_cache;
+  uwsgi_cache_key $host$uri$args_first$args_rest;
+  # Default cache methods, specified for clarity.
+  uwsgi_cache_methods GET HEAD;
+  # Skip cache when:
+  # - logged in
+  # - using basic auth
+  # - view-only link
+  # - hmac signed
+  # - waterbutler provider
+  # - monitoring agent
+  uwsgi_cache_bypass $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+  uwsgi_no_cache $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+  uwsgi_cache_lock on;
+  uwsgi_cache_lock_timeout 30s;
+  uwsgi_cache_use_stale updating;
 web-nginx.conf: |-
   user nginx;
   worker_processes 1;
@@ -304,9 +327,6 @@ web-nginx.conf: |-
       
       uwsgi_cache_path /cache/uwsgi keys_zone=osf_uwsgi_cache:10m inactive=120m;
       uwsgi_temp_path /cache/uwsgi-temp;
-      
-      proxy_cache_path /cache/proxy keys_zone=osf_proxy_cache:10m inactive=120m;
-      proxy_temp_path /cache/proxy-temp;
       {{- end }}
 
       {{- if .Values.web.nginx.preprintDomainSuffix }}
@@ -327,8 +347,8 @@ web-nginx.conf: |-
           location / {
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
-              uwsgi_buffering off;
-              uwsgi_request_buffering off;
+              # WARNING: Turning off uwsgi buffering will disable nginx caching.
+              # uwsgi_buffering off;
               uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
           }
       }
@@ -340,11 +360,6 @@ web-nginx.conf: |-
 
           client_max_body_size 25M;
           keepalive_timeout 15;
-
-          {{- if .Values.web.nginx.cache.enabled }}
-          uwsgi_cache osf_uwsgi_cache;
-          proxy_cache osf_proxy_cache;
-          {{- end }}
 
           root /static/code;
 
@@ -375,29 +390,32 @@ web-nginx.conf: |-
               return 301 {{ .Values.share.url }};
           }
 
+          {{- if .Values.web.nginx.cache.enabled }}
+          location ~* (^/|^/api/v1/project/)({{ join "|" .Values.web.nginx.cache.guids }}) {
+              uwsgi_cache_valid 200 60m;
+              include /etc/nginx/uwsgi-cache.conf;
+
+              # Disable caching of application requests
+              add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
+              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+              add_header Pragma "no-cache";
+
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
+              # Pass requests to uwsgi application
+              include /etc/nginx/uwsgi_params;
+              # WARNING: Turning off uwsgi buffering will disable nginx caching.
+              # uwsgi_buffering off;
+              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
+          }
+          {{- end }}
+
           location / {
               {{- if .Values.web.nginx.cache.enabled }}
-              set $agent_monitor 0;
-              if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish)") {
-                  set $agent_monitor 1;
-              }
-              # Caching configuration
               uwsgi_cache_valid 200 1m;
-              uwsgi_cache_key $host$uri$args_first$args_rest;
-              # Default cache methods, specified for clarity.
-              uwsgi_cache_methods GET HEAD;
-              # Skip cache when:
-              # - logged in
-              # - using basic auth
-              # - view-only link
-              # - hmac signed
-              # - waterbutler provider
-              # - monitoring agent
-              uwsgi_cache_bypass $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
-              uwsgi_no_cache $cookie_osf $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
-              uwsgi_cache_lock on;
-              uwsgi_cache_lock_timeout 30s;
-              uwsgi_cache_use_stale updating;
+              include /etc/nginx/uwsgi-cache.conf;
               {{- end }}
 
               # Disable caching of application requests
@@ -411,14 +429,17 @@ web-nginx.conf: |-
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
-              uwsgi_buffering off;
-              uwsgi_request_buffering off;
+              # WARNING: Turning off uwsgi buffering will disable nginx caching.
+              # uwsgi_buffering off;
               uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
 
               # URL rewrites
               rewrite "^/project/.*?/node/(.*)" https://$host/$1 permanent;
               rewrite "^/project/([a-zA-Z0-9]{5,}.*)" https://$host/$1 permanent;
               rewrite "^/profile/([a-zA-Z0-9]{5,})" https://$host/$1 permanent;
+              {{- range .Values.web.nginx.additionalRewrites }}
+              {{ . }}
+              {{- end }}
           }
       }
   }

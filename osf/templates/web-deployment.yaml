@@ -92,6 +92,10 @@ spec:
             {{- if .Values.web.nginx.cache.enabled }}
             - mountPath: /cache
               name: cache
+            - mountPath: /etc/nginx/uwsgi-cache.conf
+              name: config
+              subPath: web-nginx-uwsgi-cache.conf
+              readOnly: true
             {{- end }}
             - mountPath: /etc/nginx/nginx.conf
               name: config
