@@ -31,6 +31,9 @@ admin:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
+    proxySourceRanges: []
+      # - 130.211.0.0/22
+      # - 35.191.0.0/16
     vts:
       enabled: false
       internalPort: 18080
@@ -115,6 +118,9 @@ api:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
+    proxySourceRanges: []
+      # - 130.211.0.0/22
+      # - 35.191.0.0/16
     vts:
       enabled: false
       internalPort: 18080
@@ -282,6 +288,9 @@ web:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
+    proxySourceRanges: []
+      # - 130.211.0.0/22
+      # - 35.191.0.0/16
     vts:
       enabled: false
       internalPort: 18080

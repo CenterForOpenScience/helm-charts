@@ -40,6 +40,9 @@ nginx.conf: |-
       geoip_country       /etc/nginx/GeoIP.dat;
       geoip_city          /etc/nginx/GeoLiteCity.dat;
       geoip_proxy_recursive on;
+      {{- range .Values.nginx.proxySourceRanges }}
+      geoip_proxy {{ . }};
+      {{- end }}
 
       vhost_traffic_status_zone shared:vhost_traffic_status:{{ .Values.nginx.vts.statusZoneSize }};
       vhost_traffic_status_filter_by_set_key {{ .Values.nginx.vts.defaultFilterKey }};

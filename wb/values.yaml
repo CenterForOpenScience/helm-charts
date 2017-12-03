@@ -26,6 +26,9 @@ nginx:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
+  proxySourceRanges: []
+    # - 130.211.0.0/22
+    # - 35.191.0.0/16
   vts:
     enabled: false
     internalPort: 18080

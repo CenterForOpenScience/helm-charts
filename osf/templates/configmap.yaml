@@ -48,6 +48,9 @@ admin-nginx.conf: |-
       geoip_country       /etc/nginx/GeoIP.dat;
       geoip_city          /etc/nginx/GeoLiteCity.dat;
       geoip_proxy_recursive on;
+      {{- range .Values.admin.nginx.proxySourceRanges }}
+      geoip_proxy {{ . }};
+      {{- end }}
 
       vhost_traffic_status_zone shared:vhost_traffic_status:{{ .Values.admin.nginx.vts.statusZoneSize }};
       vhost_traffic_status_filter_by_set_key {{ .Values.admin.nginx.vts.defaultFilterKey }};
@@ -126,6 +129,10 @@ admin-nginx.conf: |-
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
 
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
+
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
               # WARNING: Turning off uwsgi buffering will disable nginx caching.
@@ -197,6 +204,9 @@ api-nginx.conf: |-
       geoip_country       /etc/nginx/GeoIP.dat;
       geoip_city          /etc/nginx/GeoLiteCity.dat;
       geoip_proxy_recursive on;
+      {{- range .Values.api.nginx.proxySourceRanges }}
+      geoip_proxy {{ . }};
+      {{- end }}
 
       vhost_traffic_status_zone shared:vhost_traffic_status:{{ .Values.api.nginx.vts.statusZoneSize }};
       vhost_traffic_status_filter_by_set_key {{ .Values.api.nginx.vts.defaultFilterKey }};
@@ -274,6 +284,10 @@ api-nginx.conf: |-
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
+
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
@@ -439,6 +453,9 @@ web-nginx.conf: |-
       geoip_country       /etc/nginx/GeoIP.dat;
       geoip_city          /etc/nginx/GeoLiteCity.dat;
       geoip_proxy_recursive on;
+      {{- range .Values.web.nginx.proxySourceRanges }}
+      geoip_proxy {{ . }};
+      {{- end }}
 
       vhost_traffic_status_zone shared:vhost_traffic_status:{{ .Values.web.nginx.vts.statusZoneSize }};
       vhost_traffic_status_filter_by_set_key {{ .Values.web.nginx.vts.defaultFilterKey }};
@@ -515,6 +532,19 @@ web-nginx.conf: |-
           }
 
           location / {
+              # Disable caching of application requests
+              add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
+              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+              add_header Pragma "no-cache";
+
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
+
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
               # WARNING: Turning off uwsgi buffering will disable nginx caching.
@@ -578,6 +608,10 @@ web-nginx.conf: |-
               include /etc/nginx/prerender.conf;
               {{- end }}
 
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
+
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
               # WARNING: Turning off uwsgi buffering will disable nginx caching.
@@ -600,6 +634,10 @@ web-nginx.conf: |-
               {{- if .Values.prerender.enabled }}
               include /etc/nginx/prerender.conf;
               {{- end }}
+
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;

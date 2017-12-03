@@ -40,6 +40,9 @@ nginx.conf: |-
       geoip_country       /etc/nginx/GeoIP.dat;
       geoip_city          /etc/nginx/GeoLiteCity.dat;
       geoip_proxy_recursive on;
+      {{- range .Values.nginx.proxySourceRanges }}
+      geoip_proxy {{ . }};
+      {{- end }}
 
       vhost_traffic_status_zone shared:vhost_traffic_status:{{ .Values.nginx.vts.statusZoneSize }};
       vhost_traffic_status_filter_by_set_key {{ .Values.nginx.vts.defaultFilterKey }};
@@ -104,6 +107,10 @@ nginx.conf: |-
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
+
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
 
               proxy_buffering off;
               proxy_request_buffering off;
