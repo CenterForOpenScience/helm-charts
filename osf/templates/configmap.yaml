@@ -18,6 +18,7 @@ admin-nginx.conf: |-
   user nginx;
   worker_processes 1;
 
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
   {{- range .Values.admin.nginx.modules }}
   load_module {{ . }};
   {{- end }}
@@ -53,6 +54,9 @@ admin-nginx.conf: |-
       gzip_proxied any;
       gzip_vary on;
       gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
+
+      brotli on;
+      brotli_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
 
       server {
           listen {{ .Values.admin.service.internalPort }};
@@ -100,6 +104,7 @@ api-nginx.conf: |-
   user nginx;
   worker_processes 1;
 
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
   {{- range .Values.api.nginx.modules }}
   load_module {{ . }};
   {{- end }}
@@ -135,6 +140,9 @@ api-nginx.conf: |-
       gzip_proxied any;
       gzip_vary on;
       gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
+
+      brotli on;
+      brotli_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
 
       server {
           listen {{ .Values.api.service.internalPort }};
@@ -279,6 +287,7 @@ web-nginx.conf: |-
   user nginx;
   worker_processes 1;
 
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
   {{- range .Values.web.nginx.modules }}
   load_module {{ . }};
   {{- end }}
@@ -314,6 +323,9 @@ web-nginx.conf: |-
       gzip_proxied any;
       gzip_vary on;
       gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
+
+      brotli on;
+      brotli_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml application/xml text/javascript application/json application/xml+rss application/vnd.api+json;
 
       {{- if .Values.web.nginx.cache.enabled }}
       ##

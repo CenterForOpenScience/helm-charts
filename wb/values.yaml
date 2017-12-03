@@ -15,8 +15,8 @@ budget:
 
 nginx:
   image:
-    repository: nginx
-    tag: alpine
+    repository: quay.io/centerforopenscience/nginx
+    tag: latest
     pullPolicy: Always
   resources: {}
     # limits:

@@ -13,6 +13,8 @@ nginx.conf: |-
   user  nginx;
   worker_processes  1;
 
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
+
   error_log  /var/log/nginx/error.log warn;
   pid        /var/run/nginx.pid;
 
@@ -44,6 +46,9 @@ nginx.conf: |-
       gzip_vary on;
       gzip_buffers 4 32k;
       gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml text/javascript application/json application/vnd.api+json;
+
+      brotli on;
+      brotli_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml text/javascript application/json application/vnd.api+json;
 
       server {
           listen {{ .Values.service.internalPort }};
