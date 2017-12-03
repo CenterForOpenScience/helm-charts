@@ -16,7 +16,7 @@ data:
 default.conf: ''
 admin-nginx.conf: |-
   user nginx;
-  worker_processes 1;
+  worker_processes {{ .Values.admin.nginx.workerCount }};
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- range .Values.admin.nginx.modules }}
@@ -104,6 +104,35 @@ admin-nginx.conf: |-
           }
       }
   }
+admin-uwsgi.ini: |-
+  [uwsgi]
+  uid = www-data
+  gid = www-data
+
+  # add user-agent, http://uwsgi.unbit.narkive.com/jEtphIzE/default-log-format-explained#post5
+  log-format = [pid: %(pid)|app: ?|req: ?/?] %(addr) (%(user)) {%(vars) vars in %(pktsize) bytes} [%(ctime)] %(method) %(uri) => generated %(rsize) bytes in %(msecs) msecs (%(proto) %(status)) %(headers) headers in %(hsize) bytes (%(switches) switches on core %(core)) "%(uagent)"
+
+  # Flask-related settings
+  chdir = /code
+  module = admin.base.wsgi:application
+  env = OSF_PRODUCTION=1
+  env = DJANGO_SETTINGS_MODULE=admin.base.settings
+  env = DEBUG=
+
+  # process-related settings
+  master = true
+  workers = {{ .Values.admin.uwsgi.workerCount }}
+  threads = 1
+  harakiri = 120
+  buffer-size = 8192
+  stats = :1717
+  vacuum = true
+  need-app = true
+  show-config = true
+
+  # greenlet settings
+  gevent = 500
+  gevent-early-monkey-patch = true
 api-nginx.conf: |-
   user nginx;
   worker_processes 1;
@@ -194,6 +223,35 @@ api-nginx.conf: |-
           }
       }
   }
+api-uwsgi.ini: |-
+  [uwsgi]
+  uid = www-data
+  gid = www-data
+
+  # add user-agent, http://uwsgi.unbit.narkive.com/jEtphIzE/default-log-format-explained#post5
+  log-format = [pid: %(pid)|app: ?|req: ?/?] %(addr) (%(user)) {%(vars) vars in %(pktsize) bytes} [%(ctime)] %(method) %(uri) => generated %(rsize) bytes in %(msecs) msecs (%(proto) %(status)) %(headers) headers in %(hsize) bytes (%(switches) switches on core %(core)) "%(uagent)"
+
+  # Flask-related settings
+  chdir = /code
+  module = api.base.wsgi:application
+  env = OSF_PRODUCTION=1
+  env = DJANGO_SETTINGS_MODULE=api.base.settings
+  env = DEBUG=
+
+  # process-related settings
+  master = true
+  workers = {{ .Values.api.uwsgi.workerCount }}
+  threads = 1
+  harakiri = 120
+  buffer-size = 8192
+  stats = :1717
+  vacuum = true
+  need-app = true
+  show-config = true
+
+  # greenlet settings
+  gevent = 500
+  gevent-early-monkey-patch = true
 web-nginx-osf-preprints.conf: |-
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
@@ -469,6 +527,35 @@ web-nginx.conf: |-
           }
       }
   }
+web-uwsgi.ini: |-
+  [uwsgi]
+  uid = www-data
+  gid = www-data
+
+  # add user-agent, http://uwsgi.unbit.narkive.com/jEtphIzE/default-log-format-explained#post5
+  log-format = [pid: %(pid)|app: ?|req: ?/?] %(addr) (%(user)) {%(vars) vars in %(pktsize) bytes} [%(ctime)] %(method) %(uri) => generated %(rsize) bytes in %(msecs) msecs (%(proto) %(status)) %(headers) headers in %(hsize) bytes (%(switches) switches on core %(core)) "%(uagent)"
+
+  # Flask-related settings
+  chdir = /code
+  module = main:app
+  env = OSF_PRODUCTION=1
+  env = DJANGO_SETTINGS_MODULE=api.base.settings
+  env = DEBUG=
+
+  # process-related settings
+  master = true
+  workers = {{ .Values.web.uwsgi.workerCount }}
+  threads = 1
+  harakiri = 120
+  buffer-size = 8192
+  stats = :1717
+  vacuum = true
+  need-app = true
+  show-config = true
+
+  # greenlet settings
+  gevent = 500
+  gevent-early-monkey-patch = true
 {{- end -}}
   {{- range $key, $value := .Values.configEnvs }}
   {{ $key }}: {{ $value | quote }}

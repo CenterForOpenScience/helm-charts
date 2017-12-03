@@ -20,6 +20,7 @@ admin:
     minAvailable: 0
 
   nginx:
+    workerCount: 1
     modules: []
       # - modules/path/to/dynamic_module.so
     resources: {}
@@ -38,6 +39,9 @@ admin:
     # requests:
     #   cpu: 100m
     #   memory: 256Mi
+
+  uwsgi:
+    workerCount: 1
 
   horizontalPodAutoscaler:
     enabled: false
@@ -95,6 +99,7 @@ api:
     minAvailable: 0
 
   nginx:
+    workerCount: 1
     modules: []
       # - modules/path/to/dynamic_module.so
     resources: {}
@@ -113,6 +118,9 @@ api:
     # requests:
     #   cpu: 100m
     #   memory: 256Mi
+
+  uwsgi:
+    workerCount: 1
 
   horizontalPodAutoscaler:
     enabled: false
@@ -245,6 +253,7 @@ web:
     minAvailable: 0
 
   nginx:
+    workerCount: 1
     cache:
       enabled: false
       guids: []
@@ -271,6 +280,9 @@ web:
     # requests:
     #   cpu: 100m
     #   memory: 256Mi
+
+  uwsgi:
+    workerCount: 1
 
   horizontalPodAutoscaler:
     enabled: false
