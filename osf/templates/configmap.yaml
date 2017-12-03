@@ -71,14 +71,12 @@ admin-nginx.conf: |-
               return 200;
           }
 
-          location /robots.txt {
+          location = /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
-              try_files $uri $uri/ /index.html;
           }
 
-          location /static {
-              alias /static/code/admin;
-              try_files $uri $uri/ /index.html;
+          location ~* /static/(.*) {
+              alias /static/code/admin/$1;
           }
 
           include /etc/nginx/conf.d/*.conf;
@@ -154,19 +152,16 @@ api-nginx.conf: |-
               return 200;
           }
 
-          location /robots.txt {
+          location = /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
-              try_files $uri $uri/ /index.html;
           }
 
-          location /favicon.ico {
+          location = /favicon.ico {
               alias /static/code/website/static/favicon.ico;
-              try_files $uri $uri/ /index.html;
           }
 
-          location /v2/static {
-              alias /static/code/api/static/vendor;
-              try_files $uri $uri/ /index.html;
+          location ~* /v2/static/(.*) {
+              alias /static/code/api/static/vendor/$1;
           }
 
           include /etc/nginx/conf.d/*.conf;
@@ -197,7 +192,7 @@ web-nginx-osf-preprints.conf: |-
       proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
   }
 web-nginx-osf-registries.conf: |-
-  location /registries/ {
+  location ~* /registries(/?$|/.*) {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
@@ -208,7 +203,7 @@ web-nginx-osf-registries.conf: |-
       proxy_pass http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }};
   }
 web-nginx-osf-reviews.conf: |-
-  location /reviews/ {
+  location ~* /reviews(/?$|/.*) {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
@@ -219,7 +214,7 @@ web-nginx-osf-reviews.conf: |-
       proxy_pass http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }};
   }
 web-nginx-osf-web.conf: |-
-  location /ember_osf_web/ {
+  location ~* /ember_osf_web(/?$|/.*) {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
@@ -318,7 +313,7 @@ web-nginx.conf: |-
       ##
       # Caching Settings
       ##
-      
+
       # Pull cache-busting key out of query string
       map $args $args_first {
           default $args;
@@ -329,7 +324,7 @@ web-nginx.conf: |-
           ~^\?_=\d+&?(?<rest>.*)$ $rest;
           ~_=\d+(?<rest>.*)$ $rest;
       }
-      
+
       uwsgi_cache_path /cache/uwsgi keys_zone=osf_uwsgi_cache:10m inactive=120m;
       uwsgi_temp_path /cache/uwsgi-temp;
       {{- end }}
@@ -377,19 +372,16 @@ web-nginx.conf: |-
               return 200;
           }
 
-          location /robots.txt {
+          location = /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
-              try_files $uri $uri/ /index.html;
           }
 
-          location ~ /static/addons/(.*?)/(.*) {
+          location ~* /static/addons/(.*?)/(.*) {
               alias /static/code/addons/$1/static/$2;
-              try_files $uri $uri/ /index.html;
           }
 
-          location /static/ {
-              alias /static/code/website/static/;
-              try_files $uri $uri/ /index.html;
+          location ~* /static/(.*) {
+              alias /static/code/website/static/$1;
           }
 
           include /etc/nginx/conf.d/*.conf;
