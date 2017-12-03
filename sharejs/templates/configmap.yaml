@@ -21,10 +21,10 @@ nginx.conf: |-
   }
 
   http {
-      log_format  main  '$remote_addr - $upstream_cache_status $remote_user [$time_local] "$request" '
-                        '$status $body_bytes_sent "$http_referer" '
-                        '"$http_user_agent" "$http_x_forwarded_for"';
-
+      log_format main '$remote_addr - $upstream_cache_status $remote_user [$time_local] '
+                      '"$request" $status $body_bytes_sent '
+                      '"$http_referer" "$http_user_agent" "$http_x_forwarded_for" '
+                      'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
       access_log  /var/log/nginx/access.log  main;
 
       map $http_upgrade $connection_upgrade {
@@ -44,7 +44,7 @@ nginx.conf: |-
               return 200;
           }
 
-          location /robots.txt {
+          location = /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
           }
 
