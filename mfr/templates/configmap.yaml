@@ -13,7 +13,7 @@ nginx.conf: |-
   user  nginx;
   worker_processes  1;
 
-  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
 
   error_log  /var/log/nginx/error.log warn;
   pid        /var/run/nginx.pid;

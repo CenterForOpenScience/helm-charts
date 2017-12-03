@@ -18,7 +18,7 @@ admin-nginx.conf: |-
   user nginx;
   worker_processes 1;
 
-  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- range .Values.admin.nginx.modules }}
   load_module {{ . }};
   {{- end }}
@@ -104,7 +104,7 @@ api-nginx.conf: |-
   user nginx;
   worker_processes 1;
 
-  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- range .Values.api.nginx.modules }}
   load_module {{ . }};
   {{- end }}
@@ -287,7 +287,7 @@ web-nginx.conf: |-
   user nginx;
   worker_processes 1;
 
-  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- range .Values.web.nginx.modules }}
   load_module {{ . }};
   {{- end }}
