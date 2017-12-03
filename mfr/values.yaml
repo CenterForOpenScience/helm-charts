@@ -14,6 +14,7 @@ budget:
   minAvailable: 0
 
 nginx:
+  workerCount: 1
   image:
     repository: quay.io/centerforopenscience/nginx
     tag: latest

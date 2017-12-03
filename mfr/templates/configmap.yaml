@@ -11,7 +11,7 @@ data:
 {{- define "mfr.inlineconfigs" }}
 nginx.conf: |-
   user  nginx;
-  worker_processes  1;
+  worker_processes  {{ .Values.nginx.workerCount }};
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- if .Values.nginx.vts.enabled }}
