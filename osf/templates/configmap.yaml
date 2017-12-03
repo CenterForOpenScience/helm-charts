@@ -80,7 +80,7 @@ admin-nginx.conf: |-
               alias /usr/share/nginx/html/robots.txt;
           }
 
-          location ~* /static/(.*) {
+          location ~* ^/static/(.*) {
               alias /static/code/admin/$1;
           }
 
@@ -170,7 +170,7 @@ api-nginx.conf: |-
               alias /static/code/website/static/favicon.ico;
           }
 
-          location ~* /v2/static/(.*) {
+          location ~* ^/v2/static/(.*) {
               alias /static/code/api/static/vendor/$1;
           }
 
@@ -202,7 +202,7 @@ web-nginx-osf-preprints.conf: |-
       proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
   }
 web-nginx-osf-registries.conf: |-
-  location ~* /registries(/?$|/.*) {
+  location ~* ^/registries(/?$|/.*) {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
@@ -213,7 +213,7 @@ web-nginx-osf-registries.conf: |-
       proxy_pass http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }};
   }
 web-nginx-osf-reviews.conf: |-
-  location ~* /reviews(/?$|/.*) {
+  location ~* ^/reviews(/?$|/.*) {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
@@ -224,7 +224,7 @@ web-nginx-osf-reviews.conf: |-
       proxy_pass http://{{ $osfReviews.service.name }}:{{ $osfReviews.service.externalPort }};
   }
 web-nginx-osf-web.conf: |-
-  location ~* /ember_osf_web(/?$|/.*) {
+  location ~* ^/ember_osf_web(/?$|/.*) {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
@@ -394,11 +394,11 @@ web-nginx.conf: |-
               alias /usr/share/nginx/html/robots.txt;
           }
 
-          location ~* /static/addons/(.*?)/(.*) {
+          location ~* ^/static/addons/(.*?)/(.*) {
               alias /static/code/addons/$1/static/$2;
           }
 
-          location ~* /static/(.*) {
+          location ~* ^/static/(.*) {
               alias /static/code/website/static/$1;
           }
 
