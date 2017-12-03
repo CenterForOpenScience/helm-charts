@@ -29,6 +29,8 @@ nginx:
   proxySourceRanges: []
     # - 130.211.0.0/22
     # - 35.191.0.0/16
+  realIpHeader: X-Real-IP
+  realIpRecursive: "off"
   vts:
     enabled: false
     internalPort: 18080

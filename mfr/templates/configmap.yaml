@@ -36,6 +36,12 @@ nginx.conf: |-
                       'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
       access_log  /var/log/nginx/access.log  main;
 
+      real_ip_header {{ .Values.nginx.realIpHeader }};
+      real_ip_recursive {{ .Values.nginx.realIpRecursive }};
+      {{- range .Values.nginx.proxySourceRanges }}
+      set_real_ip_from {{ . }};
+      {{- end }}
+
       {{- if .Values.nginx.vts.enabled }}
       geoip_country       /etc/nginx/GeoIP.dat;
       geoip_city          /etc/nginx/GeoLiteCity.dat;
