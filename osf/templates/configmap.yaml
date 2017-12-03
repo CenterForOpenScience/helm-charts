@@ -80,6 +80,10 @@ admin-nginx.conf: |-
               alias /usr/share/nginx/html/robots.txt;
           }
 
+          location = /favicon.ico {
+              alias /static/code/website/static/favicon.ico;
+          }
+
           location ~* ^/static/(.*) {
               alias /static/code/admin/$1;
           }
@@ -392,6 +396,10 @@ web-nginx.conf: |-
 
           location = /robots.txt {
               alias /usr/share/nginx/html/robots.txt;
+          }
+
+          location = /favicon.ico {
+              alias /static/code/website/static/favicon.ico;
           }
 
           location ~* ^/static/addons/(.*?)/(.*) {
