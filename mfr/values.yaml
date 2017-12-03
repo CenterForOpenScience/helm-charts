@@ -25,6 +25,11 @@ nginx:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
+  vts:
+    enabled: false
+    internalPort: 18080
+    statusZoneSize: 10m
+    defaultFilterKey: "$geoip_country_code country::*"
 
 tornado:
   resources: {}

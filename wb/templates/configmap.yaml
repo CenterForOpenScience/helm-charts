@@ -14,6 +14,10 @@ nginx.conf: |-
   worker_processes  1;
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
+  {{- if .Values.nginx.vts.enabled }}
+  load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so;
+  {{- end }}
 
   error_log  /var/log/nginx/error.log warn;
   pid        /var/run/nginx.pid;
@@ -32,6 +36,15 @@ nginx.conf: |-
                       'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
       access_log  /var/log/nginx/access.log  main;
 
+      {{- if .Values.nginx.vts.enabled }}
+      geoip_country       /etc/nginx/GeoIP.dat;
+      geoip_city          /etc/nginx/GeoLiteCity.dat;
+      geoip_proxy_recursive on;
+
+      vhost_traffic_status_zone shared:vhost_traffic_status:{{ .Values.nginx.vts.statusZoneSize }};
+      vhost_traffic_status_filter_by_set_key {{ .Values.nginx.vts.defaultFilterKey }};
+      {{- end }}
+
       sendfile on;
       tcp_nopush on;
       tcp_nodelay on;
@@ -49,6 +62,23 @@ nginx.conf: |-
 
       brotli on;
       brotli_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml text/javascript application/json application/vnd.api+json;
+
+      {{- if .Values.nginx.vts.enabled }}
+      server {
+          listen {{ .Values.nginx.vts.internalPort }};
+          server_name _;
+
+          location /healthz {
+              access_log off;
+              return 200;
+          }
+
+          location /nginx_status {
+              vhost_traffic_status_display;
+              vhost_traffic_status_display_format html;
+          }
+      }
+      {{- end }}
 
       server {
           listen {{ .Values.service.internalPort }};

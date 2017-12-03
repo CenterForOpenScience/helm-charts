@@ -31,6 +31,11 @@ admin:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
 
   resources: {}
     # limits:
@@ -110,6 +115,11 @@ api:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
 
   resources: {}
     # limits:
@@ -272,7 +282,12 @@ web:
       #   cpu: 100m
       #   memory: 128Mi
     volumeMounts: []
-    
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
+
   resources: {}
     # limits:
     #   cpu: "1"
