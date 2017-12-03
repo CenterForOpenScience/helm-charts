@@ -20,7 +20,7 @@ admin-nginx.conf: |-
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- if .Values.admin.nginx.vts.enabled }}
-  load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so;
   {{- end }}
   {{- range .Values.admin.nginx.modules }}
@@ -169,7 +169,7 @@ api-nginx.conf: |-
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- if .Values.api.nginx.vts.enabled }}
-  load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so;
   {{- end }}
   {{- range .Values.api.nginx.modules }}
@@ -411,7 +411,7 @@ web-nginx.conf: |-
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- if .Values.web.nginx.vts.enabled }}
-  load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so
+  load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so;
   {{- end }}
   {{- range .Values.web.nginx.modules }}
