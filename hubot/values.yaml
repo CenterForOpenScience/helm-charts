@@ -1,0 +1,43 @@
+# Default values for hubot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+image:
+  repository: quay.io/centerforopenscience/hubot
+  tag: master
+  pullPolicy: IfNotPresent
+
+antiAffinity: soft
+
+budget:
+  minAvailable: 0
+
+horizontalPodAutoscaler:
+  enabled: false
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 90
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+configEnvs: {}
+
+configFiles: {}
+
+secretEnvs: {}
+
+secretFiles: {}
+
+redis:
+  enabled: true
+  redisPassword: hubot

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "hubot.fullname" . }}
+  labels:
+    app: {{ template "hubot.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  {{- range $key, $value := .Values.configEnvs }}
+  {{ $key }}: {{ $value | b64enc | quote }}
+  {{- end }}
+  {{- range $key, $value := .Values.configFiles }}
+  {{ $key }}: {{ $value | b64enc | quote }}
+  {{- end }}
