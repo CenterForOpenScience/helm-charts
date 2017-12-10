@@ -616,6 +616,10 @@ web-nginx.conf: |-
 
           {{- if and .Values.web.nginx.cache.enabled .Values.web.nginx.cache.guids }}
           location ~* (^/|^/api/v1/project/)({{ join "|" .Values.web.nginx.cache.guids }}) {
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
               uwsgi_cache_valid 200 60m;
               include /etc/nginx/uwsgi-cache.conf;
 
@@ -623,10 +627,6 @@ web-nginx.conf: |-
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
-
-              {{- if .Values.prerender.enabled }}
-              include /etc/nginx/prerender.conf;
-              {{- end }}
 
               # Mitigate HTTPoxy Vulnerability
               # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
@@ -641,6 +641,10 @@ web-nginx.conf: |-
           {{- end }}
 
           location / {
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
               {{- if .Values.web.nginx.cache.enabled }}
               uwsgi_cache_valid 200 1m;
               include /etc/nginx/uwsgi-cache.conf;
@@ -650,10 +654,6 @@ web-nginx.conf: |-
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
-
-              {{- if .Values.prerender.enabled }}
-              include /etc/nginx/prerender.conf;
-              {{- end }}
 
               # Mitigate HTTPoxy Vulnerability
               # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
