@@ -27,8 +27,20 @@ spec:
         pod.beta.kubernetes.io/init-containers: null
         {{- end }}
     spec:
-      {{- if .Values.tls.enabled }}
       initContainers:
+        - name: permissions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - export dir=/recover &&
+              chown -R barman:barman ${dir}
+          volumeMounts:
+            - mountPath: /recover
+              name: recover
+              subPath: recover
+        {{- if .Values.tls.enabled }}
         - name: certificates
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -50,7 +62,7 @@ spec:
               subPath: certs-{{ $key }}
               readOnly: true
             {{- end }}
-      {{- end }}
+        {{- end }}
       containers:
         - name: barman
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
