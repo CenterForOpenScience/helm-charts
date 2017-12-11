@@ -88,6 +88,10 @@ spec:
               name: config
               subPath: nginx.conf
               readOnly: true
+            - mountPath: /static/robots.txt
+              name: config
+              subPath: robots.txt
+              readOnly: true
           ports:
             - containerPort: {{ .Values.service.internalPort }}
           # livenessProbe:
