@@ -59,6 +59,9 @@ spec:
             - mountPath: /var/lib/barman
               name: data
               subPath: data
+            - mountPath: /recover
+              name: recover
+              subPath: recover
             - mountPath: /etc/barman.conf
               name: config
               subPath: barman.conf
@@ -85,8 +88,12 @@ spec:
                   - -c
                   - touch /etc/crontab /etc/cron.d/* || true
       volumes:
-        {{- if not .Values.persistence.enabled }}
+        {{- if not .Values.persistence.data.enabled }}
         - name: data
+          emptyDir: {}
+        {{- end }}
+        {{- if not .Values.persistence.recover.enabled }}
+        - name: recover
           emptyDir: {}
         {{- end }}
         - name: config
@@ -99,17 +106,32 @@ spec:
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}
-  {{- if .Values.persistence.enabled }}
+  {{- if or .Values.persistence.data.enabled .Values.persistence.recover.enabled }}
   volumeClaimTemplates:
+    {{- if .Values.persistence.data.enabled }}
     - metadata:
         name: data
       spec:
         accessModes:
-          - {{ .Values.persistence.accessMode | quote }}
-      {{- if hasKey .Values.persistence "storageClass" }}
-        storageClassName: {{ .Values.persistence.storageClass | quote }}
+          - {{ .Values.persistence.data.accessMode | quote }}
+      {{- if hasKey .Values.persistence.data "storageClass" }}
+        storageClassName: {{ .Values.persistence.data.storageClass | quote }}
       {{- end }}
         resources:
           requests:
-            storage: {{ .Values.persistence.size | quote }}
+            storage: {{ .Values.persistence.data.size | quote }}
+    {{- end }}
+    {{- if .Values.persistence.recover.enabled }}
+    - metadata:
+        name: recover
+      spec:
+        accessModes:
+          - {{ .Values.persistence.recover.accessMode | quote }}
+      {{- if hasKey .Values.persistence.recover "storageClass" }}
+        storageClassName: {{ .Values.persistence.recover.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.recover.size | quote }}
+    {{- end }}
   {{- end }}

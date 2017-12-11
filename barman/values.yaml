@@ -15,10 +15,16 @@ resources: {}
   #  memory: 128Mi
 
 persistence:
-  enabled: true
-  # storageClass: ssd
-  accessMode: ReadWriteOnce
-  size: 8Gi
+  data:
+    enabled: true
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 8Gi
+  recover:
+    enabled: false
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 4Gi
 
 backups:
   # see more: http://docs.pgbarman.org/release/2.3/#examples-of-configuration
