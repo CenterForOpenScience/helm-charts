@@ -54,10 +54,12 @@ spec:
           command:
             - /bin/bash
             - -c
-            - chown -R www-data:www-data /log
+            - chown -R www-data:www-data /data /log
           securityContext:
             runAsUser: 0
           volumeMounts:
+            - mountPath: /data
+              name: data
             - mountPath: /log
               name: log
         {{- end }}
@@ -94,6 +96,8 @@ spec:
             {{- end }}
           volumeMounts:
             {{- if not .Values.task.enabled }}
+            - mountPath: /data
+              name: data
             - mountPath: /log
               name: log
             {{- end }}
@@ -108,6 +112,8 @@ spec:
       volumes:
         {{- include "osf.volumes" . | nindent 8 }}
         {{- if not .Values.task.enabled }}
+        - name: data
+          emptyDir: {}
         - name: log
           emptyDir: {}
         {{- end }}

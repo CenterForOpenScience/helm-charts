@@ -57,10 +57,12 @@ spec:
           command:
             - /bin/bash
             - -c
-            - chown -R www-data:www-data /log
+            - chown -R www-data:www-data /data /log
           securityContext:
             runAsUser: 0
           volumeMounts:
+            - mountPath: /data
+              name: data
             - mountPath: /log
               name: log
         {{- include "osf.certificates.initContainer" . | nindent 8 }}
@@ -94,6 +96,8 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           volumeMounts:
+            - mountPath: /data
+              name: data
             - mountPath: /log
               name: log
             {{- include "osf.volumeMounts" . | nindent 12 }}
@@ -104,6 +108,8 @@ spec:
             {{- toYaml .Values.task.resources | nindent 12 }}
       volumes:
         {{- include "osf.volumes" . | nindent 12 }}
+        - name: data
+          emptyDir: {}
         {{- if not .Values.task.persistence.enabled }}
         - name: log
           emptyDir: {}
