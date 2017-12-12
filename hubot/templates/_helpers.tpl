@@ -15,8 +15,16 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "hubot.environment" -}}
+{{/*
+Create a default fully qualified redis name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "redis.fullname" -}}
+{{- $name := "redis" -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
+{{- define "hubot.environment" -}}
 {{- $fullname := include "hubot.fullname" . -}}
 {{- range $key := keys .Values.configEnvs }}
 - name: {{ $key }}
