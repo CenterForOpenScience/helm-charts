@@ -107,7 +107,7 @@ spec:
           resources:
             {{- toYaml .Values.task.resources | nindent 12 }}
       volumes:
-        {{- include "osf.volumes" . | nindent 12 }}
+        {{- include "osf.volumes" . | nindent 8 }}
         - name: data
           emptyDir: {}
         {{- if not .Values.task.persistence.enabled }}
