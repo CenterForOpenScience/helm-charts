@@ -44,13 +44,38 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- include "hubot.environment" . | nindent 12 }}
-#          livenessProbe:
-#            httpGet:
-#              path: /
-#              port: {{/* .Values.service.internalPort */}}
-#          readinessProbe:
-#            httpGet:
-#              path: /
-#              port: {{/* .Values.service.internalPort */}}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.internalPort }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- range $key := keys (merge .Values.configFiles (include "hubot.inlineconfigs" . | fromYaml) (include "hubot.fileconfigs" . | fromYaml)) }}
+            - mountPath: /code/{{ $key }}
+              name: config
+              subPath: {{ $key | replace "/" "-" }}
+              readOnly: true
+            {{- end }}
+            {{- range $key := keys .Values.secretFiles }}
+            - mountPath: /code/{{ $key }}
+              name: secret
+              subPath: {{ $key | replace "/" "-" }}
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "hubot.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "hubot.fullname" . }}

@@ -30,6 +30,28 @@ resources: {}
   #  cpu: 100m
   #  memory: 128Mi
 
+service:
+  name: hubot
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+
+ingress:
+  enabled: false
+  # Used to create Ingress record (should used with service.type: ClusterIP).
+  hosts:
+    - chart-example.local
+  paths:
+    - /
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  tls:
+    # Secrets must be manually created in the namespace.
+    # - secretName: chart-example-tls
+    #   hosts:
+    #     - chart-example.local
+
 configEnvs: {}
 
 configFiles: {}

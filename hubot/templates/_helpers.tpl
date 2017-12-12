@@ -16,6 +16,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{- define "hubot.environment" -}}
+
 {{- $fullname := include "hubot.fullname" . -}}
 {{- range $key := keys .Values.configEnvs }}
 - name: {{ $key }}
@@ -24,11 +25,18 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
       name: {{ $fullname }}
       key: {{ $key }}
 {{- end }}
+{{- if .Values.redis.enabled }}
+- name: REDIS_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ $fullname }}
+      key: REDIS_URL
+{{- end }}
 {{- range $key := keys .Values.secretEnvs }}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
       name: {{ $fullname }}
       key: {{ $key }}
-{{- end }}
+{{- end -}}
 {{- end -}}
