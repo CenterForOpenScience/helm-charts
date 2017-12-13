@@ -539,7 +539,7 @@ web-nginx.conf: |-
           {{- if .Values.web.nginx.preprintDomainSuffix }}
           server_name *.{{ .Values.web.nginx.preprintDomainSuffix }};
           {{- else }}
-          server_name agrixiv.org eartharxiv.org engrxiv.org mindrxiv.org psyarxiv.com thesiscommons.org researchaz.org;
+          server_name agrixiv.org arabixiv.org eartharxiv.org engrxiv.org frenxiv.org marxiv.org mindrxiv.org psyarxiv.com thesiscommons.org researchaz.org;
           {{- end }}
 
           location ~* ^/(?!\w+/download/?$).* {
