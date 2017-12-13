@@ -40,6 +40,17 @@ spec:
                     app: {{ template "wb.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
+      initContainers:
+        - name: chown
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - chown -R www-data:www-data /pickles
+          volumeMounts:
+            - name: pickles
+              mountPath: /pickles
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"

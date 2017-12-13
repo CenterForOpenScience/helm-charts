@@ -28,14 +28,13 @@ spec:
         {{- end }}
     spec:
       initContainers:
-        - name: permissions
+        - name: chown
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - /bin/sh
             - -c
-            - export dir=/recover &&
-              chown -R barman:barman ${dir}
+            - chown -R barman:barman /recover
           volumeMounts:
             - mountPath: /recover
               name: recover
