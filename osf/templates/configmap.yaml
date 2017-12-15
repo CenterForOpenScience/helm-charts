@@ -534,13 +534,10 @@ web-nginx.conf: |-
       uwsgi_temp_path /cache/uwsgi-temp;
       {{- end }}
 
+      {{- if .Values.web.nginx.preprintDomains }}
       server {
           listen {{ .Values.web.service.internalPort }};
-          {{- if .Values.web.nginx.preprintDomainSuffix }}
-          server_name *.{{ .Values.web.nginx.preprintDomainSuffix }};
-          {{- else }}
-          server_name agrixiv.org arabixiv.org eartharxiv.org engrxiv.org frenxiv.org marxiv.org mindrxiv.org psyarxiv.com thesiscommons.org researchaz.org;
-          {{- end }}
+          server_name {{ join " " .Values.web.nginx.preprintDomains }};
 
           location ~* ^/(?!\w+/download/?$).* {
               {{- if .Values.prerender.enabled }}
@@ -573,6 +570,7 @@ web-nginx.conf: |-
               uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
           }
       }
+      {{- end }}
 
       server {
           listen {{ .Values.web.service.internalPort }} default_server;
