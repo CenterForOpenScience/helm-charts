@@ -43,7 +43,7 @@ nginx.conf: |
   {{- range $key, $value := .Values.configEnvs }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
-  {{- range $key, $value := merge .Values.configFiles (include "prerender.inlineconfigs" . | fromYaml) ((.Files.Glob "files/*").AsConfig | fromYaml) }}
+  {{- range $key, $value := merge .Values.configFiles (include "prerender.inlineconfigs" . | fromYaml) }}
   {{ $key }}: |-
     {{- $value | nindent 4 }}
   {{- end }}

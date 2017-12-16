@@ -82,11 +82,14 @@ spec:
             {{- include "prerender.environment" . | indent 12 }}
           ports:
             - containerPort: {{ .Values.service.externalPort }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.service.externalPort }}
+            initialDelaySeconds: 10
+          {{- if .Values.volumeMounts }}
           volumeMounts:
-            - mountPath: /code/server.js
-              name: config-volume
-              subPath: server.js
-              readOnly: true
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
           {{- if .Values.resources }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

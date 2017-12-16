@@ -4,7 +4,7 @@
 replicaCount: 1
 
 image:
-  repository: centerforopenscience/prerender
+  repository: quay.io/centerforopenscience/prerender
   tag: latest
   pullPolicy: Always
 
@@ -20,6 +20,12 @@ resources: {}
   #requests:
   #  cpu: 100m
   #  memory: 128Mi
+
+volumeMounts: []
+#  - mountPath: /code/server.js
+#    name: config-volume
+#    subPath: server.js
+#    readOnly: true
 
 nginx:
   image:
