@@ -35,6 +35,9 @@ spec:
               --requirepass
               ${REDIS_PASSWORD}
               {{- end }}
+              {{- if .Values.args }}
+              {{ .Values.args | join " " }}
+              {{- end }}
           env:
             {{- include "redis.environment" . | nindent 12 }}
           ports:

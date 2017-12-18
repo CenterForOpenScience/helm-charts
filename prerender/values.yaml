@@ -99,10 +99,10 @@ redis:
   ##
   ## Can be used to specify command line arguments, for example:
   ##
-  ## command:
-  ##  - "redis-server"
-  ##  - "--maxmemory-policy volatile-ttl"
-  command:
+  ## args:
+  ##  - --maxmemory 200mb
+  ##  - --maxmemory-policy volatile-ttl
+  args:
 
   ## Enable persistence using Persistent Volume Claims
   ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
