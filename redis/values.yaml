@@ -35,7 +35,8 @@ persistence:
   ##   GKE, AWS & OpenStack)
   ##
   # storageClass: "-"
-  accessMode: ReadWriteOnce
+  accessModes:
+    - ReadWriteOnce
   size: 8Gi
 
 ## Configure resource requests and limits

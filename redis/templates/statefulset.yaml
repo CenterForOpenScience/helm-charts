@@ -5,6 +5,12 @@ metadata:
   labels:
     {{- include "redis.labels.standard" . | nindent 4 }}
 spec:
+  serviceName: {{ template "redis.fullname" . }}
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
   template:
     metadata:
       labels:
