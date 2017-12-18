@@ -28,12 +28,12 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- if .Values.redis.enabled }}
 - name: REDIS_HOST
   value: {{ template "redis.fullname" . }}
-{{- if .Values.redis.usePassword }}
+{{- if hasKey .Values.redis.secretEnvs "REDIS_PASSWORD" }}
 - name: REDIS_PASSWORD
   valueFrom:
     secretKeyRef:
       name: {{ template "redis.fullname" . }}
-      key: redis-password
+      key: REDIS_PASSWORD
 {{- end }}
 {{- end }}
 {{- $fullname := include "prerender.fullname" . -}}
