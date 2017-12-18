@@ -539,6 +539,14 @@ web-nginx.conf: |-
           listen {{ .Values.web.service.internalPort }};
           server_name {{ join " " .Values.web.nginx.preprintDomains }};
 
+          location = /favicon.ico {
+              alias /static/code/website/static/favicon.ico;
+          }
+
+          location = /robots.txt {
+              alias /usr/share/nginx/html/robots.txt;
+          }
+
           location ~* ^/(?!\w+/download/?$).* {
               {{- if .Values.prerender.enabled }}
               include /etc/nginx/prerender.conf;
