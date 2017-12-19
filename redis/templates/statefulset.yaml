@@ -29,7 +29,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - >
+            - >-
               redis-server
               {{- if hasKey .Values.secretEnvs "REDIS_PASSWORD" }}
               --requirepass
@@ -46,15 +46,27 @@ spec:
           livenessProbe:
             exec:
               command:
-                - redis-cli
-                - ping
+                - /bin/sh
+                - -c
+                - >-
+                  [ "$( redis-cli
+                  {{- if hasKey .Values.secretEnvs "REDIS_PASSWORD" }}
+                  -a ${REDIS_PASSWORD}
+                  {{- end }}
+                  ping )" == "PONG" ]
             initialDelaySeconds: 30
             timeoutSeconds: 5
           readinessProbe:
             exec:
               command:
-                - redis-cli
-                - ping
+                - /bin/sh
+                - -c
+                - >-
+                  [ "$( redis-cli
+                  {{- if hasKey .Values.secretEnvs "REDIS_PASSWORD" }}
+                  -a ${REDIS_PASSWORD}
+                  {{- end }}
+                  ping )" == "PONG" ]
             initialDelaySeconds: 5
             timeoutSeconds: 1
           resources:
