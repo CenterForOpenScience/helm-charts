@@ -684,11 +684,13 @@ web-nginx.conf: |-
       {{- if .Values.web.nginx.redirects.enabled }}
       # WARNING: Must remain at the bottom to ensure connections default to
       # the first server configuration for institutions
+      {{- range $value := .Values.web.nginx.redirects.domains }}
       server {
           listen {{ .Values.web.service.internalPort }};
-          server_name {{ .Values.web.nginx.redirects.from | join " " }};
-          return 301 https://{{ .Values.web.nginx.redirects.to }}$request_uri;
+          server_name {{ $value.from | join " " }};
+          return 301 https://{{ $value.to }}$request_uri;
       }
+      {{- end }}
       {{- end }}
   }
 web-uwsgi.ini: |-
