@@ -686,7 +686,7 @@ web-nginx.conf: |-
       # the first server configuration for institutions
       {{- range $value := .Values.web.nginx.redirects.domains }}
       server {
-          listen {{ .Values.web.service.internalPort }};
+          listen {{ $.Values.web.service.internalPort }};
           server_name {{ $value.from | join " " }};
           return 301 https://{{ $value.to }}$request_uri;
       }

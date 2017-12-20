@@ -304,10 +304,11 @@ web:
       defaultFilterKey: "$geoip_country_code country::*"
     redirects:
       enabled: false
-      domians: []
+      domains: []
         # - to: example.com
         #   from:
         #     - www.example.com
+        #     - another.domain.com
 
   resources: {}
     # limits:
