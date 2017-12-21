@@ -86,8 +86,9 @@ spec:
             httpGet:
               path: /http://127.0.0.1:{{ .Values.service.internalPort }}/healthz
               port: {{ .Values.service.externalPort }}
+            timeoutSeconds: 5
             initialDelaySeconds: 30
-            periodSeconds: 10
+            periodSeconds: 30
           readinessProbe:
             tcpSocket:
               port: {{ .Values.service.externalPort }}
