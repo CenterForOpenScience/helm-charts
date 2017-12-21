@@ -63,7 +63,7 @@ spec:
               subPath: userlist.txt
               mountPath: /etc/pgbouncer/userlist.txt
               readOnly: true
-            - name: config
+            - name: secret
               subPath: pgbouncer.ini
               mountPath: /etc/pgbouncer/pgbouncer.ini
               readOnly: true
