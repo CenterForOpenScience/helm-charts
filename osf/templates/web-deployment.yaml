@@ -90,12 +90,19 @@ spec:
               name: static
               readOnly: true
             {{- if .Values.web.nginx.cache.enabled }}
+            {{- if .Values.redis.enabled }}
+            - mountPath: /etc/nginx/redis-cache.conf
+              name: config
+              subPath: web-nginx-redis-cache.conf
+              readOnly: true
+            {{- else }}
             - mountPath: /cache
               name: cache
             - mountPath: /etc/nginx/uwsgi-cache.conf
               name: config
               subPath: web-nginx-uwsgi-cache.conf
               readOnly: true
+            {{- end }}
             {{- end }}
             - mountPath: /etc/nginx/nginx.conf
               name: config
@@ -208,7 +215,7 @@ spec:
         {{- include "osf.volumes" . | nindent 8 }}
         - name: static
           emptyDir: {}
-        {{- if .Values.web.nginx.cache.enabled }}
+        {{- if and .Values.web.nginx.cache.enabled (not .Values.redis.enabled) }}
         - name: cache
           emptyDir: {}
         {{- end }}

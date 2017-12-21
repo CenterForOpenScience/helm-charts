@@ -405,6 +405,54 @@ web-nginx-prerender.conf: |-
       rewrite .* /https://$host$request_uri? break;
       proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
   }
+web-nginx-redis.conf: |-
+  location = /redis2_get {
+      internal;
+
+      set $key $args
+      set_md5 $key;
+
+      redis2_query get $key
+      redis2_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
+  }
+
+  location = /redis2_set {
+      internal;
+
+      set_unescape_uri $exptime $arg_exptime;
+      set_unescape_uri $key $arg_key;
+      set_md5 $key;
+
+      redis2_query set $key $echo_request_body;
+      redis2_query expire $key $exptime;
+      redis2_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
+  }
+web-nginx-redis-cache.conf: |-
+  set $agent_monitor 0;
+  if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish|runscope-radar)") {
+      set $agent_monitor 1;
+  }
+
+  # Custom Cache Header
+  add_header X-Cache-Status $srcache_fetch_status;
+
+  # Caching configuration
+  set $key "$host$uri$args_first$args_rest";
+  set_escape_uri $escaped_key $key;
+  # Default cache methods, specified for clarity.
+  srcache_methods GET HEAD;
+    # Skip cache when:
+  # - logged in
+  # - using basic auth
+  # - view-only link
+  # - hmac signed
+  # - waterbutler provider
+  # - monitoring agent
+  srcache_fetch_skip $cookie_{{ .Values.web.nginx.cache.cookieName }} $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+  srcache_store_skip $cookie_{{ .Values.web.nginx.cache.cookieName }} $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+
+  srcache_fetch GET /redis2_get $key;
+  srcache_store PUT /redis2_set key=$escaped_key&exptime=$exp_time;
 web-nginx-uwsgi-cache.conf: |-
   set $agent_monitor 0;
   if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish|runscope-radar)") {
@@ -439,6 +487,12 @@ web-nginx.conf: |-
   {{- if .Values.web.nginx.vts.enabled }}
   load_module /usr/lib/nginx/modules/ngx_http_geoip_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_vhost_traffic_status_module.so;
+  {{- end }}
+  {{- if and .Values.web.nginx.cache.enabled .Values.redis.enabled }}
+  load_module /usr/lib/nginx/modules/ndk_http_module.so;
+  load_module /usr/lib/nginx/modules/ngx_http_redis2_module.so;
+  load_module /usr/lib/nginx/modules/ngx_http_set_misc_module.so;
+  load_module /usr/lib/nginx/modules/ngx_http_srcache_filter_module.so;
   {{- end }}
   {{- range .Values.web.nginx.modules }}
   load_module {{ . }};
@@ -530,8 +584,10 @@ web-nginx.conf: |-
           ~_=\d+(?<rest>.*)$ $rest;
       }
 
+      {{- if not .Values.redis.enabled }}
       uwsgi_cache_path /cache/uwsgi keys_zone=osf_uwsgi_cache:10m inactive=120m;
       uwsgi_temp_path /cache/uwsgi-temp;
+      {{- end }}
       {{- end }}
 
       {{- if .Values.web.nginx.preprintDomains }}
@@ -626,8 +682,15 @@ web-nginx.conf: |-
               include /etc/nginx/prerender.conf;
               {{- end }}
 
+              {{- if .Values.web.nginx.cache.enabled }}
+              {{- if .Values.redis.enabled }}
+              set $exp_time 60;
+              include /etc/nginx/redis-cache.conf;
+              {{- else }}
               uwsgi_cache_valid 200 60m;
               include /etc/nginx/uwsgi-cache.conf;
+              {{- end }}
+              {{- end }}
 
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
@@ -652,8 +715,13 @@ web-nginx.conf: |-
               {{- end }}
 
               {{- if .Values.web.nginx.cache.enabled }}
+              {{- if .Values.redis.enabled }}
+              set $exp_time 1;
+              include /etc/nginx/redis-cache.conf;
+              {{- else }}
               uwsgi_cache_valid 200 1m;
               include /etc/nginx/uwsgi-cache.conf;
+              {{- end }}
               {{- end }}
 
               # Disable caching of application requests
