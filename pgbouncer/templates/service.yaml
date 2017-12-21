@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "pgbouncer.fullname" . }}
+  labels:
+    app: {{ template "pgbouncer.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.externalPort }}
+      targetPort: {{ .Values.service.name }}
+      protocol: TCP
+      name: {{ .Values.service.name }}
+  selector:
+    app: {{ template "pgbouncer.name" . }}
+    release: {{ .Release.Name }}
