@@ -42,7 +42,7 @@ spec:
                     release: "{{ .Release.Name }}"
         {{- end }}
       containers:
-        - name: pgbarman
+        - name: pgbouncer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
