@@ -1,0 +1,46 @@
+# Default values for pgbouncer.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+image:
+  repository: quay.io/centerforopenscience/pgbarman
+  tag: '1.8.1'
+  pullPolicy: Always
+
+antiAffinity: soft
+additionalAffinities: {}
+
+budget:
+  minAvailable: 0
+
+resources: {}
+  #limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  #requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+service:
+  name: pgbouncer
+  type: ClusterIP
+  externalPort: 6432
+  internalPort: 6432
+
+configEnvs: {}
+  # DEBUG: ""
+
+configFiles: {}
+  # Override configmap files here (and delete the {} above), e.g.:
+  # pgbouncer.ini: |-
+  #   ...
+
+secretEnvs: {}
+  # SECRET_VALUE: "abc123"
+
+secretFiles:
+  userlist.txt: |-
+    "marko" "asdasd"
+    "postgres" "asdasd"
+    "pgbouncer" "fake"

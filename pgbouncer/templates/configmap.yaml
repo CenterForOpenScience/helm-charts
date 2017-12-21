@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "pgbouncer.fullname" . }}
+  labels:
+    app: {{ template "pgbouncer.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  {{- range $key, $value := .Values.configEnvs }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- range $key, $value := merge .Values.configFiles ((.Files.Glob "files/*").AsConfig | fromYaml) }}
+  {{ $key }}: |-
+    {{- $value | nindent 4 }}
+  {{- end }}
