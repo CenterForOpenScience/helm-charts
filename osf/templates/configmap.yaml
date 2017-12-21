@@ -684,7 +684,7 @@ web-nginx.conf: |-
 
               {{- if .Values.web.nginx.cache.enabled }}
               {{- if .Values.redis.enabled }}
-              set $exp_time 60;
+              set $exp_time 3600; # Redis time in seconds
               include /etc/nginx/redis-cache.conf;
               {{- else }}
               uwsgi_cache_valid 200 60m;
@@ -716,7 +716,7 @@ web-nginx.conf: |-
 
               {{- if .Values.web.nginx.cache.enabled }}
               {{- if .Values.redis.enabled }}
-              set $exp_time 1;
+              set $exp_time 60; # Redis time in seconds
               include /etc/nginx/redis-cache.conf;
               {{- else }}
               uwsgi_cache_valid 200 1m;
