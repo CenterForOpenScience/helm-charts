@@ -406,14 +406,15 @@ web-nginx-prerender.conf: |-
       proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
   }
 web-nginx-redis.conf: |-
-  location = /redis2_get {
+  # Must use redis module vs redis2 because of bug in response body
+  # https://github.com/openresty/srcache-nginx-module/issues/41
+  location = /redis_get {
       internal;
 
-      set_unescape_uri $key $arg_key;
-      set_md5 $key;
+      set_unescape_uri $redis_key $arg_key;
+      set_md5 $redis_key;
 
-      redis2_query get $key;
-      redis2_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
+      redis_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
   }
 
   location = /redis2_set {
@@ -470,7 +471,7 @@ web-nginx-redis-cache.conf: |-
   srcache_fetch_skip $not_cacheable;
   srcache_store_skip $not_cacheable;
 
-  srcache_fetch GET /redis2_get key=$escaped_key;
+  srcache_fetch GET /redis_get key=$escaped_key;
   srcache_store PUT /redis2_set key=$escaped_key&exptime=$exp_time;
 
   # Custom Cache Header
@@ -513,6 +514,7 @@ web-nginx.conf: |-
   {{- if and .Values.web.nginx.cache.enabled .Values.redis.enabled }}
   load_module /usr/lib/nginx/modules/ndk_http_module.so;
   #load_module /usr/lib/nginx/modules/ngx_http_echo_module.so;
+  load_module /usr/lib/nginx/modules/ngx_http_redis_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_redis2_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_set_misc_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_srcache_filter_module.so;
