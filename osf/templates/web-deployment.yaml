@@ -91,6 +91,10 @@ spec:
               readOnly: true
             {{- if .Values.web.nginx.cache.enabled }}
             {{- if .Values.redis.enabled }}
+            - mountPath: /etc/nginx/conf.d/redis.conf
+              name: config
+              subPath: web-nginx-redis.conf
+              readOnly: true
             - mountPath: /etc/nginx/redis-cache.conf
               name: config
               subPath: web-nginx-redis-cache.conf
