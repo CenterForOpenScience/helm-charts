@@ -428,9 +428,30 @@ web-nginx-redis.conf: |-
       redis2_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
   }
 web-nginx-redis-cache.conf: |-
-  set $agent_monitor 0;
+  set $not_cacheable 0;
+
+  if ($http_authorization) {
+      set $not_cacheable 1;
+  }
+
+  if ($arg_view_only) {
+      set $not_cacheable 1;
+  }
+
+  if ($arg_signature) {
+      set $not_cacheable 1;
+  }
+
+  if ($arg_provider) {
+      set $not_cacheable 1;
+  }
+
+  if ($arg_render) {
+      set $not_cacheable 1;
+  }
+
   if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish|runscope-radar)") {
-      set $agent_monitor 1;
+      set $not_cacheable 1;
   }
 
   # Custom Cache Header
@@ -448,8 +469,9 @@ web-nginx-redis-cache.conf: |-
   # - hmac signed
   # - waterbutler provider
   # - monitoring agent
-  srcache_fetch_skip $cookie_{{ .Values.web.nginx.cache.cookieName }} $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
-  srcache_store_skip $cookie_{{ .Values.web.nginx.cache.cookieName }} $http_authorization $arg_view_only $arg_signature $arg_provider $arg_render $agent_monitor;
+
+  srcache_fetch_skip $not_cacheable;
+  srcache_store_skip $not_cacheable;
 
   srcache_fetch GET /redis2_get $key;
   srcache_store PUT /redis2_set key=$escaped_key&exptime=$exp_time;
@@ -490,6 +512,7 @@ web-nginx.conf: |-
   {{- end }}
   {{- if and .Values.web.nginx.cache.enabled .Values.redis.enabled }}
   load_module /usr/lib/nginx/modules/ndk_http_module.so;
+  load_module /usr/lib/nginx/modules/ngx_http_echo_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_redis2_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_set_misc_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_srcache_filter_module.so;
