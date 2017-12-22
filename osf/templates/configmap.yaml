@@ -431,6 +431,10 @@ web-nginx-redis.conf: |-
 web-nginx-redis-cache.conf: |-
   set $not_cacheable 0;
 
+  if ($cookie_{{ .Values.web.nginx.cache.cookieName }}) {
+      set $not_cacheable 1;
+  }
+
   if ($http_authorization) {
       set $not_cacheable 1;
   }
