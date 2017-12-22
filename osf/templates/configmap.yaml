@@ -409,7 +409,7 @@ web-nginx-redis.conf: |-
   location = /redis2_get {
       internal;
 
-      set $key $args;
+      set_unescape_uri $key $arg_key;
       set_md5 $key;
 
       redis2_query get $key
@@ -473,7 +473,7 @@ web-nginx-redis-cache.conf: |-
   srcache_fetch_skip $not_cacheable;
   srcache_store_skip $not_cacheable;
 
-  srcache_fetch GET /redis2_get $key;
+  srcache_fetch GET /redis2_get key=$escaped_key;
   srcache_store PUT /redis2_set key=$escaped_key&exptime=$exp_time;
 web-nginx-uwsgi-cache.conf: |-
   set $agent_monitor 0;
