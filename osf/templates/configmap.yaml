@@ -412,7 +412,7 @@ web-nginx-redis.conf: |-
       set_unescape_uri $key $arg_key;
       set_md5 $key;
 
-      redis2_query get $key
+      redis2_query get $key;
       redis2_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
   }
 
