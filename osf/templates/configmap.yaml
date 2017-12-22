@@ -513,7 +513,7 @@ web-nginx.conf: |-
   {{- end }}
   {{- if and .Values.web.nginx.cache.enabled .Values.redis.enabled }}
   load_module /usr/lib/nginx/modules/ndk_http_module.so;
-  #load_module /usr/lib/nginx/modules/ngx_http_echo_module.so;
+  load_module /usr/lib/nginx/modules/ngx_http_echo_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_redis_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_redis2_module.so;
   load_module /usr/lib/nginx/modules/ngx_http_set_misc_module.so;
