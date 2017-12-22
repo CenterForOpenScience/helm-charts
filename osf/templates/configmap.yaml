@@ -409,7 +409,7 @@ web-nginx-redis.conf: |-
   location = /redis2_get {
       internal;
 
-      set $key $args
+      set $key $args;
       set_md5 $key;
 
       redis2_query get $key
