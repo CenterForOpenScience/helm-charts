@@ -454,9 +454,6 @@ web-nginx-redis-cache.conf: |-
       set $not_cacheable 1;
   }
 
-  # Custom Cache Header
-  add_header X-Cache-Status $srcache_fetch_status;
-
   # Caching configuration
   set $key "$host$uri$args_first$args_rest";
   set_escape_uri $escaped_key $key;
@@ -475,6 +472,9 @@ web-nginx-redis-cache.conf: |-
 
   srcache_fetch GET /redis2_get key=$escaped_key;
   srcache_store PUT /redis2_set key=$escaped_key&exptime=$exp_time;
+
+  # Custom Cache Header
+  add_header X-Cache-Status $srcache_fetch_status;
 web-nginx-uwsgi-cache.conf: |-
   set $agent_monitor 0;
   if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish|runscope-radar)") {
