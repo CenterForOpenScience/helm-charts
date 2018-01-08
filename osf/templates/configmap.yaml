@@ -389,15 +389,24 @@ web-nginx-prerender.conf: |-
       set $prerender 1;
   }
 
-  if ($args ~ "_escaped_fragment_") {
+  if ($args ~* "_escaped_fragment_") {
       set $prerender 1;
   }
 
-  if ($http_user_agent ~ "Prerender") {
+  if ($http_user_agent ~* "prerender") {
       set $prerender 0;
   }
 
-  if ($uri ~ "\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|doc|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent|ttf|woff)") {
+  if ($uri ~* "\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|doc|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent|ttf|woff)") {
+      set $prerender 0;
+  }
+
+  # Exclude download links from prerender
+  if ($uri ~* ^/\w+/download(/?$|/.*) {
+      set $prerender 0;
+  }
+
+  if ($uri ~* ^/preprints/(\w+/download|\w+/\w+/download)(/?$|/.*) {
       set $prerender 0;
   }
 
