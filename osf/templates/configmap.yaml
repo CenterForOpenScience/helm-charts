@@ -468,6 +468,12 @@ web-nginx-redis-cache.conf: |-
       set $not_cacheable 1;
   }
 
+  {{- if .Values.prerender.enabled }}
+  if ($prerender = 1) {
+      set $not_cacheable 1;
+  }
+  {{- end }}
+
   # Caching configuration
   set $key "$host$uri$args_first$args_rest";
   set_escape_uri $escaped_key $key;
