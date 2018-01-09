@@ -105,12 +105,16 @@ spec:
             command:
               - sh
               - -c
-              - wget
-                --quiet
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
                 {{- if .Values.tls.enabled }}
-                --certificate /usr/share/elasticsearch/config/server_cert.pem
-                --private-key /usr/share/elasticsearch/config/server_key.pem
-                --no-check-certificate
+                --insecure
+                --crlfile /usr/share/elasticsearch/config/ca_crl.pem
+                --key /usr/share/elasticsearch/config/server_key.pem
+                --cacert /usr/share/elasticsearch/config/ca_cert.pem
+                --cert /usr/share/elasticsearch/config/server_cert.pem
                 https://127.0.0.1:9200/_cluster/health?local=true
                 {{- else }}
                 http://127.0.0.1:9200/_cluster/health?local=true
