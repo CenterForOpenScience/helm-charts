@@ -438,41 +438,8 @@ web-nginx-redis.conf: |-
       redis2_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
   }
 web-nginx-redis-cache.conf: |-
-  set $not_cacheable 0;
-
-  if ($cookie_{{ .Values.web.nginx.cache.cookieName }}) {
-      set $not_cacheable 1;
-  }
-
-  if ($http_authorization) {
-      set $not_cacheable 1;
-  }
-
-  if ($arg_view_only) {
-      set $not_cacheable 1;
-  }
-
-  if ($arg_signature) {
-      set $not_cacheable 1;
-  }
-
-  if ($arg_provider) {
-      set $not_cacheable 1;
-  }
-
-  if ($arg_render) {
-      set $not_cacheable 1;
-  }
-
-  if ($http_user_agent ~* "(haproxy monitoring|rackspace monitoring|varnish|runscope-radar)") {
-      set $not_cacheable 1;
-  }
-
-  {{- if .Values.prerender.enabled }}
-  if ($prerender = 1) {
-      set $not_cacheable 1;
-  }
-  {{- end }}
+  # NOTE: $not_cacheable is set via map in order to be available at the correct phase for srcache skip
+  # https://github.com/openresty/srcache-nginx-module#caveats
 
   # Caching configuration
   set $key "$host$uri$args_first$args_rest";
@@ -626,6 +593,15 @@ web-nginx.conf: |-
           default "";
           ~^\?_=\d+&?(?<rest>.*)$ $rest;
           ~_=\d+(?<rest>.*)$ $rest;
+      }
+
+      map "$http_user_agent" $agent_monitor {
+          default "";
+          ~*(haproxy monitoring|rackspace monitoring|varnish) "1";
+      }
+      map "$cookie_{{ .Values.web.nginx.cache.cookieName }}$http_authorization$arg_view_only$arg_signature$arg_provider$arg_render$agent_monitor" $not_cacheable {
+          default 0;
+          "" 1;
       }
 
       {{- if not .Values.redis.enabled }}
