@@ -634,14 +634,14 @@ web-nginx.conf: |-
           }
 
           location / {
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
-
-              {{- if .Values.prerender.enabled }}
-              include /etc/nginx/prerender.conf;
-              {{- end }}
 
               # Mitigate HTTPoxy Vulnerability
               # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
@@ -652,6 +652,69 @@ web-nginx.conf: |-
               # WARNING: Turning off uwsgi buffering will disable nginx caching.
               # uwsgi_buffering off;
               uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
+          }
+      }
+      {{- end }}
+
+      {{- if .Values.web.nginx.institutionDomains }}
+      server {
+          listen {{ .Values.web.service.internalPort }};
+          server_name {{ join " " .Values.web.nginx.institutionDomains }};
+
+          client_max_body_size 25M;
+          keepalive_timeout 15;
+
+          root /static/code;
+
+          location = /favicon.ico {
+              alias /static/code/website/static/favicon.ico;
+          }
+
+          location = /robots.txt {
+              alias /usr/share/nginx/html/robots.txt;
+          }
+
+          location ~* ^/static/addons/(.*?)/(.*) {
+              alias /static/code/addons/$1/static/$2;
+          }
+
+          location ~* ^/static/(.*) {
+              alias /static/code/website/static/$1;
+          }
+
+          location = / {
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
+              {{- if .Values.web.nginx.cache.enabled }}
+              {{- if .Values.redis.enabled }}
+              set $exp_time 60; # Redis time in seconds
+              include /etc/nginx/redis-cache.conf;
+              {{- else }}
+              uwsgi_cache_valid 200 1m;
+              include /etc/nginx/uwsgi-cache.conf;
+              {{- end }}
+              {{- end }}
+
+              # Disable caching of application requests
+              add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
+              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+              add_header Pragma "no-cache";
+
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
+
+              # Pass requests to uwsgi application
+              include /etc/nginx/uwsgi_params;
+              # WARNING: Turning off uwsgi buffering will disable nginx caching.
+              # uwsgi_buffering off;
+              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
+          }
+
+          location / {
+              return 302 https://{{ .Values.web.nginx.primaryDomain }}$request_uri;
           }
       }
       {{- end }}
