@@ -595,13 +595,13 @@ web-nginx.conf: |-
           ~_=\d+(?<rest>.*)$ $rest;
       }
 
-      map "$http_user_agent" $agent_monitor {
+      map "$http_user_agent" $agent_not_cacheable {
           default "";
-          "~*(haproxy monitoring|rackspace monitoring|varnish)" "1";
+          "~*(haproxy monitoring|rackspace monitoring|varnish|prerender)" "1";
       }
-      map "$cookie_{{ .Values.web.nginx.cache.cookieName }}$http_authorization$arg_view_only$arg_signature$arg_provider$arg_render$agent_monitor" $not_cacheable {
-          default 0;
-          "" 1;
+      map "$cookie_{{ .Values.web.nginx.cache.cookieName }}$http_authorization$arg_view_only$arg_signature$arg_provider$arg_render$agent_not_cacheable" $not_cacheable {
+          default 1;
+          "" 0;
       }
 
       {{- if not .Values.redis.enabled }}
