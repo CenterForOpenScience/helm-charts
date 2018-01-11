@@ -66,7 +66,7 @@ spec:
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf
-              name: config-volume
+              name: config
               subPath: nginx.conf
               readOnly: true
           {{- if .Values.nginx.resources }}
@@ -96,6 +96,8 @@ spec:
             periodSeconds: 10
           {{- if .Values.volumeMounts }}
           volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
             {{- toYaml .Values.volumeMounts | nindent 12 }}
           {{- end }}
           {{- if .Values.resources }}
@@ -103,13 +105,13 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
       volumes:
-        - name: config-volume
+        - name: config
           configMap:
             name: {{ template "prerender.fullname" . }}
-        - name: secret-volume
+        - name: secret
           secret:
             secretName: {{ template "prerender.fullname" . }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.shmSizeLimit }}
