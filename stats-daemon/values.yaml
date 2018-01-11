@@ -1,0 +1,92 @@
+# Default values for stats-daemon.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image:
+  repository: node
+  tag: 8-alpine
+  pullPolicy: IfNotPresent
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+configEnvs:
+  INTERVAL: 60 # interval in seconds
+  THRESHOLD: 90 # disk usage threshold percentage
+
+configFiles: {}
+
+secretEnvs: {}
+
+secretFiles: {}
+
+redis:
+  image:
+    repository: redis
+    tag: alpine
+    pullPolicy: IfNotPresent
+
+  secretEnvs: {}
+    # REDIS_PASSWORD: ''
+
+  ## Redis command arguments
+  ##
+  ## Can be used to specify command line arguments, for example:
+  ##
+  ## args:
+  ##  - --maxmemory 200mb
+  ##  - --maxmemory-policy volatile-ttl
+  args:
+
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    enabled: false
+
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+
+    ## redis data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    # storageClass: "-"
+    accessModes:
+      - ReadWriteOnce
+    size: 8Gi
+
+  ## Configure resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources: {}
+    #limits:
+    #  cpu: 100m
+    #  memory: 256Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 256Mi
+
+  networkPolicy:
+    ## Enable creation of NetworkPolicy resources.
+    ##
+    enabled: false
+
+    ## The Policy model to apply. When set to false, only pods with the correct
+    ## client label will have network access to the port Redis is listening
+    ## on. When true, Redis will accept connections from any source
+    ## (with the correct destination port).
+    ##
+    allowExternal: true

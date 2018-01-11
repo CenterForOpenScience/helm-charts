@@ -1,0 +1,68 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "stats-daemon.fullname" . }}
+  labels:
+    app: {{ template "stats-daemon.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "stats-daemon.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          #livenessProbe:
+          #readinessProbe:
+          env:
+            - name: 
+              value: worker
+            {{- $fullname := include "stats-daemon.fullname" . -}}
+            {{- range $key := keys .Values.configEnvs }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $fullname }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- range $key := keys .Values.secretEnvs }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullname }}
+                  key: {{ $key }}
+            {{- end }}
+          volumeMounts:
+            {{- range $key := keys .Values.configFiles }}
+            - mountPath: /code/{{ $key | replace "-" "/" }}
+              name: config
+              subPath: {{ $key }}
+              readOnly: true
+            {{- end }}
+            {{- range $key := keys .Values.secretFiles }}
+            - mountPath: /code/{{ $key | replace "-" "/" }}
+              name: secret
+              subPath: {{ $key }}
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      hostNetwork: true
+      hostPID: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "stats-daemon.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "stats-daemon.fullname". }}

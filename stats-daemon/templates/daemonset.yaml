@@ -1,0 +1,103 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: {{ template "stats-daemon.fullname" . }}
+  labels:
+    app: {{ template "stats-daemon.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        app: {{ template "stats-daemon.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              while true; do
+                echo "${NODE_NAME}"
+                df -hP | grep -vE '^tmpfs|^devtmpfs|shm|^overlay|containerized_mounter' | grep '/rootfs' | sort -u | awk "0+\$5 >= ${THRESHOLD:-90} {print}"
+                sleep ${INTERVAL:-60}
+              done
+          #livenessProbe:
+          #readinessProbe:
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            {{- $fullname := include "stats-daemon.fullname" . -}}
+            {{- range $key := keys .Values.configEnvs }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $fullname }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- range $key := keys .Values.secretEnvs }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullname }}
+                  key: {{ $key }}
+            {{- end }}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /host/proc
+              name: proc-fs
+            - mountPath: /host/sys
+              name: sys-fs
+            - mountPath: /rootfs
+              name: root-fs
+            {{- range $key := keys .Values.configFiles }}
+            - mountPath: /code/{{ $key | replace "-" "/" }}
+              name: config
+              subPath: {{ $key }}
+              readOnly: true
+            {{- end }}
+            {{- range $key := keys .Values.secretFiles }}
+            - mountPath: /code/{{ $key | replace "-" "/" }}
+              name: secret
+              subPath: {{ $key }}
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      hostNetwork: true
+      hostPID: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "stats-daemon.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "stats-daemon.fullname". }}
+        - name: proc-fs
+          hostPath:
+              path: /proc
+        - name: sys-fs
+          hostPath:
+              path: /sys
+        - name: root-fs
+          hostPath:
+              path: /
