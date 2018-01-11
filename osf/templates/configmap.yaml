@@ -402,6 +402,10 @@ web-nginx-prerender.conf: |-
   }
 
   # Exclude download links from prerender
+  if ($arg_action ~* "download") {
+      set $prerender 0;
+  }
+
   if ($uri ~* ^/\w+/download(/?$|/.*)) {
       set $prerender 0;
   }
