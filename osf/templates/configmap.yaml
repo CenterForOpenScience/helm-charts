@@ -339,6 +339,12 @@ api-uwsgi.ini: |-
   gevent = 500
   gevent-early-monkey-patch = true
 web-nginx-osf-preprints.conf: |-
+  {{- range $key, $val := .Values.web.nginx.preprintDomainRedirects }}
+  location ~* ^/preprints/{{ $key }}(.*) {
+      return 301 https://{{ $val }}$1;
+  }
+  {{- end }}
+
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
