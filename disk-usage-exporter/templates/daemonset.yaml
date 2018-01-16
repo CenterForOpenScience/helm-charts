@@ -25,14 +25,14 @@ spec:
           ports:
             - name: pv-metrics
               containerPort: {{ .Values.containerPort }}
-          livenessProbe:
-            httpGet:
-              path: /
-              port: {{ .Values.containerPort }}
-          readinessProbe:
-            httpGet:
-              path: /
-              port: {{ .Values.containerPort }}
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: {{ .Values.containerPort }}
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: {{ .Values.containerPort }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
