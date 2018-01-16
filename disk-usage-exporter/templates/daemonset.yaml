@@ -1,0 +1,48 @@
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: {{ template "disk-usage-exporter.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  name: {{ template "disk-usage-exporter.fullname" . }}
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ template "disk-usage-exporter.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: true
+          command:
+            - disk-usage-exporter
+          ports:
+            - name: pv-metrics
+              containerPort: {{ .Values.containerPort }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.containerPort }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.containerPort }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+              # It is important that mountPath is '/rootfs', since
+              # disk-usage-exporter uses that hard-coded value to filter the
+              # partitions returned by psutil.disk_partitions().
+            - mountPath: /rootfs  
+              name: rootfs
+              readOnly: true  # We only need read-access
+      volumes:
+        - name: rootfs
+          hostPath:
+            path: /
