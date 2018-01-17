@@ -1,13 +1,15 @@
 kind: DaemonSet
 apiVersion: extensions/v1beta1
 metadata:
-  labels:
-    app: {{ template "disk-usage-exporter.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
   name: {{ template "disk-usage-exporter.fullname" . }}
+  labels:
+    {{- include "disk-usage-exporter.labels" . | nindent 4 }}
 spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 0
   template:
     metadata:
       labels:
@@ -23,16 +25,16 @@ spec:
           command:
             - disk-usage-exporter
           ports:
-            - name: pv-metrics
-              containerPort: {{ .Values.containerPort }}
+            - name: metrics
+              containerPort: {{ .Values.service.internalPort }}
           # livenessProbe:
           #   httpGet:
           #     path: /
-          #     port: {{ .Values.containerPort }}
+          #     port: {{ .Values.service.internalPort }}
           # readinessProbe:
           #   httpGet:
           #     path: /
-          #     port: {{ .Values.containerPort }}
+          #     port: {{ .Values.service.internalPort }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

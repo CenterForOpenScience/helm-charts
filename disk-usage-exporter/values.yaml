@@ -6,8 +6,6 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
 
-containerPort: 9274
-
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -19,3 +17,13 @@ resources: {}
   # requests:
   #  cpu: 100m
   #  memory: 128Mi
+
+service:
+  name: metrics
+  type: ClusterIP
+  internalPort: 9274
+  externalPort: 9274
+  extraLabels: {}
+  # annotations:
+  # loadBalancerSourceRanges:
+  # - 0.0.0.0/0
