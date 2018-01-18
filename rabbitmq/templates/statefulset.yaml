@@ -79,25 +79,57 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
+        {{- if .Values.metrics.enabled }}
+        - name: metrics
+          image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
+          imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+          env:
+            {{- $fullname := include "rabbitmq.fullname" . -}}
+            - name: RABBIT_URL
+              value: http{{- if .Values.tls.enabled -}}s{{- end -}}://localhost:{{- .Values.service.ports.stats }}
+            - name: RABBIT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullname }}
+                  key: RABBITMQ_DEFAULT_USER
+            - name: RABBIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullname }}
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: PUBLISH_PORT
+              value: {{ .Values.service.ports.metrics | quote }}
+            {{- if .Values.tls.enabled }}
+            - name: CAFILE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $fullname }}
+                  key: RABBITMQ_SSL_CACERTFILE
+            {{- end }}
+            {{- $fullname := include "rabbitmq.fullname" . -}}
+            {{- range $key := keys .Values.metrics.configEnvs }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $fullname }}
+                  key: metrics-{{ $key }}
+            {{- end }}
+        {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       volumes:
         - name: data
-        {{- if .Values.persistence.enabled }}
+          {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "rabbitmq.fullname" .) }}
-        {{- else }}
+          {{- else }}
           emptyDir: {}
-        {{- end }}
+          {{- end }}
         - name: config
           configMap:
             name: {{ template "rabbitmq.fullname" . }}
         - name: secret
           secret:
             secretName: {{ template "rabbitmq.fullname" . }}
-      {{- if .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml .Values.nodeSelector | nindent 8 }}
-      {{- end }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:

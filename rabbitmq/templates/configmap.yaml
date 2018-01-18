@@ -15,10 +15,20 @@ RABBITMQ_SSL_KEYFILE: /etc/ssl/server_key.pem
 RABBITMQ_SSL_CACERTFILE: /etc/ssl/ca_certificate.pem
 {{- end }}
 {{- end }}
-{{- range $key, $value := merge .Values.configEnvs (include "rabbitmq.tlsConfigs" . | fromYaml) }}
+  {{- /* Environemnt Variables */ -}}
+  {{- range $key, $value := merge .Values.configEnvs (include "rabbitmq.tlsConfigs" . | fromYaml) }}
   {{ $key }}: {{ $value | quote }}
-{{- end }}
-{{- range $key, $value := .Values.configFiles }}
+  {{- end }}
+
+  {{- /* Metrics */ -}}
+  {{- if .Values.metrics.enabled }}
+  {{- range $key, $value := .Values.metrics.configEnvs }}
+  metrics-{{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+
+  {{- /* Configuration Files */ -}}
+  {{- range $key, $value := .Values.configFiles }}
   {{ $key }}: |-
-{{ $value | indent 4 }}
-{{- end }}
+    {{- $value | nindent 4 }}
+  {{- end }}
