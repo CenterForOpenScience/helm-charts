@@ -2,9 +2,9 @@
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: "{{ template "controller.fullname" . }}"
+  name: "{{ template "nginx-ingress.controller.fullname" . }}"
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "nginx-ingress.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     component: "{{ .Values.controller.name }}"
     heritage: {{ .Release.Service }}
@@ -12,7 +12,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ template "name" . }}
+      app: {{ template "nginx-ingress.name" . }}
       component: "{{ .Values.controller.name }}"
       release: {{ .Release.Name }}
   minAvailable: {{ .Values.controller.budget.minAvailable }}
