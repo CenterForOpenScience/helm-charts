@@ -77,16 +77,16 @@ spec:
         {{- if .Values.metrics.enabled }}
         - name: metrics
           image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
-          imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+          imagePullPolicy: {{ .Values.metrics.image.pullPolicy }}
           env:
             - name: REDIS_ALIAS
               value: {{ template "redis.fullname" . }}
             {{- include "redis.environment" . | nindent 12 }}
           ports:
-          - name: metrics
-            containerPort: {{ .Values.metrics.port }}
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
           resources:
-          {{- toYaml .Values.metrics.resources | nindent 12 }}
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
         {{- end }}
       {{- if not .Values.persistence.enabled }}
       volumes:
