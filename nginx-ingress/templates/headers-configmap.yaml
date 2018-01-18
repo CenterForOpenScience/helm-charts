@@ -1,4 +1,4 @@
-{{- if .Values.udp }}
+{{- if .Values.controller.headers }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,7 +8,7 @@ metadata:
     component: "{{ .Values.controller.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: {{ template "nginx-ingress.fullname" . }}-udp
+  name: {{ template "nginx-ingress.fullname" . }}-custom-headers
 data:
-{{ toYaml .Values.udp | indent 2 }}
+{{ toYaml .Values.controller.headers | indent 2 }}
 {{- end }}
