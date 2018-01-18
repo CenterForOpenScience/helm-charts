@@ -49,11 +49,11 @@ spec:
       containers:
         - name: {{ template "rabbitmq.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- include "rabbitmq.environment" . | indent 12 }}
           ports:
-            {{- range $name, $port := .Values.service.ports }}
+            {{- range $name, $port := omit .Values.service.ports "metrics" }}
             - name: {{ $name }}
               containerPort: {{ $port }}
             {{- end }}
@@ -82,7 +82,7 @@ spec:
         {{- if .Values.metrics.enabled }}
         - name: metrics
           image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
-          imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+          imagePullPolicy: {{ .Values.metrics.image.pullPolicy }}
           env:
             {{- $fullname := include "rabbitmq.fullname" . -}}
             - name: RABBIT_URL
@@ -114,6 +114,9 @@ spec:
                   name: {{ $fullname }}
                   key: metrics-{{ $key }}
             {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.service.ports.metrics }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       volumes:
