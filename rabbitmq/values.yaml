@@ -21,9 +21,9 @@ configFiles: {}
 
 secretEnvs:
   ## ref: https://hub.docker.com/_/rabbitmq/
-  RABBITMQ_DEFAULT_USER: 'guest'
+  RABBITMQ_DEFAULT_USER: guest
   ## ref: https://hub.docker.com/_/rabbitmq/
-  RABBITMQ_DEFAULT_PASS: 'guest'
+  RABBITMQ_DEFAULT_PASS: guest
   ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
   RABBITMQ_ERLANG_COOKIE: cookie
 
@@ -75,11 +75,6 @@ persistence:
   accessMode: ReadWriteOnce
   size: 8Gi
 
-## Node labels for component pod assignment
-## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-##
-nodeSelector: {}
-
 service:
   #annotations: {}
   type: ClusterIP
@@ -92,3 +87,26 @@ service:
     stats: 15672
     epmd: 4369
     dist: 25672
+    metrics: 9090
+
+metrics:
+  enabled: false
+  image:
+    repository: kbudde/rabbitmq-exporter
+    tag: v0.25.2
+    pullPolicy: IfNotPresent
+  configEnvs:
+    # Log ouput format. TTY and JSON are suported
+    OUTPUT_FORMAT: TTY
+    # log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
+    LOG_LEVEL: info
+    # true/0 will ignore certificate errors of the management plugin
+    SKIPVERIFY: false	
+    # reqgex queue filter. just matching names are exported
+    INCLUDE_QUEUES: .*
+    # regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
+    SKIP_QUEUES: ^$
+    # comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
+    RABBIT_CAPABILITIES: bert
+    # List of enabled modules. Just "connections" is not enabled by default
+    RABBIT_EXPORTERS: exchange,node,overview,queue
