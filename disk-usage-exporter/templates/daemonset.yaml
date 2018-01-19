@@ -16,6 +16,9 @@ spec:
         app: {{ template "disk-usage-exporter.name" . }}
         release: {{ .Release.Name }}
     spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -41,9 +44,8 @@ spec:
               # It is important that mountPath is '/rootfs', since
               # disk-usage-exporter uses that hard-coded value to filter the
               # partitions returned by psutil.disk_partitions().
-            - mountPath: /rootfs  
+            - mountPath: /rootfs
               name: rootfs
-              readOnly: true  # We only need read-access
       volumes:
         - name: rootfs
           hostPath:
