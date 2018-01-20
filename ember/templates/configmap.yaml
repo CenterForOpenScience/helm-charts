@@ -49,7 +49,10 @@ nginx.conf: |-
       server {
           listen {{ .Values.service.internalPort }};
           server_name _;
-          
+
+          root /static;
+          index index.html;
+
           if ($http_x_forwarded_proto = "http") {
               return 301 https://$host$request_uri;
           }
@@ -59,15 +62,13 @@ nginx.conf: |-
               return 200;
           }
 
+          location ~* ^/(assets|font)/ {
+              add_header Cache-Control "public, max-age=31536000";
+
+              try_files $uri $uri/ 404;
+          }
+
           location / {
-              root /static;
-              index index.html;
-
-              if (-f $request_filename) {
-                  add_header Cache-Control "public, max-age=31536000";
-                  break;
-              }
-
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
