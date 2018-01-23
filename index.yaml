@@ -1,7 +1,7 @@
 apiVersion: v1
 entries:
   barman:
-  - created: 2018-01-21T03:06:12.750201904Z
+  - created: 2018-01-23T15:18:02.075283987Z
     description: Barman
     digest: c8b50cf38c478ce44a3ba4cc8b1e252186cb26e72743f7c6975b7ec38b8bbc7c
     engine: gotpl
@@ -19,7 +19,7 @@ entries:
     urls:
     - barman-0.2.0.tgz
     version: 0.2.0
-  - created: 2018-01-21T03:06:12.749704637Z
+  - created: 2018-01-23T15:18:02.074523833Z
     description: Barman
     digest: 86b6ab511589d690d3b65726c6b3bd477a1c38608506e9709dff48fa651e76cf
     engine: gotpl
@@ -39,15 +39,26 @@ entries:
     version: 0.0.1
   cas:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.767763726Z
-    description: A Helm chart for Kubernetes
-    digest: ff8c30d37ffc46665ff4826102c310158cecc8a56386258e995f002d7a3c23ab
+    created: 2018-01-23T15:18:02.114246742Z
+    description: Central Authentication Service
+    digest: 7a0679c9ae48f4fc6e02992bf111bf8bd7f551fe4078512805383aeb178eedff
+    engine: gotpl
+    keywords:
+    - authentication
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: cas
+    sources:
+    - https://github.com/CenterForOpenScience/cas-overlay
+    tillerVersion: '>=2.7.0'
     urls:
     - cas-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.763817742Z
+    created: 2018-01-23T15:18:02.097564595Z
     description: A Helm chart for Kubernetes
     digest: e8302d612d14fef9d255cc18a53f8d7b3186ab9826d887ce8061baa590bf131a
     name: cas
@@ -55,7 +66,7 @@ entries:
     - cas-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.759963866Z
+    created: 2018-01-23T15:18:02.086725782Z
     description: A Helm chart for Kubernetes
     digest: c0d0e5462c6f11b04fce4661bcede1d58767de4985ea81dbb74b3db95f42f887
     name: cas
@@ -63,7 +74,7 @@ entries:
     - cas-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.754743081Z
+    created: 2018-01-23T15:18:02.082790087Z
     description: A Helm chart for Kubernetes
     digest: cf706e75a50abd4cb1d34b7a4fe877c08af703217e050442896af48089cffe5f
     name: cas
@@ -71,7 +82,7 @@ entries:
     - cas-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.752460185Z
+    created: 2018-01-23T15:18:02.078818573Z
     description: A Helm chart for Kubernetes
     digest: 1254ea195afa84abb7d4b7c8fa558e169cf593cd6ce6f45121e6adbe3c1fae08
     name: cas
@@ -79,7 +90,7 @@ entries:
     - cas-0.1.0.tgz
     version: 0.1.0
   cerebro:
-  - created: 2018-01-21T03:06:12.768192566Z
+  - created: 2018-01-23T15:18:02.114723812Z
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
     digest: b85a2c23ee9b5085e964301785bc0ab7a33e74a79984923696dc1880b2f53a19
@@ -96,7 +107,7 @@ entries:
     version: 0.1.0
   disk-usage-exporter:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.768524288Z
+    created: 2018-01-23T15:18:02.11523026Z
     description: A prometheus exporter that exports disk usage for all PersistentVolumes
       mounted on a Kubernetes Node
     digest: 7f36d0547d7948931c411f136d325de787f8a925f0f31c9e38969c2d824886c6
@@ -105,7 +116,7 @@ entries:
     - disk-usage-exporter-0.1.0.tgz
     version: 0.1.0
   echoheaders:
-  - created: 2018-01-21T03:06:12.76880038Z
+  - created: 2018-01-23T15:18:02.115659633Z
     description: Echoheaders server for testing
     digest: 8f2894c3718530fc8f9cc84f4a04ad3cb2340b0bb81b327365acbe561b4378ea
     maintainers:
@@ -117,15 +128,15 @@ entries:
     version: 0.1.0
   elastic-stack:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.769997187Z
+    created: 2018-01-23T15:18:02.117468686Z
     description: A Helm chart for Kubernetes
-    digest: da8cb078a40ac5945f258811de0cdd49b7cac219a9ea87c646603bae172b74ba
+    digest: e4d55deff66337e7da0a0c67c9ae1eee6ce48d1cc386be66bb7899f31c1f8d68
     name: elastic-stack
     urls:
     - elastic-stack-0.1.0.tgz
     version: 0.1.0
   elasticsearch:
-  - created: 2018-01-21T03:06:12.770780623Z
+  - created: 2018-01-23T15:18:02.118687215Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: af73d6127008cc154617902052d6e9b7322d597eb37117d3034db77806d5f8a8
@@ -145,7 +156,7 @@ entries:
     urls:
     - elasticsearch-0.1.10.tgz
     version: 0.1.10
-  - created: 2018-01-21T03:06:12.772342856Z
+  - created: 2018-01-23T15:18:02.120639585Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: d00b94b3bb91b94a335ae6bf9455a1ac6e822e460f69bd2fee50bae1afeec967
@@ -165,7 +176,7 @@ entries:
     urls:
     - elasticsearch-0.1.9.tgz
     version: 0.1.9
-  - created: 2018-01-21T03:06:12.771476628Z
+  - created: 2018-01-23T15:18:02.119596661Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 2f3b7ecc33d8080ad6b80df420938256b3295d9feb2672ca9643e220c1b098c1
@@ -187,15 +198,26 @@ entries:
     version: 0.1.6
   ember:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.774423375Z
-    description: A Helm chart for Kubernetes
-    digest: fd7b6a8974904575e52347c0520ed1d112f3f6cb44426b4dbb0f35969fc08b99
+    created: 2018-01-23T15:18:02.124110924Z
+    description: A base ember application for the Open Science Framework
+    digest: dda514642e171a69913a261d0c1fda5a18aaf0987c47bc300edf92d655440dc3
+    engine: gotpl
+    keywords:
+    - authentication
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: ember
+    sources:
+    - https://github.com/CenterForOpenScience/docker-library/tree/master/ember-base
+    tillerVersion: '>=2.7.0'
     urls:
     - ember-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.773884445Z
+    created: 2018-01-23T15:18:02.123024571Z
     description: A Helm chart for Kubernetes
     digest: a42464d307781e4f7223efa3a9626d44ccceec03d7077f1bfcac28b1d5168769
     name: ember
@@ -203,7 +225,7 @@ entries:
     - ember-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.77334489Z
+    created: 2018-01-23T15:18:02.122235478Z
     description: A Helm chart for Kubernetes
     digest: 07a9409685746f9495c29e94c5668e5ea0d80c40d2a7b97f70f6607bc420ddaf
     name: ember
@@ -211,7 +233,7 @@ entries:
     - ember-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.772827736Z
+    created: 2018-01-23T15:18:02.121399756Z
     description: A Helm chart for Kubernetes
     digest: 28b0683dd6331eac632bbbc74264956f3b0cb9c74191e11b0efe37734bc698a7
     name: ember
@@ -220,15 +242,27 @@ entries:
     version: 0.1.0
   flower:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.775180705Z
-    description: A Helm chart for Kubernetes
-    digest: 3a89145ff27d81bbae2cd3ec6f6171378b0407e9cc7a7fc5cdb9f849e23071d4
+    created: 2018-01-23T15:18:02.125483022Z
+    description: Celery Flower
+    digest: 3da916926760ac19fac186d86307be0b86ee3e3dcccf4db050ec10db881ea2cd
+    engine: gotpl
+    keywords:
+    - celery
+    - flower
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: flower
+    sources:
+    - https://github.com/CenterForOpenScience/osf.io
+    tillerVersion: '>=2.7.0'
     urls:
     - flower-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.77476835Z
+    created: 2018-01-23T15:18:02.124669513Z
     description: A Helm chart for Kubernetes
     digest: e4f9bf886f186aad8dc642c5016f502dda0aa6cf681f1fe1fbd5820ecede3cd4
     name: flower
@@ -236,7 +270,7 @@ entries:
     - flower-0.1.0.tgz
     version: 0.1.0
   gcloud-sqlproxy:
-  - created: 2018-01-21T03:06:12.775685412Z
+  - created: 2018-01-23T15:18:02.126303565Z
     description: Google Cloud SQL Proxy
     digest: 157a3d1e39c04c9697961d4756e782a5eb84f1b30f425cfa995d76b0bc6fd1b2
     engine: gotpl
@@ -258,7 +292,7 @@ entries:
     - gcloud-sqlproxy-0.2.1.tgz
     version: 0.2.1
   http-redirect:
-  - created: 2018-01-21T03:06:12.777526026Z
+  - created: 2018-01-23T15:18:02.126810139Z
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
     digest: 2c0ee101c93c2c9ca134214567a5bfa68b0984a69931c24b8c21eb20305add6d
@@ -276,17 +310,29 @@ entries:
     version: 0.1.0
   hubot:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.779048543Z
+    created: 2018-01-23T15:18:02.128207875Z
     description: Hubot chatbot
-    digest: ad774fb49f285a79a4c9f690500533eeb87fca47b43ebbae826111ca4eea2a1a
+    digest: 6560ffa3a935f44e9f74a4ae68420eb42727711e9537125bafa916cb8d0ef640
+    engine: gotpl
     icon: https://hubot.github.com/assets/images/layout/hubot-avatar@2x.png
+    keywords:
+    - chat
+    - hubot
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: hubot
+    sources:
+    - https://github.com/CenterForOpenScience/hubot
+    tillerVersion: '>=2.7.0'
     urls:
     - hubot-0.1.0.tgz
     version: 0.1.0
   jenkins:
   - appVersion: "2.67"
-    created: 2018-01-21T03:06:12.780972048Z
+    created: 2018-01-23T15:18:02.13075434Z
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -306,7 +352,7 @@ entries:
     - jenkins-0.9.0.tgz
     version: 0.9.0
   - appVersion: "2.67"
-    created: 2018-01-21T03:06:12.780184952Z
+    created: 2018-01-23T15:18:02.129482288Z
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -327,25 +373,38 @@ entries:
     version: 0.8.2
   kibana:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.781281103Z
-    description: A Helm chart for Kubernetes
-    digest: 06ce170df591ec18b0f0808d4bc5cc8d95d58bca5b0097b8e203cd4c06a384fc
+    created: 2018-01-23T15:18:02.131285544Z
+    description: Elasticsearch visualization platform
+    digest: 570eda6f7bf4f3e07924248c7e4fbfb7ea08b17f000acf04d472dc237334fe9a
     icon: https://static-www.elastic.co/assets/bltf11265439e44d327/logo-elastic-kibana-lt.svg?q=890
     name: kibana
+    sources:
+    - https://www.elastic.co/products/kibana
     urls:
     - kibana-0.1.0.tgz
     version: 0.1.0
   lookit:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.786454601Z
-    description: A Helm chart for Kubernetes
-    digest: e4f8c73d232c1d5e96b2854894b30fb8acf7b9ee1f3688d1316f5c66c1795621
+    created: 2018-01-23T15:18:02.154450873Z
+    description: A project of the MIT Early Childhood Cognition Lab
+    digest: 3cca184d88141feae6a077f01358977cf88b9fd453552a78021c230ec483ebd8
+    engine: gotpl
+    keywords:
+    - lookit
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: lookit
+    sources:
+    - https://github.com/centerforopenscience/lookit
+    tillerVersion: '>=2.7.0'
     urls:
     - lookit-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.784965737Z
+    created: 2018-01-23T15:18:02.143332104Z
     description: A Helm chart for Kubernetes
     digest: fdc779a6d32ce45feacf28d9578f64d413a051248bd3316982cf94c90c70e551
     name: lookit
@@ -353,7 +412,7 @@ entries:
     - lookit-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.783632815Z
+    created: 2018-01-23T15:18:02.137549412Z
     description: A Helm chart for Kubernetes
     digest: 13de27a76d459baac9226858bff530b0012afdccd20793a7ac9935729adb9ffe
     name: lookit
@@ -361,7 +420,7 @@ entries:
     - lookit-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.782195611Z
+    created: 2018-01-23T15:18:02.132664393Z
     description: A Helm chart for Kubernetes
     digest: bd0eeda064c47ac18e39fab72d13813cbad825eaefa398fab52d90595bafb30e
     name: lookit
@@ -370,24 +429,46 @@ entries:
     version: 0.1.0
   maintenance:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.78710321Z
+    created: 2018-01-23T15:18:02.156699027Z
     description: Center For Open Science Maintenance Pages
-    digest: cb867efe7ef6a55f55d6ee3496993d4dae7ca5bc8d21d2e05fdb5bfe75a44b25
+    digest: e84d89d16eb678b5da310e916400030cdc72e086da94ab981d0a00eb46627c4d
+    engine: gotpl
+    keywords:
+    - maintenance
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: maintenance
+    sources:
+    - https://github.com/centerforopenscience/osf.io
+    tillerVersion: '>=2.7.0'
     urls:
     - maintenance-0.1.0.tgz
     version: 0.1.0
   mfr:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.788917581Z
+    created: 2018-01-23T15:18:02.161072261Z
     description: A Helm chart for Kubernetes
-    digest: 3bcdaf4df33bd2525020de3c773aae9ffe0fc47c0379225592f01bee0e5220cc
+    digest: 3972ee3c404cc5f2738c0138ec25a33577cec59f1f35f8cd545c55a7aeb21767
+    engine: gotpl
+    keywords:
+    - renderer
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: mfr
+    sources:
+    - https://github.com/centerforopenscience/modular-file-renderer
+    tillerVersion: '>=2.7.0'
     urls:
     - mfr-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.788071639Z
+    created: 2018-01-23T15:18:02.158221616Z
     description: A Helm chart for Kubernetes
     digest: 20727d31b7ae64500481228bc8f62e4f8e70e84a923ed1b244ec7e45a600bc65
     name: mfr
@@ -395,7 +476,7 @@ entries:
     - mfr-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.787656785Z
+    created: 2018-01-23T15:18:02.157449308Z
     description: A Helm chart for Kubernetes
     digest: 7928f0cd93d08e898f8bb69021d58a922b5d1a9e2518495aa7948744c7fe9cf5
     name: mfr
@@ -404,7 +485,7 @@ entries:
     version: 0.1.0
   mongodb:
   - appVersion: 3.4.9
-    created: 2018-01-21T03:06:12.7894231Z
+    created: 2018-01-23T15:18:02.161789902Z
     description: NoSQL document-oriented database that stores JSON-like documents
       with dynamic schemas, simplifying the integration of data in content-driven
       applications.
@@ -427,21 +508,26 @@ entries:
     version: 0.4.17
   nessus:
   - appVersion: 6.11.2
-    created: 2018-01-21T03:06:12.790100233Z
+    created: 2018-01-23T15:18:02.163000593Z
     description: Nessus Vulnerability Scanner
-    digest: ff771c27ebd399ba0cb26a49160687d415aff477d400e553c4215cec21638620
+    digest: 7302c853592551c917ecafb8dca9058c75b14d2d33c329f88446065d2f4eb7ee
     engine: gotpl
     home: https://www.tenable.com/products/nessus-vulnerability-scanner
     icon: https://static.tenable.com/press/logos/products/Nessus-FullColor-RGB-logo.png
     keywords:
     - nessus
     - security
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
     name: nessus
+    sources:
+    - https://github.com/CenterForOpenScience/docker-library/tree/master/nessus
     urls:
     - nessus-0.2.0.tgz
     version: 0.2.0
   - appVersion: 6.11.2
-    created: 2018-01-21T03:06:12.789761858Z
+    created: 2018-01-23T15:18:02.162342339Z
     description: Nessus Vulnerability Scanner
     digest: 7274924414fdc63a087eb1d060dceaecd217566dd4157424369417f1314445a9
     engine: gotpl
@@ -456,7 +542,7 @@ entries:
     version: 0.1.0
   nginx-ingress:
   - appVersion: 0.9.0-beta.15
-    created: 2018-01-21T03:06:12.791587508Z
+    created: 2018-01-23T15:18:02.165382461Z
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 603327ca4265c519ed4f0c42014027a0d5e1626ad9da1eb4d8986032ac0d0c82
@@ -479,7 +565,7 @@ entries:
     - nginx-ingress-0.8.26.tgz
     version: 0.8.26
   - appVersion: 0.9.0-beta.15
-    created: 2018-01-21T03:06:12.793073051Z
+    created: 2018-01-23T15:18:02.16665493Z
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 3fc8931182ff48696f7f18d91ae13cd458c62200c7ab43f7cf5c5390b6b4d5c4
@@ -502,7 +588,7 @@ entries:
     - nginx-ingress-0.8.8.tgz
     version: 0.8.8
   - appVersion: 0.9.0-beta.7
-    created: 2018-01-21T03:06:12.79072542Z
+    created: 2018-01-23T15:18:02.164087804Z
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 6f797a8d3080724108faa25ea8690ad7627bfcd35a8112bc34b655f05541c00b
@@ -526,15 +612,27 @@ entries:
     version: 0.6.0
   osf:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.800005629Z
-    description: A Helm chart for Kubernetes
-    digest: 1a899c5000e29405658583bea97c6a5bbdb3bc5c233f0c9ade87c3f654b50433
+    created: 2018-01-23T15:18:02.193779035Z
+    description: The Open Science Framework (OSF)
+    digest: 4288b1a43721bc535e290966df3c91caa8746627bc3f95d00bc041efd2edd686
+    engine: gotpl
+    keywords:
+    - open
+    - science
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: osf
+    sources:
+    - https://github.com/CenterForOpenScience/osf.io
+    tillerVersion: '>=2.7.0'
     urls:
     - osf-0.10.0.tgz
     version: 0.10.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.822733189Z
+    created: 2018-01-23T15:18:02.257348386Z
     description: A Helm chart for Kubernetes
     digest: 3f5f145fa2ddaff4afaa108484fb92f3cf37fc9177ac4288c7fa1693af9d6b5f
     name: osf
@@ -542,7 +640,7 @@ entries:
     - osf-0.9.0.tgz
     version: 0.9.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.819106388Z
+    created: 2018-01-23T15:18:02.250274114Z
     description: A Helm chart for Kubernetes
     digest: 3f145d64de08ec07647410b85699819b3952b1ba593a230034b01dca7c63a84c
     name: osf
@@ -550,7 +648,7 @@ entries:
     - osf-0.8.0.tgz
     version: 0.8.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.815914936Z
+    created: 2018-01-23T15:18:02.244030246Z
     description: A Helm chart for Kubernetes
     digest: a52044507fc6c8093dc7a28edf376b9a15ccd164af792f39f5cb0cc56defec8c
     name: osf
@@ -558,7 +656,7 @@ entries:
     - osf-0.7.0.tgz
     version: 0.7.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.812755738Z
+    created: 2018-01-23T15:18:02.236133278Z
     description: A Helm chart for Kubernetes
     digest: c49517e6e7202bf7d178a31be5831fb8674802061603408f59180b91266846de
     name: osf
@@ -566,7 +664,7 @@ entries:
     - osf-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.809697977Z
+    created: 2018-01-23T15:18:02.212893732Z
     description: A Helm chart for Kubernetes
     digest: abba7ed20b17577ea69f682a3895940210d2a1f0f0f4273b098e250e6444866b
     name: osf
@@ -574,7 +672,7 @@ entries:
     - osf-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.806050626Z
+    created: 2018-01-23T15:18:02.206603572Z
     description: A Helm chart for Kubernetes
     digest: dbb132dec8b10cfa2d446acdc566be4f937614a531168b02230760148404dec8
     name: osf
@@ -582,7 +680,7 @@ entries:
     - osf-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.803952109Z
+    created: 2018-01-23T15:18:02.202405824Z
     description: A Helm chart for Kubernetes
     digest: d272e90977a77c73d123f70f446fc0961c1242d01933ec7e38ad032017e33210
     name: osf
@@ -590,7 +688,7 @@ entries:
     - osf-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.801870615Z
+    created: 2018-01-23T15:18:02.198178681Z
     description: A Helm chart for Kubernetes
     digest: 9abf33c6a8a09f33a0d2381bf475634378775b372049f07671e971233fb20032
     name: osf
@@ -598,7 +696,7 @@ entries:
     - osf-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.79694601Z
+    created: 2018-01-23T15:18:02.17252693Z
     description: A Helm chart for Kubernetes
     digest: 682b126dbd2e68aed223a3c0ece192751968c9a4924f387b8ec1ba6871f66083
     name: osf
@@ -607,7 +705,7 @@ entries:
     version: 0.1.0
   osf-admin:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.823181534Z
+    created: 2018-01-23T15:18:02.258034917Z
     description: A Helm chart for Kubernetes
     digest: 3fb40630d5bc19834fae98252e4039a4a85de84b0349d0b2dcf12ff6b86ec63b
     name: osf-admin
@@ -616,7 +714,7 @@ entries:
     version: 0.1.0
   osf-api:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.824023307Z
+    created: 2018-01-23T15:18:02.258717251Z
     description: A Helm chart for Kubernetes
     digest: ad8578172b5212f1eb1d60efd6d5f92d3599767957381686132758ecab17cfc8
     name: osf-api
@@ -625,7 +723,7 @@ entries:
     version: 0.1.0
   osf-beat:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.824373996Z
+    created: 2018-01-23T15:18:02.259271982Z
     description: A Helm chart for Kubernetes
     digest: 21dcf194a6f0311f8edbc95fe0c8f1146b6b75c325f2b79aa2e88445dab7b304
     name: osf-beat
@@ -634,7 +732,7 @@ entries:
     version: 0.1.0
   osf-ember-app:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.82502185Z
+    created: 2018-01-23T15:18:02.259943294Z
     description: A Helm chart for Kubernetes
     digest: b8c988066cdbf5e58dd0fac4a820781d513ce348740e9d3815dfb66eae6ec112
     name: osf-ember-app
@@ -643,7 +741,7 @@ entries:
     version: 0.1.0
   osf-flower:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.825490754Z
+    created: 2018-01-23T15:18:02.260401367Z
     description: A Helm chart for Kubernetes
     digest: 2024c5eac91551f69c08b4cc28b10e5adf447b364cfc7cfdd688f8b42ee2d89b
     name: osf-flower
@@ -652,15 +750,28 @@ entries:
     version: 0.1.0
   osf-preprints:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.828190395Z
-    description: A Helm chart for Kubernetes
-    digest: ad0813037358ccd63e4708a86e68d9b18379fdf5b6c3765e23d216e802e076d5
+    created: 2018-01-23T15:18:02.264686256Z
+    description: Open Science Framework Preprints Ember application
+    digest: 4d98d858f746515641902597895ba2961922ee0bb3c2f3013d24cd01a193e7f7
+    engine: gotpl
+    keywords:
+    - open
+    - science
+    - preprints
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: osf-preprints
+    sources:
+    - https://github.com/CenterForOpenScience/ember-osf-preprints
+    tillerVersion: '>=2.7.0'
     urls:
     - osf-preprints-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.827603018Z
+    created: 2018-01-23T15:18:02.263590336Z
     description: A Helm chart for Kubernetes
     digest: df2622650f3dbbbc6d738fefd2da161e028e72993f7a7bca49855dc9e7d4ddb2
     name: osf-preprints
@@ -668,7 +779,7 @@ entries:
     - osf-preprints-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.827030413Z
+    created: 2018-01-23T15:18:02.262772891Z
     description: A Helm chart for Kubernetes
     digest: 61e9aa8c5513f9a9a114b470d24420c0f9f14d534ac6ebd6ee9f86a38e954f74
     name: osf-preprints
@@ -676,7 +787,7 @@ entries:
     - osf-preprints-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.826414862Z
+    created: 2018-01-23T15:18:02.261223865Z
     description: A Helm chart for Kubernetes
     digest: 9b949a1377cda62d3e20a69d329049a7c2eef19807fc89fc1e56e249d9c78514
     name: osf-preprints
@@ -685,15 +796,28 @@ entries:
     version: 0.1.0
   osf-registries:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.830364992Z
-    description: A Helm chart for Kubernetes
-    digest: 5d0c1b9a85f9c6e86f32e1a4e3c17596668ec24d73ff058aad631f4b876b753b
+    created: 2018-01-23T15:18:02.279287958Z
+    description: Open Science Framework Registries Ember application
+    digest: 99ad329856162fb0926f7dddcdbf4e5b6964464a0fd541fca3b5ed1ecdcd79e3
+    engine: gotpl
+    keywords:
+    - open
+    - science
+    - registries
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: osf-registries
+    sources:
+    - https://github.com/CenterForOpenScience/ember-osf-registries
+    tillerVersion: '>=2.7.0'
     urls:
     - osf-registries-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.829752047Z
+    created: 2018-01-23T15:18:02.278170223Z
     description: A Helm chart for Kubernetes
     digest: 493932057b5305e60b9f4177d9bb990c91b26425b35c9f983ea26ee5fe4f47bc
     name: osf-registries
@@ -701,7 +825,7 @@ entries:
     - osf-registries-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.829235843Z
+    created: 2018-01-23T15:18:02.277238881Z
     description: A Helm chart for Kubernetes
     digest: 6d3608ffa60575c5bad100ea82fadbc17a773e903699ebf06b30b5fa1a7aa914
     name: osf-registries
@@ -709,7 +833,7 @@ entries:
     - osf-registries-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.828692801Z
+    created: 2018-01-23T15:18:02.265569064Z
     description: A Helm chart for Kubernetes
     digest: 9a51ef74a854c7137e72a860a17579a260c9586d37808134e1d1163b7924e731
     name: osf-registries
@@ -718,15 +842,30 @@ entries:
     version: 0.1.0
   osf-reviews:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.832568911Z
-    description: A Helm chart for Kubernetes
-    digest: 6b516642a8e0edd8e221525a8a1b38add3a2539abaa0391b62d7c82cec4b28ad
+    created: 2018-01-23T15:18:02.285221464Z
+    description: Open Science Framework Reviews/Moderation Ember application
+    digest: 50dfc1156f14bbfc9ae6c547b8b7c346f466ca03cdd79484be896f0160db1708
+    engine: gotpl
+    keywords:
+    - open
+    - science
+    - preprints
+    - reviews
+    - moderation
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: osf-reviews
+    sources:
+    - https://github.com/CenterForOpenScience/ember-osf-reviews
+    tillerVersion: '>=2.7.0'
     urls:
     - osf-reviews-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.832019416Z
+    created: 2018-01-23T15:18:02.283976388Z
     description: A Helm chart for Kubernetes
     digest: fbf8b616db3a4f1f6ae7b6cbb1cad9b003adf6e5f82437ef0ae725c49bdba504
     name: osf-reviews
@@ -734,7 +873,7 @@ entries:
     - osf-reviews-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.831461843Z
+    created: 2018-01-23T15:18:02.283159082Z
     description: A Helm chart for Kubernetes
     digest: 70e4c8a982cef7240f0b674523c187f9eaacd1b48a5897302942de3b8d29b6ab
     name: osf-reviews
@@ -742,7 +881,7 @@ entries:
     - osf-reviews-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.830824324Z
+    created: 2018-01-23T15:18:02.280245232Z
     description: A Helm chart for Kubernetes
     digest: a2aaa794d7903759d3681ea7bfe9ee77ff19e45e552b526b9da440c83b982628
     name: osf-reviews
@@ -751,7 +890,7 @@ entries:
     version: 0.1.0
   osf-sharejs:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.834021675Z
+    created: 2018-01-23T15:18:02.287478104Z
     description: A Helm chart for Kubernetes
     digest: fcce617651349b55c6f49787b11f0428a443b3cac7bfbe252236bffd06d4330b
     name: osf-sharejs
@@ -759,7 +898,7 @@ entries:
     - osf-sharejs-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.833323002Z
+    created: 2018-01-23T15:18:02.286318942Z
     description: A Helm chart for Kubernetes
     digest: cadf3e07dfe008b02f0fe1f4a6dcc808b3bd3963dc4545a7e66be53170ef4a35
     name: osf-sharejs
@@ -768,15 +907,27 @@ entries:
     version: 0.1.0
   osf-web:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.836134209Z
-    description: A Helm chart for Kubernetes
-    digest: d546142f4e398fb7c4764cdc1aa0907cd6c6ed39b69d270aba60c90746bad753
+    created: 2018-01-23T15:18:02.292005547Z
+    description: Open Science Framework main Ember application
+    digest: 9bc892c754d65892130f82e1ecaf89a229146dd44a54c43746448e85687493e4
+    engine: gotpl
+    keywords:
+    - open
+    - science
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: osf-web
+    sources:
+    - https://github.com/CenterForOpenScience/ember-osf-web
+    tillerVersion: '>=2.7.0'
     urls:
     - osf-web-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.835582609Z
+    created: 2018-01-23T15:18:02.290101377Z
     description: A Helm chart for Kubernetes
     digest: 89b6ca1b8cba51a2b5fafafbbd85ca564b865bf34988deb6c2302c34abe56749
     name: osf-web
@@ -784,7 +935,7 @@ entries:
     - osf-web-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.835070755Z
+    created: 2018-01-23T15:18:02.289307035Z
     description: A Helm chart for Kubernetes
     digest: 22505d262ec873dfe079f767a1775bb155d9cac3f5506ec9c135ea361e26f9e6
     name: osf-web
@@ -792,7 +943,7 @@ entries:
     - osf-web-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.834522628Z
+    created: 2018-01-23T15:18:02.288414492Z
     description: A Helm chart for Kubernetes
     digest: 04b459605b13f6546cc91ece763577a11e521dc146c8b9ba0cfb5cb56cff8240
     name: osf-web
@@ -801,7 +952,7 @@ entries:
     version: 0.1.0
   osf-worker:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.836415043Z
+    created: 2018-01-23T15:18:02.292385936Z
     description: A Helm chart for Kubernetes
     digest: a31999bb2debf0d32f96b261cf67a0065de63b8d62530bde7e33ec6a2e952902
     name: osf-worker
@@ -810,21 +961,24 @@ entries:
     version: 0.1.0
   pgbouncer:
   - appVersion: 1.8.1
-    created: 2018-01-21T03:06:12.836934514Z
+    created: 2018-01-23T15:18:02.293151711Z
     description: PgBouncer - lightweight connection pooler for PostgreSQL
-    digest: c9984a50c042ef35955dfcc43426c128abee9c9e6f5df9b151b74f98d457a6af
+    digest: 58d22c987c4b1868f5a3f14c7484d33fdcd39d6d13bf95dfc511bba9d74e86e3
     engine: gotpl
     home: https://pgbouncer.github.io/
     icon: https://www.postgresql.org/media/img/about/press/elephant.png
     keywords:
     - postgresql
     - pgbouncer
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
     name: pgbouncer
     urls:
     - pgbouncer-0.1.0.tgz
     version: 0.1.0
   postgresql:
-  - created: 2018-01-21T03:06:12.837783128Z
+  - created: 2018-01-23T15:18:02.294477588Z
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
     digest: c4b0385124a4e447f34ca5f069a98b1646328b7dbec21b220682c9202624a7d9
@@ -848,7 +1002,7 @@ entries:
     version: 0.8.1
   preprints:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.838332323Z
+    created: 2018-01-23T15:18:02.296504267Z
     description: A Helm chart for Kubernetes
     digest: c01843071fd727ada0eec86df2e4d0c19d4d0b0f50785ea0c13a52891ed18e76
     name: preprints
@@ -857,15 +1011,26 @@ entries:
     version: 0.1.0
   prerender:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.84324767Z
+    created: 2018-01-23T15:18:02.305524433Z
     description: Prerender service
-    digest: d2e565281a206f287a4ee4498a84c9902ebaff1780820a8366c09cdc4d2c6e09
+    digest: d3554a80abe1416fef1e64433251d7463192b37609872cbe53e0c9d2afb427f0
+    engine: gotpl
+    keywords:
+    - prerender
+    - chrome
+    - preprints
+    maintainers:
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: prerender
+    sources:
+    - https://github.com/CenterForOpenScience/prerender
+    tillerVersion: '>=2.7.0'
     urls:
     - prerender-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.842433878Z
+    created: 2018-01-23T15:18:02.30196564Z
     description: Prerender service
     digest: fa39266cbd96c334f0cf3c1c7e4ab6e18fd54bbfa9076b9f61eee9974ab253c4
     name: prerender
@@ -873,7 +1038,7 @@ entries:
     - prerender-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.841717717Z
+    created: 2018-01-23T15:18:02.300554699Z
     description: Prerender service
     digest: 4bcfeaac0b2b80859083b93d24ce81cbb5ccdd9b885075a1c46f005897589afe
     name: prerender
@@ -881,7 +1046,7 @@ entries:
     - prerender-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.840973046Z
+    created: 2018-01-23T15:18:02.299318181Z
     description: A Helm chart for Kubernetes
     digest: 88c4b496aff739b2b3d0cce62f731db247f3e566c7f514240575f114cfa24fa9
     name: prerender
@@ -889,7 +1054,7 @@ entries:
     - prerender-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.839914379Z
+    created: 2018-01-23T15:18:02.297785102Z
     description: A Helm chart for Kubernetes
     digest: 7c2f72d4002c944f573abdb370148d56f32dd822a43ebd730f533c4fdcc02662
     name: prerender
@@ -898,7 +1063,7 @@ entries:
     version: 0.1.0
   rabbitmq:
   - appVersion: 3.6.12
-    created: 2018-01-21T03:06:12.843796625Z
+    created: 2018-01-23T15:18:02.306741503Z
     description: Open source message broker software that implements the Advanced
       Message Queuing Protocol (AMQP)
     digest: accdbbffc01219e85669db55ee2c8a7337c83e78c7a8af05ba60e685c295acb3
@@ -920,7 +1085,7 @@ entries:
     version: 0.6.8
   redis:
   - appVersion: 4.0.6
-    created: 2018-01-21T03:06:12.844254345Z
+    created: 2018-01-23T15:18:02.308634112Z
     description: Open source, advanced key-value store. It is often referred to as
       a data structure server since keys can contain strings, hashes, lists, sets
       and sorted sets.
@@ -943,7 +1108,7 @@ entries:
     version: 1.1.2
   registries:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.844723933Z
+    created: 2018-01-23T15:18:02.310180278Z
     description: A Helm chart for Kubernetes
     digest: 83c86a7efc912a6b9a969a8d67e47dda8efe5049d26992d0a94b24be800917ee
     name: registries
@@ -952,15 +1117,22 @@ entries:
     version: 0.1.0
   sharejs:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.846116857Z
-    description: A Helm chart for Kubernetes
-    digest: 40374f0e2e487060014ec3ebdd21509eb18f3915e56d3c7ce3ba1d307b268fd9
+    created: 2018-01-23T15:18:02.314620702Z
+    description: ShareJS wiki application for the Open Science Framework
+    digest: b619913e1b9a49121ab34256abc1b67c0d6c26ca7cd4110dc235222099cd1619
+    engine: gotpl
+    maintainers:
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: sharejs
+    sources:
+    - https://github.com/CenterForOpenScience/sharejs
+    tillerVersion: '>=2.7.0'
     urls:
     - sharejs-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.84541555Z
+    created: 2018-01-23T15:18:02.313332243Z
     description: A Helm chart for Kubernetes
     digest: 44dc22e3c45cb097f7cd39bcb38549884a068e82444a6bf84608d24fd5db2eed
     name: sharejs
@@ -969,25 +1141,45 @@ entries:
     version: 0.1.0
   tls-certificates:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.846319344Z
-    description: A Helm chart for Kubernetes
-    digest: 1f3e5e669e36c3904704f6dde8a25ed302d1f31f1fabe4d14df4a1378a7cb60f
+    created: 2018-01-23T15:18:02.31518141Z
+    description: Creates a list of TLS certificates to be used by nginx-ingress
+    digest: 210ad956dbd94928e873113234bceaf968837b1dca705600a8d915a671db625e
     engine: gotpl
+    keywords:
+    - tls
+    - certificates
+    maintainers:
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: tls-certificates
     urls:
     - tls-certificates-0.1.0.tgz
     version: 0.1.0
   wb:
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.848108757Z
-    description: A Helm chart for Kubernetes
-    digest: 0bce8039e498f78d31404bed8695f7d6ed28fad254ee70d0c4ce367348e011fb
+    created: 2018-01-23T15:18:02.318906012Z
+    description: WaterButler is a Python web application for interacting with various
+      file storage services via a single RESTful API
+    digest: f102b12f956da73fac8ccead07757ef8143ba9c3d645004f1cc2d634cc930345
+    engine: gotpl
+    keywords:
+    - files
+    - storage
+    - streaming
+    maintainers:
+    - email: michael@cos.io
+      name: Michael Haselton
+    - email: barrett@cos.io
+      name: Barrett Harber
     name: wb
+    sources:
+    - https://github.com/CenterForOpenScience/waterbutler
+    tillerVersion: '>=2.7.0'
     urls:
     - wb-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.847231095Z
+    created: 2018-01-23T15:18:02.31652018Z
     description: A Helm chart for Kubernetes
     digest: 2cbf55abbeebdb95d615c429d18f5c829519a5fc21898168ce3301b61ee8cb82
     name: wb
@@ -995,11 +1187,11 @@ entries:
     - wb-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-21T03:06:12.846782738Z
+    created: 2018-01-23T15:18:02.315819077Z
     description: A Helm chart for Kubernetes
     digest: 6f0947ce4af8b49c598cce61358cf1ef57122251f80c7835de72fa98643ff6bb
     name: wb
     urls:
     - wb-0.1.0.tgz
     version: 0.1.0
-generated: 2018-01-21T03:06:12.749023775Z
+generated: 2018-01-23T15:18:02.073497858Z
