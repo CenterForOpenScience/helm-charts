@@ -1,4 +1,21 @@
 apiVersion: v1
-description: A Helm chart for Kubernetes
+description: Open Science Framework Reviews/Moderation Ember application
 name: osf-reviews
 version: 0.4.0
+keywords:
+  - open
+  - science
+  - preprints
+  - reviews
+  - moderation
+sources:
+  - https://github.com/CenterForOpenScience/ember-osf-reviews
+maintainers:
+  - name: Michael Haselton
+    email: michael@cos.io
+    url: https://github.com/icereval
+  - name: Barrett Harber
+    email: barrett@cos.io
+    url: https://github.com/binoculars
+engine: gotpl
+tillerVersion: '>=2.7.0'

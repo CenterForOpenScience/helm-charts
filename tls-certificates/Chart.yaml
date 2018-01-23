@@ -1,5 +1,12 @@
 apiVersion: v1
-description: A Helm chart for Kubernetes
+description: Creates a list of TLS certificates to be used by nginx-ingress
 name: tls-certificates
 version: 0.1.0
+keywords:
+  - tls
+  - certificates
+maintainers:
+  - name: Barrett Harber
+    email: barrett@cos.io
+    url: https://github.com/binoculars
 engine: gotpl

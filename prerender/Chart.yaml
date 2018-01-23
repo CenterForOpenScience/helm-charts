@@ -2,3 +2,15 @@ apiVersion: v1
 description: Prerender service
 name: prerender
 version: 0.4.0
+keywords:
+  - prerender
+  - chrome
+  - preprints
+sources:
+  - https://github.com/CenterForOpenScience/prerender
+maintainers:
+  - name: Barrett Harber
+    email: barrett@cos.io
+    url: https://github.com/binoculars
+engine: gotpl
+tillerVersion: '>=2.7.0'

@@ -7,6 +7,7 @@ Kubernetes Helm Charts for the Open Science Framework
 
 ## Prerequisites
 - Install [Helm](https://docs.helm.sh/using_helm/#installing-helm)
+  - tl;dr `brew install kubernetes-helm && helm init --client-only`
 - A running Kubernetes cluster
 
 ## Configuring the charts repository
