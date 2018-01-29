@@ -21,6 +21,10 @@ spec:
         app: {{ template "elasticsearch.name" . }}
         component: "{{ .Values.data.name }}"
         release: {{ .Release.Name }}
+      {{- if .Values.data.podAnnotations }}
+      annotations:
+        {{- toYaml .Values.data.podAnnotations | nindent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ template "elasticsearch.fullname" . }}
       affinity:
@@ -51,10 +55,12 @@ spec:
       initContainers:
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
       # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
-      - name: "sysctl"
-        image: "busybox"
-        imagePullPolicy: "Always"
-        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+      - name: sysctl
+        image: busybox
+        command:
+          - sysctl
+          - -w
+          - vm.max_map_count=262144
         securityContext:
           privileged: true
       - name: "chown"
@@ -98,6 +104,10 @@ spec:
         ports:
         - containerPort: 9300
           name: transport
+        {{- if .Values.data.exposeHttp }}
+        - containerPort: 9200
+          name: http
+        {{- end }}
         resources:
           {{- toYaml .Values.data.resources | nindent 12 }}
         readinessProbe:
@@ -127,13 +137,13 @@ spec:
           name: config
           subPath: elasticsearch.yml
           readOnly: true
-        {{- if hasPrefix "2." .Values.image.tag }}
+        {{- if hasPrefix "2." .Values.appVersion }}
         - mountPath: /usr/share/elasticsearch/config/logging.yml
           name: config
           subPath: logging.yml
           readOnly: true
         {{- end }}
-        {{- if hasPrefix "5." .Values.image.tag }}
+        {{- if hasPrefix "5." .Values.appVersion }}
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
           name: config
           subPath: log4j2.properties
@@ -181,7 +191,7 @@ spec:
   {{- if .Values.data.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: data
+        name: {{ .Values.data.persistence.name }}
       spec:
         accessModes:
           - {{ .Values.data.persistence.accessMode | quote }}

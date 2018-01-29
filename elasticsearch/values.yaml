@@ -1,11 +1,11 @@
 # Default values for elasticsearch.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+appVersion: "5.5"
 
 image:
   repository: "centerforopenscience/elasticsearch"
   tag: "5.5-tls"
-  # tag: "2.4"
   pullPolicy: "Always"
 
 cluster:
@@ -72,7 +72,7 @@ client:
   #               values:
   #                 - "true"
   budget:
-    minAvailable: 1
+    maxUnavailable: 1
   # strategy:
   #   rollingUpdate:
   #     maxSurge: 25%
@@ -93,10 +93,13 @@ client:
     requests:
       cpu: "25m"
       memory: "512Mi"
+  # podAnnotations:
+  #   example: client-foo
 
 master:
   name: master
   replicas: 2
+  exposeHttp: false
   heapSize: "512m"
   antiAffinity: "soft"
   # additionalAffinities:
@@ -114,9 +117,10 @@ master:
   #   rollingUpdate:
   #     partition: 1
   budget:
-    minAvailable: 1
+    maxUnavailable: 1
   persistence:
     enabled: true
+    name: data
     # storageClass: ssd
     accessMode: ReadWriteOnce
     size: 4Gi
@@ -127,10 +131,13 @@ master:
     requests:
       cpu: "25m"
       memory: "512Mi"
+  # podAnnotations:
+  #   example: master-foo
 
 data:
   name: data
   replicas: 2
+  exposeHttp: false
   heapSize: "1536m"
   storage: "30Gi"
   # storageClass: "ssd"
@@ -151,9 +158,10 @@ data:
   #   rollingUpdate:
   #     partition: 1
   budget:
-    minAvailable: 1
+    maxUnavailable: 1
   persistence:
     enabled: true
+    name: data
     # storageClass: ssd
     accessMode: ReadWriteOnce
     size: 4Gi
@@ -164,6 +172,8 @@ data:
     requests:
       cpu: "25m"
       memory: "1536Mi"
+  # podAnnotations:
+  #   example: data-foo
 
 ## Install Default RBAC roles and bindings
 rbac:

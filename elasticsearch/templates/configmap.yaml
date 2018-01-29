@@ -13,9 +13,9 @@ data:
     
     node.data: ${NODE_DATA:true}
     node.master: ${NODE_MASTER:true}
-{{- if hasPrefix "5." .Values.image.tag }}
+    {{- if hasPrefix "5." .Values.appVersion }}
     node.ingest: ${NODE_INGEST:true}
-{{- end }}
+    {{- end }}
     node.name: ${HOSTNAME}
 
     network.host: 0.0.0.0
@@ -25,7 +25,7 @@ data:
         service: ${SERVICE}
         namespace: ${KUBERNETES_NAMESPACE}
 
-{{- if hasPrefix "2." .Values.image.tag }}
+    {{- if hasPrefix "2." .Values.appVersion }}
     # see https://github.com/kubernetes/kubernetes/issues/3595
     bootstrap.mlockall: ${BOOTSTRAP_MLOCKALL:false}
 
@@ -33,8 +33,8 @@ data:
       type: kubernetes
       zen:
         minimum_master_nodes: ${MINIMUM_MASTER_NODES:2}
-{{- end }}
-{{- if hasPrefix "5." .Values.image.tag }}
+    {{- end }}
+    {{- if hasPrefix "5." .Values.appVersion }}
     # see https://github.com/kubernetes/kubernetes/issues/3595
     bootstrap.memory_lock: ${BOOTSTRAP_MEMORY_LOCK:false}
 
@@ -48,7 +48,7 @@ data:
     xpack.monitoring.enabled: ${XPACK_MONITORING_ENABLED:false}
     xpack.security.enabled: ${XPACK_SECURITY_ENABLED:false}
     xpack.watcher.enabled: ${XPACK_WATCHER_ENABLED:false}
-{{- end }}
+    {{- end }}
 
     # see https://github.com/floragunncom/search-guard-ssl/blob/master/src/main/java/com/floragunn/searchguard/ssl/util/SSLConfigConstants.java#L28
     {{- if .Values.tls.enabled }}
@@ -72,7 +72,7 @@ data:
     {{- if .Values.cluster.config }}
     {{- toYaml .Values.cluster.config | nindent 4 }}
     {{- end }}
-{{- if hasPrefix "2." .Values.image.tag }}
+  {{- if hasPrefix "2." .Values.appVersion }}
   logging.yml: |-
     # you can override this using by setting a system property, for example -Des.logger.level=DEBUG
     es.logger.level: INFO
@@ -89,8 +89,8 @@ data:
         layout:
           type: consolePattern
           conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
-{{- end }}
-{{- if hasPrefix "5." .Values.image.tag }}
+  {{- end }}
+  {{- if hasPrefix "5." .Values.appVersion }}
   log4j2.properties: |-
     status = error
 
@@ -104,7 +104,7 @@ data:
 
     logger.searchguard.name = com.floragunn
     logger.searchguard.level = info
-{{- end }}
+  {{- end }}
   pre-stop-hook.sh: |-
     #!/bin/bash
     set -e

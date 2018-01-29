@@ -1,4 +1,4 @@
-{{- if .Values.client.budget.minAvailable -}}
+{{- if .Values.client.budget.maxUnavailable -}}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
@@ -15,5 +15,5 @@ spec:
       app: {{ template "elasticsearch.name" . }}
       component: "{{ .Values.client.name }}"
       release: {{ .Release.Name }}
-  minAvailable: {{ .Values.client.budget.minAvailable }}
+  maxUnavailable: {{ .Values.client.budget.maxUnavailable }}
 {{- end -}}
