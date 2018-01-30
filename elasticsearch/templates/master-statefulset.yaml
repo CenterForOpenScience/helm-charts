@@ -27,6 +27,8 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ template "elasticsearch.fullname" . }}
+      securityContext:
+        fsGroup: 1000  # elasticsearch
       affinity:
         {{- if .Values.master.additionalAffinities }}
         {{- toYaml .Values.master.additionalAffinities | nindent 8 }}
@@ -63,19 +65,27 @@ spec:
           - vm.max_map_count=262144
         securityContext:
           privileged: true
-      - name: "chown"
+      {{- if .Values.plugins.enabled }}
+      - name: plugins
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
         command:
-        - /bin/bash
-        - -c
-        - chown -R elasticsearch:elasticsearch /usr/share/elasticsearch/data &&
-          chown -R elasticsearch:elasticsearch /usr/share/elasticsearch/logs
-        securityContext:
-          runAsUser: 0
+          - /bin/sh
+          - -c
+          - |-
+            {{- if hasPrefix "5." .Values.appVersion }}
+            {{ if .Values.plugins.remove }}bin/elasticsearch-plugin remove {{ join " && bin/elasticsearch-plugin remove " .Values.plugins.remove }}{{ end }}
+            {{ if .Values.plugins.install }}bin/elasticsearch-plugin install -b {{ join " && bin/elasticsearch-plugin install -b " .Values.plugins.install }}{{ end }}
+            {{- end }}
+            {{- if hasPrefix "2." .Values.appVersion }}
+            {{ if .Values.plugins.remove }}bin/plugin remove {{ join " && bin/plugin remove " .Values.plugins.remove }}{{ end }}
+            {{ if .Values.plugins.install }}bin/plugin install {{ join " && bin/plugin install " .Values.plugins.install }}{{ end }}
+            {{- end }}
+            cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
         volumeMounts:
-        - mountPath: /usr/share/elasticsearch/data
-          name: data
+        - mountPath: /plugins
+          name: plugins
+      {{- end }}
       containers:
       - name: elasticsearch
         env:
@@ -171,6 +181,10 @@ spec:
           subPath: ca_crl.pem
           readOnly: true
         {{- end }}
+        {{- if .Values.plugins.enabled }}
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: plugins
+        {{- end }}
       volumes:
       - name: config
         configMap:
@@ -183,6 +197,10 @@ spec:
       - name: secret
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}
+      {{- end }}
+      {{- if .Values.plugins.enabled }}
+      - name: plugins
+        emptyDir: {}
       {{- end }}
   {{- if .Values.master.persistence.enabled }}
   volumeClaimTemplates:

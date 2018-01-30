@@ -98,6 +98,14 @@ The following tables lists the configurable parameters of the elasticsearch char
 | `data.terminationGracePeriodSeconds`      | Data termination grace period (seconds)                             | `3600`                               |
 | `data.antiAffinity`                       | Data anti-affinity policy                                           | `soft`                               |
 | `rbac.create`                             | Create service account and ClusterRoleBinding for Kubernetes plugin | `false`                              |
+| `plugins.enabled`                         | Plugins management                                                  | `false`                              |
+| `plugins.install`                         | Plugins to install on pod initialization                            | `[]`                                 |
+| `plugins.remove`                          | Plugins to remove on pod initialization                             | `[]`                                 |
+| `xpack.enabled`                           | X-Pack enable/disable writing configuration file                    | `false`                              |
+| `xpack.config`                            | X-Pack configuration options                                        | `{}`                                 |
+| `tls.enabled`                             | SearchGuard SSL TLS enable/disable writing configuration file       | `false`                              |
+| `tls.config`                              | SearchGuard SSL TLS configuration                                   | `[]`                                 |
+| `tls.files`                               | SearchGuard SSL TLS certificates                                    | `{}`                                 |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 
