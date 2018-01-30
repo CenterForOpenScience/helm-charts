@@ -1,7 +1,7 @@
 apiVersion: v1
 entries:
   barman:
-  - created: 2018-01-29T18:41:59.360208096Z
+  - created: 2018-01-30T17:36:41.609101806Z
     description: Barman
     digest: c8b50cf38c478ce44a3ba4cc8b1e252186cb26e72743f7c6975b7ec38b8bbc7c
     engine: gotpl
@@ -19,7 +19,7 @@ entries:
     urls:
     - barman-0.2.0.tgz
     version: 0.2.0
-  - created: 2018-01-29T18:41:59.359644229Z
+  - created: 2018-01-30T17:36:41.60850121Z
     description: Barman
     digest: 86b6ab511589d690d3b65726c6b3bd477a1c38608506e9709dff48fa651e76cf
     engine: gotpl
@@ -39,7 +39,7 @@ entries:
     version: 0.0.1
   cas:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.373622911Z
+    created: 2018-01-30T17:36:41.623174208Z
     description: Central Authentication Service
     digest: 5c57386fe5061a0af5d567ebc5364398a6486b09169e863dfa78788c0ad018cd
     engine: gotpl
@@ -58,7 +58,7 @@ entries:
     - cas-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.371019287Z
+    created: 2018-01-30T17:36:41.619953876Z
     description: A Helm chart for Kubernetes
     digest: e8302d612d14fef9d255cc18a53f8d7b3186ab9826d887ce8061baa590bf131a
     name: cas
@@ -66,7 +66,7 @@ entries:
     - cas-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.367421893Z
+    created: 2018-01-30T17:36:41.616233672Z
     description: A Helm chart for Kubernetes
     digest: c0d0e5462c6f11b04fce4661bcede1d58767de4985ea81dbb74b3db95f42f887
     name: cas
@@ -74,7 +74,7 @@ entries:
     - cas-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.365124069Z
+    created: 2018-01-30T17:36:41.613884129Z
     description: A Helm chart for Kubernetes
     digest: cf706e75a50abd4cb1d34b7a4fe877c08af703217e050442896af48089cffe5f
     name: cas
@@ -82,7 +82,7 @@ entries:
     - cas-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.362699366Z
+    created: 2018-01-30T17:36:41.611398969Z
     description: A Helm chart for Kubernetes
     digest: 1254ea195afa84abb7d4b7c8fa558e169cf593cd6ce6f45121e6adbe3c1fae08
     name: cas
@@ -90,7 +90,7 @@ entries:
     - cas-0.1.0.tgz
     version: 0.1.0
   cerebro:
-  - created: 2018-01-29T18:41:59.373953941Z
+  - created: 2018-01-30T17:36:41.623474026Z
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
     digest: 8680f961adb4a4ae4be266e58c676d49a46f045977c4fda86684daf3d4fefe23
@@ -107,7 +107,7 @@ entries:
     version: 0.1.0
   disk-usage-exporter:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.374274392Z
+    created: 2018-01-30T17:36:41.623766357Z
     description: A prometheus exporter that exports disk usage for all PersistentVolumes
       mounted on a Kubernetes Node
     digest: 7f36d0547d7948931c411f136d325de787f8a925f0f31c9e38969c2d824886c6
@@ -116,7 +116,7 @@ entries:
     - disk-usage-exporter-0.1.0.tgz
     version: 0.1.0
   echoheaders:
-  - created: 2018-01-29T18:41:59.374534454Z
+  - created: 2018-01-30T17:36:41.624052002Z
     description: Echoheaders server for testing
     digest: 8f2894c3718530fc8f9cc84f4a04ad3cb2340b0bb81b327365acbe561b4378ea
     maintainers:
@@ -128,7 +128,7 @@ entries:
     version: 0.1.0
   elastic-stack:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.375680155Z
+    created: 2018-01-30T17:36:41.625327994Z
     description: A Helm chart for Kubernetes
     digest: a628932b471ea2918a38904063a4c5bb4a879ff945cf87363b9a069d658a6f10
     name: elastic-stack
@@ -136,7 +136,27 @@ entries:
     - elastic-stack-0.1.0.tgz
     version: 0.1.0
   elasticsearch:
-  - created: 2018-01-29T18:41:59.378496965Z
+  - created: 2018-01-30T17:36:41.629320604Z
+    description: Flexible and powerful open source, distributed real-time search and
+      analytics engine.
+    digest: 6d7f97c96c702fd47e8bc21a7b70f39b0d8980347dd9b93ea6135cccd81f330e
+    home: https://www.elastic.co/products/elasticsearch
+    icon: https://static-www.elastic.co/assets/blteb1c97719574938d/logo-elastic-elasticsearch-lt.svg
+    maintainers:
+    - email: barrett.harber@gmail.com
+      name: Barrett Harber
+    - email: michael.haselton@gmail.com
+      name: Michael Haselton
+    name: elasticsearch
+    sources:
+    - https://www.elastic.co/products/elasticsearch
+    - https://github.com/jetstack/elasticsearch-pet
+    - https://github.com/giantswarm/kubernetes-elastic-stack
+    - https://github.com/GoogleCloudPlatform/elasticsearch-docker
+    urls:
+    - elasticsearch-0.3.0.tgz
+    version: 0.3.0
+  - created: 2018-01-30T17:36:41.628475905Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 1fe30b9a6078475b50a4ccc883c4e323103d5c35762752a74a346502d65f3c3d
@@ -156,7 +176,7 @@ entries:
     urls:
     - elasticsearch-0.2.0.tgz
     version: 0.2.0
-  - created: 2018-01-29T18:41:59.376475704Z
+  - created: 2018-01-30T17:36:41.626163456Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 6803c2ca1ad65317d251b6784d12546748739078ce42d8caf875255e01930bc4
@@ -176,7 +196,7 @@ entries:
     urls:
     - elasticsearch-0.1.10.tgz
     version: 0.1.10
-  - created: 2018-01-29T18:41:59.377690836Z
+  - created: 2018-01-30T17:36:41.627643146Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: d00b94b3bb91b94a335ae6bf9455a1ac6e822e460f69bd2fee50bae1afeec967
@@ -196,7 +216,7 @@ entries:
     urls:
     - elasticsearch-0.1.9.tgz
     version: 0.1.9
-  - created: 2018-01-29T18:41:59.377086911Z
+  - created: 2018-01-30T17:36:41.626801201Z
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 2f3b7ecc33d8080ad6b80df420938256b3295d9feb2672ca9643e220c1b098c1
@@ -218,7 +238,7 @@ entries:
     version: 0.1.6
   ember:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.380552721Z
+    created: 2018-01-30T17:36:41.631215999Z
     description: A base ember application for the Open Science Framework
     digest: dda514642e171a69913a261d0c1fda5a18aaf0987c47bc300edf92d655440dc3
     engine: gotpl
@@ -237,7 +257,7 @@ entries:
     - ember-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.379978361Z
+    created: 2018-01-30T17:36:41.630710894Z
     description: A Helm chart for Kubernetes
     digest: a42464d307781e4f7223efa3a9626d44ccceec03d7077f1bfcac28b1d5168769
     name: ember
@@ -245,7 +265,7 @@ entries:
     - ember-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.37942713Z
+    created: 2018-01-30T17:36:41.630181477Z
     description: A Helm chart for Kubernetes
     digest: 07a9409685746f9495c29e94c5668e5ea0d80c40d2a7b97f70f6607bc420ddaf
     name: ember
@@ -253,7 +273,7 @@ entries:
     - ember-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.378933001Z
+    created: 2018-01-30T17:36:41.629725704Z
     description: A Helm chart for Kubernetes
     digest: 28b0683dd6331eac632bbbc74264956f3b0cb9c74191e11b0efe37734bc698a7
     name: ember
@@ -262,7 +282,7 @@ entries:
     version: 0.1.0
   flower:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.381356977Z
+    created: 2018-01-30T17:36:41.632042045Z
     description: Celery Flower
     digest: 3da916926760ac19fac186d86307be0b86ee3e3dcccf4db050ec10db881ea2cd
     engine: gotpl
@@ -282,7 +302,7 @@ entries:
     - flower-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.380909857Z
+    created: 2018-01-30T17:36:41.631574002Z
     description: A Helm chart for Kubernetes
     digest: e4f9bf886f186aad8dc642c5016f502dda0aa6cf681f1fe1fbd5820ecede3cd4
     name: flower
@@ -290,7 +310,7 @@ entries:
     - flower-0.1.0.tgz
     version: 0.1.0
   gcloud-sqlproxy:
-  - created: 2018-01-29T18:41:59.381864849Z
+  - created: 2018-01-30T17:36:41.632527616Z
     description: Google Cloud SQL Proxy
     digest: 157a3d1e39c04c9697961d4756e782a5eb84f1b30f425cfa995d76b0bc6fd1b2
     engine: gotpl
@@ -312,7 +332,7 @@ entries:
     - gcloud-sqlproxy-0.2.1.tgz
     version: 0.2.1
   http-redirect:
-  - created: 2018-01-29T18:41:59.382222334Z
+  - created: 2018-01-30T17:36:41.633011378Z
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
     digest: 2c0ee101c93c2c9ca134214567a5bfa68b0984a69931c24b8c21eb20305add6d
@@ -330,7 +350,7 @@ entries:
     version: 0.1.0
   hubot:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.383211287Z
+    created: 2018-01-30T17:36:41.634013818Z
     description: Hubot chatbot
     digest: 6560ffa3a935f44e9f74a4ae68420eb42727711e9537125bafa916cb8d0ef640
     engine: gotpl
@@ -352,7 +372,7 @@ entries:
     version: 0.1.0
   jenkins:
   - appVersion: "2.67"
-    created: 2018-01-29T18:41:59.386032833Z
+    created: 2018-01-30T17:36:41.637306285Z
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -372,7 +392,7 @@ entries:
     - jenkins-0.9.0.tgz
     version: 0.9.0
   - appVersion: "2.67"
-    created: 2018-01-29T18:41:59.384707413Z
+    created: 2018-01-30T17:36:41.634996789Z
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -393,7 +413,7 @@ entries:
     version: 0.8.2
   kibana:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.386350875Z
+    created: 2018-01-30T17:36:41.637871434Z
     description: Elasticsearch visualization platform
     digest: 570eda6f7bf4f3e07924248c7e4fbfb7ea08b17f000acf04d472dc237334fe9a
     icon: https://static-www.elastic.co/assets/bltf11265439e44d327/logo-elastic-kibana-lt.svg?q=890
@@ -405,7 +425,7 @@ entries:
     version: 0.1.0
   lookit:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.391335068Z
+    created: 2018-01-30T17:36:41.643661078Z
     description: A project of the MIT Early Childhood Cognition Lab
     digest: 3cca184d88141feae6a077f01358977cf88b9fd453552a78021c230ec483ebd8
     engine: gotpl
@@ -424,7 +444,7 @@ entries:
     - lookit-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.389882579Z
+    created: 2018-01-30T17:36:41.641774946Z
     description: A Helm chart for Kubernetes
     digest: fdc779a6d32ce45feacf28d9578f64d413a051248bd3316982cf94c90c70e551
     name: lookit
@@ -432,7 +452,7 @@ entries:
     - lookit-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.388523607Z
+    created: 2018-01-30T17:36:41.640323551Z
     description: A Helm chart for Kubernetes
     digest: 13de27a76d459baac9226858bff530b0012afdccd20793a7ac9935729adb9ffe
     name: lookit
@@ -440,7 +460,7 @@ entries:
     - lookit-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.387201229Z
+    created: 2018-01-30T17:36:41.639019865Z
     description: A Helm chart for Kubernetes
     digest: bd0eeda064c47ac18e39fab72d13813cbad825eaefa398fab52d90595bafb30e
     name: lookit
@@ -449,7 +469,7 @@ entries:
     version: 0.1.0
   maintenance:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.392016185Z
+    created: 2018-01-30T17:36:41.644443449Z
     description: Center For Open Science Maintenance Pages
     digest: e84d89d16eb678b5da310e916400030cdc72e086da94ab981d0a00eb46627c4d
     engine: gotpl
@@ -469,7 +489,7 @@ entries:
     version: 0.1.0
   mfr:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.394049804Z
+    created: 2018-01-30T17:36:41.646543919Z
     description: A Helm chart for Kubernetes
     digest: 3972ee3c404cc5f2738c0138ec25a33577cec59f1f35f8cd545c55a7aeb21767
     engine: gotpl
@@ -488,7 +508,7 @@ entries:
     - mfr-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.392869343Z
+    created: 2018-01-30T17:36:41.645324482Z
     description: A Helm chart for Kubernetes
     digest: 20727d31b7ae64500481228bc8f62e4f8e70e84a923ed1b244ec7e45a600bc65
     name: mfr
@@ -496,7 +516,7 @@ entries:
     - mfr-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.392419201Z
+    created: 2018-01-30T17:36:41.644900464Z
     description: A Helm chart for Kubernetes
     digest: 7928f0cd93d08e898f8bb69021d58a922b5d1a9e2518495aa7948744c7fe9cf5
     name: mfr
@@ -505,7 +525,7 @@ entries:
     version: 0.1.0
   mongodb:
   - appVersion: 3.4.9
-    created: 2018-01-29T18:41:59.394540673Z
+    created: 2018-01-30T17:36:41.64709137Z
     description: NoSQL document-oriented database that stores JSON-like documents
       with dynamic schemas, simplifying the integration of data in content-driven
       applications.
@@ -528,7 +548,7 @@ entries:
     version: 0.4.17
   nessus:
   - appVersion: 6.11.2
-    created: 2018-01-29T18:41:59.395249189Z
+    created: 2018-01-30T17:36:41.647965116Z
     description: Nessus Vulnerability Scanner
     digest: 7302c853592551c917ecafb8dca9058c75b14d2d33c329f88446065d2f4eb7ee
     engine: gotpl
@@ -547,7 +567,7 @@ entries:
     - nessus-0.2.0.tgz
     version: 0.2.0
   - appVersion: 6.11.2
-    created: 2018-01-29T18:41:59.394876384Z
+    created: 2018-01-30T17:36:41.647477643Z
     description: Nessus Vulnerability Scanner
     digest: 7274924414fdc63a087eb1d060dceaecd217566dd4157424369417f1314445a9
     engine: gotpl
@@ -562,7 +582,7 @@ entries:
     version: 0.1.0
   nginx-ingress:
   - appVersion: 0.9.0-beta.15
-    created: 2018-01-29T18:41:59.396795702Z
+    created: 2018-01-30T17:36:41.649621677Z
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 603327ca4265c519ed4f0c42014027a0d5e1626ad9da1eb4d8986032ac0d0c82
@@ -585,7 +605,7 @@ entries:
     - nginx-ingress-0.8.26.tgz
     version: 0.8.26
   - appVersion: 0.9.0-beta.15
-    created: 2018-01-29T18:41:59.397736303Z
+    created: 2018-01-30T17:36:41.650587269Z
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 3fc8931182ff48696f7f18d91ae13cd458c62200c7ab43f7cf5c5390b6b4d5c4
@@ -608,7 +628,7 @@ entries:
     - nginx-ingress-0.8.8.tgz
     version: 0.8.8
   - appVersion: 0.9.0-beta.7
-    created: 2018-01-29T18:41:59.395966135Z
+    created: 2018-01-30T17:36:41.648652701Z
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 6f797a8d3080724108faa25ea8690ad7627bfcd35a8112bc34b655f05541c00b
@@ -632,7 +652,7 @@ entries:
     version: 0.6.0
   osf:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.406093343Z
+    created: 2018-01-30T17:36:41.661098905Z
     description: The Open Science Framework (OSF)
     digest: 12b93368cf9682906b0fd95c0e13bb1ac76970ee88e81ddfc66c01e074d7fd18
     engine: gotpl
@@ -652,7 +672,7 @@ entries:
     - osf-0.10.0.tgz
     version: 0.10.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.429159791Z
+    created: 2018-01-30T17:36:41.685238586Z
     description: A Helm chart for Kubernetes
     digest: 3f5f145fa2ddaff4afaa108484fb92f3cf37fc9177ac4288c7fa1693af9d6b5f
     name: osf
@@ -660,7 +680,7 @@ entries:
     - osf-0.9.0.tgz
     version: 0.9.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.425635394Z
+    created: 2018-01-30T17:36:41.681634237Z
     description: A Helm chart for Kubernetes
     digest: 3f145d64de08ec07647410b85699819b3952b1ba593a230034b01dca7c63a84c
     name: osf
@@ -668,7 +688,7 @@ entries:
     - osf-0.8.0.tgz
     version: 0.8.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.422602772Z
+    created: 2018-01-30T17:36:41.678272565Z
     description: A Helm chart for Kubernetes
     digest: a52044507fc6c8093dc7a28edf376b9a15ccd164af792f39f5cb0cc56defec8c
     name: osf
@@ -676,7 +696,7 @@ entries:
     - osf-0.7.0.tgz
     version: 0.7.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.419428774Z
+    created: 2018-01-30T17:36:41.675056196Z
     description: A Helm chart for Kubernetes
     digest: c49517e6e7202bf7d178a31be5831fb8674802061603408f59180b91266846de
     name: osf
@@ -684,7 +704,7 @@ entries:
     - osf-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.415914579Z
+    created: 2018-01-30T17:36:41.670565465Z
     description: A Helm chart for Kubernetes
     digest: abba7ed20b17577ea69f682a3895940210d2a1f0f0f4273b098e250e6444866b
     name: osf
@@ -692,7 +712,7 @@ entries:
     - osf-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.412583466Z
+    created: 2018-01-30T17:36:41.667944504Z
     description: A Helm chart for Kubernetes
     digest: dbb132dec8b10cfa2d446acdc566be4f937614a531168b02230760148404dec8
     name: osf
@@ -700,7 +720,7 @@ entries:
     - osf-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.410373337Z
+    created: 2018-01-30T17:36:41.66542582Z
     description: A Helm chart for Kubernetes
     digest: d272e90977a77c73d123f70f446fc0961c1242d01933ec7e38ad032017e33210
     name: osf
@@ -708,7 +728,7 @@ entries:
     - osf-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.408208435Z
+    created: 2018-01-30T17:36:41.663237502Z
     description: A Helm chart for Kubernetes
     digest: 9abf33c6a8a09f33a0d2381bf475634378775b372049f07671e971233fb20032
     name: osf
@@ -716,7 +736,7 @@ entries:
     - osf-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.402590626Z
+    created: 2018-01-30T17:36:41.657396193Z
     description: A Helm chart for Kubernetes
     digest: 682b126dbd2e68aed223a3c0ece192751968c9a4924f387b8ec1ba6871f66083
     name: osf
@@ -725,7 +745,7 @@ entries:
     version: 0.1.0
   osf-admin:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.429601265Z
+    created: 2018-01-30T17:36:41.685737104Z
     description: A Helm chart for Kubernetes
     digest: 3fb40630d5bc19834fae98252e4039a4a85de84b0349d0b2dcf12ff6b86ec63b
     name: osf-admin
@@ -734,7 +754,7 @@ entries:
     version: 0.1.0
   osf-api:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.430022285Z
+    created: 2018-01-30T17:36:41.686191254Z
     description: A Helm chart for Kubernetes
     digest: ad8578172b5212f1eb1d60efd6d5f92d3599767957381686132758ecab17cfc8
     name: osf-api
@@ -743,7 +763,7 @@ entries:
     version: 0.1.0
   osf-beat:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.430317923Z
+    created: 2018-01-30T17:36:41.686560254Z
     description: A Helm chart for Kubernetes
     digest: 21dcf194a6f0311f8edbc95fe0c8f1146b6b75c325f2b79aa2e88445dab7b304
     name: osf-beat
@@ -752,7 +772,7 @@ entries:
     version: 0.1.0
   osf-ember-app:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.430684281Z
+    created: 2018-01-30T17:36:41.68695576Z
     description: A Helm chart for Kubernetes
     digest: b8c988066cdbf5e58dd0fac4a820781d513ce348740e9d3815dfb66eae6ec112
     name: osf-ember-app
@@ -761,7 +781,7 @@ entries:
     version: 0.1.0
   osf-flower:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.43138011Z
+    created: 2018-01-30T17:36:41.687288834Z
     description: A Helm chart for Kubernetes
     digest: 2024c5eac91551f69c08b4cc28b10e5adf447b364cfc7cfdd688f8b42ee2d89b
     name: osf-flower
@@ -770,7 +790,7 @@ entries:
     version: 0.1.0
   osf-preprints:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.434948053Z
+    created: 2018-01-30T17:36:41.690912842Z
     description: Open Science Framework Preprints Ember application
     digest: 4d98d858f746515641902597895ba2961922ee0bb3c2f3013d24cd01a193e7f7
     engine: gotpl
@@ -791,7 +811,7 @@ entries:
     - osf-preprints-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.433704082Z
+    created: 2018-01-30T17:36:41.690089033Z
     description: A Helm chart for Kubernetes
     digest: df2622650f3dbbbc6d738fefd2da161e028e72993f7a7bca49855dc9e7d4ddb2
     name: osf-preprints
@@ -799,7 +819,7 @@ entries:
     - osf-preprints-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.432949915Z
+    created: 2018-01-30T17:36:41.689366587Z
     description: A Helm chart for Kubernetes
     digest: 61e9aa8c5513f9a9a114b470d24420c0f9f14d534ac6ebd6ee9f86a38e954f74
     name: osf-preprints
@@ -807,7 +827,7 @@ entries:
     - osf-preprints-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.432161146Z
+    created: 2018-01-30T17:36:41.688433988Z
     description: A Helm chart for Kubernetes
     digest: 9b949a1377cda62d3e20a69d329049a7c2eef19807fc89fc1e56e249d9c78514
     name: osf-preprints
@@ -816,7 +836,7 @@ entries:
     version: 0.1.0
   osf-registries:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.437139342Z
+    created: 2018-01-30T17:36:41.693224139Z
     description: Open Science Framework Registries Ember application
     digest: 99ad329856162fb0926f7dddcdbf4e5b6964464a0fd541fca3b5ed1ecdcd79e3
     engine: gotpl
@@ -837,7 +857,7 @@ entries:
     - osf-registries-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.436433666Z
+    created: 2018-01-30T17:36:41.69247812Z
     description: A Helm chart for Kubernetes
     digest: 493932057b5305e60b9f4177d9bb990c91b26425b35c9f983ea26ee5fe4f47bc
     name: osf-registries
@@ -845,7 +865,7 @@ entries:
     - osf-registries-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.435969684Z
+    created: 2018-01-30T17:36:41.69199791Z
     description: A Helm chart for Kubernetes
     digest: 6d3608ffa60575c5bad100ea82fadbc17a773e903699ebf06b30b5fa1a7aa914
     name: osf-registries
@@ -853,7 +873,7 @@ entries:
     - osf-registries-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.4354598Z
+    created: 2018-01-30T17:36:41.691427543Z
     description: A Helm chart for Kubernetes
     digest: 9a51ef74a854c7137e72a860a17579a260c9586d37808134e1d1163b7924e731
     name: osf-registries
@@ -862,7 +882,7 @@ entries:
     version: 0.1.0
   osf-reviews:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.439323831Z
+    created: 2018-01-30T17:36:41.695633739Z
     description: Open Science Framework Reviews/Moderation Ember application
     digest: 50dfc1156f14bbfc9ae6c547b8b7c346f466ca03cdd79484be896f0160db1708
     engine: gotpl
@@ -885,7 +905,7 @@ entries:
     - osf-reviews-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.438662798Z
+    created: 2018-01-30T17:36:41.694887534Z
     description: A Helm chart for Kubernetes
     digest: fbf8b616db3a4f1f6ae7b6cbb1cad9b003adf6e5f82437ef0ae725c49bdba504
     name: osf-reviews
@@ -893,7 +913,7 @@ entries:
     - osf-reviews-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.43814052Z
+    created: 2018-01-30T17:36:41.69437446Z
     description: A Helm chart for Kubernetes
     digest: 70e4c8a982cef7240f0b674523c187f9eaacd1b48a5897302942de3b8d29b6ab
     name: osf-reviews
@@ -901,7 +921,7 @@ entries:
     - osf-reviews-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.437606506Z
+    created: 2018-01-30T17:36:41.693802218Z
     description: A Helm chart for Kubernetes
     digest: a2aaa794d7903759d3681ea7bfe9ee77ff19e45e552b526b9da440c83b982628
     name: osf-reviews
@@ -910,7 +930,7 @@ entries:
     version: 0.1.0
   osf-sharejs:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.440729998Z
+    created: 2018-01-30T17:36:41.697115765Z
     description: A Helm chart for Kubernetes
     digest: fcce617651349b55c6f49787b11f0428a443b3cac7bfbe252236bffd06d4330b
     name: osf-sharejs
@@ -918,7 +938,7 @@ entries:
     - osf-sharejs-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.440048268Z
+    created: 2018-01-30T17:36:41.696412991Z
     description: A Helm chart for Kubernetes
     digest: cadf3e07dfe008b02f0fe1f4a6dcc808b3bd3963dc4545a7e66be53170ef4a35
     name: osf-sharejs
@@ -927,7 +947,7 @@ entries:
     version: 0.1.0
   osf-web:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.442927989Z
+    created: 2018-01-30T17:36:41.699444244Z
     description: Open Science Framework main Ember application
     digest: 9bc892c754d65892130f82e1ecaf89a229146dd44a54c43746448e85687493e4
     engine: gotpl
@@ -947,7 +967,7 @@ entries:
     - osf-web-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.442271904Z
+    created: 2018-01-30T17:36:41.698756517Z
     description: A Helm chart for Kubernetes
     digest: 89b6ca1b8cba51a2b5fafafbbd85ca564b865bf34988deb6c2302c34abe56749
     name: osf-web
@@ -955,7 +975,7 @@ entries:
     - osf-web-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.441776804Z
+    created: 2018-01-30T17:36:41.698127794Z
     description: A Helm chart for Kubernetes
     digest: 22505d262ec873dfe079f767a1775bb155d9cac3f5506ec9c135ea361e26f9e6
     name: osf-web
@@ -963,7 +983,7 @@ entries:
     - osf-web-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.441259919Z
+    created: 2018-01-30T17:36:41.697568672Z
     description: A Helm chart for Kubernetes
     digest: 04b459605b13f6546cc91ece763577a11e521dc146c8b9ba0cfb5cb56cff8240
     name: osf-web
@@ -972,7 +992,7 @@ entries:
     version: 0.1.0
   osf-worker:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.443194685Z
+    created: 2018-01-30T17:36:41.699738669Z
     description: A Helm chart for Kubernetes
     digest: a31999bb2debf0d32f96b261cf67a0065de63b8d62530bde7e33ec6a2e952902
     name: osf-worker
@@ -981,7 +1001,7 @@ entries:
     version: 0.1.0
   pgbouncer:
   - appVersion: 1.8.1
-    created: 2018-01-29T18:41:59.443713709Z
+    created: 2018-01-30T17:36:41.700268539Z
     description: PgBouncer - lightweight connection pooler for PostgreSQL
     digest: 58d22c987c4b1868f5a3f14c7484d33fdcd39d6d13bf95dfc511bba9d74e86e3
     engine: gotpl
@@ -998,7 +1018,7 @@ entries:
     - pgbouncer-0.1.0.tgz
     version: 0.1.0
   postgresql:
-  - created: 2018-01-29T18:41:59.444528289Z
+  - created: 2018-01-30T17:36:41.701072835Z
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
     digest: c4b0385124a4e447f34ca5f069a98b1646328b7dbec21b220682c9202624a7d9
@@ -1022,7 +1042,7 @@ entries:
     version: 0.8.1
   preprints:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.445050518Z
+    created: 2018-01-30T17:36:41.701601209Z
     description: A Helm chart for Kubernetes
     digest: c01843071fd727ada0eec86df2e4d0c19d4d0b0f50785ea0c13a52891ed18e76
     name: preprints
@@ -1031,7 +1051,7 @@ entries:
     version: 0.1.0
   prerender:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.450275805Z
+    created: 2018-01-30T17:36:41.70665353Z
     description: Prerender service
     digest: d3554a80abe1416fef1e64433251d7463192b37609872cbe53e0c9d2afb427f0
     engine: gotpl
@@ -1050,7 +1070,7 @@ entries:
     - prerender-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.448900168Z
+    created: 2018-01-30T17:36:41.705749514Z
     description: Prerender service
     digest: fa39266cbd96c334f0cf3c1c7e4ab6e18fd54bbfa9076b9f61eee9974ab253c4
     name: prerender
@@ -1058,7 +1078,7 @@ entries:
     - prerender-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.447416398Z
+    created: 2018-01-30T17:36:41.704627795Z
     description: Prerender service
     digest: 4bcfeaac0b2b80859083b93d24ce81cbb5ccdd9b885075a1c46f005897589afe
     name: prerender
@@ -1066,7 +1086,7 @@ entries:
     - prerender-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.446652528Z
+    created: 2018-01-30T17:36:41.703280154Z
     description: A Helm chart for Kubernetes
     digest: 88c4b496aff739b2b3d0cce62f731db247f3e566c7f514240575f114cfa24fa9
     name: prerender
@@ -1074,7 +1094,7 @@ entries:
     - prerender-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.445863614Z
+    created: 2018-01-30T17:36:41.702383211Z
     description: A Helm chart for Kubernetes
     digest: 7c2f72d4002c944f573abdb370148d56f32dd822a43ebd730f533c4fdcc02662
     name: prerender
@@ -1083,7 +1103,7 @@ entries:
     version: 0.1.0
   rabbitmq:
   - appVersion: 3.6.12
-    created: 2018-01-29T18:41:59.450815494Z
+    created: 2018-01-30T17:36:41.707203093Z
     description: Open source message broker software that implements the Advanced
       Message Queuing Protocol (AMQP)
     digest: accdbbffc01219e85669db55ee2c8a7337c83e78c7a8af05ba60e685c295acb3
@@ -1105,7 +1125,7 @@ entries:
     version: 0.6.8
   redis:
   - appVersion: 4.0.6
-    created: 2018-01-29T18:41:59.451321953Z
+    created: 2018-01-30T17:36:41.707686552Z
     description: Open source, advanced key-value store. It is often referred to as
       a data structure server since keys can contain strings, hashes, lists, sets
       and sorted sets.
@@ -1128,7 +1148,7 @@ entries:
     version: 1.1.2
   registries:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.451803151Z
+    created: 2018-01-30T17:36:41.708192454Z
     description: A Helm chart for Kubernetes
     digest: 83c86a7efc912a6b9a969a8d67e47dda8efe5049d26992d0a94b24be800917ee
     name: registries
@@ -1137,7 +1157,7 @@ entries:
     version: 0.1.0
   sharejs:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.453275182Z
+    created: 2018-01-30T17:36:41.709650012Z
     description: ShareJS wiki application for the Open Science Framework
     digest: b619913e1b9a49121ab34256abc1b67c0d6c26ca7cd4110dc235222099cd1619
     engine: gotpl
@@ -1152,7 +1172,7 @@ entries:
     - sharejs-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.452458556Z
+    created: 2018-01-30T17:36:41.708865118Z
     description: A Helm chart for Kubernetes
     digest: 44dc22e3c45cb097f7cd39bcb38549884a068e82444a6bf84608d24fd5db2eed
     name: sharejs
@@ -1161,7 +1181,7 @@ entries:
     version: 0.1.0
   tls-certificates:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.453552193Z
+    created: 2018-01-30T17:36:41.709932812Z
     description: Creates a list of TLS certificates to be used by nginx-ingress
     digest: 210ad956dbd94928e873113234bceaf968837b1dca705600a8d915a671db625e
     engine: gotpl
@@ -1177,7 +1197,7 @@ entries:
     version: 0.1.0
   wb:
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.455595879Z
+    created: 2018-01-30T17:36:41.712018355Z
     description: WaterButler is a Python web application for interacting with various
       file storage services via a single RESTful API
     digest: f102b12f956da73fac8ccead07757ef8143ba9c3d645004f1cc2d634cc930345
@@ -1199,7 +1219,7 @@ entries:
     - wb-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.454472959Z
+    created: 2018-01-30T17:36:41.710824189Z
     description: A Helm chart for Kubernetes
     digest: 2cbf55abbeebdb95d615c429d18f5c829519a5fc21898168ce3301b61ee8cb82
     name: wb
@@ -1207,11 +1227,11 @@ entries:
     - wb-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: 2018-01-29T18:41:59.454009Z
+    created: 2018-01-30T17:36:41.710390765Z
     description: A Helm chart for Kubernetes
     digest: 6f0947ce4af8b49c598cce61358cf1ef57122251f80c7835de72fa98643ff6bb
     name: wb
     urls:
     - wb-0.1.0.tgz
     version: 0.1.0
-generated: 2018-01-29T18:41:59.358889905Z
+generated: 2018-01-30T17:36:41.607880032Z
