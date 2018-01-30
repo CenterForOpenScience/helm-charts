@@ -131,10 +131,8 @@ spec:
                 --key /usr/share/elasticsearch/config/server_key.pem
                 --cacert /usr/share/elasticsearch/config/ca_cert.pem
                 --cert /usr/share/elasticsearch/config/server_cert.pem
-                https://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
-                {{- else }}
-                http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
                 {{- end }}
+                http{{ if .Values.tls.enabled }}s{{ end }}://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
           initialDelaySeconds: 5
         livenessProbe:
           exec:
@@ -151,10 +149,8 @@ spec:
                 --key /usr/share/elasticsearch/config/server_key.pem
                 --cacert /usr/share/elasticsearch/config/ca_cert.pem
                 --cert /usr/share/elasticsearch/config/server_cert.pem
-                https://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
-                {{- else }}
-                http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
                 {{- end }}
+                http{{ if .Values.tls.enabled }}s{{ end }}://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
           initialDelaySeconds: 90
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
