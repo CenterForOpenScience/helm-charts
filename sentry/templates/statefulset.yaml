@@ -16,6 +16,31 @@ spec:
       annotations:
         {{- include "sentry.workloadAnnotations" . | nindent 8 }}
     spec:
+      affinity:
+        {{- if .Values.web.additionalAffinities }}
+        {{- toYaml .Values.web.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.web.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "sentry.name" . }}
+                  release: {{ .Release.Name }}
+                  role: web
+        {{- else if eq .Values.web.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "sentry.name" . }}
+                    release: {{ .Release.Name }}
+                    role: web
+        {{- end }}
       containers:
         - name: sentry
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

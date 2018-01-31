@@ -9,12 +9,37 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "sentry.fullname" . }}
+        app: {{ template "sentry.name" . }}
         release: {{ .Release.Name }}
         role: worker
       annotations:
         {{- include "sentry.workloadAnnotations" . | nindent 8 }}
     spec:
+      affinity:
+        {{- if .Values.worker.additionalAffinities }}
+        {{- toYaml .Values.worker.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.worker.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "sentry.name" . }}
+                  release: {{ .Release.Name }}
+                  role: worker
+        {{- else if eq .Values.worker.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "sentry.name" . }}
+                    release: {{ .Release.Name }}
+                    role: worker
+        {{- end }}
       containers:
         - name: worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
