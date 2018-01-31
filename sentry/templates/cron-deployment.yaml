@@ -1,0 +1,30 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "sentry.fullname" . }}-cron
+  labels:
+    {{- include "sentry.labels.standard" . | nindent 4 }}
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "sentry.fullname" . }}
+        release: {{ .Release.Name }}
+        role: cron
+      annotations:
+        {{- include "sentry.workloadAnnotations" . | nindent 8 }}
+    spec:
+      containers:
+        - name: cron
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - run
+            - cron
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+          env:
+            {{- include "sentry.environment" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.cron.resources | nindent 12 }}
