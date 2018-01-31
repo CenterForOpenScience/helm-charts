@@ -1,0 +1,170 @@
+# Default values for sentry.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image:
+  repository: sentry
+  tag: "8.22"
+  pullPolicy: IfNotPresent
+
+web:
+  replicaCount: 1
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 500Mi
+    # requests:
+    #   cpu: 300m
+    #   memory: 300Mi
+
+cron:
+  resources: {}
+    # limits:
+    #   cpu: 200m
+    #   memory: 200Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 100Mi
+
+worker:
+  replicaCount: 1
+  resources: {}
+    # limits:
+    #   cpu: 300m
+    #   memory: 500Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 100Mi
+
+nginx:
+  image:
+    repository: quay.io/centerforopenscience/nginx
+    tag: master
+    pullPolicy: Always
+  workerCount: 1
+  modules: []
+  throttle: true
+  proxySourceRanges: []
+    # - 130.211.0.0/22
+    # - 35.191.0.0/16
+  realIpHeader: X-Real-IP
+  realIpRecursive: "off"
+  vts:
+    enabled: false
+    internalPort: 18080
+    statusZoneSize: 10m
+    defaultFilterKey: "$geoip_country_code country::*"
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+configEnvs: {}
+
+secretEnvs:
+  SENTRY_SECRET_KEY: ''
+
+  ## PostgreSQL (set only if postgresql.enabled = false)
+  # SENTRY_POSTGRES_HOST: postgresql.default
+  # SENTRY_POSTGRES_PORT: 5432
+  # SENTRY_DB_USER: sentry
+  # SENTRY_DB_NAME: sentry
+  # SENTRY_DB_PASSWORD: password # change this
+
+  ## Redis (set only if redis.enabled = false)
+  # SENTRY_REDIS_HOST: redis.default
+  # SENTRY_REDIS_PORT: 6379
+  # SENTRY_REDIS_PASSWORD: password
+
+  # Email
+  # BYO Email server
+  # TODO: Add exim4 template
+  # https://docs.sentry.io/server/installation/docker/#outbound-email
+  SENTRY_EMAIL_HOST: smtp
+  SENTRY_EMAIL_PORT: 25
+  SENTRY_EMAIL_USER: ''
+  SENTRY_EMAIL_PASSWORD: ''
+  SENTRY_EMAIL_USE_TLS: false
+  SENTRY_SERVER_EMAIL: sentry@sentry.local
+
+  ## If using mailgun
+  # SENTRY_MAILGUN_API_KEY: 
+
+configFiles: {}
+
+secretFiles: {}
+
+# Initial admin user to create
+adminEmail: admin@sentry.local
+
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+persistence:
+  enabled: true
+  ## database data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+
+  # Where to store sentry files
+  # https://docs.sentry.io/server/filestore/
+  mountPath: /var/lib/sentry/files
+
+# Name of the service and what port to expose on the pod
+# Don't change these unless you know what you're doing
+service:
+  name: sentry
+  type: ClusterIP
+  externalPort: 9000
+  internalPort: 80
+
+## Configure ingress resource that allow you to access the
+## Sentry instalation. Set up the URL
+## ref: http://kubernetes.io/docs/user-guide/ingress/
+##
+ingress:
+  enabled: false
+  hosts:
+    - sentry.local
+
+  ## Ingress annotations
+  ##
+  annotations: {}
+  #   kubernetes.io/ingress.class: nginx
+  #   kubernetes.io/tls-acme: 'true'
+
+  ## Ingress TLS configuration
+  ## Secrets must be manually created in the namespace
+  ##
+  tls: []
+  #   - secretName: sentry.local-tls
+  #     hosts:
+  #       - sentry.local
+
+# TODO: add support for plugins https://docs.sentry.io/server/plugins/
+
+# PostgreSQL configuration (set secretEnvs above if disabled)
+postgresql:
+  enabled: true
+  secrets:
+    POSTGRES_DB: sentry
+    POSTGRES_USER: sentry
+    POSTGRES_PASSWORD: password # change this
+
+# Redis configuration (set secretEnvs above if disabled)
+redis:
+  enabled: true
+  secretEnvs:
+    REDIS_PASSWORD: '' # change this
+  persistence:
+    enabled: true

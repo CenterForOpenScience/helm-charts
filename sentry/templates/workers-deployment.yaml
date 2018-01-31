@@ -1,0 +1,28 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "sentry.fullname" . }}-worker
+  labels:
+    {{- include "sentry.labels.standard" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "sentry.fullname" . }}
+        release: {{ .Release.Name }}
+        role: worker
+      annotations:
+        {{- include "sentry.workloadAnnotations" . | nindent 8 }}
+    spec:
+      containers:
+        - name: worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: 
+            - run
+            - worker
+          env:
+            {{- include "sentry.environment" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}

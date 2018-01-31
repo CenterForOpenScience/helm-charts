@@ -1,0 +1,89 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ template "sentry.fullname" . }}-web
+  labels:
+    {{- include "sentry.labels.standard" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  serviceName: {{ template "sentry.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "sentry.name" . }}
+        release: {{ .Release.Name }}
+        role: web
+      annotations:
+        {{- include "sentry.workloadAnnotations" . | nindent 8 }}
+    spec:
+      containers:
+        - name: sentry
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: web
+              containerPort: {{ .Values.service.externalPort }}
+          env:
+            {{- include "sentry.environment" . | nindent 12 }}
+          volumeMounts:
+            - mountPath: {{ .Values.persistence.mountPath }}
+              name: data
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /_health/
+              port: {{ .Values.service.externalPort }}
+            initialDelaySeconds: 50
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /_health/
+              port: {{ .Values.service.externalPort }}
+            initialDelaySeconds: 50
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.internalPort }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+          resources:
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
+      {{- if not .Values.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- range .Values.persistence.accessModes }}
+          - {{ . | quote }}
+          {{- end }}
+        {{- if hasKey .Values.persistence "storageClass" }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+  {{- end }}
