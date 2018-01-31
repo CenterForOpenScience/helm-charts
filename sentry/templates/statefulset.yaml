@@ -76,6 +76,12 @@ spec:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
           imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /etc/nginx/nginx.conf
+            - -g
+            - daemon off;
           ports:
             - name: http
               containerPort: {{ .Values.service.internalPort }}
@@ -89,13 +95,24 @@ spec:
               path: /healthz
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              name: config
+              subPath: nginx.conf
+              readOnly: true
           resources:
             {{- toYaml .Values.nginx.resources | nindent 12 }}
-      {{- if not .Values.persistence.enabled }}
       volumes:
+        {{- if not .Values.persistence.enabled }}
         - name: data
           emptyDir: {}
-      {{- end }}
+        {{- end }}
+        - name: config
+          configMap:
+            name: {{ template "sentry.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "sentry.fullname" . }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:

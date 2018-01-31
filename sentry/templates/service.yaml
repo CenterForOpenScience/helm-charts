@@ -22,7 +22,7 @@ spec:
   {{- end }}
   ports:
     - port: {{ .Values.service.externalPort }}
-      targetPort: {{ .Values.service.internalPort }}
+      targetPort: http
       protocol: TCP
       name: {{ .Values.service.name }}
   selector:
