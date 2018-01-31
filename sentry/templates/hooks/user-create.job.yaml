@@ -21,14 +21,15 @@ spec:
       containers:
         - name: user-create-job
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: 
             - sentry
             - createuser
             - --no-input
             - --email
-            - {{ .Values.adminEmail | quote }}
+            - $(SENTRY_ADMIN_EMAIL)
             - --superuser
             - --password
-            - $(SENTRY_USER_PASSWORD)
+            - $(SENTRY_ADMIN_PASSWORD)
           env:
             {{- include "sentry.environment" . | nindent 12 }}

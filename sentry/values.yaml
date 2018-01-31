@@ -69,7 +69,12 @@ nginx:
 configEnvs: {}
 
 secretEnvs:
+  # docker run sentry config generate-secret-key
   SENTRY_SECRET_KEY: ''
+
+  # Initial admin user to create
+  SENTRY_ADMIN_EMAIL: admin@sentry.local
+  SENTRY_ADMIN_PASSWORD: password # change this
 
   ## PostgreSQL (set only if postgresql.enabled = false)
   # SENTRY_POSTGRES_HOST: postgresql.default
@@ -100,9 +105,6 @@ secretEnvs:
 configFiles: {}
 
 secretFiles: {}
-
-# Initial admin user to create
-adminEmail: admin@sentry.local
 
 ## Enable persistence using Persistent Volume Claims
 ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
