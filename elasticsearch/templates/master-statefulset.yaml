@@ -73,13 +73,13 @@ spec:
           - /bin/sh
           - -c
           - |-
-            {{- if hasPrefix "5." .Values.appVersion }}
-            {{ if .Values.plugins.remove }}bin/elasticsearch-plugin remove {{ join " && bin/elasticsearch-plugin remove " .Values.plugins.remove }}{{ end }}
-            {{ if .Values.plugins.install }}bin/elasticsearch-plugin install -b {{ join " && bin/elasticsearch-plugin install -b " .Values.plugins.install }}{{ end }}
-            {{- end }}
-            {{- if hasPrefix "2." .Values.appVersion }}
+            {{- if semverCompare "^2.x" .Values.appVersion }}
             {{ if .Values.plugins.remove }}bin/plugin remove {{ join " && bin/plugin remove " .Values.plugins.remove }}{{ end }}
             {{ if .Values.plugins.install }}bin/plugin install {{ join " && bin/plugin install " .Values.plugins.install }}{{ end }}
+            {{- end }}
+            {{- if semverCompare ">= 5.x" .Values.appVersion }}
+            {{ if .Values.plugins.remove }}bin/elasticsearch-plugin remove {{ join " && bin/elasticsearch-plugin remove " .Values.plugins.remove }}{{ end }}
+            {{ if .Values.plugins.install }}bin/elasticsearch-plugin install -b {{ join " && bin/elasticsearch-plugin install -b " .Values.plugins.install }}{{ end }}
             {{- end }}
             cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
         volumeMounts:
@@ -99,7 +99,7 @@ spec:
               fieldPath: metadata.namespace
         - name: NODE_DATA
           value: "false"
-        {{- if hasPrefix "5." .Values.appVersion }}
+        {{- if semverCompare ">= 5.x" .Values.appVersion }}
         - name: NODE_INGEST
           value: "false"
         {{- end }}
@@ -149,13 +149,13 @@ spec:
           name: config
           subPath: elasticsearch.yml
           readOnly: true
-        {{- if hasPrefix "2." .Values.appVersion }}
+        {{- if semverCompare "^2.x" .Values.appVersion }}
         - mountPath: /usr/share/elasticsearch/config/logging.yml
           name: config
           subPath: logging.yml
           readOnly: true
         {{- end }}
-        {{- if hasPrefix "5." .Values.appVersion }}
+        {{- if semverCompare ">= 5.x" .Values.appVersion }}
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
           name: config
           subPath: log4j2.properties

@@ -13,7 +13,7 @@ data:
     
     node.data: ${NODE_DATA:true}
     node.master: ${NODE_MASTER:true}
-    {{- if hasPrefix "5." .Values.appVersion }}
+    {{- if semverCompare ">= 5.x" .Values.appVersion }}
     node.ingest: ${NODE_INGEST:true}
     {{- end }}
     node.name: ${HOSTNAME}
@@ -25,7 +25,7 @@ data:
         service: ${SERVICE}
         namespace: ${KUBERNETES_NAMESPACE}
 
-    {{- if hasPrefix "2." .Values.appVersion }}
+    {{- if semverCompare "^2.x" .Values.appVersion }}
     # see https://github.com/kubernetes/kubernetes/issues/3595
     bootstrap.mlockall: ${BOOTSTRAP_MLOCKALL:false}
 
@@ -34,7 +34,7 @@ data:
       zen:
         minimum_master_nodes: ${MINIMUM_MASTER_NODES:2}
     {{- end }}
-    {{- if hasPrefix "5." .Values.appVersion }}
+    {{- if semverCompare ">= 5.x" .Values.appVersion }}
     # see https://github.com/kubernetes/kubernetes/issues/3595
     bootstrap.memory_lock: ${BOOTSTRAP_MEMORY_LOCK:false}
 
@@ -72,7 +72,7 @@ data:
     {{ $key }}: {{ $value }}
     {{- end }}
     {{- end }}
-  {{- if hasPrefix "2." .Values.appVersion }}
+  {{- if semverCompare "^2.x" .Values.appVersion }}
   logging.yml: |-
     # you can override this using by setting a system property, for example -Des.logger.level=DEBUG
     es.logger.level: INFO
@@ -90,7 +90,7 @@ data:
           type: consolePattern
           conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
   {{- end }}
-  {{- if hasPrefix "5." .Values.appVersion }}
+  {{- if semverCompare ">= 5.x" .Values.appVersion }}
   log4j2.properties: |-
     status = error
 
@@ -102,8 +102,10 @@ data:
     rootLogger.level = info
     rootLogger.appenderRef.console.ref = console
 
+    {{- if .Values.tls.enabled }}
     logger.searchguard.name = com.floragunn
     logger.searchguard.level = info
+    {{- end }}
   {{- end }}
   pre-stop-hook.sh: |-
     #!/bin/bash

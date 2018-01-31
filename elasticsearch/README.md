@@ -53,59 +53,59 @@ $ kubectl delete pvc -l release=my-release,component=data
 
 The following tables lists the configurable parameters of the elasticsearch chart and their default values.
 
-|                 Parameter                 |                             Description                             |               Default                |
-| ----------------------------------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| `appVersion`                              | Application Version (Elasticsearch)                                 | `5.5`                                |
-| `image.repository`                        | Container image name                                                | `centerforopenscience/elasticsearch` |
-| `image.tag`                               | Container image tag                                                 | `5.5-tls`                            |
-| `image.pullPolicy`                        | Container pull policy                                               | `Always`                             |
-| `cluster.name`                            | Cluster name                                                        | `elasticsearch`                      |
-| `cluster.config`                          | Additional cluster config appended                                  | `{}`                                 |
-| `cluster.env`                             | Cluster environment variables                                       | `{}`                                 |
-| `client.name`                             | Client component name                                               | `client`                             |
-| `client.replicas`                         | Client node replicas (deployment)                                   | `2`                                  |
-| `client.resources`                        | Client node resources requests & limits                             | `{} - cpu limit must be an integer`  |
-| `client.heapSize`                         | Client node heap size                                               | `512m`                               |
-| `client.podAnnotations`                   | Client deployment annotations                                       | `{}`                                 |
-| `client.service.annotations`              | Client service annotations                                          | `{}`                                 |
-| `client.service.type`                     | Client service type                                                 | `ClusterIP`                          |
-| `client.service.loadBalancerIP`           | Client service load balancer ip                                     | `nil`                                |
-| `client.service.loadBalancerSourceRanges` | Client service load balnacer source ranges                          | `nil`                                |
-| `client.service.externalTrafficPolicy`    | Client service external traffic policy                              | `nil`                                |
-| `client.service.externalIPs`              | Client service external ips                                         | `[]`                                 |
-| `master.exposeHttp`                       | Expose http port 9200 on master Pods for monitoring, etc            | `false`                              |
-| `master.name`                             | Master component name                                               | `master`                             |
-| `master.replicas`                         | Master node replicas (statefulset)                                  | `2`                                  |
-| `master.resources`                        | Master node resources requests & limits                             | `{} - cpu limit must be an integer`  |
-| `master.podAnnotations`                   | Master Deployment annotations                                       | `{}`                                 |
-| `master.heapSize`                         | Master node heap size                                               | `512m`                               |
-| `master.name`                             | Master component name                                               | `master`                             |
-| `master.persistence.enabled`              | Master persistent enabled/disabled                                  | `true`                               |
-| `master.persistence.name`                 | Master statefulset PVC template name                                | `data`                               |
-| `master.persistence.size`                 | Master persistent volume size                                       | `4Gi`                                |
-| `master.persistence.storageClass`         | Master persistent volume Class                                      | `nil`                                |
-| `master.persistence.accessMode`           | Master persistent Access Mode                                       | `ReadWriteOnce`                      |
-| `data.exposeHttp`                         | Expose http port 9200 on data Pods for monitoring, etc              | `false`                              |
-| `data.replicas`                           | Data node replicas (statefulset)                                    | `2`                                  |
-| `data.resources`                          | Data node resources requests & limits                               | `{} - cpu limit must be an integer`  |
-| `data.heapSize`                           | Data node heap size                                                 | `1536m`                              |
-| `data.persistence.enabled`                | Data persistent enabled/disabled                                    | `true`                               |
-| `data.persistence.name`                   | Data statefulset PVC template name                                  | `data`                               |
-| `data.persistence.size`                   | Data persistent volume size                                         | `30Gi`                               |
-| `data.persistence.storageClass`           | Data persistent volume Class                                        | `nil`                                |
-| `data.persistence.accessMode`             | Data persistent Access Mode                                         | `ReadWriteOnce`                      |
-| `data.podAnnotations`                     | Data StatefulSet annotations                                        | `{}`                                 |
-| `data.terminationGracePeriodSeconds`      | Data termination grace period (seconds)                             | `3600`                               |
-| `data.antiAffinity`                       | Data anti-affinity policy                                           | `soft`                               |
-| `rbac.create`                             | Create service account and ClusterRoleBinding for Kubernetes plugin | `false`                              |
-| `plugins.enabled`                         | Plugins management                                                  | `false`                              |
-| `plugins.install`                         | Plugins to install on pod initialization                            | `[]`                                 |
-| `plugins.remove`                          | Plugins to remove on pod initialization                             | `[]`                                 |
-| `xpack.enabled`                           | X-Pack enable/disable writing configuration file                    | `false`                              |
-| `xpack.config`                            | X-Pack configuration options                                        | `{}`                                 |
-| `tls.enabled`                             | SearchGuard SSL TLS enable/disable writing configuration file       | `false`                              |
-| `tls.config`                              | SearchGuard SSL TLS configuration                                   | `[]`                                 |
-| `tls.files`                               | SearchGuard SSL TLS certificates                                    | `{}`                                 |
+|                 Parameter                 |                             Description                             |                       Default                       |
+| ----------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------- |
+| `appVersion`                              | Application Version (Elasticsearch)                                 | `6.1`                                               |
+| `image.repository`                        | Container image name                                                | `docker.elastic.co/elasticsearch/elasticsearch-oss` |
+| `image.tag`                               | Container image tag                                                 | `6.1.2`                                             |
+| `image.pullPolicy`                        | Container pull policy                                               | `Always`                                            |
+| `cluster.name`                            | Cluster name                                                        | `elasticsearch`                                     |
+| `cluster.config`                          | Additional cluster config appended                                  | `{}`                                                |
+| `cluster.env`                             | Cluster environment variables                                       | `{}`                                                |
+| `client.name`                             | Client component name                                               | `client`                                            |
+| `client.replicas`                         | Client node replicas (deployment)                                   | `2`                                                 |
+| `client.resources`                        | Client node resources requests & limits                             | `{} - cpu limit must be an integer`                 |
+| `client.heapSize`                         | Client node heap size                                               | `512m`                                              |
+| `client.podAnnotations`                   | Client deployment annotations                                       | `{}`                                                |
+| `client.service.annotations`              | Client service annotations                                          | `{}`                                                |
+| `client.service.type`                     | Client service type                                                 | `ClusterIP`                                         |
+| `client.service.loadBalancerIP`           | Client service load balancer ip                                     | `nil`                                               |
+| `client.service.loadBalancerSourceRanges` | Client service load balnacer source ranges                          | `nil`                                               |
+| `client.service.externalTrafficPolicy`    | Client service external traffic policy                              | `nil`                                               |
+| `client.service.externalIPs`              | Client service external ips                                         | `[]`                                                |
+| `master.exposeHttp`                       | Expose http port 9200 on master Pods for monitoring, etc            | `false`                                             |
+| `master.name`                             | Master component name                                               | `master`                                            |
+| `master.replicas`                         | Master node replicas (statefulset)                                  | `2`                                                 |
+| `master.resources`                        | Master node resources requests & limits                             | `{} - cpu limit must be an integer`                 |
+| `master.podAnnotations`                   | Master Deployment annotations                                       | `{}`                                                |
+| `master.heapSize`                         | Master node heap size                                               | `512m`                                              |
+| `master.name`                             | Master component name                                               | `master`                                            |
+| `master.persistence.enabled`              | Master persistent enabled/disabled                                  | `true`                                              |
+| `master.persistence.name`                 | Master statefulset PVC template name                                | `data`                                              |
+| `master.persistence.size`                 | Master persistent volume size                                       | `4Gi`                                               |
+| `master.persistence.storageClass`         | Master persistent volume Class                                      | `nil`                                               |
+| `master.persistence.accessMode`           | Master persistent Access Mode                                       | `ReadWriteOnce`                                     |
+| `data.exposeHttp`                         | Expose http port 9200 on data Pods for monitoring, etc              | `false`                                             |
+| `data.replicas`                           | Data node replicas (statefulset)                                    | `2`                                                 |
+| `data.resources`                          | Data node resources requests & limits                               | `{} - cpu limit must be an integer`                 |
+| `data.heapSize`                           | Data node heap size                                                 | `1536m`                                             |
+| `data.persistence.enabled`                | Data persistent enabled/disabled                                    | `true`                                              |
+| `data.persistence.name`                   | Data statefulset PVC template name                                  | `data`                                              |
+| `data.persistence.size`                   | Data persistent volume size                                         | `30Gi`                                              |
+| `data.persistence.storageClass`           | Data persistent volume Class                                        | `nil`                                               |
+| `data.persistence.accessMode`             | Data persistent Access Mode                                         | `ReadWriteOnce`                                     |
+| `data.podAnnotations`                     | Data StatefulSet annotations                                        | `{}`                                                |
+| `data.terminationGracePeriodSeconds`      | Data termination grace period (seconds)                             | `3600`                                              |
+| `data.antiAffinity`                       | Data anti-affinity policy                                           | `soft`                                              |
+| `rbac.create`                             | Create service account and ClusterRoleBinding for Kubernetes plugin | `false`                                             |
+| `plugins.enabled`                         | Plugins management                                                  | `false`                                             |
+| `plugins.install`                         | Plugins to install on pod initialization                            | `[]`                                                |
+| `plugins.remove`                          | Plugins to remove on pod initialization                             | `[]`                                                |
+| `xpack.enabled`                           | X-Pack enable/disable writing configuration file                    | `false`                                             |
+| `xpack.config`                            | X-Pack configuration options                                        | `{}`                                                |
+| `tls.enabled`                             | SearchGuard SSL TLS enable/disable writing configuration file       | `false`                                             |
+| `tls.config`                              | SearchGuard SSL TLS configuration                                   | `[]`                                                |
+| `tls.files`                               | SearchGuard SSL TLS certificates                                    | `{}`                                                |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 

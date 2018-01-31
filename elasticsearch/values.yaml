@@ -1,11 +1,11 @@
 # Default values for elasticsearch.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-appVersion: "5.5"
+appVersion: "6.1"
 
 image:
-  repository: docker.elastic.co/elasticsearch/elasticsearch
-  tag: "5.5.2"
+  repository: docker.elastic.co/elasticsearch/elasticsearch-oss
+  tag: "6.1.2"
   pullPolicy: Always
 
 cluster:
@@ -20,12 +20,11 @@ cluster:
     MINIMUM_MASTER_NODES: "2"
 
 plugins:
-  enabled: true
-  install:
-    - io.fabric8:elasticsearch-cloud-kubernetes:5.5.2
-    # - com.floragunn:search-guard-ssl:5.5.2-23
-  remove:
-    - x-pack
+  enabled: false
+  # install:
+  #   - com.floragunn:search-guard-ssl:6.1.2-25.0
+  # remove:
+  #   # - x-pack
 
 xpack:
   enabled: false
