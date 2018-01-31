@@ -89,14 +89,8 @@ spec:
       containers:
       - name: elasticsearch
         env:
-        - name: SERVICE
-          value: {{ template "elasticsearch.master.fullname" . }}
-        - name: KUBERNETES_MASTER
-          value: kubernetes.default.svc.cluster.local
-        - name: KUBERNETES_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
+        - name: DISCOVERY_SERVICE
+          value: {{ template "elasticsearch.master.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.cluster.kubernetesDomain }}
         - name: NODE_DATA
           value: "false"
         {{- if semverCompare ">= 5.x" .Values.appVersion }}

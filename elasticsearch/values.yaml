@@ -10,6 +10,7 @@ image:
 
 cluster:
   name: elasticsearch
+  kubernetesDomain: cluster.local
   # config:
   #   searchguard.ssl.http.enabled: ${SEARCHGUARD_SSL_HTTP_ENABLED:false}
   #   searchguard.ssl.transport.enabled: ${SEARCHGUARD_SSL_TRANSPORT_ENABLED:false}
@@ -24,7 +25,7 @@ plugins:
   # install:
   #   - com.floragunn:search-guard-ssl:6.1.2-25.0
   # remove:
-  #   # - x-pack
+  #   - x-pack
 
 xpack:
   enabled: false

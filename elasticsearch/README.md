@@ -1,6 +1,6 @@
 # Elasticsearch Helm Chart
 
-This chart is based on the [centerforopenscience/elasticsearch](https://hub.docker.com/r/centerforopenscience/elasticsearch/) image which comes with Fabric8's great [kubernetes discovery plugin](https://github.com/fabric8io/elasticsearch-cloud-kubernetes) for Elasticsearch.
+This chart uses a official Docker image of Elasticsearch (docker.elastic.co/elasticsearch/elasticsearch) and uses a service pointing to the master's transport port for service discovery.
 
 ## Prerequisites Details
 
@@ -61,6 +61,7 @@ The following tables lists the configurable parameters of the elasticsearch char
 | `image.pullPolicy`                        | Container pull policy                                               | `Always`                                            |
 | `cluster.name`                            | Cluster name                                                        | `elasticsearch`                                     |
 | `cluster.config`                          | Additional cluster config appended                                  | `{}`                                                |
+| `cluster.kubernetesDomain`                | Kubernetes cluster domain name                                      | `cluster.local`                                     |
 | `cluster.env`                             | Cluster environment variables                                       | `{}`                                                |
 | `client.name`                             | Client component name                                               | `client`                                            |
 | `client.replicas`                         | Client node replicas (deployment)                                   | `2`                                                 |
