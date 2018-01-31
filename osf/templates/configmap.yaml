@@ -395,6 +395,11 @@ web-nginx-prerender.conf: |-
       set $prerender 1;
   }
 
+  # Google translate
+  if ($http_referer ~* "translate\.googleusercontent\.com") {
+      set $prerender 1;
+  }
+
   if ($args ~* "_escaped_fragment_") {
       set $prerender 1;
   }
