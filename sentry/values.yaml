@@ -8,6 +8,8 @@ image:
 
 web:
   replicaCount: 1
+  antiAffinity: soft
+  additionalAffinities: {}
   resources: {}
     # limits:
     #   cpu: 500m
@@ -17,6 +19,7 @@ web:
     #   memory: 300Mi
 
 cron:
+  additionalAffinities: {}
   resources: {}
     # limits:
     #   cpu: 200m
@@ -27,6 +30,8 @@ cron:
 
 worker:
   replicaCount: 1
+  antiAffinity: soft
+  additionalAffinities: {}
   resources: {}
     # limits:
     #   cpu: 300m

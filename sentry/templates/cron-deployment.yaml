@@ -5,16 +5,22 @@ metadata:
   labels:
     {{- include "sentry.labels.standard" . | nindent 4 }}
 spec:
+  # Only one replica of the cron service is recommended
+  # https://docs.sentry.io/server/queue/#starting-the-cron-process
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ template "sentry.fullname" . }}
+        app: {{ template "sentry.name" . }}
         release: {{ .Release.Name }}
         role: cron
       annotations:
         {{- include "sentry.workloadAnnotations" . | nindent 8 }}
     spec:
+      affinity:
+        {{- if .Values.cron.additionalAffinities }}
+        {{- toYaml .Values.cron.additionalAffinities | nindent 8 }}
+        {{- end }}
       containers:
         - name: cron
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -22,8 +28,6 @@ spec:
           args:
             - run
             - cron
-          ports:
-            - containerPort: {{ .Values.service.internalPort }}
           env:
             {{- include "sentry.environment" . | nindent 12 }}
           resources:
