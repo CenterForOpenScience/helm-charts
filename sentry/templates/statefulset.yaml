@@ -6,6 +6,10 @@ metadata:
     {{- include "sentry.labels.standard" . | nindent 4 }}
 spec:
   replicas: {{ .Values.web.replicaCount }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
   serviceName: {{ template "sentry.fullname" . }}
   template:
     metadata:
