@@ -1,6 +1,6 @@
 dependencies:
   - name: postgresql
-    version: 0.8.1
+    version: 0.9.0
     repository: file://../postgresql
     condition: postgresql.enabled, global.postgresql.enabled
   - name: redis

@@ -166,6 +166,8 @@ ingress:
 # PostgreSQL configuration (set secretEnvs above if disabled)
 postgresql:
   enabled: true
+  standby:
+    enabled: false
   secrets:
     POSTGRES_DB: sentry
     POSTGRES_USER: sentry
