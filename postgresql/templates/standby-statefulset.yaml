@@ -1,3 +1,4 @@
+{{- if .Values.standby.enabled }}
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
@@ -103,3 +104,4 @@ spec:
           requests:
             storage: {{ .Values.standby.persistence.size | quote }}
   {{- end }}
+{{- end }}

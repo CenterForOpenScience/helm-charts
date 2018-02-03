@@ -159,7 +159,9 @@ if [ "$1" = 'postgres' ]; then
 		sleep 1
 	done
 
-	supervisorctl start repmgrd
+	if [ ${STANDBY_ENABLED} ]; then
+		supervisorctl start repmgrd
+	fi
 
 	wait ${pid}
 	exit 0
@@ -171,14 +173,16 @@ fi
 
 if [ "$1" = 'cleanup' ]; then
 	if [ ${STATEFUL_TYPE} == "master" ]; then
-		while true
-		do
-			sleep 3600
+		if [ ${STANDBY_ENABLED} ]; then
+			while true
+			do
+				sleep 3600
 
-			if pg_isready --host 127.0.0.1 --quiet; then
-				gosu postgres repmgr --keep-history=1 cluster cleanup || true
-			fi
-		done
+				if pg_isready --host 127.0.0.1 --quiet; then
+					gosu postgres repmgr --keep-history=1 cluster cleanup || true
+				fi
+			done
+		fi
 	fi
 
 	exit 0

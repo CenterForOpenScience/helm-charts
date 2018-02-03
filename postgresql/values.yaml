@@ -23,6 +23,7 @@ master:
   terminationGracePeriodSeconds: 3600
 
 standby:
+  enabled: true
   name: standby
   replicaCount: 1
   resources: {}

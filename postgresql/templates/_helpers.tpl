@@ -57,8 +57,8 @@ Return the appropriate apiVersion for networkpolicy.
   value: /var/lib/postgresql/data/pgdata
 - name: MASTER_SERVICE
   value: {{ template "postgresql.master.fullname" . }}
-# - name: STANDBY_SERVICE
-#   value: {{ template "postgresql.standby.fullname" . }}
+- name: STANDBY_ENABLED
+  value: "{{ if .Values.standby.enabled }}1{{ end }}"
 - name: POD_NAME
   valueFrom:
     fieldRef:
