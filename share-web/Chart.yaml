@@ -1,0 +1,19 @@
+apiVersion: v1
+description: SHARE Ember application
+name: share-web
+version: 0.4.0
+keywords:
+  - open
+  - science
+  - preprints
+sources:
+  - https://github.com/CenterForOpenScience/ember-share
+maintainers:
+  - name: Michael Haselton
+    email: michael@cos.io
+    url: https://github.com/icereval
+  - name: Barrett Harber
+    email: barrett@cos.io
+    url: https://github.com/binoculars
+engine: gotpl
+tillerVersion: '>=2.7.0'

@@ -1,0 +1,22 @@
+enabled: true
+
+ember:
+  nameOverride: share-web
+  replicaCount: 1
+ 
+  image:
+    repository: quay.io/centerforopenscience/share-web
+    tag: develop
+    pullPolicy: Always
+
+  resources: {}
+
+  nginx:
+    image:
+      repository: nginx
+      tag: alpine
+      pullPolicy: Always
+
+    resources: {}
+
+  configFiles: {}
