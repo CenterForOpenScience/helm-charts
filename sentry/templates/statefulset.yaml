@@ -1,7 +1,7 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  name: {{ template "sentry.fullname" . }}-web
+  name: {{ template "sentry.fullname" . }}
   labels:
     {{- include "sentry.labels.standard" . | nindent 4 }}
 spec:
@@ -59,18 +59,28 @@ spec:
               name: data
           livenessProbe:
             failureThreshold: 5
+            {{- if .Values.nginx.uwsgi }}
+            tcpSocket:
+              port: {{ .Values.service.externalPort }}
+            {{- else }}
             httpGet:
               path: /_health/
               port: {{ .Values.service.externalPort }}
+            {{- end }}
             initialDelaySeconds: 50
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 2
           readinessProbe:
             failureThreshold: 10
+            {{- if .Values.nginx.uwsgi }}
+            tcpSocket:
+              port: {{ .Values.service.externalPort }}
+            {{- else }}
             httpGet:
               path: /_health/
               port: {{ .Values.service.externalPort }}
+            {{- end }}
             initialDelaySeconds: 50
             periodSeconds: 10
             successThreshold: 1
@@ -103,6 +113,10 @@ spec:
             - mountPath: /etc/nginx/nginx.conf
               name: config
               subPath: nginx.conf
+              readOnly: true
+            - mountPath: /etc/nginx/client-nginx.conf
+              name: config
+              subPath: client-nginx.conf
               readOnly: true
           resources:
             {{- toYaml .Values.nginx.resources | nindent 12 }}

@@ -7,6 +7,39 @@ metadata:
 data:
 {{- define "sentry.inlineconfigs" }}
 # Adapted from https://docs.sentry.io/server/nginx/
+client-nginx.conf: |-
+  # https://docs.sentry.io/server/throttling/
+  location ~* /api/(?P<projectid>\d+/)?store/ {
+      # keepalive + raven.js is a disaster
+      keepalive_timeout 0;
+
+      # use very aggressive timeouts
+      proxy_read_timeout 5s;
+      proxy_send_timeout 5s;
+      send_timeout 5s;
+      resolver_timeout 5s;
+      client_body_timeout 5s;
+
+      # buffer larger messages
+      client_max_body_size 5m;
+      client_body_buffer_size 100k;
+
+      limit_except POST {
+          deny all;
+      }
+
+      {{- if .Values.nginx.throttle }}
+      limit_req  zone=one  burst=3   nodelay;
+      limit_req  zone=two  burst=10  nodelay;
+      {{- end }}
+
+      {{- if .Values.nginx.uwsgi }}
+      include uwsgi_params;
+      uwsgi_pass uwsgi://127.0.0.1:{{ .Values.service.externalPort }};
+      {{- else }}
+      proxy_pass http://127.0.0.1:{{ .Values.service.externalPort }};
+      {{- end }}
+  }
 nginx.conf: |-
   user  nginx;
   worker_processes {{ .Values.nginx.workerCount }};
@@ -81,46 +114,68 @@ nginx.conf: |-
       {{- end }}
 
       server {
+          {{- if and .Values.ingress.enabled .Values.client.enabled .Values.client.ingress.enabled }}
+          # Client-only ingress enabeld, separate ingress for the web UI and client error reporting
           listen {{ .Values.service.internalPort }};
-
-          proxy_set_header   Host                 $http_host;
-          proxy_set_header   X-Forwarded-Proto    $scheme;
-          proxy_set_header   X-Forwarded-For      $remote_addr;
-          proxy_redirect     off;
-
-          # keepalive + raven.js is a disaster
-          keepalive_timeout 0;
-
-          # use very aggressive timeouts
-          proxy_read_timeout 5s;
-          proxy_send_timeout 5s;
-          send_timeout 5s;
-          resolver_timeout 5s;
-          client_body_timeout 5s;
-
-          # buffer larger messages
-          client_max_body_size 5m;
-          client_body_buffer_size 100k;
+          server_name {{ .Values.ingress.hosts | join " " }};
+          {{- else }}
+          # Client-only ingress disabled, everything goes to this server
+          listen {{ .Values.service.internalPort }} default_server;
+          server_name _;
 
           location = /healthz {
               access_log off;
               return 200;
           }
 
-          location / {
-              proxy_pass http://127.0.0.1:{{ .Values.service.externalPort }};
-              add_header Strict-Transport-Security "max-age=31536000";
-          }
-
-          {{- if .Values.nginx.throttle }}
-          # https://docs.sentry.io/server/throttling/
-          location ~* /api/(?P<projectid>\d+/)?store/ {
-              proxy_pass http://127.0.0.1:{{ .Values.service.externalPort }};
-              limit_req  zone=one  burst=3  nodelay;
-              limit_req  zone=two  burst=10  nodelay;
-          }
+          include /etc/nginx/client-nginx.conf;
           {{- end }}
+
+          proxy_set_header   Host                 $http_host;
+          proxy_set_header   X-Forwarded-Proto    $scheme;
+          proxy_set_header   X-Forwarded-For      $remote_addr;
+          proxy_redirect     off;
+
+          location / {
+              add_header Strict-Transport-Security "max-age=31536000";
+
+              {{- if .Values.nginx.uwsgi }}
+              include uwsgi_params;
+              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.service.externalPort }};
+              {{- else }}
+              proxy_pass http://127.0.0.1:{{ .Values.service.externalPort }};
+              {{- end }}
+          }
       }
+
+      {{- if and .Values.ingress.enabled .Values.client.enabled .Values.client.ingress.enabled }}
+      server {
+          listen {{ .Values.service.internalPort }};
+          server_name {{ .Values.client.ingress.hosts | join " " }};
+
+          include /etc/nginx/client-nginx.conf;
+
+          proxy_set_header   Host                 $http_host;
+          proxy_set_header   X-Forwarded-Proto    $scheme;
+          proxy_set_header   X-Forwarded-For      $remote_addr;
+          proxy_redirect     off;
+
+          # Redirect all non-client routes to the web UI
+          location / {
+              return 302 https://{{ index .Values.ingress.hosts 0 }}$request_uri;
+          }
+      }
+
+      server {
+          listen {{ .Values.service.internalPort }} default_server;
+          server_name _;
+
+          location = /healthz {
+              access_log off;
+              return 200;
+          }
+      }
+      {{- end }}
   }
 {{- end }}
   {{- range $key, $value := .Values.configEnvs }}

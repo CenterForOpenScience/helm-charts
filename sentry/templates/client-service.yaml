@@ -1,0 +1,34 @@
+{{- if .Values.client.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "sentry.fullname" . }}-client
+  labels:
+    {{- include "sentry.labels.standard" . | nindent 4 }}
+    role: client
+spec:
+  type: {{ .Values.client.service.type }}
+  {{- if eq .Values.client.service.type "LoadBalancer" }}
+  {{- if .Values.client.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.client.service.loadBalancerIP | quote }}
+  {{- end }}
+  {{- if .Values.client.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range .Values.client.service.loadBalancerSourceRanges }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.client.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.client.service.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.service.externalPort }}
+      targetPort: http
+      protocol: TCP
+      name: {{ .Values.service.name }}
+  selector:
+    app: {{ template "sentry.name" . }}
+    release: {{ .Release.Name }}
+    role: web
+{{- end -}}

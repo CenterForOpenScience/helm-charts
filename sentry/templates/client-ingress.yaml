@@ -1,0 +1,33 @@
+{{- if and .Values.client.enabled .Values.client.ingress.enabled -}}
+{{- $serviceName := include "sentry.fullname" . -}}
+{{- $servicePort := .Values.service.externalPort -}}
+{{- $ingressPaths := .Values.client.ingress.paths -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "sentry.fullname" . }}-client
+  labels:
+    {{- include "sentry.labels.standard" . | nindent 4 }}
+    role: client
+  annotations:
+    {{- range $key, $value := .Values.client.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+    {{- range .Values.client.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- range $ingressPaths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $serviceName }}-client
+              servicePort: {{ $servicePort }}
+          {{- end -}}
+    {{- end -}}
+  {{- if .Values.client.ingress.tls }}
+  tls:
+    {{- toYaml .Values.client.ingress.tls | nindent 4 }}
+  {{- end }}
+{{- end -}}
