@@ -81,7 +81,7 @@ initScripts:
 #    print 'adding global pipeline libraries, register properties, bootstrap jobs...'
 # List of plugins to be install during Jenkins master start
 installPlugins:
-  - kubernetes:0.11 
+  - kubernetes:1.2
   - workflow-aggregator:2.5
   - workflow-job:2.13
   - credentials-binding:1.12
