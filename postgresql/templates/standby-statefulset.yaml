@@ -12,10 +12,10 @@ metadata:
 spec:
   serviceName: {{ template "postgresql.standby.fullname" . }}
   replicas: {{ .Values.standby.replicaCount }}
+  {{- if .Values.standby.updateStrategy }}
   updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      partition: 0
+    {{- toYaml .Values.standby.updateStrategy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -25,6 +25,31 @@ spec:
       annotations:
         {{- include "postgresql.deploymentAnnotations" . | indent 8 }}
     spec:
+      affinity:
+        {{- if .Values.standby.additionalAffinities }}
+        {{- toYaml .Values.standby.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.standby.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: "{{ template "postgresql.name" . }}"
+                  release: "{{ .Release.Name }}"
+                  component: "{{ .Values.standby.name }}"
+        {{- else if eq .Values.standby.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: "{{ template "postgresql.name" . }}"
+                    release: "{{ .Release.Name }}"
+                    component: "{{ .Values.standby.name }}"
+        {{- end }}
       containers:
         - name: postgresql
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

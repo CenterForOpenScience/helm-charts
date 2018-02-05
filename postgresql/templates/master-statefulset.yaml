@@ -11,10 +11,10 @@ metadata:
 spec:
   serviceName: {{ template "postgresql.master.fullname" . }}
   replicas: 1
+  {{- if .Values.master.updateStrategy }}
   updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      partition: 0
+    {{- toYaml .Values.master.updateStrategy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -24,6 +24,10 @@ spec:
       annotations:
         {{- include "postgresql.deploymentAnnotations" . | indent 8 }}
     spec:
+      {{- if .Values.master.additionalAffinities }}
+      affinity:
+        {{- toYaml .Values.master.additionalAffinities | nindent 8 }}
+      {{- end }}
       containers:
         - name: postgresql
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

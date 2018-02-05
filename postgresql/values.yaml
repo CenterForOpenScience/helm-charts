@@ -5,6 +5,20 @@ image:
 
 master:
   name: master
+  # additionalAffinities:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 50
+  #         preference:
+  #           matchExpressions:
+  #             - key: cloud.google.com/gke-preemptible
+  #               operator: NotIn
+  #               values:
+  #                 - "true"
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
   resources: {}
   persistence:
     enabled: true
@@ -26,6 +40,21 @@ standby:
   enabled: true
   name: standby
   replicaCount: 1
+  antiAffinity: "soft"
+  # additionalAffinities:
+  #   nodeAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 50
+  #         preference:
+  #           matchExpressions:
+  #             - key: cloud.google.com/gke-preemptible
+  #               operator: NotIn
+  #               values:
+  #                 - "true"
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
   resources: {}
   persistence:
     enabled: true
