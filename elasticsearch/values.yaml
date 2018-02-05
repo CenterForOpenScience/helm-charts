@@ -84,14 +84,13 @@ client:
   antiAffinity: "soft"
   # additionalAffinities:
   #   nodeAffinity:
-  #     preferredDuringSchedulingIgnoredDuringExecution:
-  #       - weight: 50
-  #         preference:
-  #           matchExpressions:
-  #             - key: cloud.google.com/gke-preemptible
-  #               operator: NotIn
-  #               values:
-  #                 - "true"
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #         - matchExpressions:
+  #           - key: cloud.google.com/gke-preemptible
+  #             operator: In
+  #             values:
+  #               - "true"
   budget:
     maxUnavailable: 1
   # strategy:
