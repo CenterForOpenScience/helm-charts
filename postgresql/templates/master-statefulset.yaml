@@ -55,7 +55,7 @@ spec:
                 - su
                 - postgres
                 - -c
-                - pg_isready --host $POD_IP 
+                - pg_isready --host $POD_IP
             timeoutSeconds: 3
             periodSeconds: 5
           {{- if .Values.master.resources }}
