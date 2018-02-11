@@ -729,7 +729,7 @@ web-nginx.conf: |-
           }
 
           location / {
-              return 302 https://{{ .Values.web.nginx.primaryDomain }}$request_uri;
+              return 301 https://{{ .Values.web.nginx.primaryDomain }}$request_uri;
           }
       }
       {{- end }}
