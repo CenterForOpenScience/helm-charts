@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-if [ "$1" = 'postgres' ]; then
+if [ "$1" = 'postgres' ] && [ "$(id -u)" = '0' ]; then
 	[[ ${POD_NAME} =~ -([0-9]+)$ ]] || exit 1
 	ordinal=${BASH_REMATCH[1]}
 	if [ $STATEFUL_TYPE == "master" ]; then
@@ -12,27 +12,22 @@ if [ "$1" = 'postgres' ]; then
 		service=${POD_NAME}
 	fi
 
-	sed \
-		-e "s|^#cluster=.*$|cluster=default|" \
-		-e "s|^#node=.*$|node=${node_id}|" \
-		-e "s|^#node_name=.*$|node_name=${POD_NAME}|" \
-		-e "s|^#conninfo=.*$|conninfo='host=${service} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD} application_name=repmgrd'|" \
-		-e "s|^#use_replication_slots=.*$|use_replication_slots=1|" \
-		/etc/repmgr.conf.tpl > /etc/repmgr.conf
+	if [ ${STANDBY_ENABLED} ]; then
+		sed \
+			-e "s|^#cluster=.*$|cluster=default|" \
+			-e "s|^#node=.*$|node=${node_id}|" \
+			-e "s|^#node_name=.*$|node_name=${POD_NAME}|" \
+			-e "s|^#conninfo=.*$|conninfo='host=${service} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD} application_name=repmgrd'|" \
+			-e "s|^#use_replication_slots=.*$|use_replication_slots=1|" \
+			/etc/repmgr.conf.tpl > /etc/repmgr.conf
+	fi
 
-	if [ ! -s "${PGDATA}/PG_VERSION" ]; then
-		if [ ${STATEFUL_TYPE} == "master" ]; then
+	if [ ${STATEFUL_TYPE} == "master" ]; then
+		if [ ! -s "${PGDATA}/PG_VERSION" ]; then
 			docker-entrypoint.sh "$@" --boot
 
 			sed -i \
 				-e "s|^listen_addresses = .*|listen_addresses = '*'|" \
-				-e "s|^#hot_standby = .*|hot_standby = on|" \
-				-e "s|^#wal_level = .*|wal_level = hot_standby|" \
-				-e "s|^#max_wal_senders = .*|max_wal_senders = 10|" \
-				-e "s|^#max_replication_slots = .*|max_replication_slots = 10|" \
-				-e "s|^#archive_mode = .*|archive_mode = on|" \
-				-e "s|^#archive_command = .*|archive_command = '/bin/true'|" \
-				-e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
 				${PGDATA}/postgresql.conf
 
 			host_type="host"
@@ -69,6 +64,18 @@ if [ "$1" = 'postgres' ]; then
 					-E "s|^host([ \\t]+all){3}.*|hostnossl   all   all   all   reject\n${host_type}   all   all   all   md5   ${options}|" \
 					${PGDATA}/pg_hba.conf
 			fi
+		fi
+
+		if [ ${STANDBY_ENABLED} ] && [ -n "grep -q '#hot_standby' ${PGDATA}/postgresql.conf" ]; then
+			sed -i \
+				-e "s|^#hot_standby = .*|hot_standby = on|" \
+				-e "s|^#wal_level = .*|wal_level = hot_standby|" \
+				-e "s|^#max_wal_senders = .*|max_wal_senders = 10|" \
+				-e "s|^#max_replication_slots = .*|max_replication_slots = 10|" \
+				-e "s|^#archive_mode = .*|archive_mode = on|" \
+				-e "s|^#archive_command = .*|archive_command = '/bin/true'|" \
+				-e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
+				${PGDATA}/postgresql.conf
 
 			cat >> ${PGDATA}/pg_hba.conf <<-EOF
 
@@ -94,7 +101,13 @@ if [ "$1" = 'postgres' ]; then
 			gosu postgres psql -U repmgr -d repmgr <<-EOF
 			ALTER TABLE repmgr_default.repl_monitor SET UNLOGGED;
 			EOF
-		else
+
+			gosu postgres pg_ctl -w stop
+		fi
+	fi
+
+	if [ ${STATEFUL_TYPE} == "standby" ]; then
+		if [ ! -s "${PGDATA}/PG_VERSION" ]; then
 			while ! gosu postgres pg_isready --host ${MASTER_SERVICE} --quiet
 			do
 				sleep 1
@@ -131,25 +144,24 @@ if [ "$1" = 'postgres' ]; then
 			done
 
 			gosu postgres repmgr standby register
-		fi
 
-		gosu postgres pg_ctl -w stop
-		exit 0
-	else
-		if [ -f "/certs/server.key" ]; then
-			# Server Certificate
-			cp -f /certs/{server,root}.* ${PGDATA}/
-			chown postgres:postgres ${PGDATA}/{root,server}.*
-			chmod -R 0600 ${PGDATA}/{root,server}.*
+			gosu postgres pg_ctl -w stop
 		fi
+	fi
 
-		if [ -f "/certs/root.crt" ]; then
-			# Client Certificate
-			mkdir -p /home/postgres/.postgresql/
-			cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
-			chown -R postgres:postgres /home/postgres
-			chmod -R 0600 /home/postgres/.postgresql/*
-		fi
+	if [ -f "/certs/server.key" ]; then
+		# Server Certificate
+		cp -f /certs/{server,root}.* ${PGDATA}/
+		chown postgres:postgres ${PGDATA}/{root,server}.*
+		chmod -R 0600 ${PGDATA}/{root,server}.*
+	fi
+
+	if [ -f "/certs/root.crt" ]; then
+		# Client Certificate
+		mkdir -p /home/postgres/.postgresql/
+		cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+		chown -R postgres:postgres /home/postgres
+		chmod -R 0600 /home/postgres/.postgresql/*
 	fi
 
 	exec docker-entrypoint.sh "$@" & pid=$!

@@ -37,7 +37,7 @@ master:
   terminationGracePeriodSeconds: 3600
 
 standby:
-  enabled: true
+  enabled: false
   name: standby
   replicaCount: 1
   antiAffinity: "soft"
@@ -118,14 +118,6 @@ metrics:
   #      - size_bytes:
   #          usage: "GAUGE"
   #          description: "Size of the database in bytes"
-
-## Configure resource requests and limits
-## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-##
-resources:
-  requests:
-    memory: 256Mi
-    cpu: 100m
 
 networkPolicy:
   ## Enable creation of NetworkPolicy resources.
