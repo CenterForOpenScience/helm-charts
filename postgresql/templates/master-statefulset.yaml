@@ -45,7 +45,7 @@ spec:
           #       - su
           #       - postgres
           #       - -c
-          #       - pg_isready --host $POD_IP 
+          #       - pg_isready
           #   initialDelaySeconds: 60
           #   timeoutSeconds: 5
           #   failureThreshold: 6
@@ -55,7 +55,7 @@ spec:
                 - su
                 - postgres
                 - -c
-                - pg_isready --host $POD_IP
+                - pg_isready
             timeoutSeconds: 3
             periodSeconds: 5
           {{- if .Values.master.resources }}
