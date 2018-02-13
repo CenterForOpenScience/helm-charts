@@ -1,0 +1,33 @@
+{{- if .Values.web.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "share.web.fullname" . }}
+  labels:
+    app: {{ template "share.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.web.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  {{- if .Values.web.ingress.annotations }}
+  annotations:
+    {{- toYaml .Values.web.ingress.annotations | nindent 4 }}
+  {{- end }}
+spec: 
+  rules:
+    {{- range .Values.web.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- range $.Values.web.ingress.paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ include "share.web.fullname" $ }}
+              servicePort: {{ $.Values.web.service.name }}
+          {{- end -}}
+    {{- end -}}
+  {{- if .Values.web.ingress.tls }}
+  tls:
+    {{- toYaml .Values.web.ingress.tls | nindent 4 }}
+  {{- end -}}
+{{- end -}}

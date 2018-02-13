@@ -1,0 +1,19 @@
+{{- if .Values.web.budget.minAvailable -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "share.web.fullname" . }}"
+  labels:
+    app: {{ template "share.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.web.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "share.name" . }}
+      component: "{{ .Values.web.name }}"
+      release: {{ .Release.Name }}
+  minAvailable: {{ .Values.web.budget.minAvailable }}
+{{- end -}}
