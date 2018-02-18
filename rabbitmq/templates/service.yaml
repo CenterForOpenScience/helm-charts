@@ -34,6 +34,10 @@ spec:
       protocol: TCP
       targetPort: {{ $name }}
     {{- end }}
+  {{- if .Values.service.externalIPs }}
+  externalIPs:
+    {{- toYaml .Values.service.externalIPs | nindent 4 }}
+  {{- end }}
   selector:
     app: {{ template "rabbitmq.name" . }}
     release: {{ .Release.Name }}
