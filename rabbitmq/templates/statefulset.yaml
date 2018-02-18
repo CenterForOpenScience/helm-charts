@@ -27,25 +27,6 @@ spec:
         {{- if .Values.additionalAffinities }}
         {{- toYaml .Values.additionalAffinities | nindent 8 }}
         {{- end }}
-        {{- if eq .Values.antiAffinity "hard" }}
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: kubernetes.io/hostname
-              labelSelector:
-                matchLabels:
-                  app: {{ template "rabbitmq.name" . }}
-                  release: {{ .Release.Name }}
-        {{- else if eq .Values.antiAffinity "soft" }}
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              podAffinityTerm:
-                topologyKey: kubernetes.io/hostname
-                labelSelector:
-                  matchLabels:
-                    app: {{ template "rabbitmq.name" . }}
-                    release: {{ .Release.Name }}
-        {{- end }}
       containers:
         - name: {{ template "rabbitmq.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
