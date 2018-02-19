@@ -63,7 +63,7 @@ nginx.conf: |-
           root /static/code;
           client_max_body_size 25M;
           server_name _;
-          
+
           if ($http_x_forwarded_proto = "http") {
               return 301 https://$host$request_uri;
           }
