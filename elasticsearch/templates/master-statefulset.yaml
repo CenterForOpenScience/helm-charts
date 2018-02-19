@@ -21,10 +21,11 @@ spec:
         app: {{ template "elasticsearch.name" . }}
         component: "{{ .Values.master.name }}"
         release: {{ .Release.Name }}
-      {{- if .Values.master.podAnnotations }}
       annotations:
-        {{- toYaml .Values.master.podAnnotations | nindent 8 }}
-      {{- end }}
+        {{- include "elasticsearch.annotations" . | nindent 8 }}
+        {{- if .Values.master.podAnnotations }}
+          {{- toYaml .Values.master.podAnnotations | nindent 8 }}
+        {{- end }}
     spec:
       serviceAccountName: {{ template "elasticsearch.fullname" . }}
       securityContext:
