@@ -4,6 +4,152 @@ kind: ConfigMap
 metadata:
   name: {{ template "jenkins.fullname" . }}
 data:
+  nginx.conf: |-
+    user  nginx;
+    worker_processes {{ .Values.nginx.workerCount }};
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        log_format main '$remote_addr - $upstream_cache_status $remote_user [$time_local] '
+                        '"$request" $status $body_bytes_sent '
+                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for" '
+                        'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
+        access_log  /var/log/nginx/access.log  main;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        server_tokens off;
+
+        gzip on;
+        gzip_proxied no-cache no-store private expired auth;
+        gzip_disable "msie6";
+        gzip_min_length 1400;
+        gzip_comp_level 2;
+        gzip_buffers 4 32k;
+        gzip_types text/plain text/css image/svg+xml application/javascript application/x-javascript text/xml text/javascript application/json application/vnd.api+json;
+
+        server {
+            {{- if and .Values.ingress.enabled .Values.ingress.webhook.enabled }}
+            # webhook ingress enabeld, separate ingress for the web UI and webhooks
+            listen {{ .Values.service.internalPort }};
+            server_name {{ .Values.ingress.hosts | join " " }};
+            {{- else }}
+            # webhook ingress disabled, everything goes to this server
+            listen {{ .Values.service.internalPort }} default_server;
+            server_name _;
+
+            location = /healthz {
+                access_log off;
+                return 200;
+            }
+            {{- end }}
+
+            keepalive_timeout 15;
+            client_max_body_size 1m;
+
+            {{- if .Values.ingress.tls }}
+            if ($http_x_forwarded_proto = "http") {
+                return 301 https://$host$request_uri;
+            }
+            {{- end }}
+
+            location /robots.txt {
+                allow all;
+
+                alias /usr/share/nginx/html/robots.txt;
+            }
+
+            location / {
+                allow all;
+
+                try_files $uri @jenkins;
+            }
+
+            location @jenkins {
+                proxy_set_header   Host               $host:$server_port;
+                proxy_set_header   X-Forwarded-Host   $http_host;
+                proxy_set_header   X-Real-IP          $remote_addr;
+                proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
+                proxy_set_header   X-Forwarded-Proto  $http_x_forwarded_proto;
+
+                proxy_pass         http://127.0.0.1:{{ .Values.service.jenkinsPort }};
+                proxy_read_timeout 90;
+                proxy_redirect     off;
+
+                # Required for new HTTP-based CLI
+                proxy_http_version 1.1;
+                proxy_request_buffering off;
+             }
+        }
+
+        {{- if and .Values.ingress.enabled .Values.ingress.webhook.enabled }}
+        server {
+            listen {{ .Values.service.internalPort }};
+            server_name {{ .Values.ingress.webhook.hosts | join " " }};
+
+            keepalive_timeout 15;
+            client_max_body_size 1m;
+
+            {{- if .Values.ingress.webhook.tls }}
+            if ($http_x_forwarded_proto = "http") {
+                return 301 https://$host$request_uri;
+            }
+            {{- end }}
+
+            location /github-webhook {
+                allow all;
+
+                if ($request_method != POST) {
+                    return 405;
+                }
+
+                try_files $uri @jenkins;
+            }
+
+            location / {
+                deny all;
+            }
+
+            location @jenkins {
+                proxy_set_header   Host               $host:$server_port;
+                proxy_set_header   X-Forwarded-Host   $http_host;
+                proxy_set_header   X-Real-IP          $remote_addr;
+                proxy_set_header   X-Forwarded-For    $proxy_add_x_forwarded_for;
+                proxy_set_header   X-Forwarded-Proto  $http_x_forwarded_proto;
+
+                proxy_pass          http://127.0.0.1:{{ .Values.service.jenkinsPort }};
+                proxy_read_timeout 90;
+                proxy_redirect     off;
+
+                # Required for new HTTP-based CLI
+                proxy_http_version 1.1;
+                proxy_request_buffering off;
+            }
+        }
+
+        server {
+            listen {{ .Values.service.internalPort }} default_server;
+            server_name _;
+
+            location = /healthz {
+                access_log off;
+                return 200;
+            }
+        }
+        {{- end }}
+    }
   config.xml: |-
     <?xml version='1.0' encoding='UTF-8'?>
     <hudson>
@@ -28,7 +174,7 @@ data:
         <org.csanchez.jenkins.plugins.kubernetes.KubernetesCloud plugin="kubernetes@0.11">
           <name>kubernetes</name>
           <templates>
-{{- if .Values.agent.enabled }}
+            {{- if .Values.agent.enabled }}
             <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
               <inheritFrom></inheritFrom>
               <name>default</name>
@@ -37,13 +183,13 @@ data:
               <label>{{ template "jenkins.agent.fullname" . }}</label>
               <nodeSelector></nodeSelector>
               <volumes>
-{{- range $index, $volume := .Values.agent.volumes }}
+                {{- range $index, $volume := .Values.agent.volumes }}
                 <org.csanchez.jenkins.plugins.kubernetes.volumes.{{ $volume.type }}Volume>
-{{- range $key, $value := $volume }}{{- if not (eq $key "type") }}
+                  {{- range $key, $value := $volume }}{{- if not (eq $key "type") }}
                   <{{ $key }}>{{ $value }}</{{ $key }}>
-{{- end }}{{- end }}
+                  {{- end }}{{- end }}
                 </org.csanchez.jenkins.plugins.kubernetes.volumes.{{ $volume.type }}Volume>
-{{- end }}
+                {{- end }}
               </volumes>
               <containers>
                 <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
@@ -55,14 +201,14 @@ data:
                   <command></command>
                   <args>${computer.jnlpmac} ${computer.name}</args>
                   <ttyEnabled>false</ttyEnabled>
-{{- if .Values.agent.resources.limits }}
+                  {{- if .Values.agent.resources.limits }}
                   <resourceLimitCpu>{{ .Values.agent.resources.limits.cpu }}</resourceLimitCpu>
                   <resourceLimitMemory>{{ .Values.agent.resources.limits.memory }}</resourceLimitMemory>
-{{- end }}
-{{- if .Values.agent.resources.requests }}
+                  {{- end }}
+                  {{- if .Values.agent.resources.requests }}
                   <resourceRequestCpu>{{ .Values.agent.resources.requests.cpu }}</resourceRequestCpu>
                   <resourceRequestMemory>{{ .Values.agent.resources.requests.memory }}</resourceRequestMemory>
-{{- end }}
+                  {{- end }}
                   <envVars/>
                 </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
               </containers>
@@ -71,12 +217,12 @@ data:
               <imagePullSecrets/>
               <nodeProperties/>
             </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
-{{- end -}}
+            {{- end -}}
           </templates>
           <serverUrl>https://kubernetes.default</serverUrl>
           <skipTlsVerify>false</skipTlsVerify>
           <namespace>{{ .Release.Namespace }}</namespace>
-          <jenkinsUrl>http://{{ template "jenkins.fullname" . }}-{{ .Values.master.name }}:{{ .Values.service.internalPort }}</jenkinsUrl>
+          <jenkinsUrl>http://{{ template "jenkins.fullname" . }}-{{ .Values.master.name }}:{{ .Values.service.jenkinsPort }}</jenkinsUrl>
           <jenkinsTunnel>{{ template "jenkins.fullname" . }}-{{ .Values.master.name }}:{{ .Values.agent.listenerPort }}</jenkinsTunnel>
           <containerCap>10</containerCap>
           <retentionTimeout>5</retentionTimeout>
@@ -102,15 +248,15 @@ data:
       <globalNodeProperties/>
       <noUsageStatistics>true</noUsageStatistics>
     </hudson>
-{{- if .Values.scriptApproval }}
+  {{- if .Values.scriptApproval }}
   scriptapproval.xml: |-
     <?xml version='1.0' encoding='UTF-8'?>
     <scriptApproval plugin="script-security@1.27">
       <approvedScriptHashes/>
       <approvedSignatures>
-{{- range $key, $val := .Values.scriptApproval }}
+        {{- range $key, $val := .Values.scriptApproval }}
         <string>{{ $val }}</string>
-{{- end }}
+        {{- end }}
       </approvedSignatures>
       <aclApprovedSignatures/>
       <approvedClasspathEntries/>
@@ -118,22 +264,22 @@ data:
       <pendingSignatures/>
       <pendingClasspathEntries/>
     </scriptApproval>
-{{- end }}
+  {{- end }}
   apply_config.sh: |-
     mkdir -p /usr/share/jenkins/ref/secrets/;
     echo "false" > /usr/share/jenkins/ref/secrets/slave-to-master-security-kill-switch;
     cp -n /var/jenkins_config/config.xml /var/jenkins_home;
-{{- if .Values.installPlugins }}
+    {{- if .Values.installPlugins }}
     cp /var/jenkins_config/plugins.txt /var/jenkins_home;
     /usr/local/bin/install-plugins.sh `echo $(cat /var/jenkins_home/plugins.txt)`;
-{{- end }}
-{{- if .Values.scriptApproval }}
+    {{- end }}
+    {{- if .Values.scriptApproval }}
     cp -n /var/jenkins_config/scriptapproval.xml /var/jenkins_home/scriptApproval.xml;
-{{- end }}
-{{- if .Values.initScripts }}
+    {{- end }}
+    {{- if .Values.initScripts }}
     mkdir -p /var/jenkins_home/init.groovy.d/;
     cp -n /var/jenkins_config/*.groovy /var/jenkins_home/init.groovy.d/
-{{- end }}
+    {{- end }}
 {{- range $key, $val := .Values.initScripts }}
   init{{ $key }}.groovy: |-
 {{ $val | indent 4 }}

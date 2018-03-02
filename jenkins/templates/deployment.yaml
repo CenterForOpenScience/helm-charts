@@ -63,14 +63,12 @@ spec:
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
           imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.externalPort }}
+            - containerPort: {{ .Values.service.internalPort }}
               name: http
-            - containerPort: {{ .Values.service.externalWebhookPort }}
-              name: webhook
           readinessProbe:
             httpGet:
               path: /healthz
-              port: {{ .Values.service.externalPort }}
+              port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf
@@ -84,7 +82,7 @@ spec:
           resources:
             {{- toYaml .Values.nginx.resources | nindent 12 }}
 # CUSTOM END
-        - name: master
+        - name: jenkins
           image: "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}"
           imagePullPolicy: "{{ .Values.master.image.pullPolicy }}"
           {{- if .Values.master.useSecurity }}
@@ -111,7 +109,7 @@ spec:
             {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.internalPort }}
+              containerPort: {{ .Values.service.jenkinsPort }}
             {{- if .Values.agent.enabled }}
             - name: agent-listener
               containerPort: {{ .Values.agent.listenerPort }}

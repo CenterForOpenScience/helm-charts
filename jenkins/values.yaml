@@ -8,6 +8,7 @@ nginx:
     repository: gcr.io/cos-containers/nginx
     tag: '1'
     pullPolicy: Always
+  workerCount: 1
   resources: {}
     # limits:
     #   cpu: 1
@@ -112,11 +113,16 @@ persistence:
 service:
   type: ClusterIP
   externalPort: 80
-  externalWebhookPort: 90
-  internalPort: 8080
+  internalPort: 9090
+  jenkinsPort: 8080
   # annotations:
   # loadBalancerSourceRanges:
   # - 0.0.0.0/0
+  webhook:
+    type: ClusterIP
+    # annotations:
+    # loadBalancerSourceRanges:
+    # - 0.0.0.0/0
 
 ingress:
   enabled: false

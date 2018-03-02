@@ -12,8 +12,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: {{ .Values.service.internalPort }}
-    targetPort: {{ .Values.service.internalPort }}
+  - port: {{ .Values.service.jenkinsPort }}
+    targetPort: {{ .Values.service.jenkinsPort }}
     protocol: TCP
     name: http
   - port: {{ .Values.agent.listenerPort }}
