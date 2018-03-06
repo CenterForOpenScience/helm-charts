@@ -68,6 +68,7 @@ The following tables lists the configurable parameters of the elasticsearch char
 | `client.resources`                        | Client node resources requests & limits                             | `{} - cpu limit must be an integer`                 |
 | `client.heapSize`                         | Client node heap size                                               | `512m`                                              |
 | `client.podAnnotations`                   | Client deployment annotations                                       | `{}`                                                |
+| `client.tolerations`                      | Client toleration policy                                            | `{}`                                                |
 | `client.service.annotations`              | Client service annotations                                          | `{}`                                                |
 | `client.service.type`                     | Client service type                                                 | `ClusterIP`                                         |
 | `client.service.loadBalancerIP`           | Client service load balancer ip                                     | `nil`                                               |
@@ -86,6 +87,7 @@ The following tables lists the configurable parameters of the elasticsearch char
 | `master.persistence.size`                 | Master persistent volume size                                       | `4Gi`                                               |
 | `master.persistence.storageClass`         | Master persistent volume Class                                      | `nil`                                               |
 | `master.persistence.accessMode`           | Master persistent Access Mode                                       | `ReadWriteOnce`                                     |
+| `master.tolerations`                      | Data toleration policy                                              | `{}`                                                |
 | `data.exposeHttp`                         | Expose http port 9200 on data Pods for monitoring, etc              | `false`                                             |
 | `data.replicas`                           | Data node replicas (statefulset)                                    | `2`                                                 |
 | `data.resources`                          | Data node resources requests & limits                               | `{} - cpu limit must be an integer`                 |
@@ -98,6 +100,7 @@ The following tables lists the configurable parameters of the elasticsearch char
 | `data.podAnnotations`                     | Data StatefulSet annotations                                        | `{}`                                                |
 | `data.terminationGracePeriodSeconds`      | Data termination grace period (seconds)                             | `3600`                                              |
 | `data.antiAffinity`                       | Data anti-affinity policy                                           | `soft`                                              |
+| `data.tolerations`                        | Data toleration policy                                              | `{}`                                                |
 | `rbac.create`                             | Create service account and ClusterRoleBinding for Kubernetes plugin | `false`                                             |
 | `plugins.enabled`                         | Plugins management                                                  | `false`                                             |
 | `plugins.install`                         | Plugins to install on pod initialization                            | `[]`                                                |
