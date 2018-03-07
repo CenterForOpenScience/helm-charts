@@ -184,7 +184,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.data.terminationGracePeriodSeconds }}
     {{- with .Values.data.tolerations }}
       tolerations:
-      {{- toYaml . | indent 8 }}
+      {{- toYaml . | nindent 8 }}
     {{- end }}
       volumes:
       - name: config

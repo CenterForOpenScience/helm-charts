@@ -195,7 +195,7 @@ spec:
         {{- end }}
     {{- with .Values.client.tolerations }}
       tolerations:
-      {{- toYaml . | indent 8 }}
+      {{- toYaml . | nindent 8 }}
     {{- end }}
       volumes:
       - name: config

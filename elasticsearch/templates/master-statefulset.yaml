@@ -180,7 +180,7 @@ spec:
         {{- end }}
     {{- with .Values.master.tolerations }}
       tolerations:
-      {{- toYaml . | indent 8 }}
+      {{- toYaml . | nindent 8 }}
     {{- end }}
       volumes:
       - name: config
