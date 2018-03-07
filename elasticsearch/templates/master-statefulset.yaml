@@ -178,6 +178,10 @@ spec:
         - mountPath: /usr/share/elasticsearch/plugins
           name: plugins
         {{- end }}
+    {{- with .Values.master.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
       volumes:
       - name: config
         configMap:

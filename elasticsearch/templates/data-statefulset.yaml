@@ -182,6 +182,10 @@ spec:
             exec:
               command: ["/bin/bash","/pre-stop-hook.sh"]
       terminationGracePeriodSeconds: {{ .Values.data.terminationGracePeriodSeconds }}
+    {{- with .Values.data.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
       volumes:
       - name: config
         configMap:
