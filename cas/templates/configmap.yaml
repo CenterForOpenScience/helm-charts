@@ -184,10 +184,6 @@ shibboleth/shibboleth2.xml: |-
           <MetadataProvider type="XML" file="partner-metadata.xml"/>
           -->
 
-          <!-- Univeristy of Notre Dame (ND) -->
-          <MetadataProvider type="XML" uri="https://login-test.cc.nd.edu/idp/profile/Metadata/SAML"
-                            backingFilePath="nd-test-idp-metadata.xml" reloadInterval="86400"/>
-
           <!-- InCommon -->
           <!-- <MetadataProvider type="XML" uri="http://md.incommon.org/InCommon/InCommon-metadata.xml"
                             backingFilePath="incommon-idp-metadata.xml" reloadInterval="86400">
@@ -228,6 +224,8 @@ shibboleth/shibboleth2.xml: |-
 
   </SPConfig>
 httpd/conf.d/shib.conf: |-
+  LoadModule mod_shib /usr/lib64/shibboleth/mod_shib_24.so
+
   <VirtualHost *:{{ .Values.service.internalPort }}>
     ServerName health
     LoadModule status_module "modules/mod_status.so"
