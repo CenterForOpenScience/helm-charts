@@ -227,7 +227,7 @@ shibboleth/shibboleth2.xml: |-
       <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
 
   </SPConfig>
-apache2/sites-enabled/default.conf: |-
+httpd/conf.d/shib.conf: |-
   <VirtualHost *:{{ .Values.service.internalPort }}>
     ServerName health
     LoadModule status_module "modules/mod_status.so"
