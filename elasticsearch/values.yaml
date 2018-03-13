@@ -91,7 +91,7 @@ client:
   #             operator: In
   #             values:
   #               - "true"
-  tolerations: {}
+  tolerations: []
   budget:
     maxUnavailable: 1
   # strategy:
@@ -137,7 +137,7 @@ master:
   #   type: RollingUpdate
   #   rollingUpdate:
   #     partition: 1
-  tolerations: {}
+  tolerations: []
   budget:
     maxUnavailable: 1
   persistence:
@@ -177,7 +177,7 @@ data:
   #   type: RollingUpdate
   #   rollingUpdate:
   #     partition: 1
-  tolerations: {}
+  tolerations: []
   budget:
     maxUnavailable: 1
   persistence:
