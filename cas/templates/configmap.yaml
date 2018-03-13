@@ -185,10 +185,10 @@ shibboleth/shibboleth2.xml: |-
           -->
 
           <!-- InCommon -->
-          <!-- <MetadataProvider type="XML" uri="http://md.incommon.org/InCommon/InCommon-metadata.xml"
+          <MetadataProvider type="XML" uri="http://md.incommon.org/InCommon/InCommon-metadata.xml"
                             backingFilePath="incommon-idp-metadata.xml" reloadInterval="86400">
               <MetadataFilter type="Signature" certificate="incommon-idp-signature.pem"/>
-          </MetadataProvider> -->
+          </MetadataProvider>
 
           <!-- Map to extract attributes from SAML assertions. -->
           <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
