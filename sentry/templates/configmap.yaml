@@ -9,7 +9,7 @@ data:
 # Adapted from https://docs.sentry.io/server/nginx/
 client-nginx.conf: |-
   # https://docs.sentry.io/server/throttling/
-  location ~* /api/(?P<projectid>\d+/)?store/ {
+  location ~* ^/api/(?P<projectid>\d+/)?store/.*$ {
       # keepalive + raven.js is a disaster
       keepalive_timeout 0;
 
