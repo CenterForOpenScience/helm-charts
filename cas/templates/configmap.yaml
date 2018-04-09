@@ -325,6 +325,11 @@ cas.properties: |-
   ##
   # Authentication Delegation: Clients
   #
+  # CAS: California Lutheran University
+  cas.callutheran.login.url=${CAS_CALLUTHERAN_LOGIN_URL:https://sso.callutheran.edu/cas/login}
+  cas.callutheran.client.name=${CAS_CALLUTHERAN_CLIENT_NAME:callutheran}
+  cas.callutheran.cas.protocol=${CAS_CALLUTHERAN_CAS_PROTOCOL:SAML}
+  #
   # CAS: Ferris State University
   cas.ferris.login.url=${CAS_FERRIS_LOGIN_URL:https://lpcas.ferris.edu/cas-web/login}
   cas.ferris.client.name=${CAS_FERRIS_CLIENT_NAME:ferris}
