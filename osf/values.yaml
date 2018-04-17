@@ -558,6 +558,12 @@ volumeMounts:
     subPath: addons-zotero-local.py
     readOnly: true
 
+osf-collections:
+  enabled: false
+  service:
+    name: collections
+    externalPort: 80
+
 osf-preprints:
   enabled: false
   service:

@@ -1,0 +1,22 @@
+enabled: true
+
+ember:
+  nameOverride: osf-collections
+  replicaCount: 1
+ 
+  image:
+    repository: quay.io/centerforopenscience/osf-collections
+    tag: develop
+    pullPolicy: Always
+
+  resources: {}
+
+  nginx:
+    image:
+      repository: nginx
+      tag: alpine
+      pullPolicy: Always
+
+    resources: {}
+
+  configFiles: {}

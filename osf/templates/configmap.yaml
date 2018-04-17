@@ -9,6 +9,7 @@ metadata:
     release: {{ .Release.Name }}
 data:
 {{- define "osf.inlineconfigs" }}
+{{- $osfCollections := (index .Values "osf-collections") }}
 {{- $osfPreprints := (index .Values "osf-preprints") }}
 {{- $osfRegistries := (index .Values "osf-registries") }}
 {{- $osfReviews := (index .Values "osf-reviews") }}
@@ -338,6 +339,17 @@ api-uwsgi.ini: |-
   # greenlet settings
   gevent = 500
   gevent-early-monkey-patch = true
+web-nginx-osf-collections.conf: |-
+  location ~* ^/collections(/?$|/.*) {
+      {{- if .Values.prerender.enabled }}
+      include /etc/nginx/prerender.conf;
+      {{- end }}
+
+      rewrite ^/collections/(.*)$ /$1 break;
+      proxy_redirect off;
+      proxy_buffering off;
+      proxy_pass http://{{ $osfCollections.service.name }}:{{ $osfCollections.service.externalPort }};
+  }
 web-nginx-osf-preprints.conf: |-
   {{- range $key, $val := .Values.web.nginx.preprintDomainRedirects }}
   location ~* ^/preprints/{{ $key }}(?!/\w+/download/?$)(.*) {
