@@ -112,6 +112,18 @@ spec:
             - --port
             - '2002'
             - -vvv
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |-
+                  cd /tmp
+                  touch test.txt
+                  timeout 10 unoconv -f html test.txt
+                  exit $?
+            initialDelaySeconds: 30
+            periodSeconds: 10
           ports:
             - name: unoconv
               containerPort: 2002
