@@ -28,7 +28,8 @@ data:
         sendfile on;
         tcp_nopush on;
         tcp_nodelay on;
-        keepalive_timeout 65;
+        keepalive_timeout 650;
+        keepalive_requests 10000;
         types_hash_max_size 2048;
         server_tokens off;
 
@@ -56,7 +57,7 @@ data:
             }
             {{- end }}
 
-            keepalive_timeout 15;
+            keepalive_timeout 650;
             client_max_body_size 1m;
 
             {{- if .Values.ingress.tls }}
@@ -99,7 +100,7 @@ data:
             listen {{ .Values.service.internalPort }};
             server_name {{ .Values.ingress.webhook.hosts | join " " }};
 
-            keepalive_timeout 15;
+            keepalive_timeout 650;
             client_max_body_size 1m;
 
             {{- if .Values.ingress.webhook.tls }}
