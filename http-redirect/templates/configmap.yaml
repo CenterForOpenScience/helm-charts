@@ -22,7 +22,7 @@ data:
         sendfile        on;
 
         
-        keepalive_timeout 650;
+        keepalive_timeout 620s;
         keepalive_requests 10000;
 
         server {

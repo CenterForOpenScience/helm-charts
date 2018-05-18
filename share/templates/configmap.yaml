@@ -35,7 +35,7 @@ nginx.conf: |-
       sendfile on;
       tcp_nopush on;
       tcp_nodelay on;
-      keepalive_timeout 650;
+      keepalive_timeout 620s;
       keepalive_requests 10000;
       types_hash_max_size 2048;
       server_tokens off;
@@ -60,7 +60,7 @@ nginx.conf: |-
 
       server {
           listen {{ .Values.web.service.internalPort }};
-          keepalive_timeout 650;
+          keepalive_timeout 620s;
           root /static/code;
           client_max_body_size 25M;
           server_name _;

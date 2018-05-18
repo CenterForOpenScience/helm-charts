@@ -66,7 +66,7 @@ admin-nginx.conf: |-
       sendfile on;
       tcp_nopush on;
       tcp_nodelay on;
-      keepalive_timeout 650;
+      keepalive_timeout 620s;
       keepalive_requests 10000;
       types_hash_max_size 2048;
       server_tokens off;
@@ -104,7 +104,7 @@ admin-nginx.conf: |-
           server_name _;
 
           client_max_body_size 25M;
-          keepalive_timeout 650;
+          keepalive_timeout 620s;
 
           root /static/code;
 
@@ -229,7 +229,7 @@ api-nginx.conf: |-
       sendfile on;
       tcp_nopush on;
       tcp_nodelay on;
-      keepalive_timeout 650;
+      keepalive_timeout 620s;
       keepalive_requests 10000;
       types_hash_max_size 2048;
       server_tokens off;
@@ -267,7 +267,7 @@ api-nginx.conf: |-
           server_name _;
 
           client_max_body_size 25M;
-          keepalive_timeout 650;
+          keepalive_timeout 620s;
 
           root /static/code;
 
@@ -576,7 +576,7 @@ web-nginx.conf: |-
       sendfile on;
       tcp_nopush on;
       tcp_nodelay on;
-      keepalive_timeout 650;
+      keepalive_timeout 620s;
       types_hash_max_size 2048;
       server_tokens off;
 
@@ -691,7 +691,7 @@ web-nginx.conf: |-
           server_name {{ join " " .Values.web.nginx.institutionDomains }};
 
           client_max_body_size 25M;
-          keepalive_timeout 650;
+          keepalive_timeout 620s;
 
           root /static/code;
 
@@ -753,7 +753,7 @@ web-nginx.conf: |-
           server_name _;
 
           client_max_body_size 25M;
-          keepalive_timeout 650;
+          keepalive_timeout 620s;
 
           root /static/code;
 
