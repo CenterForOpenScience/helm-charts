@@ -491,6 +491,8 @@ secretFiles: {}
   #   ...
   # addons-zotero-local.py: |-
   #   ...
+  # googleAppCreds.json: |-
+  #   ...
 
 volumeMounts:
   - mountPath: /code/admin/base/settings/local.py
@@ -556,6 +558,10 @@ volumeMounts:
   - mountPath: /code/addons/zotero/settings/local.py
     name: secret
     subPath: addons-zotero-local.py
+    readOnly: true
+  - mountPath: /etc/googleAppCreds.json
+    name: secret
+    subPath: googleAppCreds.json
     readOnly: true
 
 osf-collections:
