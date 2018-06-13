@@ -9,6 +9,9 @@ metadata:
     release: {{ .Release.Name }}
 data:
 {{- define "cas.jetty.preprint-services" }}
+africarxiv:
+  id: '203948234207264'
+  name: 'AfricArXiv Preprints'
 agrixiv:
   id: '203948234207244'
   name: AgriXiv Preprints
