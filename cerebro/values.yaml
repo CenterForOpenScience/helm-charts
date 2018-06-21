@@ -17,6 +17,23 @@ resources:
     cpu: "25m"
     memory: "256Mi"
 
+tls:
+  enabled: false
+  #files:
+  #  # Certificate Authority certificates
+  #  ca_chain.pem: >-
+  #    ...
+  #  # Client Certificate and Private Key
+  #  client.pem: >-
+  #    ...
+  #base64Files:
+  #  # Certificate Authority certificates
+  #  trust.jks: >-
+  #    ...
+  #  # Client Certificate and Private Key
+  #  client.jks: >-
+  #    ...
+
 config:
   application.conf: |
     # Secret will be used to sign session cookies, CSRF tokens and for other encryption utilities.
@@ -72,3 +89,19 @@ config:
       #  }
       #}
     ]
+
+    #play.ws.ssl {
+    #  #loose = {
+    #  #  disableHostnameVerification: true
+    #  #}
+    #  keyManager = {
+    #    stores = [
+    #      { path: /certs/client.jks, password: "123456" }
+    #    ]
+    #  }
+    #  trustManager = {
+    #    stores = [
+    #      { path: /certs/trust.jks }
+    #    ]
+    #  }
+    #}

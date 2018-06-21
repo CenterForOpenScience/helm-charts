@@ -1,18 +1,18 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
+  name: {{ template "cerebro.fullname" . }}
   labels:
-    app: {{ template "name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app: {{ template "cerebro.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: {{ template "fullname" . }}
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ template "name" . }}
+        app: {{ template "cerebro.name" . }}
         release: {{ .Release.Name }}
     spec:
       containers:
@@ -31,7 +31,28 @@ spec:
         - mountPath: /opt/cerebro/conf/application.conf
           name: config
           subPath: application.conf
+        {{- if .Values.tls.enabled }}
+        {{- if hasKey .Values.tls "files" }}
+        {{- range $key := keys .Values.tls.files }}
+        - mountPath: /certs/{{ $key }}
+          name: secret
+          subPath: certs-{{ $key }}
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- if hasKey .Values.tls "base64Files" }}
+        {{- range $key := keys .Values.tls.base64Files }}
+        - mountPath: /certs/{{ $key }}
+          name: secret
+          subPath: certs-{{ $key }}
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- end }}
       volumes:
-      - configMap:
-          name: {{ template "fullname" . }}
-        name: config
+      - name: config
+        configMap:
+          name: {{ template "cerebro.fullname" . }}
+      - name: secret
+        secret:
+          secretName: {{ template "cerebro.fullname" . }}

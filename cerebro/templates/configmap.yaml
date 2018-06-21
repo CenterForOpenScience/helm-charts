@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: {{ template "cerebro.fullname" . }}
   labels:
-    app: {{ template "name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    app: {{ template "cerebro.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: {{ template "fullname" . }}
 data:
   {{- toYaml .Values.config | nindent 2 }}
