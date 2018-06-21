@@ -29,7 +29,7 @@ spec:
           name: http
         volumeMounts:
         - mountPath: /opt/cerebro/conf/application.conf
-          name: config
+          name: secret
           subPath: application.conf
         {{- if .Values.tls.enabled }}
         {{- if hasKey .Values.tls "files" }}
@@ -50,9 +50,6 @@ spec:
         {{- end }}
         {{- end }}
       volumes:
-      - name: config
-        configMap:
-          name: {{ template "cerebro.fullname" . }}
       - name: secret
         secret:
           secretName: {{ template "cerebro.fullname" . }}
