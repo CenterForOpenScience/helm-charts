@@ -17,6 +17,10 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+{{- if .Values.metrics.enabled }}
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9127'
+{{- end }}
     spec:
       affinity:
         {{- if .Values.additionalAffinities }}
@@ -69,6 +73,31 @@ spec:
               readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+{{- if .Values.metrics.enabled }}
+        - name: metrics
+          image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
+          imagePullPolicy: {{ .Values.metrics.image.pullPolicy }}
+          env:
+{{- range $key, $value := .Values.metricsEnvs }}
+            - name: {{ $key }}
+              value: {{ $value }}
+{{- end }}
+          ports:
+            - name: metrics
+              containerPort: 9127
+          livenessProbe:
+            exec:
+              command:
+                - pgbouncer_exporter
+                - health
+          readinessProbe:
+            exec:
+              command:
+                - pgbouncer_exporter
+                - health
+          resources:
+            {{- toYaml .Values.metrics.resources | nindent 12 }}
+{{- end }}
       volumes:
         - name: config
           configMap:

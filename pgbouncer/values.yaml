@@ -14,6 +14,17 @@ additionalAffinities: {}
 budget:
   minAvailable: 0
 
+metrics:
+  enabled: false
+  image:
+    repository: jbub/pgbouncer_exporter
+    tag: 'v0.2.2'
+    pullPolicy: IfNotPresent
+  resources: {}
+
+metricsEnvs: {}
+  # DATABASE_URL: ...
+
 resources: {}
   #limits:
   #  cpu: 100m
