@@ -14,6 +14,8 @@ spec:
       labels:
         app: {{ template "cerebro.name" . }}
         release: {{ .Release.Name }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       containers:
       - name: cerebro
