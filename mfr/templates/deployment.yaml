@@ -51,7 +51,7 @@ spec:
             - -g
             - daemon off;
           ports:
-            - name: http
+            - name: http-internal
               containerPort: {{ .Values.service.internalPort }}
           readinessProbe:
             httpGet:
@@ -82,7 +82,7 @@ spec:
             - name: ENV
               value: kube
           ports:
-            - name: http
+            - name: http-external
               containerPort: {{ .Values.service.externalPort }}
           readinessProbe:
             httpGet:
