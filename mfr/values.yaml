@@ -88,14 +88,9 @@ ingress:
 
 networkPolicy:
   enabled: false
-  ingress: {}
-    # - from:
-    #   - ipBlock:
-    #       cidr: 10.0.0.0/8
-    #   ports:
-    #     # - port: http-internal
-    #     - port: 80
-    #       protocol: TCP
+  # Allows external access to the pod, otherwise access is restricted to
+  # clients with the explicit label.
+  allowExternal: true
   egress: {}
     # - to:
     #   - ipBlock:

@@ -13,6 +13,14 @@ spec:
     matchLabels:
       app: {{ template "mfr.name" . }}
       release: {{ .Release.Name }}
-  ingress: {{- toYaml .Values.networkPolicy.ingress | nindent 4 }}
+  ingress:
+  - ports:
+    - port: {{ .Values.service.internalPort }}
+    {{- if not .Values.networkPolicy.allowExternal }}
+    from:
+    - podSelector:
+        matchLabels:
+          {{ template "mfr.fullname" . }}-client: "true"
+    {{- end }}
   egress: {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
 {{- end }}
