@@ -22,5 +22,9 @@ spec:
         matchLabels:
           {{ template "mfr.fullname" . }}-client: "true"
     {{- end }}
+  {{- if .Values.nginx.vts.enabled }}
+  - ports:
+    - port: {{ .Values.nginx.vts.internalPort }}
+  {{- end }}
   egress: {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
 {{- end }}
