@@ -776,6 +776,10 @@ web-nginx.conf: |-
               return 301 {{ .Values.share.url }};
           }
 
+          {{- if (index .Values.web.nginx "additionalConfig") }}
+          {{ .Values.web.nginx.additionalConfig }}
+          {{- end }}
+
           {{- if and .Values.web.nginx.cache.enabled .Values.web.nginx.cache.guids }}
           location ~* (^/|^/api/v1/project/)({{ join "|" .Values.web.nginx.cache.guids }}) {
               {{- if .Values.prerender.enabled }}
@@ -810,10 +814,6 @@ web-nginx.conf: |-
           {{- end }}
 
           location / {
-              {{- if (index .Values.web.nginx "additionalConfig") }}
-              {{ .Values.web.nginx.additionalConfig }}
-              {{- end }}
-
               {{- if .Values.prerender.enabled }}
               include /etc/nginx/prerender.conf;
               {{- end }}
