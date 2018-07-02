@@ -822,6 +822,10 @@ web-nginx.conf: |-
           {{- end }}
 
           location / {
+              {{- if (index .Values.web.nginx "additionalConfig") }}
+              {{ .Values.web.nginx.additionalConfig }}
+              {{- end }}
+
               {{- if .Values.prerender.enabled }}
               include /etc/nginx/prerender.conf;
               {{- end }}
