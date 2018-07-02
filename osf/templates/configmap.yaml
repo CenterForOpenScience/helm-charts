@@ -777,7 +777,7 @@ web-nginx.conf: |-
           }
 
           {{- if (index .Values.web.nginx "additionalConfig") }}
-          {{ .Values.web.nginx.additionalConfig }}
+          {{- .Values.web.nginx.additionalConfig | nindent 10 }}
           {{- end }}
 
           {{- if and .Values.web.nginx.cache.enabled .Values.web.nginx.cache.guids }}
