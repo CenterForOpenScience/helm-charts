@@ -1,5 +1,4 @@
 {{- if .Values.web.enabled -}}
-{{- $osfCollections := (index .Values "osf-collections") }}
 {{- $osfPreprints := (index .Values "osf-preprints") }}
 {{- $osfRegistries := (index .Values "osf-registries") }}
 {{- $osfReviews := (index .Values "osf-reviews") }}
@@ -121,12 +120,6 @@ spec:
               name: config
               subPath: web-robots.txt
               readOnly: true
-            {{- if $osfCollections.enabled }}
-            - mountPath: /etc/nginx/conf.d/osf-collections.conf
-              name: config
-              subPath: web-nginx-osf-collections.conf
-              readOnly: true
-            {{- end }}
             {{- if $osfPreprints.enabled }}
             - mountPath: /etc/nginx/conf.d/osf-preprints.conf
               name: config
@@ -179,10 +172,6 @@ spec:
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
-            {{- if $osfCollections.enabled }}
-            - name: OSF_COLLECTIONS_URL
-              value: http://{{ $osfCollections.service.name }}:{{ $osfCollections.service.externalPort }}/
-            {{- end }}
             {{- if $osfPreprints.enabled }}
             - name: OSF_PREPRINTS_URL
               value: http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }}/
