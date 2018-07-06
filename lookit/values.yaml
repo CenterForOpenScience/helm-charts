@@ -67,7 +67,7 @@ builder:
     minAvailable: 0
 
   concurrency: 1
-  maxTasksPerChild: 5
+  maxTasksPerChild: 1
   queues: builds,cleanup
 
   docker:
