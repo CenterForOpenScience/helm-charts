@@ -833,6 +833,52 @@ services/osf.json: |-
           }
       }
   }
+services/registries-osf.json: |-
+  {
+      "@class": "org.jasig.cas.services.RegexRegisteredService",
+      "id": 203948234207340,
+      "name": "",
+      "description": "",
+      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
+      "logo": "https://{{ .Values.casDomain }}/images/registries-osf-logo-black.png",
+      "evaluationOrder": 1001,
+      "attributeReleasePolicy": {
+          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
+          "allowedAttributes": [
+              "java.util.ArrayList", [
+                  "given-names",
+                  "family-name"
+              ]
+          ]
+      },
+      "properties": {
+          "@class": "java.util.HashMap",
+          "title": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "Open Science Framework"
+                  ]
+              ]
+          },
+          "titleAbbr": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "OSF"
+                  ]
+              ]
+          },
+          "registerUrl": {
+              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
+              "values": [
+                  "java.util.HashSet", [
+                      "?campaign=osf-registries"
+                  ]
+              ]
+          }
+      }
+  }
 services/preprints-osf.json: |-
   {
       "@class": "org.jasig.cas.services.RegexRegisteredService",
