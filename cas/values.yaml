@@ -105,6 +105,33 @@ preprintProviderDomains:
   prefix: staging-
   suffix: .cos.io
 
+networkPolicy:
+  enabled: false
+  # Allows external access to the pod, otherwise access is restricted to
+  # clients with the explicit label.
+  allowExternal: true
+  egress: {}
+    # - to:
+    #   - ipBlock:
+    #       cidr: 10.0.0.0/8
+    #   ports:
+    #     - port: 53  # dns
+    #       protocol: TCP
+    #     - port: 53  # dns
+    #       protocol: UDP
+    # - to:
+    #   - ipBlock:
+    #       cidr: 0.0.0.0/0
+    #       except:
+    #         - 10.0.0.0/8
+    #         - 172.16.0.0/12
+    #         - 192.168.0.0/16
+    #   ports:
+    #     - port: 80  # http
+    #       protocol: TCP
+    #     - port: 443  # https
+    #       protocol: TCP
+
 ### https://sentry.cos.io/sentry/{project}/settings/keys/
 sentryDSN: ''
 
