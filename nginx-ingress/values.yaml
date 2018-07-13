@@ -19,14 +19,9 @@ controller:
     # clients with the explicit label.
     allowExternal: true
     egress: {}
-      # # dns
+      # # internal
       # - to:
       #   - namespaceSelector: {}
-      #   ports:
-      #     - port: 53  # dns
-      #       protocol: TCP
-      #     - port: 53  # dns
-      #       protocol: UDP
       # # internet
       # - to:
       #   - ipBlock:
