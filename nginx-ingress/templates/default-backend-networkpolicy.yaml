@@ -1,0 +1,24 @@
+{{- if .Values.controller.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ template "nginx-ingress.defaultBackend.fullname" . }}
+  labels:
+    app: {{ template "nginx-ingress.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.defaultBackend.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ template "nginx-ingress.name" . }}
+      component: "{{ .Values.defaultBackend.name }}"
+      release: {{ .Release.Name }}
+  ingress:
+    - ports:
+      - port: 8080
+        protocol: TCP
+  egress:
+    {{- toYaml .Values.defaultBackend.networkPolicy.egress | nindent 4 }}
+{{- end }}

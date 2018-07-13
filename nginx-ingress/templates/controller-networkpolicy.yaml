@@ -1,0 +1,47 @@
+{{- if .Values.controller.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ template "nginx-ingress.controller.fullname" . }}
+  labels:
+    app: {{ template "nginx-ingress.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.controller.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ template "nginx-ingress.name" . }}
+      component: "{{ .Values.controller.name }}"
+      release: {{ .Release.Name }}
+  ingress:
+    - ports:
+      - port: 80
+        protocol: TCP
+      - port: 443
+        protocol: TCP
+      {{- range $key, $value := .Values.tcp }}
+      - port: {{ $key }}
+        protocol: TCP
+      {{- end }}
+      {{- range $key, $value := .Values.udp }}
+      - port: {{ $key }}
+        protocol: UDP
+      {{- end }}
+    {{- if .Values.controller.stats.enabled }}
+    - ports:
+      - port: 18080
+        protocol: TCP
+      - port: 9913
+        protocol: TCP
+      {{- if not .Values.controller.networkPolicy.allowExternal }}
+      from:
+        - podSelector:
+            matchLabels:
+              {{ template "nginx-ingress.controller.fullname" . }}-client: "true"
+      {{- end }}
+    {{- end }}
+  egress:
+    {{- toYaml .Values.controller.networkPolicy.egress | nindent 4 }}
+{{- end }}

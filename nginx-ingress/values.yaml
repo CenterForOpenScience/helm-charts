@@ -13,6 +13,34 @@ controller:
   budget:
     minAvailable: 1
 
+  networkPolicy:
+    enabled: false
+    # Allows stats external access to the pod, otherwise access is restricted to
+    # clients with the explicit label.
+    allowExternal: true
+    egress: {}
+      # # dns
+      # - to:
+      #   - namespaceSelector: {}
+      #   ports:
+      #     - port: 53  # dns
+      #       protocol: TCP
+      #     - port: 53  # dns
+      #       protocol: UDP
+      # # internet
+      # - to:
+      #   - ipBlock:
+      #       cidr: 0.0.0.0/0
+      #       except:
+      #         - 10.0.0.0/8
+      #         - 172.16.0.0/12
+      #         - 192.168.0.0/16
+      #   ports:
+      #     - port: 80  # http
+      #       protocol: TCP
+      #     - port: 443  # https
+      #       protocol: TCP
+
   config: {}
   # Will add custom header to Nginx https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/customization/custom-headers
   headers: {}
@@ -197,6 +225,31 @@ defaultBackend:
 
   budget:
     minAvailable: 1
+
+  networkPolicy:
+    enabled: false
+    egress: {}
+      # # dns
+      # - to:
+      #   - namespaceSelector: {}
+      #   ports:
+      #     - port: 53  # dns
+      #       protocol: TCP
+      #     - port: 53  # dns
+      #       protocol: UDP
+      # # internet
+      # - to:
+      #   - ipBlock:
+      #       cidr: 0.0.0.0/0
+      #       except:
+      #         - 10.0.0.0/8
+      #         - 172.16.0.0/12
+      #         - 192.168.0.0/16
+      #   ports:
+      #     - port: 80  # http
+      #       protocol: TCP
+      #     - port: 443  # https
+      #       protocol: TCP
 
   extraArgs: {}
 
