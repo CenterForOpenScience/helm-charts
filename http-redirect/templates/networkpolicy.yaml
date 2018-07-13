@@ -23,14 +23,5 @@ spec:
               {{ template "http-redirect.fullname" . }}-client: "true"
       {{- end }}
   egress:
-    {{- if .Values.postgresql.enabled }}
-    - to:
-      - podSelector:
-          matchLabels:
-            {{ template "http-redirect.fullname" . }}-client: "true"
-      ports:
-        - port: 5432
-          protocol: TCP
-    {{- end }}
     {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
 {{- end }}

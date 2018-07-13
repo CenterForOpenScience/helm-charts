@@ -93,8 +93,7 @@ networkPolicy:
   allowExternal: true
   egress: {}
     # - to:
-    #   - ipBlock:
-    #       cidr: 10.0.0.0/8
+    #   - namespaceSelector: {}
     #   ports:
     #     - port: 53  # dns
     #       protocol: TCP
