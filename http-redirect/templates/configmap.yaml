@@ -2,11 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    app: {{ template "name" . }}
+    app: {{ template "http-redirect.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  name: {{ template "fullname" . }}
+  name: {{ template "http-redirect.fullname" . }}
 data:
   nginx.conf: |-
     worker_processes  1;
