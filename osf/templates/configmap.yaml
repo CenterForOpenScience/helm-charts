@@ -632,6 +632,10 @@ web-nginx.conf: |-
           listen {{ .Values.web.service.internalPort }};
           server_name {{ join " " .Values.web.nginx.preprintDomains }};
 
+          if ($http_x_forwarded_proto = "http") {
+              return 301 https://$host$request_uri;
+          }
+
           location = /favicon.ico {
               alias /static/code/website/static/favicon.ico;
           }
@@ -682,6 +686,10 @@ web-nginx.conf: |-
           keepalive_timeout 620s;
 
           root /static/code;
+
+          if ($http_x_forwarded_proto = "http") {
+              return 301 https://$host$request_uri;
+          }
 
           location = /favicon.ico {
               alias /static/code/website/static/favicon.ico;
