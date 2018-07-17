@@ -649,30 +649,17 @@ web-nginx.conf: |-
               include /etc/nginx/prerender.conf;
               {{- end }}
 
+              # Mitigate HTTPoxy Vulnerability
+              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              proxy_set_header Proxy                  "";
+
               proxy_redirect off;
               proxy_buffering off;
               proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
           }
 
           location / {
-              {{- if .Values.prerender.enabled }}
-              include /etc/nginx/prerender.conf;
-              {{- end }}
-
-              # Disable caching of application requests
-              add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
-              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
-              add_header Pragma "no-cache";
-
-              # Mitigate HTTPoxy Vulnerability
-              # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
-              proxy_set_header Proxy                  "";
-
-              # Pass requests to uwsgi application
-              include /etc/nginx/uwsgi_params;
-              # WARNING: Turning off uwsgi buffering will disable nginx caching.
-              # uwsgi_buffering off;
-              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
+              return 301 https://{{ .Values.web.nginx.primaryDomain }}$request_uri;
           }
       }
       {{- end }}
