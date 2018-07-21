@@ -5,14 +5,6 @@ image:
   tag: 7.1.2
   pullPolicy: IfNotPresent
 
-resources: {}
-  #limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  #requests:
-  #  cpu: 100m
-  #  memory: 128Mi
-
 persistence:
   enabled: true
   # storageClass:
@@ -23,6 +15,46 @@ persistence:
 ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
 ##
 nodeSelector: {}
+
+# Nessus license is tied to the MAC address
+macAddress: 12-34-56-78-90-01
+
+bootstrap:
+  image:
+    repository: busybox
+    tag: latest
+    pullPolicy: Always
+
+docker:
+  image:
+    repository: docker
+    tag: '17.06'
+    pullPolicy: Always
+  imageCredentials:
+    enabled: false
+    #registry: https://gcr.io
+    #username: _json_key
+    #password: secret
+  resources: {}
+    #limits:
+    #  cpu: "1"
+    #  memory: 512Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 256Mi
+
+dind:
+  image:
+    repository: docker
+    tag: 17.06-dind
+    pullPolicy: Always
+  resources: {}
+    #limits:
+    #  cpu: "1"
+    #  memory: 512Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 256Mi
 
 service:
   name: https

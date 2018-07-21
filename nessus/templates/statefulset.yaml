@@ -24,8 +24,8 @@ spec:
     spec:
       initContainers:
         - name: bootstrap
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.bootstrap.image.repository }}:{{ .Values.bootstrap.image.tag }}"
+          imagePullPolicy: {{ .Values.bootstrap.image.pullPolicy }}
           command:
             - /bin/sh
             - -c
@@ -37,9 +37,30 @@ spec:
             - mountPath: /data
               name: data
       containers:
-        - name: nessus
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: docker
+          image: "{{ .Values.docker.image.repository }}:{{ .Values.docker.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - docker
+            - run
+            - --rm
+            - --interactive
+            - --mac-address
+            - "{{ .Values.macAddress }}"
+            - --publish
+            - "{{ .Values.service.internalPort }}:{{ .Values.service.internalPort }}"
+            - --volume
+            - /opt/nessus:/opt/nessus
+            - --name
+            - nessus
+            - "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            ## Sleep the container for upgrades, copy and place file in /opt/nessus, exec into container and perform upgrade
+            #- /bin/bash
+            #- -c
+            #- "sleep 9999999999999"
+          env:
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
           ports:
             - name: https
               containerPort: {{ .Values.service.internalPort }}
@@ -62,8 +83,30 @@ spec:
               mountPath: /opt/nessus/var/nessus/CA/serverkey.pem
               readOnly: true
             {{- end }}
+            {{- if .Values.docker.imageCredentials.enabled }}
+            - name: secret
+              subPath: .dockerconfigjson
+              mountPath: /root/.docker/config.json
+              readOnly: true
+            {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.docker.resources | nindent 12 }}
+        - name: dind
+          image: "{{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}"
+          imagePullPolicy: {{ .Values.dind.image.pullPolicy }}
+          args:
+            - --storage-driver=overlay
+          ports:
+            - name: dind
+              containerPort: 2375
+          volumeMounts:
+            - mountPath: /opt/nessus
+              name: data
+              subPath: nessus
+          securityContext:
+            privileged: true
+          resources:
+            {{- toYaml .Values.dind.resources | nindent 12 }}
       volumes:
         {{- if not .Values.persistence.enabled }}
         - name: data
