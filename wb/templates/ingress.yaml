@@ -52,11 +52,11 @@ spec:
     {{- toYaml .Values.ingress.tls | nindent 4 }}
     {{- end -}}
     {{- if .Values.certificate.enabled }}
-    - secretName: {{ include "wb.fullname" . }}
+    - secretName: "{{ template "wb.certificate.fullname" . }}"
       hosts:
-        {{- range .Values.certificate.dnsNames }}
+        {{- range .Values.certificate.acmeConfig.http01.domains }}
         - {{ . }}
-        {{- end -}}
+        {{- end }}
     {{- end -}}
   {{- end -}}
 {{- end -}}

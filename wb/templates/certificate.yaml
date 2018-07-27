@@ -2,14 +2,15 @@
 apiVersion: certmanager.k8s.io/v1alpha1
 kind: Certificate
 metadata:
-  name: "{{ template "wb.fullname" . }}"
+  name: "{{ template "wb.certificate.fullname" . }}"
   labels:
     app: {{ template "wb.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.certificate.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
-  secretName: "{{ template "wb.fullname" . }}"
+  secretName: "{{ template "wb.certificate.fullname" . }}"
   issuerRef:
     name: {{ .Values.certificate.issuerRef.name }}
     kind: {{ .Values.certificate.issuerRef.kind }}
@@ -17,7 +18,7 @@ spec:
   dnsNames:
     {{- range .Values.certificate.dnsNames }}
     - {{ . }}
-    {{- end -}}
+    {{- end }}
   acme:
     config:
       - http01:
@@ -25,5 +26,5 @@ spec:
         domains:
           {{- range .Values.certificate.acmeConfig.http01.domains }}
           - {{ . }}
-          {{- end -}}
+          {{- end }}
 {{- end -}}
