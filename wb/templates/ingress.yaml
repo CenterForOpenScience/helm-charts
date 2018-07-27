@@ -46,8 +46,17 @@ spec:
           {{- end -}}
     {{- end -}}
     {{- end -}}
-  {{- if .Values.ingress.tls }}
+  {{- if (or .Values.ingress.tls .Values.certificate.enabled) }}
   tls:
+    {{- if .Values.ingress.tls }}
     {{- toYaml .Values.ingress.tls | nindent 4 }}
+    {{- end -}}
+    {{- if .Values.certificate.enabled }}
+    - secretName: {{ include "wb.fullname" . }}
+      hosts:
+        {{- range .Values.certificate.dnsNames }}
+        - {{ . }}
+        {{- end -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}

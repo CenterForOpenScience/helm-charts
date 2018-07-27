@@ -1,0 +1,29 @@
+{{- if .Values.certificate.enabled -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: "{{ template "wb.fullname" . }}"
+  labels:
+    app: {{ template "wb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  secretName: "{{ template "wb.fullname" . }}"
+  issuerRef:
+    name: {{ .Values.certificate.issuerRef.name }}
+    kind: {{ .Values.certificate.issuerRef.kind }}
+  commonName: {{ .Values.certificate.commonName }}
+  dnsNames:
+    {{- range .Values.certificate.dnsNames }}
+    - {{ . }}
+    {{- end -}}
+  acme:
+    config:
+      - http01:
+          ingress: {{ template "wb.fullname" . }}
+        domains:
+          {{- range .Values.certificate.acmeConfig.http01.domains }}
+          - {{ . }}
+          {{- end -}}
+{{- end -}}

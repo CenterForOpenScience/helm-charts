@@ -90,6 +90,21 @@ ingress:
   #   hosts:
   #   - staging-files.osf.io
 
+certificate:
+  enabled: false
+  # issuerRef:
+  #   name: letsencrypt-prod
+  #   kind: ClusterIssuer
+  # commonName: example.org
+  # dnsNames:
+  #   - example.org
+  #   - subdomain.example.org
+  # acmeConfig:
+  #   http01:
+  #     domains:
+  #       - example.org
+  #       - subdomain.example.org
+
 networkPolicy:
   enabled: false
   # Allows external access to the pod, otherwise access is restricted to
