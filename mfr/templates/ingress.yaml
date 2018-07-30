@@ -46,8 +46,17 @@ spec:
           {{- end -}}
     {{- end -}}
     {{- end -}}
-  {{- if .Values.ingress.tls }}
+  {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
   tls:
+    {{- if .Values.ingress.tls }}
     {{- toYaml .Values.ingress.tls | nindent 4 }}
+    {{- end -}}
+    {{- if .Values.certificate.tls }}
+    - secretName: "{{ template "mfr.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.certificate.acmeConfig.http01.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
