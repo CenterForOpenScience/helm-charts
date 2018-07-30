@@ -46,12 +46,12 @@ spec:
           {{- end -}}
     {{- end -}}
     {{- end -}}
-  {{- if (or .Values.ingress.tls .Values.certificate.enabled) }}
+  {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
   tls:
     {{- if .Values.ingress.tls }}
     {{- toYaml .Values.ingress.tls | nindent 4 }}
     {{- end -}}
-    {{- if .Values.certificate.enabled }}
+    {{- if .Values.certificate.tls }}
     - secretName: "{{ template "wb.certificate.fullname" . }}"
       hosts:
         {{- range .Values.certificate.acmeConfig.http01.domains }}
