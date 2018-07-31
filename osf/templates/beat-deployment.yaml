@@ -71,6 +71,8 @@ spec:
             - /bin/sh
             - -c
             - |-
+              set -e
+              gosu www-data python manage.py checkmigrations
               PREFIX=''
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
