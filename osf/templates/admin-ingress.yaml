@@ -45,8 +45,17 @@ spec:
           {{- end -}}
     {{- end -}}
     {{- end -}}
-  {{- if .Values.admin.ingress.tls }}
+  {{- if (or .Values.admin.ingress.tls (and .Values.admin.certificate.enabled .Values.admin.certificate.tls)) }}
   tls:
+    {{- if .Values.admin.ingress.tls }}
     {{- toYaml .Values.admin.ingress.tls | nindent 4 }}
+    {{- end -}}
+    {{- if .Values.admin.certificate.tls }}
+    - secretName: "{{ template "osf.admin.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.admin.certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
   {{- end -}}
 {{- end -}}

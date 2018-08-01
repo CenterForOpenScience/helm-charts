@@ -9,6 +9,9 @@ nginx:
     tag: latest
     pullPolicy: Always
 
+networkPolicy:
+  enabled: false
+
 admin:
   enabled: true
   name: admin
@@ -77,7 +80,28 @@ admin:
       # - secretName: example-tls
       #   hosts:
       #     - example.domain.com
-  
+
+  certificate:
+    enabled: false
+    name: cert
+    # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
+    # - Issue: https://github.com/jetstack/cert-manager/issues/606
+    # - PR: https://github.com/kubernetes/ingress-gce/pull/388
+    tls: true
+    # issuerRef:
+    #   name: letsencrypt-prod
+    #   kind: ClusterIssuer
+    # commonName: example.org
+    # dnsNames:
+    #   - example.org
+    #   - subdomain.example.org
+    # acmeConfig:
+    #   http01: {}
+    #     # ingress: ''
+    #   domains:
+    #     - example.org
+    #     - subdomain.example.org
+
   persistence:
     enabled: false
     ## A manually managed Persistent Volume and Claim
@@ -166,6 +190,27 @@ api:
       # - secretName: example-tls
       #   hosts:
       #     - example.domain.com
+
+  certificate:
+    enabled: false
+    name: cert
+    # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
+    # - Issue: https://github.com/jetstack/cert-manager/issues/606
+    # - PR: https://github.com/kubernetes/ingress-gce/pull/388
+    tls: true
+    # issuerRef:
+    #   name: letsencrypt-prod
+    #   kind: ClusterIssuer
+    # commonName: example.org
+    # dnsNames:
+    #   - example.org
+    #   - subdomain.example.org
+    # acmeConfig:
+    #   http01: {}
+    #     # ingress: ''
+    #   domains:
+    #     - example.org
+    #     - subdomain.example.org
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
@@ -349,6 +394,27 @@ web:
       # - secretName: example-tls
       #   hosts:
       #     - example.domain.com
+
+  certificate:
+    enabled: false
+    name: cert
+    # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
+    # - Issue: https://github.com/jetstack/cert-manager/issues/606
+    # - PR: https://github.com/kubernetes/ingress-gce/pull/388
+    tls: true
+    # issuerRef:
+    #   name: letsencrypt-prod
+    #   kind: ClusterIssuer
+    # commonName: example.org
+    # dnsNames:
+    #   - example.org
+    #   - subdomain.example.org
+    # acmeConfig:
+    #   http01: {}
+    #     # ingress: ''
+    #   domains:
+    #     - example.org
+    #     - subdomain.example.org
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
