@@ -22,9 +22,13 @@ spec:
   acme:
     config:
       - http01:
+          {{- if hasKey .Values.certificate.acmeConfig.http01 "ingress" }}
+          ingress: {{ .Values.certificate.acmeConfig.http01.ingress }}
+          {{- else }}
           ingress: {{ template "wb.fullname" . }}
+          {{- end }}
         domains:
-          {{- range .Values.certificate.acmeConfig.http01.domains }}
+          {{- range .Values.certificate.acmeConfig.domains }}
           - {{ . }}
           {{- end }}
 {{- end -}}

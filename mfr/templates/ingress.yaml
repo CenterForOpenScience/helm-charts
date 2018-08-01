@@ -54,7 +54,7 @@ spec:
     {{- if .Values.certificate.tls }}
     - secretName: "{{ template "mfr.certificate.fullname" . }}"
       hosts:
-        {{- range .Values.certificate.acmeConfig.http01.domains }}
+        {{- range .Values.certificate.acmeConfig.domains }}
         - {{ . }}
         {{- end }}
     {{- end -}}

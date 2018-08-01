@@ -101,10 +101,11 @@ certificate:
   #   - example.org
   #   - subdomain.example.org
   # acmeConfig:
-  #   http01:
-  #     domains:
-  #       - example.org
-  #       - subdomain.example.org
+  #   http01: {}
+  #     # ingress: ''
+  #   domains:
+  #     - example.org
+  #     - subdomain.example.org
 
 networkPolicy:
   enabled: false
