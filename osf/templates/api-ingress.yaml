@@ -50,7 +50,7 @@ spec:
     {{- if .Values.api.ingress.tls }}
     {{- toYaml .Values.api.ingress.tls | nindent 4 }}
     {{- end -}}
-    {{- if .Values.api.certificate.tls }}
+    {{- if (and .Values.api.certificate.enabled .Values.api.certificate.tls) }}
     - secretName: "{{ template "osf.api.certificate.fullname" . }}"
       hosts:
         {{- range .Values.api.certificate.acmeConfig.domains }}

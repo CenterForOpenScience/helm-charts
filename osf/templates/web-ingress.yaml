@@ -62,7 +62,7 @@ spec:
     {{- if .Values.web.ingress.tls }}
     {{- toYaml .Values.web.ingress.tls | nindent 4 }}
     {{- end -}}
-    {{- if .Values.web.certificate.tls }}
+    {{- if (and .Values.web.certificate.enabled .Values.web.certificate.tls) }}
     - secretName: "{{ template "osf.web.certificate.fullname" . }}"
       hosts:
         {{- range .Values.web.certificate.acmeConfig.domains }}
