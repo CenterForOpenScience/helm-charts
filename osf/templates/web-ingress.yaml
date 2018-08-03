@@ -57,7 +57,7 @@ spec:
           {{- end }}
     {{- end -}}
     {{- end -}}
-  {{- if (or .Values.web.ingress.tls (and .Values.web.certificate.enabled .Values.web.certificate.tls)) }}
+  {{- if (or .Values.web.ingress.tls (and .Values.web.certificate.enabled .Values.web.certificate.tls) .Values.web.additionalCertificates) }}
   tls:
     {{- if .Values.web.ingress.tls }}
     {{- toYaml .Values.web.ingress.tls | nindent 4 }}
@@ -69,5 +69,14 @@ spec:
         - {{ . }}
         {{- end }}
     {{- end -}}
+    {{- range $certificate := .Values.web.additionalCertificates }}
+    {{- $name := default $.Chart.Name $.Values.nameOverride }}
+    {{- $certificateFullName := (printf "%s-%s-%s" $.Release.Name $name $certificate.name | trunc 63 | trimSuffix "-") }}
+    - secretName: {{ $certificateFullName }}
+      hosts:
+        {{- range $certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end }}
   {{- end -}}
 {{- end -}}

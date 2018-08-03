@@ -410,12 +410,28 @@ web:
     # dnsNames:
     #   - example.org
     #   - subdomain.example.org
-    # acmeConfig:
-    #   http01: {}
-    #     # ingress: ''
-    #   domains:
+    acmeConfig:
+      http01: {}
+        # ingress: ''
+      domains:
+        - example.org
+        - subdomain.example.org
+
+  additionalCertificates: []
+    # - name: example-org-cert
+    #   commonName: example.org
+    #   dnsNames:
     #     - example.org
-    #     - subdomain.example.org
+    #     - submdomain.example.org
+    #   issuerRef:
+    #     name: letsencrypt-prod
+    #     kind: ClusterIssuer
+    #   acmeConfig:
+    #     http01: {}
+    #       # ingress: ''
+    #     domains:
+    #       - example.org
+    #       - subdomain.example.org
 
   ## Node labels for component pod assignment
   ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
