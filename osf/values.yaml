@@ -572,6 +572,8 @@ secretFiles: {}
   #   ...
   # addons-osfstorage-local.py: |-
   #   ...
+  # addons-s3-local.py: |-
+  #   ...
   # addons-wiki-local.py: |-
   #   ...
   # addons-zotero-local.py: |-
@@ -635,6 +637,10 @@ volumeMounts:
   - mountPath: /code/addons/osfstorage/settings/local.py
     name: secret
     subPath: addons-osfstorage-local.py
+    readOnly: true
+  - mountPath: /code/addons/s3/settings/local.py
+    name: secret
+    subPath: addons-s3-local.py
     readOnly: true
   - mountPath: /code/addons/wiki/settings/local.py
     name: secret
