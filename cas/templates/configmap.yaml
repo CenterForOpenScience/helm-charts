@@ -260,6 +260,7 @@ httpd/conf.d/shib.conf: |-
 
     <Location />
       # ShibDisable on
+      ShibRequestSetting REMOTE_ADDR X-Forwarded-For
 
       ProxyPass http://127.0.0.1:{{ .Values.service.externalPort }}/
       ProxyPassReverse http://127.0.0.1:{{ .Values.service.externalPort }}/
