@@ -45,6 +45,15 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              while true; do
+                  yarn start &
+                  sleep ${TIMEOUT:-60m}
+                  pkill node
+              done
           env:
             {{- include "hubot.environment" . | nindent 12 }}
           ports:
