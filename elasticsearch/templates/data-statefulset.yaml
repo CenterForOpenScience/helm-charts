@@ -88,7 +88,7 @@ spec:
           name: plugins
       {{- end }}
       containers:
-      - name: elasticsearch
+      - name: elasticsearch-data
         env:
         - name: DISCOVERY_SERVICE
           value: {{ template "elasticsearch.master.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.cluster.kubernetesDomain }}
