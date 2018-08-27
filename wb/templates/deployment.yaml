@@ -85,16 +85,26 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - gosu
-            - www-data
-            - invoke
-            - server
+            - /bin/sh
+            - -c
+            - |-
+              set -e
+              gosu www-data python manage.py checkmigrations
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data invoke server
           env:
             {{- include "wb.environment" . | nindent 12 }}
             - name: ENV
               value: kube
             - name: TASKS_CONFIG_BROKER_URL
               value: "amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@127.0.0.1:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}"
+            {{- range $key, $value := .Values.tornado.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.externalPort }}
@@ -111,6 +121,9 @@ spec:
               mountPath: /data
             - name: pickles
               mountPath: /pickles
+            {{- if .Values.tornado.volumeMounts }}
+            {{- toYaml .Values.tornado.volumeMounts | nindent 12 }}
+            {{- end }}
           {{- if .Values.tornado.resources }}
           resources:
             {{- toYaml .Values.tornado.resources | nindent 12 }}
@@ -142,6 +155,10 @@ spec:
               value: kube
             - name: TASKS_CONFIG_BROKER_URL
               value: "amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@127.0.0.1:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}"
+            {{- range $key, $value := .Values.worker.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           volumeMounts:
             - name: secret
               subPath: settings.json
@@ -151,6 +168,9 @@ spec:
               mountPath: /data
             - name: pickles
               mountPath: /pickles
+            {{- if .Values.worker.volumeMounts }}
+            {{- toYaml .Values.worker.volumeMounts | nindent 12 }}
+            {{- end }}
           {{- if .Values.worker.resources }}
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}

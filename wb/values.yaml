@@ -45,12 +45,13 @@ tornado:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
+  volumeMounts: []
+  env: {}
 
 worker:
   concurrency: 2
   logLevel: INFO
   maxTasksPerChild: 5
-
   resources: {}
     # limits:
     #   cpu: 2
@@ -58,6 +59,8 @@ worker:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
+  volumeMounts: []
+  env: {}
 
 horizontalPodAutoscaler:
   enabled: false
