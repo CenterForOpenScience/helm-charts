@@ -328,6 +328,15 @@ cas.properties: |-
   cas.institution.login.url=/login?campaign=institution
 
   ##
+  # Login Rate Limiting
+  #
+  cas.rateLimiting.failureRangeInSeconds=${CAS_RL_FAILURE_RANGE_IN_SECONDS:1}
+  cas.rateLimiting.failureThreshold=${CAS_RL_FAILURE_THRESHOLD:5}
+  cas.rateLimiting.usernameParameter=${CAS_RL_USERNAME_PARAMETER:username}
+  cas.rateLimiting.startDelay=${CAS_RL_START_DELAY:1000}
+  cas.rateLimiting.repeatInterval=${CAS_RL_REPEAT_INTERVAL:5000}
+
+  ##
   # Authentication Delegation: General
   #
   delegation.redirect.uri=https://{{ .Values.casDomain }}/login
