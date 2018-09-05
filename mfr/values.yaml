@@ -10,6 +10,12 @@ image:
 
 antiAffinity: soft
 
+# strategy:
+#   rollingUpdate:
+#     maxSurge: 25%
+#     maxUnavailable: 25%
+#   type: RollingUpdate
+
 budget:
   minAvailable: 0
 
