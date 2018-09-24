@@ -21,3 +21,14 @@ Overridable deployment annotations
 {{- define "ember.deploymentAnnotations" -}}
 checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 {{- end -}}
+
+{{- define "ember.environment" -}}
+{{- $fullname := include "ember.fullname" . -}}
+{{- range $key := keys .Values.configEnvs }}
+- name: {{ $key }}
+  valueFrom:
+    configMapKeyRef:
+      name: {{ $fullname }}
+      key: {{ $key }}
+{{- end -}}
+{{- end -}}

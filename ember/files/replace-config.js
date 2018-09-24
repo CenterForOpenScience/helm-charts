@@ -1,15 +1,10 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const newConfig = require('./config.json');
+const { MULTI_CONFIG = 'false' } = process.env;
 
-const filename = '/code/dist/index.html';
-const page = fs.readFileSync(filename, {encoding: 'utf8'});
-const rawConfig = /<meta name=".+?\/config\/environment" content="(.+?)"\W*\/?>/.exec(page)[1];
-const config = JSON.parse(unescape(rawConfig));
 
-// Deep merge, overrides config with newConfig recursively
-(function deepMerge(newObj, oldObj) {
+function deepMerge(newObj, oldObj) {
     for (const [key, val] of Object.entries(newObj)) {
         if (oldObj[key] && val && typeof val === 'object' && !Array.isArray(val)) {
             deepMerge(val, oldObj[key]);
@@ -18,12 +13,30 @@ const config = JSON.parse(unescape(rawConfig));
 
         oldObj[key] = newObj[key];
     }
-})(newConfig, config);
+}
 
-// Stringify and escape the new config
-const updatedConfig = escape(JSON.stringify(config));
-// Replace the old config on the page with the new config
-const updatedPage = page.replace(rawConfig, updatedConfig);
+function updateConfig(page, metaName, newConfig) {
+    const rgxStr = `<meta name="(${metaName})" content="(.+?)"\\W*\\/?>`;
+
+    return page.replace(new RegExp(rgxStr), (_, name, rawConfig) => {
+        const config = JSON.parse(unescape(rawConfig));
+
+        // Deep merge, overrides config with newConfig recursively
+        deepMerge(newConfig, config);
+    
+        // Stringify and escape the new config
+        const updatedConfig = escape(JSON.stringify(config));
+
+        return `<meta name="${name}" content="${updatedConfig}" />`;
+    });
+}
+
+const deserializedConfig = require('./config.json');
+const newConfigs = MULTI_CONFIG === 'true' ? deserializedConfig : { '.+?/config/environment':  deserializedConfig };
+const filename = '/code/dist/index.html';
+const page = fs.readFileSync(filename, {encoding: 'utf8'});
+const updatedPage = Object.entries(newConfigs)
+    .reduce((acc, [key, val]) => updateConfig(acc, key.replace('/', '\\/'), val), page);
 
 // Write out the file
 fs.writeFileSync(filename, updatedPage);

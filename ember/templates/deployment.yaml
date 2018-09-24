@@ -57,6 +57,8 @@ spec:
               node /code/replace-config.js
               {{- end }}
               cp -Rf /code/dist/* /static/
+          env:
+            {{- include "ember.environment" . | indent 12 }}
           volumeMounts:
             - name: static
               mountPath: /static
@@ -80,6 +82,8 @@ spec:
             - /etc/nginx/nginx.conf
             - -g
             - daemon off;
+          env:
+            {{- include "ember.environment" . | indent 12 }}
           volumeMounts:
             - mountPath: /static
               name: static
