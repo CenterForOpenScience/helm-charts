@@ -3,7 +3,6 @@
 const fs = require('fs');
 const { MULTI_CONFIG = 'false' } = process.env;
 
-
 function deepMerge(newObj, oldObj) {
     for (const [key, val] of Object.entries(newObj)) {
         if (oldObj[key] && val && typeof val === 'object' && !Array.isArray(val)) {
@@ -15,8 +14,8 @@ function deepMerge(newObj, oldObj) {
     }
 }
 
-function updateConfig(page, metaName, newConfig) {
-    const rgxStr = `<meta name="(${metaName})" content="(.+?)"\\W*\\/?>`;
+function updateConfig(page, [metaName, newConfig]) {
+    const rgxStr = `<meta name="(${metaName.replace('/', '\\/')})" content="(.+?)"\\W*\\/?>`;
 
     return page.replace(new RegExp(rgxStr), (_, name, rawConfig) => {
         const config = JSON.parse(unescape(rawConfig));
@@ -35,8 +34,7 @@ const deserializedConfig = require('./config.json');
 const newConfigs = MULTI_CONFIG === 'true' ? deserializedConfig : { '.+?/config/environment':  deserializedConfig };
 const filename = '/code/dist/index.html';
 const page = fs.readFileSync(filename, {encoding: 'utf8'});
-const updatedPage = Object.entries(newConfigs)
-    .reduce((acc, [key, val]) => updateConfig(acc, key.replace('/', '\\/'), val), page);
+const updatedPage = Object.entries(newConfigs).reduce(updateConfig, page);
 
 // Write out the file
 fs.writeFileSync(filename, updatedPage);
