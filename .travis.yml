@@ -15,6 +15,7 @@ install:
 before_script:
   - /tmp/helm init --client-only
   - /tmp/helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  - /tmp/helm repo add cos https://centerforopenscience.github.io/helm-charts/
   - |
     for chart in $(find . -name 'requirements.yaml'); do
       /tmp/helm dep build $(dirname ${chart})
