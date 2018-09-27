@@ -53,6 +53,7 @@ spec:
             - /bin/sh
             - -c
             - |-
+              set -e
               {{ if hasKey .Values.configFiles "config.json" -}}
               node /code/replace-config.js
               {{- end }}
