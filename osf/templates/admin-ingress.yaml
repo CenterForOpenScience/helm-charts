@@ -16,21 +16,6 @@ metadata:
   {{- end }}
 spec:
   rules:
-    {{- if .Values.maintenance.enabled }}
-    {{- $serviceName := include "maintenance.fullname" . -}}
-    {{- $servicePort := .Values.maintenance.service.externalPort -}}
-    {{- range .Values.admin.ingress.hosts }}
-    - host: {{ . }}
-      http:
-        paths:
-          {{- range $ingressPaths }}
-          - path: {{ . }}
-            backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
-          {{- end -}}
-    {{- end -}}
-    {{- else -}}
     {{- $serviceName := include "osf.admin.fullname" . -}}
     {{- $servicePort := .Values.admin.service.externalPort -}}
     {{- range .Values.admin.ingress.hosts }}
@@ -43,7 +28,6 @@ spec:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
           {{- end -}}
-    {{- end -}}
     {{- end -}}
   {{- if (or .Values.admin.ingress.tls (and .Values.admin.certificate.enabled .Values.admin.certificate.tls)) }}
   tls:
