@@ -1,11 +1,11 @@
 # Default values for elasticsearch.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-appVersion: "6.1"
+appVersion: "6.4"
 
 image:
   repository: docker.elastic.co/elasticsearch/elasticsearch-oss
-  tag: "6.1.2"
+  tag: "6.4.1"
   pullPolicy: Always
 
 cluster:
@@ -23,7 +23,7 @@ cluster:
 plugins:
   enabled: false
   # install:
-  #   - com.floragunn:search-guard-ssl:6.1.2-25.0
+  #   - com.floragunn:search-guard-6:6.4.1-23.1
   # remove:
   #   - x-pack
 
@@ -36,12 +36,18 @@ xpack:
   #   xpack.security.enabled: ${XPACK_SECURITY_ENABLED:false}
   #   xpack.watcher.enabled: ${XPACK_WATCHER_ENABLED:false}
 
-## TLS support. Generate certificates with OpenSSL
-tls:
+searchguard:
   enabled: false
   # config:
-  #   # see https://github.com/floragunncom/search-guard-ssl/blob/master/src/main/java/com/floragunn/searchguard/ssl/util/SSLConfigConstants.java#L28
-  #   #
+  #   # Example: https://github.com/floragunncom/search-guard/blob/master/sgconfig/elasticsearch.yml.example
+  #   searchguard.enterprise_modules_enabled: false
+  #   searchguard.allow_default_init_sgindex: true
+  #   searchguard.authcz.admin_dn:
+  #     - CN=kirk,OU=client,O=client,l=tEst, C=De
+  #   searchguard.nodes_dn:
+  #     - "CN=*.example.com, OU=SSL, O=Test, L=Test, C=DE"
+  #     - "CN=node.other.com, OU=SSL, O=Test, L=Test, C=DE"
+  #
   #   # HTTP Configuration
   #   searchguard.ssl.http.enabled: true
   #   searchguard.ssl.http.pemkey_filepath: server_key.pem
@@ -53,7 +59,7 @@ tls:
   #   searchguard.ssl.http.crl.prefer_crlfile_over_ocsp: true
   #   searchguard.ssl.http.crl.check_only_end_entities: false
   #   searchguard.ssl.http.clientauth_mode: REQUIRE
-
+  #
   #   # Transport Configuration
   #   searchguard.ssl.transport.enabled: true
   #   searchguard.ssl.transport.pemkey_filepath: server_key.pem
@@ -62,6 +68,67 @@ tls:
   #   searchguard.ssl.transport.pemtrustedcas_filepath: ca_cert.pem
   #   searchguard.ssl.transport.enforce_hostname_verification: false
   #   searchguard.ssl.transport.resolve_hostname: false
+  # files:
+    # Client Certificate Auth
+    # e.g. https://github.com/floragunncom/search-guard/blob/master/sgconfig/sg_config.yml
+    # search-guard-6/sgconfig/sg_config.yml: |-
+    #   searchguard:
+    #     dynamic:
+    #       authc:
+    #         clientcert_auth_domain:
+    #           http_enabled: true
+    #           transport_enabled: true
+    #           order: 0
+    #           http_authenticator:
+    #             type: clientcert
+    #             config:
+    #               username_attribute: cn  # optional, if omitted DN becomes username
+    #             challenge: false
+    #           authentication_backend:
+    #             type: noop
+    # e.g. https://github.com/floragunncom/search-guard/blob/master/sgconfig/sg_internal_users.yml
+    # search-guard-6/sgconfig/sg_internal_users.yml: |-
+    #   ...
+    # e.g. https://github.com/floragunncom/search-guard/blob/master/sgconfig/sg_action_groups.yml
+    # search-guard-6/sgconfig/sg_action_groups.yml: |-
+    #   ...
+    # e.g. https://github.com/floragunncom/search-guard/blob/master/sgconfig/sg_roles.yml
+    # search-guard-6/sgconfig/sg_roles.yml: |-
+    #   # Allows everything, but no changes to searchguard configuration index
+    #   sg_all_access:
+    #     readonly: true
+    #     cluster:
+    #       - UNLIMITED
+    #     indices:
+    #       '*':
+    #         '*':
+    #           - UNLIMITED
+    #     tenants:
+    #       admin_tenant: RW
+    #
+    #   # Allows each user to access own named index
+    #   sg_own_index:
+    #     cluster:
+    #       - CLUSTER_COMPOSITE_OPS
+    #     indices:
+    #       '${user_name}':
+    #         '*':
+    #           - INDICES_ALL
+    # e.g. https://github.com/floragunncom/search-guard/blob/master/sgconfig/sg_roles_mapping.yml
+    # search-guard-6/sgconfig/sg_roles_mapping.yml: |-
+    #   # empty configuration
+    #   sg_all_access:
+    #     readonly: true
+    #     backendroles:
+    #       - admin
+    #
+    #   sg_own_index:
+    #     users:
+    #       - '*'
+
+## TLS support. Generate certificates with OpenSSL
+tls:
+  enabled: false
   # files:
   #   # Server Certificate
   #   server_cert.pem: |-

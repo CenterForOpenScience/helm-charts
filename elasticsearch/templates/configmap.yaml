@@ -50,17 +50,13 @@ data:
     {{- end }}
 
     # X-Pack
-    {{- if .Values.xpack.enabled }}
-    {{- range $key, $value :=  .Values.xpack.config }}
-    {{ $key }}: {{ $value }}
-    {{- end }}
+    {{- if and .Values.xpack.enabled .Values.xpack.config }}
+    {{- toYaml .Values.xpack.config | nindent 4 }}
     {{- end }}
 
-    # Search Guard SSL
-    {{- if .Values.tls.enabled }}
-    {{- range $key, $value :=  .Values.tls.config }}
-    {{ $key }}: {{ $value }}
-    {{- end }}
+    # Search Guard
+    {{- if and .Values.searchguard.enabled .Values.searchguard.config }}
+    {{- toYaml .Values.searchguard.config | nindent 4 }}
     {{- end }}
   {{- if semverCompare "^2.x" .Values.appVersion }}
   logging.yml: |-
@@ -92,7 +88,7 @@ data:
     rootLogger.level = info
     rootLogger.appenderRef.console.ref = console
 
-    {{- if .Values.tls.enabled }}
+    {{- if .Values.searchguard.enabled }}
     logger.searchguard.name = com.floragunn
     logger.searchguard.level = info
     {{- end }}

@@ -156,22 +156,20 @@ spec:
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh
         {{- if .Values.tls.enabled }}
-        - mountPath: /usr/share/elasticsearch/config/server_cert.pem
+        {{- range $key := keys .Values.tls.files }}
+        - mountPath: /usr/share/elasticsearch/config/{{ $key }}
           name: secret
-          subPath: server_cert.pem
+          subPath: tls-{{ $key | replace "/" "-" }}
           readOnly: true
-        - mountPath: /usr/share/elasticsearch/config/server_key.pem
+        {{- end }}
+        {{- end }}
+        {{- if .Values.searchguard.enabled }}
+        {{- range $key := keys .Values.searchguard.files }}
+        - mountPath: /usr/share/elasticsearch/plugins/{{ $key }}
           name: secret
-          subPath: server_key.pem
+          subPath: sg-{{ $key | replace "/" "-" }}
           readOnly: true
-        - mountPath: /usr/share/elasticsearch/config/ca_cert.pem
-          name: secret
-          subPath: ca_cert.pem
-          readOnly: true
-        - mountPath: /usr/share/elasticsearch/config/ca_crl.pem
-          name: secret
-          subPath: ca_crl.pem
-          readOnly: true
+        {{- end }}
         {{- end }}
         {{- if .Values.plugins.enabled }}
         - mountPath: /usr/share/elasticsearch/plugins
@@ -194,11 +192,9 @@ spec:
       - name: data
         emptyDir: {}
       {{- end }}
-      {{- if .Values.tls.enabled }}
       - name: secret
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}
-      {{- end }}
       {{- if .Values.plugins.enabled }}
       - name: plugins
         emptyDir: {}
