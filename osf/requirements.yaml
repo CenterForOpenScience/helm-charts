@@ -3,6 +3,10 @@ dependencies:
     version: 0.1.10
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch.enabled, global.elasticsearch.enabled
+  - name: elasticsearch
+    version: 0.5.0
+    repository: https://centerforopenscience.github.io/helm-charts/
+    condition: elasticsearch6.enabled, global.elasticsearch6.enabled
   - name: maintenance
     version: 0.1.0
     repository: file://../maintenance
