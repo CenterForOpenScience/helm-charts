@@ -211,6 +211,10 @@ pod.beta.kubernetes.io/init-containers: null
 - name: ELASTIC_URI
   value: http://{{ template "elasticsearch.client.fullname" . }}:9200
 {{- end }}
+{{- if .Values.elasticsearch6.enabled }}
+- name: ELASTIC6_URI
+  value: http://{{ template "elasticsearch6.client.fullname" . }}:9200
+{{- end }}
 {{- $fullname := include "osf.fullname" . -}}
 {{- range $key, $value := .Values.configEnvs }}
 - name: {{ $key }}
