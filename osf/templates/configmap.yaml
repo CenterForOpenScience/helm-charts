@@ -440,7 +440,7 @@ web-nginx-redis.conf: |-
       set_unescape_uri $redis_key $arg_key;
       set_md5 $redis_key;
 
-      redis_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
+      redis_pass {{ template "osf.redis.fullname" . }}:{{ .Values.redis.service.port }};
   }
 
   location = /redis2_set {
@@ -452,7 +452,7 @@ web-nginx-redis.conf: |-
 
       redis2_query set $key $echo_request_body;
       redis2_query expire $key $exptime;
-      redis2_pass {{ template "redis.fullname" . }}:{{ .Values.redis.service.port }};
+      redis2_pass {{ template "osf.redis.fullname" . }}:{{ .Values.redis.service.port }};
   }
 web-nginx-redis-cache.conf: |-
   # NOTE: $not_cacheable is set via map in order to be available at the correct phase for srcache skip

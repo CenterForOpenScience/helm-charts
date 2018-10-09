@@ -118,7 +118,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Create a default fully qualified maintenance name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "maintenance.fullname" -}}
+{{- define "osf.maintenance.fullname" -}}
 {{- $name := "maintenance" -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -127,7 +127,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Create a default fully qualified postgresql name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "postgresql.fullname" -}}
+{{- define "osf.postgresql.fullname" -}}
 {{- $name := "postgresql" -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -136,7 +136,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Create a default fully qualified rabbitmq name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "rabbitmq.fullname" -}}
+{{- define "osf.rabbitmq.fullname" -}}
 {{- $name := "rabbitmq" -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -145,8 +145,17 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Create a default fully qualified elasticsearch client name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "elasticsearch.client.fullname" -}}
+{{- define "osf.elasticsearch.client.fullname" -}}
 {{- $name := "elasticsearch-client" -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified elasticsearch6 client name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "osf.elasticsearch6.client.fullname" -}}
+{{- $name := "elasticsearch6-client" -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -154,7 +163,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Create a default fully qualified redis name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "redis.fullname" -}}
+{{- define "osf.redis.fullname" -}}
 {{- $name := "redis" -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -175,7 +184,7 @@ pod.beta.kubernetes.io/init-containers: null
 {{- define "osf.environment" -}}
 {{- if .Values.postgresql.enabled }}
 - name: OSF_DB_HOST
-  value: {{ template "postgresql.fullname" . }}
+  value: {{ template "osf.postgresql.fullname" . }}
 - name: OSF_DB_NAME
   value: {{ .Values.postgresql.postgresDatabase | quote }}
 - name: OSF_DB_USER
@@ -183,37 +192,37 @@ pod.beta.kubernetes.io/init-containers: null
 - name: OSF_DB_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ template "postgresql.fullname" . }}
+      name: {{ template "osf.postgresql.fullname" . }}
       key: postgres-password
 {{- end }}
 {{- if .Values.rabbitmq.enabled }}
 - name: RABBITMQ_HOST
-  value: {{ template "rabbitmq.fullname" . }}
+  value: {{ template "osf.rabbitmq.fullname" . }}
 - name: RABBITMQ_PORT
   value: {{ .Values.rabbitmq.service.ports.amqp | quote }}
 - name: RABBITMQ_VHOST
   valueFrom:
     configMapKeyRef:
-      name: {{ template "rabbitmq.fullname" . }}
+      name: {{ template "osf.rabbitmq.fullname" . }}
       key: RABBITMQ_VHOST
 - name: RABBITMQ_USERNAME
   valueFrom:
     secretKeyRef:
-      name: {{ template "rabbitmq.fullname" . }}
+      name: {{ template "osf.rabbitmq.fullname" . }}
       key: RABBITMQ_DEFAULT_USER
 - name: RABBITMQ_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ template "rabbitmq.fullname" . }}
+      name: {{ template "osf.rabbitmq.fullname" . }}
       key: RABBITMQ_DEFAULT_PASS
 {{- end }}
 {{- if .Values.elasticsearch.enabled }}
 - name: ELASTIC_URI
-  value: http://{{ template "elasticsearch.client.fullname" . }}:9200
+  value: http://{{ template "osf.elasticsearch.client.fullname" . }}:9200
 {{- end }}
 {{- if .Values.elasticsearch6.enabled }}
 - name: ELASTIC6_URI
-  value: http://{{ template "elasticsearch6.client.fullname" . }}:9200
+  value: http://{{ template "osf.elasticsearch6.client.fullname" . }}:9200
 {{- end }}
 {{- $fullname := include "osf.fullname" . -}}
 {{- range $key, $value := .Values.configEnvs }}

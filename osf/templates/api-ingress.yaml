@@ -17,7 +17,7 @@ metadata:
 spec:
   rules:
     {{- if .Values.maintenance.enabled }}
-    {{- $serviceName := include "maintenance.fullname" . -}}
+    {{- $serviceName := include "osf.maintenance.fullname" . -}}
     {{- $servicePort := .Values.maintenance.service.externalPort -}}
     {{- range .Values.api.ingress.hosts }}
     - host: {{ . }}
