@@ -192,9 +192,11 @@ spec:
       - name: data
         emptyDir: {}
       {{- end }}
+      {{- if or .Values.tls.enabled .Values.searchguard.enabled }}
       - name: secret
         secret:
           secretName: {{ template "elasticsearch.fullname" . }}
+      {{- end }}
       {{- if .Values.plugins.enabled }}
       - name: plugins
         emptyDir: {}
