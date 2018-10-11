@@ -4,11 +4,11 @@ dependencies:
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch.enabled, global.elasticsearch.enabled
     alias: elasticsearch
-  - name: elasticsearch
+  - name: elasticsearch6
     version: 0.5.1
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch6.enabled, global.elasticsearch6.enabled
-    alias: elasticsearch6
+    alias: elasticsearch6  # https://github.com/helm/helm/issues/3909 (when a fix is available the es6 chart can be removed)
   - name: maintenance
     version: 0.1.0
     repository: file://../maintenance
