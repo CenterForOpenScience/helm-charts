@@ -1,0 +1,217 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  labels:
+    app: {{ template "elasticsearch.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.data.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "elasticsearch.data.fullname" . }}
+spec:
+  serviceName: {{ template "elasticsearch.data.fullname" . }}
+  replicas: {{ .Values.data.replicas }}
+  {{- if .Values.data.updateStrategy }}
+  updateStrategy:
+    {{- toYaml .Values.data.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "elasticsearch.name" . }}
+        component: "{{ .Values.data.name }}"
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "elasticsearch.annotations" . | nindent 8 }}
+        {{- if .Values.data.podAnnotations }}
+          {{- toYaml .Values.data.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "elasticsearch.fullname" . }}
+      securityContext:
+        fsGroup: 1000  # elasticsearch
+      affinity:
+        {{- if .Values.data.additionalAffinities }}
+        {{- toYaml .Values.data.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.data.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: "{{ template "elasticsearch.name" . }}"
+                  release: "{{ .Release.Name }}"
+                  component: "{{ .Values.data.name }}"
+        {{- else if eq .Values.data.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: "{{ template "elasticsearch.name" . }}"
+                    release: "{{ .Release.Name }}"
+                    component: "{{ .Values.data.name }}"
+        {{- end }}
+      initContainers:
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
+      # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
+      - name: sysctl
+        image: busybox
+        command:
+          - sysctl
+          - -w
+          - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      {{- if .Values.plugins.enabled }}
+      - name: plugins
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
+        command:
+          - /bin/sh
+          - -c
+          - |-
+            {{- if semverCompare "^2.x" .Values.appVersion }}
+            {{ if .Values.plugins.remove }}bin/plugin remove {{ join " && bin/plugin remove " .Values.plugins.remove }}{{ end }}
+            {{ if .Values.plugins.install }}bin/plugin install {{ join " && bin/plugin install " .Values.plugins.install }}{{ end }}
+            {{- end }}
+            {{- if semverCompare ">= 5.x" .Values.appVersion }}
+            {{ if .Values.plugins.remove }}bin/elasticsearch-plugin remove {{ join " && bin/elasticsearch-plugin remove " .Values.plugins.remove }}{{ end }}
+            {{ if .Values.plugins.install }}bin/elasticsearch-plugin install -b {{ join " && bin/elasticsearch-plugin install -b " .Values.plugins.install }}{{ end }}
+            {{- end }}
+            cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
+        volumeMounts:
+        - mountPath: /plugins
+          name: plugins
+      {{- end }}
+      containers:
+      - name: elasticsearch
+        env:
+        - name: DISCOVERY_SERVICE
+          value: {{ template "elasticsearch.master.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.cluster.kubernetesDomain }}
+        - name: NODE_MASTER
+          value: "false"
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: ES_JAVA_OPTS
+          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.data.heapSize }} -Xmx{{ .Values.data.heapSize }}"
+        {{- range $key, $value :=  .Values.cluster.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
+        ports:
+        - containerPort: 9300
+          name: transport
+        {{- if .Values.data.exposeHttp }}
+        - containerPort: 9200
+          name: http
+        {{- end }}
+        resources:
+          {{- toYaml .Values.data.resources | nindent 12 }}
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
+                {{- if .Values.tls.enabled }}
+                --insecure
+                --crlfile /usr/share/elasticsearch/config/ca_crl.pem
+                --key /usr/share/elasticsearch/config/server_key.pem
+                --cacert /usr/share/elasticsearch/config/ca_cert.pem
+                --cert /usr/share/elasticsearch/config/server_cert.pem
+                {{- end }}
+                http{{ if .Values.tls.enabled }}s{{ end }}://127.0.0.1:9200/_cluster/health?local=true
+          initialDelaySeconds: 5
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: data
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          name: config
+          subPath: elasticsearch.yml
+          readOnly: true
+        {{- if semverCompare "^2.x" .Values.appVersion }}
+        - mountPath: /usr/share/elasticsearch/config/logging.yml
+          name: config
+          subPath: logging.yml
+          readOnly: true
+        {{- end }}
+        {{- if semverCompare ">= 5.x" .Values.appVersion }}
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+          readOnly: true
+        {{- end }}
+        - name: config
+          mountPath: /pre-stop-hook.sh
+          subPath: pre-stop-hook.sh
+        {{- if .Values.tls.enabled }}
+        {{- range $key := keys .Values.tls.files }}
+        - mountPath: /usr/share/elasticsearch/config/{{ $key }}
+          name: secret
+          subPath: tls-{{ $key | replace "/" "-" }}
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- if .Values.searchguard.enabled }}
+        {{- range $key := keys .Values.searchguard.files }}
+        - mountPath: /usr/share/elasticsearch/plugins/{{ $key }}
+          name: secret
+          subPath: sg-{{ $key | replace "/" "-" }}
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- if .Values.plugins.enabled }}
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: plugins
+        {{- end }}
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/bash","/pre-stop-hook.sh"]
+      terminationGracePeriodSeconds: {{ .Values.data.terminationGracePeriodSeconds }}
+    {{- with .Values.data.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "elasticsearch.fullname" . }}
+      {{- if not .Values.data.persistence.enabled }}
+      - name: data
+        emptyDir: {}
+      {{- end }}
+      {{- if or .Values.tls.enabled .Values.searchguard.enabled }}
+      - name: secret
+        secret:
+          secretName: {{ template "elasticsearch.fullname" . }}
+      {{- end }}
+      {{- if .Values.plugins.enabled }}
+      - name: plugins
+        emptyDir: {}
+      {{- end }}
+  {{- if .Values.data.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Values.data.persistence.name }}
+      spec:
+        accessModes:
+          - {{ .Values.data.persistence.accessMode | quote }}
+      {{- if hasKey .Values.data.persistence "storageClass" }}
+        storageClassName: {{ .Values.data.persistence.storageClass | quote }}
+      {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.data.persistence.size | quote }}
+  {{- end }}
