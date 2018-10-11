@@ -5,7 +5,7 @@ dependencies:
     condition: elasticsearch.enabled, global.elasticsearch.enabled
     alias: elasticsearch
   - name: elasticsearch
-    version: 0.5.0
+    version: 0.5.1
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch6.enabled, global.elasticsearch6.enabled
     alias: elasticsearch6
