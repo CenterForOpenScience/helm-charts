@@ -1,8 +1,8 @@
 dependencies:
 - name: elasticsearch
   repository: https://centerforopenscience.github.io/helm-charts/
-  version: 0.1.10
-- name: elasticsearch6
+  version: 0.5.1
+- name: elasticsearch
   repository: https://centerforopenscience.github.io/helm-charts/
   version: 0.5.1
 - name: maintenance
@@ -17,5 +17,5 @@ dependencies:
 - name: redis
   repository: file://../redis
   version: 1.1.2
-digest: sha256:196e98512223b19dc971bf010b044c99633d453ab6596c73d2890a7f6fe0a914
-generated: 2018-10-11T14:42:15.376741-04:00
+digest: sha256:8a4d3c6e3115a12df042e1357a52666f43c25199440a22f240102817c8db410e
+generated: 2018-10-12T09:50:33.429834-04:00
