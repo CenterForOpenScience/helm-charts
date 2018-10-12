@@ -189,6 +189,7 @@ master:
   replicas: 2
   exposeHttp: false
   heapSize: "512m"
+  readinessProbe: true
   antiAffinity: "soft"
   # additionalAffinities:
   #   nodeAffinity:

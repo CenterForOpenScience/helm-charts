@@ -110,6 +110,7 @@ spec:
         {{- end }}
         resources:
           {{- toYaml .Values.master.resources | nindent 12 }}
+        {{- if .Values.master.readinessProbe }}
         readinessProbe:
           exec:
             command:
@@ -128,6 +129,7 @@ spec:
                 {{- end }}
                 http{{ if .Values.tls.enabled }}s{{ end }}://127.0.0.1:9200/_cluster/health?local=true
           initialDelaySeconds: 5
+        {{- end }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
         ports:
