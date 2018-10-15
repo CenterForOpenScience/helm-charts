@@ -54,7 +54,7 @@ spec:
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
               fi
-              $PREFIX python manage.py migrate
+              $PREFIX python manage.py sync_databases
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
