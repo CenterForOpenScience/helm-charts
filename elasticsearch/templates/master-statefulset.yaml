@@ -103,7 +103,13 @@ spec:
             resourceFieldRef:
               resource: limits.cpu
         - name: ES_JAVA_OPTS
-          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.master.heapSize }} -Xmx{{ .Values.master.heapSize }}"
+          value: >-
+            -Djava.net.preferIPv4Stack=true
+            -Xms{{ .Values.master.heapSize }}
+            -Xmx{{ .Values.master.heapSize }}
+            {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
+            -Djava.io.tmpdir=/es-temp
+            {{- end }}
         {{- range $key, $value :=  .Values.cluster.env }}
         - name: {{ $key }}
           value: {{ $value | quote }}
@@ -163,6 +169,9 @@ spec:
           name: config
           subPath: etc-security-limits.conf
           readOnly: true
+        - mountPath: /es-temp
+          name: temp
+          readOnly: false
         {{- end }}
         {{- if .Values.tls.enabled }}
         {{- range $key := keys .Values.tls.files }}
@@ -203,6 +212,10 @@ spec:
       {{- end }}
       {{- if .Values.plugins.enabled }}
       - name: plugins
+        emptyDir: {}
+      {{- end }}
+      {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
+      - name: temp
         emptyDir: {}
       {{- end }}
   {{- if .Values.master.persistence.enabled }}
