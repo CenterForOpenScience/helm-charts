@@ -152,6 +152,12 @@ spec:
           subPath: log4j2.properties
           readOnly: true
         {{- end }}
+        {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
+        - mountPath: /etc/security/limits.conf
+          name: config
+          subPath: etc-security-limits.conf
+          readOnly: true
+        {{- end }}
         - name: config
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh

@@ -171,6 +171,12 @@ spec:
           subPath: log4j2.properties
           readOnly: true
         {{- end }}
+        {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
+        - mountPath: /etc/security/limits.conf
+          name: config
+          subPath: etc-security-limits.conf
+          readOnly: true
+        {{- end }}
         {{- if .Values.tls.enabled }}
         {{- range $key := keys .Values.tls.files }}
         - mountPath: /usr/share/elasticsearch/config/{{ $key }}
