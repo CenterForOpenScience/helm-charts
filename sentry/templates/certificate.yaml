@@ -1,0 +1,30 @@
+{{- if .Values.certificate.enabled -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: "{{ template "sentry.certificate.fullname" . }}"
+  labels:
+    {{- include "sentry.labels.standard" . | nindent 4 }}
+spec:
+  secretName: "{{ template "sentry.certificate.fullname" . }}"
+  issuerRef:
+    name: {{ .Values.certificate.issuerRef.name }}
+    kind: {{ .Values.certificate.issuerRef.kind }}
+  commonName: {{ .Values.certificate.commonName }}
+  dnsNames:
+    {{- range .Values.certificate.dnsNames }}
+    - {{ . }}
+    {{- end }}
+  acme:
+    config:
+      - http01:
+          {{- if hasKey .Values.certificate.acmeConfig.http01 "ingress" }}
+          ingress: {{ .Values.certificate.acmeConfig.http01.ingress }}
+          {{- else }}
+          ingress: {{ template "sentry.fullname" . }}
+          {{- end }}
+        domains:
+          {{- range .Values.certificate.acmeConfig.domains }}
+          - {{ . }}
+          {{- end }}
+{{- end -}}
