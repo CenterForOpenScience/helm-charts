@@ -29,8 +29,17 @@ spec:
               servicePort: {{ $servicePort }}
           {{- end -}}
     {{- end -}}
-  {{- if .Values.ingress.webhook.tls }}
+  {{- if (or .Values.ingress.webhook.tls (and .Values.ingress.webhook.certificate.enabled .Values.ingress.webhook.certificate.tls)) }}
   tls:
+    {{- if .Values.ingress.webhook.tls }}
     {{- toYaml .Values.ingress.webhook.tls | nindent 4 }}
-  {{- end -}}
+    {{- end -}}
+    {{- if (and .Values.ingress.webhook.certificate.enabled .Values.ingress.webhook.certificate.tls) }}
+    - secretName: "{{ template "jenkins.webhook.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.ingress.webhook.certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
+  {{- end }}
 {{- end -}}

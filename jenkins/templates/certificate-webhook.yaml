@@ -1,0 +1,34 @@
+{{- if and .Values.ingress.webhook.enabled .Values.ingress.webhook.certificate.enabled -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: "{{ template "jenkins.webhook.certificate.fullname" . }}"
+  labels:
+    app: {{ template "jenkins.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: webhook
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  secretName: "{{ template "jenkins.webhook.certificate.fullname" . }}"
+  issuerRef:
+    name: {{ .Values.ingress.webhook.certificate.issuerRef.name }}
+    kind: {{ .Values.ingress.webhook.certificate.issuerRef.kind }}
+  commonName: {{ .Values.ingress.webhook.certificate.commonName }}
+  dnsNames:
+    {{- range .Values.ingress.webhook.certificate.dnsNames }}
+    - {{ . }}
+    {{- end }}
+  acme:
+    config:
+      - http01:
+          {{- if hasKey .Values.ingress.webhook.certificate.acmeConfig.http01 "ingress" }}
+          ingress: {{ .Values.ingress.webhook.certificate.acmeConfig.http01.ingress }}
+          {{- else }}
+          ingress: {{ template "jenkins.fullname" . }}-webhook
+          {{- end }}
+        domains:
+          {{- range .Values.ingress.webhook.certificate.acmeConfig.domains }}
+          - {{ . }}
+          {{- end }}
+{{- end -}}
