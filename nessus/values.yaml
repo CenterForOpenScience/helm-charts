@@ -88,3 +88,24 @@ ingress:
     # - secretName: chart-example-tls
     #   hosts:
     #     - chart-example.local
+
+certificate:
+  enabled: false
+  name: cert
+  # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
+  # - Issue: https://github.com/jetstack/cert-manager/issues/606
+  # - PR: https://github.com/kubernetes/ingress-gce/pull/388
+  tls: true
+  # issuerRef:
+  #   name: letsencrypt-prod
+  #   kind: ClusterIssuer
+  # commonName: example.org
+  # dnsNames:
+  #   - example.org
+  #   - subdomain.example.org
+  # acmeConfig:
+  #   http01: {}
+  #     # ingress: ''
+  #   domains:
+  #     - example.org
+  #     - subdomain.example.org

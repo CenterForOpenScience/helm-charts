@@ -16,6 +16,15 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Create a default fully qualified certificate name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "nessus.certificate.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.certificate.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Image pull secrets are essentially a combination of registry, username, and password.
 */}}
 {{- define "nessus.docker.imagePullSecret" }}

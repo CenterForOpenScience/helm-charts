@@ -28,8 +28,17 @@ spec:
               servicePort: {{ $servicePort }}
           {{- end -}}
     {{- end -}}
-  {{- if .Values.ingress.tls }}
+  {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
   tls:
+    {{- if .Values.ingress.tls }}
     {{- toYaml .Values.ingress.tls | nindent 4 }}
+    {{- end -}}
+    {{- if (and .Values.certificate.enabled .Values.certificate.tls) }}
+    - secretName: "{{ template "nessus.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
