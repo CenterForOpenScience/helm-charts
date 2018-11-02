@@ -26,8 +26,17 @@ spec:
               servicePort: {{ $.Values.web.service.name }}
           {{- end -}}
     {{- end -}}
-  {{- if .Values.web.ingress.tls }}
+  {{- if (or .Values.web.ingress.tls (and .Values.web.certificate.enabled .Values.web.certificate.tls)) }}
   tls:
+    {{- if .Values.web.ingress.tls }}
     {{- toYaml .Values.web.ingress.tls | nindent 4 }}
+    {{- end -}}
+    {{- if (and .Values.web.certificate.enabled .Values.web.certificate.tls) }}
+    - secretName: "{{ template "share.web.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.web.certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
   {{- end -}}
 {{- end -}}

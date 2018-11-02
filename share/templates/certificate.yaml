@@ -1,0 +1,33 @@
+{{- if .Values.web.certificate.enabled -}}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: "{{ template "share.web.certificate.fullname" . }}"
+  labels:
+    app: {{ template "share.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  secretName: "{{ template "share.web.certificate.fullname" . }}"
+  issuerRef:
+    name: {{ .Values.web.certificate.issuerRef.name }}
+    kind: {{ .Values.web.certificate.issuerRef.kind }}
+  commonName: {{ .Values.web.certificate.commonName }}
+  dnsNames:
+    {{- range .Values.web.certificate.dnsNames }}
+    - {{ . }}
+    {{- end }}
+  acme:
+    config:
+      - http01:
+          {{- if hasKey .Values.web.certificate.acmeConfig.http01 "ingress" }}
+          ingress: {{ .Values.web.certificate.acmeConfig.http01.ingress }}
+          {{- else }}
+          ingress: {{ template "share.web.fullname" . }}
+          {{- end }}
+        domains:
+          {{- range .Values.web.certificate.acmeConfig.domains }}
+          - {{ . }}
+          {{- end }}
+{{- end -}}
