@@ -56,37 +56,7 @@ spec:
                     component: "{{ .Values.master.name }}"
         {{- end }}
       initContainers:
-      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
-      # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
-      - name: sysctl
-        image: busybox
-        command:
-          - sysctl
-          - -w
-          - vm.max_map_count=262144
-        securityContext:
-          privileged: true
-      {{- if .Values.plugins.enabled }}
-      - name: plugins
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
-        command:
-          - /bin/sh
-          - -c
-          - |-
-            {{- if semverCompare "^2.x" .Values.appVersion }}
-            {{ if .Values.plugins.remove }}bin/plugin remove {{ join " && bin/plugin remove " .Values.plugins.remove }}{{ end }}
-            {{ if .Values.plugins.install }}bin/plugin install {{ join " && bin/plugin install " .Values.plugins.install }}{{ end }}
-            {{- end }}
-            {{- if semverCompare ">= 5.x" .Values.appVersion }}
-            {{ if .Values.plugins.remove }}bin/elasticsearch-plugin remove {{ join " && bin/elasticsearch-plugin remove " .Values.plugins.remove }}{{ end }}
-            {{ if .Values.plugins.install }}bin/elasticsearch-plugin install -b {{ join " && bin/elasticsearch-plugin install -b " .Values.plugins.install }}{{ end }}
-            {{- end }}
-            cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
-        volumeMounts:
-        - mountPath: /plugins
-          name: plugins
-      {{- end }}
+        {{- include "elasticsearch.initContainers.common" . | nindent 8 }}
       containers:
       - name: elasticsearch
         env:
