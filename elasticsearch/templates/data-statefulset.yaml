@@ -68,13 +68,16 @@ spec:
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
+        {{- if semverCompare ">= 5.x" .Values.appVersion }}
+        - name: ES_HEAP_SIZE
+          value: "{{ .Values.data.heapSize }}"
+        {{- end }}
         - name: ES_JAVA_OPTS
           value: >-
             -Djava.net.preferIPv4Stack=true
+            {{- if semverCompare "< 5.x" .Values.appVersion }}
             -Xms{{ .Values.data.heapSize }}
             -Xmx{{ .Values.data.heapSize }}
-            {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
-            -Djava.io.tmpdir=/es-temp
             {{- end }}
         {{- range $key, $value :=  .Values.cluster.env }}
         - name: {{ $key }}
@@ -128,15 +131,6 @@ spec:
           subPath: log4j2.properties
           readOnly: true
         {{- end }}
-        {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
-        - mountPath: /etc/security/limits.conf
-          name: config
-          subPath: etc-security-limits.conf
-          readOnly: true
-        - mountPath: /es-temp
-          name: temp
-          readOnly: false
-        {{- end }}
         - name: config
           mountPath: /pre-stop-hook.sh
           subPath: pre-stop-hook.sh
@@ -184,10 +178,6 @@ spec:
       {{- end }}
       {{- if .Values.plugins.enabled }}
       - name: plugins
-        emptyDir: {}
-      {{- end }}
-      {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
-      - name: temp
         emptyDir: {}
       {{- end }}
   {{- if .Values.data.persistence.enabled }}

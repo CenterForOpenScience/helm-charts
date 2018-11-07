@@ -67,6 +67,8 @@ spec:
         {{- if semverCompare ">= 5.x" .Values.appVersion }}
         - name: NODE_INGEST
           value: "false"
+        - name: ES_HEAP_SIZE
+          value: "{{ .Values.master.heapSize }}"
         {{- end }}
         - name: PROCESSORS
           valueFrom:
@@ -75,10 +77,9 @@ spec:
         - name: ES_JAVA_OPTS
           value: >-
             -Djava.net.preferIPv4Stack=true
+            {{- if semverCompare "< 5.x" .Values.appVersion }}
             -Xms{{ .Values.master.heapSize }}
             -Xmx{{ .Values.master.heapSize }}
-            {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
-            -Djava.io.tmpdir=/es-temp
             {{- end }}
         {{- range $key, $value :=  .Values.cluster.env }}
         - name: {{ $key }}
@@ -134,15 +135,7 @@ spec:
           subPath: log4j2.properties
           readOnly: true
         {{- end }}
-        {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
-        - mountPath: /etc/security/limits.conf
-          name: config
-          subPath: etc-security-limits.conf
-          readOnly: true
-        - mountPath: /es-temp
-          name: temp
-          readOnly: false
-        {{- end }}
+
         {{- if .Values.tls.enabled }}
         {{- range $key := keys .Values.tls.files }}
         - mountPath: /usr/share/elasticsearch/config/{{ $key }}
@@ -182,10 +175,6 @@ spec:
       {{- end }}
       {{- if .Values.plugins.enabled }}
       - name: plugins
-        emptyDir: {}
-      {{- end }}
-      {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
-      - name: temp
         emptyDir: {}
       {{- end }}
   {{- if .Values.master.persistence.enabled }}

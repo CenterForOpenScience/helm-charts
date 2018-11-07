@@ -63,7 +63,7 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
       sysctl -w vm.max_map_count=262144
       # To increase the ulimit
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
-      ulimit -n 65536
+      ulimit -l unlimited
   securityContext:
     privileged: true
 {{- if .Values.plugins.enabled }}

@@ -262,9 +262,3 @@ data:
     done
 
     echo "Node clear to shutdown"
-  {{- if hasKey .Values.cluster.env "BOOTSTRAP_MLOCKALL" }}
-  etc-security-limits.conf: |-
-    # allow user 'elasticsearch' mlockall
-    elasticsearch soft memlock unlimited
-    elasticsearch hard memlock unlimited
-  {{- end }}
