@@ -12,6 +12,11 @@ if [ "$1" = 'postgres' ] && [ "$(id -u)" = '0' ]; then
 		service=${POD_NAME}
 	fi
 
+	# Remove postmaster.pid before booting
+	if [ -f ${PGDATA}/postmaster.pid ]; then
+		rm ${PGDATA}/postmaster.pid
+	fi
+
 	if [ ${STANDBY_ENABLED} ]; then
 		sed \
 			-e "s|^#cluster=.*$|cluster=default|" \

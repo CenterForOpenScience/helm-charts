@@ -61,16 +61,16 @@ spec:
           ports:
             - name: postgresql
               containerPort: 5432
-          # livenessProbe:
-          #   exec:
-          #     command:
-          #       - su
-          #       - postgres
-          #       - -c
-          #       - pg_isready
-          #   initialDelaySeconds: 60
-          #   timeoutSeconds: 5
-          #   failureThreshold: 6
+          livenessProbe:
+            exec:
+              command:
+                - su
+                - postgres
+                - -c
+                - pg_isready
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 6
           readinessProbe:
             exec:
               command:
