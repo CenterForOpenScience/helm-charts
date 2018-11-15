@@ -27,6 +27,10 @@ spec:
         pod.beta.kubernetes.io/init-containers: null
         {{- end }}
     spec:
+      affinity:
+        {{- if .Values.additionalAffinities }}
+        {{- toYaml .Values.additionalAffinities | nindent 8 }}
+        {{- end }}
       initContainers:
         - name: chown
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
