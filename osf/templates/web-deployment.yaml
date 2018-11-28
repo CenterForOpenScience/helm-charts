@@ -1,6 +1,5 @@
 {{- if .Values.web.enabled -}}
 {{- $osfPreprints := (index .Values "osf-preprints") }}
-{{- $osfRegistries := (index .Values "osf-registries") }}
 {{- $osfReviews := (index .Values "osf-reviews") }}
 {{- $osfWeb := (index .Values "osf-web") }}
 apiVersion: apps/v1beta1
@@ -126,12 +125,6 @@ spec:
               subPath: web-nginx-osf-preprints.conf
               readOnly: true
             {{- end }}
-            {{- if $osfRegistries.enabled }}
-            - mountPath: /etc/nginx/conf.d/osf-registries.conf
-              name: config
-              subPath: web-nginx-osf-registries.conf
-              readOnly: true
-            {{- end }}
             {{- if $osfReviews.enabled }}
             - mountPath: /etc/nginx/conf.d/osf-reviews.conf
               name: config
@@ -177,10 +170,6 @@ spec:
             {{- if $osfPreprints.enabled }}
             - name: OSF_PREPRINTS_URL
               value: http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }}/
-            {{- end }}
-            {{- if $osfRegistries.enabled }}
-            - name: OSF_REGISTRIES_URL
-              value: http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }}/
             {{- end }}
             {{- if $osfReviews.enabled }}
             - name: OSF_REVIEWS_URL

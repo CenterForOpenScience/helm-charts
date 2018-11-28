@@ -10,7 +10,6 @@ metadata:
 data:
 {{- define "osf.inlineconfigs" }}
 {{- $osfPreprints := (index .Values "osf-preprints") }}
-{{- $osfRegistries := (index .Values "osf-registries") }}
 {{- $osfReviews := (index .Values "osf-reviews") }}
 {{- $osfWeb := (index .Values "osf-web") }}
 default.conf: ''
@@ -356,17 +355,6 @@ web-nginx-osf-preprints.conf: |-
       proxy_redirect off;
       proxy_buffering off;
       proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
-  }
-web-nginx-osf-registries.conf: |-
-  location ~* ^/registries(/?$|/.*) {
-      {{- if .Values.prerender.enabled }}
-      include /etc/nginx/prerender.conf;
-      {{- end }}
-
-      rewrite ^/registries/(.*)$ /$1 break;
-      proxy_redirect off;
-      proxy_buffering off;
-      proxy_pass http://{{ $osfRegistries.service.name }}:{{ $osfRegistries.service.externalPort }};
   }
 web-nginx-osf-reviews.conf: |-
   location ~* ^/reviews(/?$|/.*) {
