@@ -647,7 +647,8 @@ web-nginx.conf: |-
           }
 
           location / {
-              return 301 https://{{ .Values.web.nginx.primaryDomain }}$request_uri;
+              # Google Scholar wants 302 instead of 301
+              return 302 https://{{ .Values.web.nginx.primaryDomain }}$request_uri;
           }
       }
       {{- end }}
