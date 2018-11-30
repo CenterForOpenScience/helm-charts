@@ -1,8 +1,8 @@
 ## Google Cloud SQL Proxy image
 ## ref: https://cloud.google.com/sql/docs/mysql/sql-proxy
 ## ref: https://cloud.google.com/sql/docs/postgres/sql-proxy
-image: b.gcr.io/cloudsql-docker/gce-proxy
-imageTag: "1.11"
+image: gcr.io/cloudsql-docker/gce-proxy
+imageTag: "1.13"
 
 ## Specify a imagePullPolicy
 ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
@@ -62,3 +62,33 @@ resources:
 
 ## Node selector
 nodeSelector: {}
+
+networkPolicy:
+  enabled: true
+  egress: {}
+    # # DNS
+    # - to:
+    #     - namespaceSelector: {}
+    #   ports:
+    #     - port: 53  # dns
+    #       protocol: TCP
+    #     - port: 53  # dns
+    #       protocol: UDP
+    # # Internet
+    # - to:
+    #     - ipBlock:
+    #         cidr: 0.0.0.0/0
+    #         except:
+    #           - 10.0.0.0/8
+    #           - 172.16.0.0/12
+    #           - 192.168.0.0/16
+    #   ports:
+    #     - port: 443  # ssl
+    #       protocol: TCP
+    # # CloudSQL
+    # - to:
+    #     - ipBlock:
+    #         cidr: 35.x.x.x/32 # Change to the public IP address of the instance
+    #   ports:
+    #     - port: 3307 # cloudsql postgres
+    #       protocol: TCP
