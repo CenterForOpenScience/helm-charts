@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "nginx.fullname" . }}
+  labels:
+    app: {{ template "nginx.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+{{- define "nginx.inlineconfigs" }}
+nginx.conf: |-
+  user nginx;
+  worker_processes 1;
+
+  pid /var/run/nginx.pid;
+
+  error_log /var/log/nginx/error.log warn;
+
+  events {
+      worker_connections 1024;
+  }
+
+  http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+
+      log_format main '$remote_addr - $upstream_cache_status $remote_user [$time_local] '
+                      '"$request" $status $body_bytes_sent '
+                      '"$http_referer" "$http_user_agent" "$http_x_forwarded_for" '
+                      'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
+      access_log /var/log/nginx/access.log main;
+
+      sendfile on;
+      tcp_nopush on;
+      tcp_nodelay on;
+      keepalive_timeout 620s;
+      keepalive_requests 10000;
+      types_hash_max_size 2048;
+      server_tokens off;
+
+      include /etc/nginx/conf.d/*.conf;
+
+      server {
+          listen 80;
+          server_name _;
+
+          location = /healthz {
+              access_log off;
+              return 200;
+          }
+      }
+  }
+{{- end -}}
+{{- range $key, $value := merge .Values.configFiles (include "nginx.inlineconfigs" . | fromYaml) }}
+  {{ $key | replace "/" "-" }}: |-
+    {{- $value | nindent 4 }}
+{{- end }}
