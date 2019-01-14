@@ -43,14 +43,13 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      volumeMounts:
-        {{- range $key := keys (merge .Values.configFiles (include "nginx.inlineconfigs" . | fromYaml)) }}
-        - mountPath: /etc/nginx/{{ $key }}
-          name: config
-          subPath: {{ $key | replace "/" "-" }}
-          readOnly: true
-        {{- end }}
-
+          volumeMounts:
+            {{- range $key := keys (merge .Values.configFiles (include "nginx.inlineconfigs" . | fromYaml)) }}
+            - mountPath: /etc/nginx/{{ $key }}
+              name: config
+              subPath: {{ $key | replace "/" "-" }}
+              readOnly: true
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -63,3 +62,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "nginx.fullname" . }}
