@@ -18,6 +18,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "nginx.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
