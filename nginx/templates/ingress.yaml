@@ -15,7 +15,19 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ingress.tls }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . | quote }}
+      http:
+        paths:
+	        {{- range $ingressPaths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $fullName }}
+              servicePort: http
+	        {{- end }}
+    {{- end }}
+  {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
   tls:
     {{- range .Values.ingress.tls }}
     - hosts:
@@ -32,16 +44,4 @@ spec:
         {{- end }}
     {{- end -}}
   {{- end }}
-  rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ . | quote }}
-      http:
-        paths:
-	        {{- range $ingressPaths }}
-          - path: {{ . }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: https
-	        {{- end }}
-    {{- end }}
 {{- end }}
