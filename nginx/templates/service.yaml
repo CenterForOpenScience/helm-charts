@@ -7,6 +7,10 @@ metadata:
     helm.sh/chart: {{ include "nginx.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    {{- range $key, $value := .Values.service.annotations }}
+      {{ $key }}: {{ $value | quote }}
+    {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
