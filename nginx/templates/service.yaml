@@ -13,7 +13,7 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: http
       protocol: TCP
-      name: http
+      name: https
   selector:
     app.kubernetes.io/name: {{ include "nginx.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
