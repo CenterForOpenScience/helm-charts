@@ -24,6 +24,13 @@ spec:
       {{- end }}
       secretName: {{ .secretName }}
     {{- end }}
+    {{- if (and .Values.certificate.enabled .Values.certificate.tls) }}
+    - secretName: "{{ template "nginx.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
   {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
