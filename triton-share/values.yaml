@@ -1,0 +1,182 @@
+# Default values for triton-share.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+replicaCount: 1
+
+nginx:
+  image:
+    repository: quay.io/centerforopenscience/nginx
+    tag: latest
+    pullPolicy: Always
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+  proxySourceRanges: []
+    # - 130.211.0.0/22
+    # - 35.191.0.0/16
+  realIpHeader: X-Real-IP
+  realIpRecursive: "off"
+  vts:
+    enabled: false
+    internalPort: 18080
+    statusZoneSize: 10m
+    defaultFilterKey: "$geoip_country_code country::*"
+
+nodejs:
+  image:
+    repository: node
+    tag: lts-alpine
+    pullPolicy: IfNotPresent
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+configEnvs:
+  SHARE_HOST: staging-share.osf.io
+
+configFiles: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  paths: []
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+certificate:
+  enabled: false
+  name: cert
+  # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
+  # - Issue: https://github.com/jetstack/cert-manager/issues/606
+  # - PR: https://github.com/kubernetes/ingress-gce/pull/388
+  tls: true
+  # issuerRef:
+  #   name: letsencrypt-prod
+  #   kind: ClusterIssuer
+  # commonName: example.org
+  # dnsNames:
+  #   - example.org
+  #   - subdomain.example.org
+  # acmeConfig:
+  #   http01: {}
+  #     # ingress: ''
+  #   domains:
+  #     - example.org
+  #     - subdomain.example.org
+
+networkPolicy:
+  enabled: false
+  # Allows external access to the pod, otherwise access is restricted to
+  # clients with the explicit label.
+  allowExternal: true
+  egress: {}
+    # - to:
+    #   - namespaceSelector: {}
+    #   ports:
+    #     - port: 53  # dns
+    #       protocol: TCP
+    #     - port: 53  # dns
+    #       protocol: UDP
+    # - to:
+    #   - ipBlock:
+    #       cidr: 0.0.0.0/0
+    #       except:
+    #         - 10.0.0.0/8
+    #         - 172.16.0.0/12
+    #         - 192.168.0.0/16
+    #   ports:
+    #     - port: 80  # http
+    #       protocol: TCP
+    #     - port: 443  # https
+    #       protocol: TCP
+
+elasticsearch6:
+  enabled: false
+
+  image:
+    repository: "quay.io/centerforopenscience/elasticsearch"
+    tag: "6.4.1"
+    pullPolicy: "Always"
+
+  rbac:
+
+  cluster:
+    env:
+      MINIMUM_MASTER_NODES: "1"
+      EXPECTED_MASTER_NODES: "1"
+
+  client:
+    name: client
+    replicas: 1
+    serviceType: ClusterIP
+    heapSize: "128m"
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
+
+  master:
+    name: master
+    replicas: 1
+    heapSize: "128m"
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"
+
+  data:
+    name: data
+    replicas: 1
+    heapSize: "1536m"
+    storage: "30Gi"
+    # storageClass: "ssd"
+    terminationGracePeriodSeconds: 3600
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: "512Mi"
+      # requests:
+      #   cpu: "25m"
+      #   memory: "256Mi"

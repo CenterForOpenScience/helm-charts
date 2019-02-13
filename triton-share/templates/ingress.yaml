@@ -1,0 +1,42 @@
+
+{{- if .Values.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "triton-share.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "triton-share.name" . }}
+    helm.sh/chart: {{ include "triton-share.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    {{- range $key, $value := .Values.ingress.annotations }}
+      {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- range $.Values.web.ingress.paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ include "triton-share.fullname" $ }}
+              servicePort: {{ $.Values.web.service.name }}
+          {{- end -}}
+    {{- end -}}
+  {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
+  tls:
+    {{- if .Values.ingress.tls }}
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
+    {{- end -}}
+    {{- if (and .Values.certificate.enabled .Values.certificate.tls) }}
+    - secretName: "{{ template "triton-share.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

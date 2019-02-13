@@ -1,0 +1,30 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ template "triton-share.fullname" . }}
+  labels:
+    app: {{ template "triton-share.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ template "triton-share.name" . }}
+      release: {{ .Release.Name }}
+  ingress:
+  - ports:
+    - port: {{ .Values.service.internalPort }}
+    {{- if not .Values.networkPolicy.allowExternal }}
+    from:
+    - podSelector:
+        matchLabels:
+          {{ template "triton-share.fullname" . }}-client: "true"
+    {{- end }}
+  {{- if .Values.nginx.vts.enabled }}
+  - ports:
+    - port: {{ .Values.nginx.vts.internalPort }}
+  {{- end }}
+  egress: {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
+{{- end }}

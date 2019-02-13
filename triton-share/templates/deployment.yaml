@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "triton-share.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "triton-share.name" . }}
+    helm.sh/chart: {{ include "triton-share.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "triton-share.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "triton-share.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        {{- include "triton-share.deploymentAnnotations" . | nindent 8 }}
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /etc/nginx/nginx.conf
+            - -g
+            - daemon off;
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              name: config
+              subPath: nginx.conf
+              readOnly: true
+            - mountPath: /usr/share/nginx/html/robots.txt
+              name: config
+              subPath: robots.txt
+              readOnly: true
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
+        - name: nodejs
+          image: "{{ .Values.nodejs.image.repository }}:{{ .Values.nodejs.image.tag }}"
+          imagePullPolicy: {{ .Values.nodejs.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - node /code/app.js
+          env:
+            - name: PORT
+              value: '9000'
+             {{- include "triton-share.environment" . | indent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /code/app.js
+              subPath: app.js
+              readOnly: true
+          ports:
+            - name: nodejs
+              containerPort: 9000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: nodejs
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: nodejs
+          resources:
+            {{- toYaml .Values.nodejs.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ template "triton-share.fullname" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
