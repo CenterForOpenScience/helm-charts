@@ -25,6 +25,7 @@ nginx:
     # requests:
     #  cpu: 100m
     #  memory: 128Mi
+  corsOrigin: '*'
   proxySourceRanges: []
     # - 130.211.0.0/22
     # - 35.191.0.0/16
