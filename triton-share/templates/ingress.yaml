@@ -19,11 +19,11 @@ spec:
     - host: {{ . }}
       http:
         paths:
-          {{- range $.Values.web.ingress.paths }}
+          {{- range $.Values.ingress.paths }}
           - path: {{ . }}
             backend:
               serviceName: {{ include "triton-share.fullname" $ }}
-              servicePort: {{ $.Values.web.service.name }}
+              servicePort: {{ $.Values.service.name }}
           {{- end -}}
     {{- end -}}
   {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
