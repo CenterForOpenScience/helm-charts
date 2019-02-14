@@ -1,20 +1,20 @@
 var http = require("http");
 var https = require("https")
 
-const PORT=9000;
+const PORT = 9000;
 
 
-http.createServer(function(request, response) {
+http.createServer(function (request, response) {
     if (request.url === '/healthz') {
         response.writeHead(200);
         return response.end();
     }
 
-    if (request.method == "POST") {
+    if (request.method === "POST") {
 
         var body = "";
 
-        request.on("data", function(data) {
+        request.on("data", function (data) {
 
             body += data;
 
@@ -27,34 +27,33 @@ http.createServer(function(request, response) {
 
         var ids = [];
 
-        request.on("end", function() {
+        request.on("end", function () {
 
-            ids = JSON.parse(body).map(function(item, index, array) {
-		console.log("REQUESTING " + item.key);
+            ids = JSON.parse(body).map(function (item, index, array) {
+                console.log("REQUESTING " + item.key);
 
                 var share_req = https.request({
                     hostname: process.env.SHARE_HOST || "share.osf.io",
                     method: "GET",
                     port: 443,
                     path: "/api/v2/search/agents/" + item.key
-                }, function(resp) {
-                    
+                }, function (resp) {
+
                     var item_details = "";
 
-                    resp.on("data", function(chunk) {
-			if (chunk) {
+                    resp.on("data", function (chunk) {
+                        if (chunk) {
                             item_details += chunk;
                         }
                     });
 
-                    resp.on("end", function() {
-			if (!item_details) {
-				console.log("something bad here");
-				console.log(item_details);
-				return;
-			}
-                        console.log(item_details);
-			var details = JSON.parse(item_details);
+                    resp.on("end", function () {
+                        if (!item_details) {
+                            console.error("something bad here");
+                            return;
+                        }
+                        
+                        var details = JSON.parse(item_details);
                         if (!details._source) {
                             details._source = {
                                 name: "",
@@ -74,7 +73,7 @@ http.createServer(function(request, response) {
                             ids[index].awards = item.awards;
                         }
 
-                        if (ids.some(function(el, index, array) { return el == null; })) {
+                        if (ids.some(function (el, index, array) { return el == null; })) {
                             return;
                         }
 
@@ -83,13 +82,13 @@ http.createServer(function(request, response) {
                     });
 
                 })
-		share_req.on("error", function(e) {
+                share_req.on("error", function (e) {
 
-                    console.log("got error: " + e.message);
+                    console.error("got error: " + e.message);
 
                 });
 
-		share_req.end();
+                share_req.end();
 
                 return null;
 
@@ -98,14 +97,11 @@ http.createServer(function(request, response) {
         });
 
     } else {
-
-        console.log(request);
         response.end("It Works!! Path Hit: " + request.url);
-
     }
 
 
-}).listen(PORT, function(){
+}).listen(PORT, function () {
 
     console.log("Server listening on: http://localhost:%s", PORT);
 
@@ -165,9 +161,9 @@ http.createServer(function(request, response) {
 //                         }
 
 //                         console.log(item_details);
-                        
+
 //                         const details = JSON.parse(item_details);
-                        
+
 //                         if (!details._source) {
 //                             details._source = {
 //                                 name: "",

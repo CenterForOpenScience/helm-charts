@@ -100,36 +100,6 @@ nginx.conf: |-
               return 301 https://$host$request_uri;
           }
 
-          if ($request_method = 'OPTIONS') {
-              add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
-              add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-              #
-              # Custom headers and headers various browsers *should* be OK with but aren't
-              #
-              add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-              #
-              # Tell client that this pre-flight info is valid for 20 days
-              #
-              add_header 'Access-Control-Max-Age' 1728000;
-              add_header 'Content-Type' 'text/plain; charset=utf-8';
-              add_header 'Content-Length' 0;
-              return 204;
-          }
-
-          if ($request_method = 'POST') {
-              add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
-              add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-              add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-              add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
-          }
-
-          if ($request_method = 'GET') {
-              add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
-              add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-              add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-              add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
-          }
-
           location = /healthz {
               access_log off;
               return 200;
@@ -144,6 +114,36 @@ nginx.conf: |-
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
+
+              if ($request_method = 'OPTIONS') {
+                  add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
+                  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+                  #
+                  # Custom headers and headers various browsers *should* be OK with but aren't
+                  #
+                  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                  #
+                  # Tell client that this pre-flight info is valid for 20 days
+                  #
+                  add_header 'Access-Control-Max-Age' 1728000;
+                  add_header 'Content-Type' 'text/plain; charset=utf-8';
+                  add_header 'Content-Length' 0;
+                  return 204;
+              }
+
+              if ($request_method = 'POST') {
+                  add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
+                  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+                  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                  add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+              }
+
+              if ($request_method = 'GET') {
+                  add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
+                  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+                  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                  add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+              }
 
               # Mitigate HTTPoxy Vulnerability
               # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
@@ -164,6 +164,36 @@ nginx.conf: |-
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
               add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
               add_header Pragma "no-cache";
+
+              if ($request_method = 'OPTIONS') {
+                  add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
+                  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+                  #
+                  # Custom headers and headers various browsers *should* be OK with but aren't
+                  #
+                  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                  #
+                  # Tell client that this pre-flight info is valid for 20 days
+                  #
+                  add_header 'Access-Control-Max-Age' 1728000;
+                  add_header 'Content-Type' 'text/plain; charset=utf-8';
+                  add_header 'Content-Length' 0;
+                  return 204;
+              }
+
+              if ($request_method = 'POST') {
+                  add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
+                  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+                  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                  add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+              }
+
+              if ($request_method = 'GET') {
+                  add_header 'Access-Control-Allow-Origin' '{{ .Values.nginx.corsOrigin }}';
+                  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+                  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+                  add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+              }
 
               # Mitigate HTTPoxy Vulnerability
               # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
