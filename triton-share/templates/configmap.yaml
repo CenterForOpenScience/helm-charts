@@ -11,7 +11,7 @@ data:
 {{- define "triton-share.inlineconfigs" }}
 nginx.conf: |-
   user  nginx;
-  worker_processes  {{ .Values.nginx.workerCount }};
+  worker_processes 1;
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- if .Values.nginx.vts.enabled }}

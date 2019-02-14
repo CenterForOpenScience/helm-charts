@@ -23,7 +23,7 @@ spec:
           - path: {{ . }}
             backend:
               serviceName: {{ include "triton-share.fullname" $ }}
-              servicePort: {{ $.Values.service.name }}
+              servicePort: http
           {{- end -}}
     {{- end -}}
   {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
