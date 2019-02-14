@@ -7,6 +7,8 @@ fullnameOverride: ""
 
 replicaCount: 1
 
+antiAffinity: soft
+
 nginx:
   image:
     repository: quay.io/centerforopenscience/nginx
@@ -54,8 +56,6 @@ nodejs:
 nodeSelector: {}
 
 tolerations: []
-
-affinity: {}
 
 configEnvs:
   SHARE_HOST: staging-share.osf.io
