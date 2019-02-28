@@ -352,6 +352,7 @@ web:
       internalPort: 18080
       statusZoneSize: 10m
       defaultFilterKey: "$geoip_country_code country::*"
+    readTimeout: 60 # http://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_read_timeout
     redirects:
       enabled: false
       domains: []

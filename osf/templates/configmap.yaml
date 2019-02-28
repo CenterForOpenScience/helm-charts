@@ -823,6 +823,10 @@ web-nginx.conf: |-
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
+              
+              # Timeout for waiting on the response body
+              uwsgi_read_timeout {{ .Values.web.nginx.readTimeout }}s;
+
               # WARNING: Turning off uwsgi buffering will disable nginx caching.
               # uwsgi_buffering off;
               uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};

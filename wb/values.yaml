@@ -42,6 +42,7 @@ nginx:
     internalPort: 18080
     statusZoneSize: 10m
     defaultFilterKey: "$geoip_country_code country::*"
+  readTimeout: 60 # http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout
 
 tornado:
   resources: {}
