@@ -351,6 +351,10 @@ web-nginx-osf-preprints.conf: |-
       include /etc/nginx/prerender.conf;
       {{- end }}
 
+      {{- range .Values.web.nginx.preprintRewrites }}
+      {{ . }}
+      {{- end }}
+
       rewrite ^/preprints/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;

@@ -334,6 +334,8 @@ web:
       # - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
     # additionalConfig: |-
     #   ...
+    preprintRewrites: []
+      # - rewrite (?i)^/preprints/oldarxiv/(.*)? /preprints/newarxiv/$1 permanent;
     resources: {}
       # limits:
       #   cpu: "1"
