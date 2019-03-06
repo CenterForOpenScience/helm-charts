@@ -263,6 +263,10 @@ httpd/conf.d/shib.conf: |-
     UseCanonicalName On
     ServerAdmin admin@osf.io
 
+    # Mitigate clickjacking
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+    Header set X-Frame-Options "deny"
+
     ProxyRequests off
 
     # the google health check must have a 200 from /
