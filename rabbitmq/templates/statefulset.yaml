@@ -9,7 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   serviceName: {{ template "rabbitmq.fullname" . }}
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
@@ -38,22 +38,22 @@ spec:
             - name: {{ $name }}
               containerPort: {{ $port }}
             {{- end }}
-          #livenessProbe:
-          #  exec:
-          #    command:
-          #      - rabbitmqctl
-          #      - status
-          #  initialDelaySeconds: 120
-          #  timeoutSeconds: 5
-          #  failureThreshold: 6
-          #readinessProbe:
-          #  exec:
-          #    command:
-          #      - rabbitmqctl
-          #      - status
-          #  initialDelaySeconds: 10
-          #  timeoutSeconds: 3
-          #  periodSeconds: 5
+          livenessProbe:
+           exec:
+             command:
+               - rabbitmqctl
+               - status
+           initialDelaySeconds: 120
+           timeoutSeconds: 5
+           failureThreshold: 6
+          readinessProbe:
+           exec:
+             command:
+               - rabbitmqctl
+               - status
+           initialDelaySeconds: 10
+           timeoutSeconds: 3
+           periodSeconds: 5
           volumeMounts:
             {{- include "rabbitmq.volumeMounts" . | indent 12 }}
           {{- if .Values.resources }}
@@ -86,14 +86,6 @@ spec:
                 configMapKeyRef:
                   name: {{ $fullname }}
                   key: RABBITMQ_SSL_CACERTFILE
-            {{- end }}
-            {{- $fullname := include "rabbitmq.fullname" . -}}
-            {{- range $key := keys .Values.metrics.configEnvs }}
-            - name: {{ $key }}
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ $fullname }}
-                  key: metrics-{{ $key }}
             {{- end }}
           ports:
             - name: metrics

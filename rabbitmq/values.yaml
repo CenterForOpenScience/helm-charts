@@ -6,6 +6,8 @@ image:
   tag: 3-management
   pullPolicy: IfNotPresent
 
+replicas: 1
+
 additionalAffinities: {}
 
 terminationGracePeriodSeconds: 60
@@ -21,9 +23,9 @@ configFiles: {}
 
 secretEnvs:
   ## ref: https://hub.docker.com/_/rabbitmq/
-  RABBITMQ_DEFAULT_USER: guest
+  RABBITMQ_DEFAULT_USER: quantex
   ## ref: https://hub.docker.com/_/rabbitmq/
-  RABBITMQ_DEFAULT_PASS: guest
+  RABBITMQ_DEFAULT_PASS: quantex@123
   ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
   RABBITMQ_ERLANG_COOKIE: cookie
 
@@ -71,13 +73,13 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  # storageClass: ssd
+  storageClass: "nfs-client"
   accessMode: ReadWriteOnce
   size: 8Gi
 
 service:
   #annotations: {}
-  type: ClusterIP
+  type: NodePort
   # If using type: LoadBalancer
   #loadBalancerIP: 0.0.0.0
   #loadBalancerSourceRanges:
@@ -91,23 +93,11 @@ service:
   externalIPs: []
 
 metrics:
-  enabled: false
+  enabled: true
   image:
+    registry: docker.io
     repository: kbudde/rabbitmq-exporter
     tag: v0.25.2
     pullPolicy: IfNotPresent
-  configEnvs:
-    # Log ouput format. TTY and JSON are suported
-    OUTPUT_FORMAT: TTY
-    # log level. possible values: "debug", "info", "warning", "error", "fatal", or "panic"
-    LOG_LEVEL: info
-    # true/0 will ignore certificate errors of the management plugin
-    SKIPVERIFY: false	
-    # reqgex queue filter. just matching names are exported
-    INCLUDE_QUEUES: .*
-    # regex, matching queue names are not exported (useful for short-lived rpc queues). First performed INCLUDE, after SKIP
-    SKIP_QUEUES: ^$
-    # comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
-    RABBIT_CAPABILITIES: bert
-    # List of enabled modules. Just "connections" is not enabled by default
-    RABBIT_EXPORTERS: exchange,node,overview,queue
+  
+  resources: {}

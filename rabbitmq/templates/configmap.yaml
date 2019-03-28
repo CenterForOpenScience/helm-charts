@@ -20,12 +20,6 @@ RABBITMQ_SSL_CACERTFILE: /etc/ssl/ca_certificate.pem
   {{ $key }}: {{ $value | quote }}
   {{- end }}
 
-  {{- /* Metrics */ -}}
-  {{- if .Values.metrics.enabled }}
-  {{- range $key, $value := .Values.metrics.configEnvs }}
-  metrics-{{ $key }}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
 
   {{- /* Configuration Files */ -}}
   {{- range $key, $value := .Values.configFiles }}

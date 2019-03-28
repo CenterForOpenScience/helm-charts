@@ -5,12 +5,12 @@
 ## TL;DR;
 
 ```bash
-$ helm install stable/rabbitmq
+$ helm install rabbitmq
 ```
 
 ## Introduction
 
-This chart bootstraps a [RabbitMQ](https://github.com/bitnami/bitnami-docker-rabbitmq) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps a [RabbitMQ](https://hub.docker.com/_/rabbitmq) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ This chart bootstraps a [RabbitMQ](https://github.com/bitnami/bitnami-docker-rab
 To install the chart with the release name `my-release`:
 
 ```bash
-$ helm install --name my-release stable/rabbitmq
+$ helm install --namespace mynamespace --name my-release rabbitmq
 ```
 
 The command deploys RabbitMQ on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
@@ -34,7 +34,7 @@ The command deploys RabbitMQ on the Kubernetes cluster in the default configurat
 To uninstall/delete the `my-release` deployment:
 
 ```bash
-$ helm delete my-release
+$ helm delete --purge my-release
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -45,25 +45,24 @@ The following tables lists the configurable parameters of the RabbitMQ chart and
 
 |          Parameter          |                       Description                       |                         Default                          |
 |-----------------------------|---------------------------------------------------------|----------------------------------------------------------|
-| `image`                     | RabbitMQ image                                          | `bitnami/rabbitmq:{VERSION}`                             |
+| `image`                     | RabbitMQ image                                          | `rabbitmq:3-management`                                  |
 | `imagePullPolicy`           | Image pull policy                                       | `Always` if `imageTag` is `latest`, else `IfNotPresent`. |
-| `rabbitmqUsername`          | RabbitMQ application username                           | `user`                                                   |
-| `rabbitmqPassword`          | RabbitMQ application password                           | _random 10 character long alphanumeric string_           |
-| `rabbitmqErlangCookie`      | Erlang cookie                                           | _random 32 character long alphanumeric string_           |
+| `rabbitmqUsername`          | RabbitMQ application username                           | `quantex`                                                |
+| `rabbitmqPassword`          | RabbitMQ application password                           | `quantex@123`                                            |
+| `rabbitmqErlangCookie`      | Erlang cookie                                           | `cookie`                                                 |
 | `rabbitmqNodePort`          | Node port                                               | `5672`                                                   |
 | `rabbitmqNodeType`          | Node type                                               | `stats`                                                  |
-| `rabbitmqNodeName`          | Node name                                               | `rabbit`                                                 |
+| `rabbitmqNodeName`          | Node name                                               | ``                                                       |
 | `rabbitmqClusterNodeName`   | Node name to cluster with. e.g.: `clusternode@hostname` | `nil`                                                    |
 | `rabbitmqVhost`             | RabbitMQ application vhost                              | `/`                                                      |
 | `rabbitmqManagerPort`       | RabbitMQ Manager port                                   | `15672`                                                  |
-| `serviceType`               | Kubernetes Service type                                 | `ClusterIP`                                              |
+| `service.type`              | Kubernetes Service type                                 | `Nodeport`                                               |
 | `persistence.enabled`       | Use a PVC to persist data                               | `true`                                                   |
 | `persistence.existingClaim` | Use an existing PVC to persist data                     | `nil`                                                    |
-| `persistence.storageClass`  | Storage class of backing PVC                            | `nil` (uses alpha storage class annotation)              |
+| `persistence.storageClass`  | Storage class of backing PVC                            | `nfs-client`                                             |
 | `persistence.accessMode`    | Use volume as ReadOnly or ReadWrite                     | `ReadWriteOnce`                                          |
 | `persistence.size`          | Size of data volume                                     | `8Gi`                                                    |
 
-The above parameters map to the env variables defined in [bitnami/rabbitmq](http://github.com/bitnami/bitnami-docker-rabbitmq). For more information please refer to the [bitnami/rabbitmq](http://github.com/bitnami/bitnami-docker-rabbitmq) image documentation.
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
@@ -78,14 +77,12 @@ The above command sets the RabbitMQ admin username and password to `admin` and `
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-$ helm install --name my-release -f values.yaml stable/rabbitmq
+$ helm install --name my-release -f values.yaml rabbitmq
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
 
 ## Persistence
-
-The [Bitnami RabbitMQ](https://github.com/bitnami/bitnami-docker-rabbitmq) image stores the RabbitMQ data and configurations at the `/bitnami/rabbitmq` path of the container.
 
 The chart mounts a [Persistent Volume](http://kubernetes.io/docs/user-guide/persistent-volumes/) volume at this location. By default, the volume is created using dynamic volume provisioning. An existing PersistentVolumeClaim can also be defined.
 
