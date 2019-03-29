@@ -65,7 +65,7 @@ spec:
           image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
           imagePullPolicy: {{ .Values.metrics.image.pullPolicy }}
           env:
-            {{- $fullname := include "rabbitmq.fullname" . -}}
+            {{- $fullname := include "rabbitmq.fullname" . }}
             - name: RABBIT_URL
               value: http{{- if .Values.tls.enabled -}}s{{- end -}}://localhost:{{- .Values.service.ports.stats }}
             - name: RABBIT_USER
@@ -87,7 +87,6 @@ spec:
                   name: {{ $fullname }}
                   key: RABBITMQ_SSL_CACERTFILE
             {{- end }}
-            {{- $fullname := include "rabbitmq.fullname" . -}}
             {{- range $key := keys .Values.metrics.configEnvs }}
             - name: {{ $key }}
               valueFrom:
