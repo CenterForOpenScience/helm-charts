@@ -74,6 +74,26 @@ spec:
               subPath: pgbouncer.ini
               mountPath: /etc/pgbouncer/pgbouncer.ini
               readOnly: true
+            - name: secret
+              subPath: pg_root.crt
+              mountPath: /etc/pgbouncer/pg_root.crt
+              readOnly: true
+            - name: secret
+              subPath: postgresql.key
+              mountPath: /etc/pgbouncer/postgresql.key
+              readOnly: true
+            - name: secret
+              subPath: postgresql.crt
+              mountPath: /etc/pgbouncer/postgresql.crt
+              readOnly: true
+            - name: secret
+              subPath: server.key
+              mountPath: /etc/pgbouncer/server.key
+              readOnly: true
+            - name: secret
+              subPath: server.crt
+              mountPath: /etc/pgbouncer/server.crt
+              readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 {{- if .Values.metrics.enabled }}
