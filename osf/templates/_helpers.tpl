@@ -181,7 +181,7 @@ pod.beta.kubernetes.io/init-containers: null
 {{- end }}
 {{- end -}}
 
-{{- define "osf.environment" -}}
+{{- define "osf.common.environment" -}}
 {{- if .Values.postgresql.enabled }}
 - name: OSF_DB_HOST
   value: {{ template "osf.postgresql.fullname" . }}
@@ -232,11 +232,28 @@ pod.beta.kubernetes.io/init-containers: null
       name: {{ $fullname }}
       key: {{ $key }}
 {{- end }}
+{{- end -}}
+
+{{- define "osf.environment" -}}
+{{- include "osf.common.environment" . -}}
+{{- $fullname := include "osf.fullname" . -}}
 {{- range $key, $value := .Values.secretEnvs }}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
       name: {{ $fullname }}
+      key: {{ $key }}
+{{- end }}
+{{- end -}}
+
+{{- define "osf.migration.environment" -}}
+{{- include "osf.common.environment" . -}}
+{{- $fullname := include "osf.fullname" . -}}
+{{- range $key, $value := .Values.secretEnvs }}
+- name: {{ $key }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ $fullname }}-migration
       key: {{ $key }}
 {{- end }}
 {{- end -}}
