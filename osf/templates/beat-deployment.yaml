@@ -79,9 +79,9 @@ spec:
               fi
               SUFFIX=''
               if [ -f /beat/celerybeat-schedule ]; then
-                SUFFIX='--schedule /beat/celerybeat-schedule'
+                SUFFIX='--schedule=/beat/celerybeat-schedule'
               fi
-              $PREFIX gosu www-data invoke celery_beat $SUFFIX
+              $PREFIX gosu www-data celery beat -A framework.celery_tasks -l debug --pidfile= $SUFFIX
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
