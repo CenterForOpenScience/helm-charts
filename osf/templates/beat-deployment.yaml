@@ -77,7 +77,11 @@ spec:
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
               fi
-              $PREFIX gosu www-data invoke celery_beat --schedule /beat/celerybeat-schedule
+              SUFFIX=''
+              if [ -f /beat/celerybeat-schedule ]; then
+                SUFFIX='--schedule /beat/celerybeat-schedule'
+              fi
+              $PREFIX gosu www-data invoke celery_beat $SUFFIX
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
