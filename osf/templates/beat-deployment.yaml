@@ -72,7 +72,7 @@ spec:
             - -c
             - |-
               set -e
-              gosu www-data python manage.py check_deploy_ready
+              su-exec www-data python manage.py check_deploy_ready
               PREFIX=''
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
@@ -81,7 +81,7 @@ spec:
               if [ -f /beat/celerybeat-schedule ]; then
                 SUFFIX='--schedule=/beat/celerybeat-schedule'
               fi
-              $PREFIX gosu www-data celery beat -A framework.celery_tasks -l debug --pidfile= $SUFFIX
+              $PREFIX su-exec www-data celery beat -A framework.celery_tasks -l debug --pidfile= $SUFFIX
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
