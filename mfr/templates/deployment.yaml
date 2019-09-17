@@ -123,7 +123,7 @@ spec:
                 - |-
                   cd /tmp
                   touch test.txt
-                  timeout 10 unoconv -f html test.txt
+                  timeout 10 /usr/bin/python3.7 /usr/local/bin/unoconv -f html test.txt
                   exit $?
             initialDelaySeconds: 30
             periodSeconds: 10
