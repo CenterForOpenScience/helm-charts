@@ -107,8 +107,7 @@ spec:
           command:
             - gosu
             - www-data
-            - /opt/libreoffice6.1/program/python
-            - -u
+            - /usr/bin/python3.7
             - /usr/local/bin/unoconv
             - --listener
             - --server
