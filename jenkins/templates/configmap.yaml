@@ -120,6 +120,16 @@ data:
 
                 try_files $uri @jenkins;
             }
+            
+            location /generic-webhook-trigger {
+                allow all;
+
+                if ($request_method != POST) {
+                    return 405;
+                }
+
+                try_files $uri @jenkins;
+            }
 
             location / {
                 deny all;
