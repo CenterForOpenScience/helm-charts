@@ -374,12 +374,14 @@ cas.properties: |-
   # Authentication Delegation: Clients
   #
   # CAS Client: California Lutheran University
-  cas.callutheran.login.url=${CAS_CALLUTHERAN_LOGIN_URL:https://sso.callutheran.edu/cas/login}
+  cas.callutheran.login.url=${CAS_CALLUTHERAN_LOGIN_URL:https://login.callutheran.edu/cas/login}
+  cas.callutheran.prefix.url=${CAS_CALLUTHERAN_PREFIX_URL:https://login.callutheran.edu/cas/}
   cas.callutheran.client.name=${CAS_CALLUTHERAN_CLIENT_NAME:callutheran}
   cas.callutheran.cas.protocol=${CAS_CALLUTHERAN_CAS_PROTOCOL:SAML}
   #
   # CAS Client: Oklahoma State University
-  cas.okstate.login.url=${CAS_OKSTATE_LOGIN_URL:https://stgcas.okstate.edu/cas/login}
+  cas.okstate.login.url=${CAS_OKSTATE_LOGIN_URL:https://stwcas.okstate.edu/cas/login}
+  cas.okstate.prefix.url=${CAS_OKSTATE_PREFIX_URL:https://stwcas.okstate.edu/cas/}
   cas.okstate.client.name=${CAS_OKSTATE_CLIENT_NAME:okstate}
   cas.okstate.cas.protocol=${CAS_OKSTATE_CAS_PROTOCOL:SAML}
   #
