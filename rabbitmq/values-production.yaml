@@ -246,10 +246,13 @@ persistence:
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
-resources: {}
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
 
-## Replica count, set to 1 to provide a default available cluster
-replicas: 1
+## Replica count, set to 3 to provide a default available cluster
+replicas: 3
 
 ## Pod priority
 ## https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
@@ -263,7 +266,8 @@ updateStrategy:
 ## Node labels and tolerations for pod assignment
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
-nodeSelector: {}
+nodeSelector:
+  beta.kubernetes.io/arch: amd64
 tolerations: []
 affinity: {}
 
@@ -285,7 +289,7 @@ ingress:
 
   ## Set this to true in order to enable TLS on the ingress record
   ## A side effect of this will be that the backend wordpress service will be connected at port 443
-  tls: false
+  tls: true
 
   ## If TLS is set to true, you must declare what secret will store the key/certificate for TLS
   tlsSecret: myTlsSecret
@@ -320,7 +324,7 @@ readinessProbe:
   successThreshold: 1
 
 metrics:
-  enabled: false
+  enabled: true
   image:
     registry: docker.io
     repository: bitnami/rabbitmq-exporter
@@ -337,10 +341,6 @@ metrics:
   env: {}
   ## Metrics exporter port
   port: 9419
-  ## RabbitMQ address to connect to (from the same Pod, usually the local loopback address).
-  ## If your Kubernetes cluster does not support IPv6, you can change to `127.0.0.1` in order to force IPv4.
-  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/#networking
-  rabbitmqAddress: localhost
   ## Comma-separated list of extended scraping capabilities supported by the target RabbitMQ server
   ## ref: https://github.com/kbudde/rabbitmq_exporter#extended-rabbitmq-capabilities
   capabilities: "bert,no_sort"
@@ -374,7 +374,7 @@ metrics:
 ## volumePermissions: Change the owner of the persist volume mountpoint to RunAsUser:fsGroup
 ##
 volumePermissions:
-  enabled: false
+  enabled: true
   image:
     registry: docker.io
     repository: bitnami/minideb
