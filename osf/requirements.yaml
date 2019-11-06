@@ -20,7 +20,7 @@ dependencies:
     condition: postgresql.enabled, global.postgresql.enabled
   - name: rabbitmq
     version: 0.6.8
-    repository: file://../rabbitmq
+    repository: https://centerforopenscience.github.io/helm-charts/
     condition: rabbitmq.enabled, global.rabbitmq.enabled
   - name: redis
     version: 1.1.2
