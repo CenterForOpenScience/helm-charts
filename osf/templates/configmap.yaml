@@ -164,7 +164,6 @@ admin-uwsgi.ini: |-
 
   # process-related settings
   master = true
-  workers = {{ .Values.admin.uwsgi.workerCount }}
   threads = 1
   harakiri = 120
   buffer-size = 8192
@@ -172,6 +171,44 @@ admin-uwsgi.ini: |-
   vacuum = true
   need-app = true
   show-config = true
+
+  {{- if .Values.admin.uwsgi.maxRequests }}
+  max-requests = {{ .Values.admin.uwsgi.maxRequests }}
+  {{- end }}
+  {{- if .Values.admin.uwsgi.maxRequestsDelta }}
+  max-requests-delta = {{ .Values.admin.uwsgi.maxRequestsDelta }}
+  {{- end }}
+
+  {{- if .Values.admin.uwsgi.cheaper.enabled }}
+  # Adaptive process spawning
+  # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html
+  cheaper-algo = {{ .Values.admin.uwsgi.cheaper.algo }}
+
+  # Min, initial, max workers
+  cheaper = {{ .Values.admin.uwsgi.workerCount }}
+  cheaper-initial = {{ .Values.admin.uwsgi.workerCount }}
+  workers = {{ .Values.admin.uwsgi.cheaper.maxWorkerCount }}
+
+  cheaper-step = {{ .Values.admin.uwsgi.cheaper.step }}
+
+  {{- if eq .Values.admin.uwsgi.cheaper.algo "busyness" }}
+  # Required for algo "busyness" proper tuning
+  # Note: These defaults are experimental
+  # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html#busyness-cheaper-algorithm
+  cheaper-overload = {{ .Values.admin.uwsgi.cheaper.overload | default 60 }}
+  cheaper-busyness-min = {{ .Values.admin.uwsgi.cheaper.busynessMin | default 30 }}
+  cheaper-busyness-max = {{ .Values.admin.uwsgi.cheaper.busynessMax | default 75 }}
+  cheaper-busyness-multiplier = {{ .Values.admin.uwsgi.cheaper.busynessMult | default 20 }}
+  cheaper-busynes-penalty = {{ .Values.admin.uwsgi.cheaper.busynessPenalty | default 5 }}
+  cheaper-busyness-verbose = {{ .Values.admin.uwsgi.cheaper.busynessVerbose | default true }}
+  cheaper-busyness-backlog-alert = {{ .Values.admin.uwsgi.cheaper.busynessBacklogAlert | default 40 }}
+  cheaper-busyness-backlog-multiplier = {{ .Values.admin.uwsgi.cheaper.busynessBacklogMultiplier | default 2 }}
+  cheaper-busyness-backlog-step = {{ .Values.admin.uwsgi.cheaper.busynessBacklogStep | default 1 }}
+  {{- end}}
+
+  {{- else }}
+  workers = {{ .Values.admin.uwsgi.workerCount }}
+  {{- end}}
 
   # greenlet settings
   gevent = 500
@@ -327,7 +364,6 @@ api-uwsgi.ini: |-
 
   # process-related settings
   master = true
-  workers = {{ .Values.api.uwsgi.workerCount }}
   threads = 1
   harakiri = 120
   buffer-size = 8192
@@ -335,6 +371,44 @@ api-uwsgi.ini: |-
   vacuum = true
   need-app = true
   show-config = true
+
+  {{- if .Values.api.uwsgi.maxRequests }}
+  max-requests = {{ .Values.api.uwsgi.maxRequests }}
+  {{- end }}
+  {{- if .Values.api.uwsgi.maxRequestsDelta }}
+  max-requests-delta = {{ .Values.api.uwsgi.maxRequestsDelta }}
+  {{- end }}
+
+  {{- if .Values.api.uwsgi.cheaper.enabled }}
+  # Adaptive process spawning
+  # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html
+  cheaper-algo = {{ .Values.api.uwsgi.cheaper.algo }}
+
+  # Min, initial, max workers
+  cheaper = {{ .Values.api.uwsgi.workerCount }}
+  cheaper-initial = {{ .Values.api.uwsgi.workerCount }}
+  workers = {{ .Values.api.uwsgi.cheaper.maxWorkerCount }}
+
+  cheaper-step = {{ .Values.api.uwsgi.cheaper.step }}
+
+  {{- if eq .Values.api.uwsgi.cheaper.algo "busyness" }}
+  # Required for algo "busyness" proper tuning
+  # Note: These defaults are experimental
+  # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html#busyness-cheaper-algorithm
+  cheaper-overload = {{ .Values.api.uwsgi.cheaper.overload | default 60 }}
+  cheaper-busyness-min = {{ .Values.api.uwsgi.cheaper.busynessMin | default 30 }}
+  cheaper-busyness-max = {{ .Values.api.uwsgi.cheaper.busynessMax | default 75 }}
+  cheaper-busyness-multiplier = {{ .Values.api.uwsgi.cheaper.busynessMult | default 20 }}
+  cheaper-busynes-penalty = {{ .Values.api.uwsgi.cheaper.busynessPenalty | default 5 }}
+  cheaper-busyness-verbose = {{ .Values.api.uwsgi.cheaper.busynessVerbose | default true }}
+  cheaper-busyness-backlog-alert = {{ .Values.api.uwsgi.cheaper.busynessBacklogAlert | default 40 }}
+  cheaper-busyness-backlog-multiplier = {{ .Values.api.uwsgi.cheaper.busynessBacklogMultiplier | default 2 }}
+  cheaper-busyness-backlog-step = {{ .Values.api.uwsgi.cheaper.busynessBacklogStep | default 1 }}
+  {{- end}}
+
+  {{- else }}
+  workers = {{ .Values.api.uwsgi.workerCount }}
+  {{- end}}
 
   # greenlet settings
   gevent = 500
@@ -874,7 +948,6 @@ web-uwsgi.ini: |-
 
   # process-related settings
   master = true
-  workers = {{ .Values.web.uwsgi.workerCount }}
   threads = 1
   harakiri = 120
   buffer-size = 8192
@@ -882,6 +955,45 @@ web-uwsgi.ini: |-
   vacuum = true
   need-app = true
   show-config = true
+
+  {{- if .Values.web.uwsgi.maxRequests }}
+  max-requests = {{ .Values.web.uwsgi.maxRequests }}
+  {{- end }}
+  {{- if .Values.web.uwsgi.maxRequestsDelta }}
+  max-requests-delta = {{ .Values.web.uwsgi.maxRequestsDelta }}
+  {{- end }}
+
+  {{- if .Values.web.uwsgi.cheaper.enabled }}
+  # Adaptive process spawning
+  # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html
+  cheaper-algo = {{ .Values.web.uwsgi.cheaper.algo }}
+
+  # Min, initial, max workers
+  cheaper = {{ .Values.web.uwsgi.workerCount }}
+  cheaper-initial = {{ .Values.web.uwsgi.workerCount }}
+  workers = {{ .Values.web.uwsgi.cheaper.maxWorkerCount }}
+
+  cheaper-step = {{ .Values.web.uwsgi.cheaper.step }}
+
+  {{- if eq .Values.web.uwsgi.cheaper.algo "busyness" }}
+  # Required for algo "busyness" proper tuning
+  # Note: These defaults are experimental
+  # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html#busyness-cheaper-algorithm
+  cheaper-overload = {{ .Values.web.uwsgi.cheaper.overload | default 60 }}
+  cheaper-busyness-min = {{ .Values.web.uwsgi.cheaper.busynessMin | default 30 }}
+  cheaper-busyness-max = {{ .Values.web.uwsgi.cheaper.busynessMax | default 75 }}
+  cheaper-busyness-multiplier = {{ .Values.web.uwsgi.cheaper.busynessMult | default 20 }}
+  cheaper-busynes-penalty = {{ .Values.web.uwsgi.cheaper.busynessPenalty | default 5 }}
+  cheaper-busyness-verbose = {{ .Values.web.uwsgi.cheaper.busynessVerbose | default true }}
+  cheaper-busyness-backlog-alert = {{ .Values.web.uwsgi.cheaper.busynessBacklogAlert | default 40 }}
+  cheaper-busyness-backlog-multiplier = {{ .Values.web.uwsgi.cheaper.busynessBacklogMultiplier | default 2 }}
+  cheaper-busyness-backlog-step = {{ .Values.web.uwsgi.cheaper.busynessBacklogStep | default 1 }}
+  {{- end}}
+
+  {{- else }}
+  workers = {{ .Values.web.uwsgi.workerCount }}
+  {{- end}}
+
 
   # greenlet settings
   gevent = 500

@@ -55,6 +55,13 @@ admin:
 
   uwsgi:
     workerCount: 1
+    # maxRequests: 50000
+    # maxRequestsDelta: 50
+    cheaper:
+      enabled: false
+      algo: spare
+      maxWorkerCount: 2
+      step: 1
 
   horizontalPodAutoscaler:
     enabled: false
@@ -165,6 +172,13 @@ api:
 
   uwsgi:
     workerCount: 1
+    # maxRequests: 50000
+    # maxRequestsDelta: 50
+    cheaper:
+      enabled: false
+      algo: spare
+      maxWorkerCount: 2
+      step: 1
 
   horizontalPodAutoscaler:
     enabled: false
@@ -373,6 +387,13 @@ web:
 
   uwsgi:
     workerCount: 1
+    # maxRequests: 50000
+    # maxRequestsDelta: 50
+    cheaper:
+      enabled: false
+      algo: spare
+      maxWorkerCount: 2
+      step: 1
 
   horizontalPodAutoscaler:
     enabled: false
