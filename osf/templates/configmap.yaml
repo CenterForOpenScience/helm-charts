@@ -171,6 +171,7 @@ admin-uwsgi.ini: |-
   vacuum = true
   need-app = true
   show-config = true
+  wsgi-disable-file-wrapper = {{ .Values.web.uwsgi.disableFileWrapper | default true }}
 
   {{- if .Values.admin.uwsgi.maxRequests }}
   max-requests = {{ .Values.admin.uwsgi.maxRequests }}
@@ -371,6 +372,7 @@ api-uwsgi.ini: |-
   vacuum = true
   need-app = true
   show-config = true
+  wsgi-disable-file-wrapper = {{ .Values.web.uwsgi.disableFileWrapper | default true }}
 
   {{- if .Values.api.uwsgi.maxRequests }}
   max-requests = {{ .Values.api.uwsgi.maxRequests }}
@@ -901,7 +903,7 @@ web-nginx.conf: |-
 
               # Pass requests to uwsgi application
               include /etc/nginx/uwsgi_params;
-              
+
               # Timeout for waiting on the response body
               uwsgi_read_timeout {{ .Values.web.nginx.readTimeout }}s;
 
@@ -955,6 +957,7 @@ web-uwsgi.ini: |-
   vacuum = true
   need-app = true
   show-config = true
+  wsgi-disable-file-wrapper = {{ .Values.web.uwsgi.disableFileWrapper | default true }}
 
   {{- if .Values.web.uwsgi.maxRequests }}
   max-requests = {{ .Values.web.uwsgi.maxRequests }}
