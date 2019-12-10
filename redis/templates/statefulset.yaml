@@ -22,6 +22,10 @@ spec:
         {{- toYaml .Values.metrics.annotations | nindent 8 }}
         {{- end }}
     spec:
+      affinity:
+        {{- if .Values.additionalAffinities }}
+        {{- toYaml .Values.additionalAffinities | nindent 8 }}
+        {{- end }}
       containers:
         - name: redis
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
