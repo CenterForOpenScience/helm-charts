@@ -15,6 +15,10 @@ spec:
         app: {{ template "http-redirect.name" . }}
         release: {{ .Release.Name }}
     spec:
+      affinity:
+        {{- if .Values.additionalAffinities }}
+        {{- toYaml .Values.additionalAffinities | nindent 8 }}
+        {{- end }}
       containers:
         - name: {{ template "http-redirect.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
