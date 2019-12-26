@@ -186,7 +186,7 @@ admin-uwsgi.ini: |-
   cheaper-algo = {{ .Values.admin.uwsgi.cheaper.algo }}
 
   # Min, initial, max workers
-  cheaper = {{ .Values.admin.uwsgi.workerCount }}
+  cheaper = {{ .Values.admin.uwsgi.cheaper.minWorkerCount }}
   cheaper-initial = {{ .Values.admin.uwsgi.workerCount }}
   workers = {{ .Values.admin.uwsgi.cheaper.maxWorkerCount }}
 
@@ -196,15 +196,16 @@ admin-uwsgi.ini: |-
   # Required for algo "busyness" proper tuning
   # Note: These defaults are experimental
   # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html#busyness-cheaper-algorithm
-  cheaper-overload = {{ .Values.admin.uwsgi.cheaper.overload | default 60 }}
+  cheaper-overload = {{ .Values.admin.uwsgi.cheaper.overload | default 20 }}
   cheaper-busyness-min = {{ .Values.admin.uwsgi.cheaper.busynessMin | default 30 }}
   cheaper-busyness-max = {{ .Values.admin.uwsgi.cheaper.busynessMax | default 75 }}
   cheaper-busyness-multiplier = {{ .Values.admin.uwsgi.cheaper.busynessMult | default 20 }}
   cheaper-busynes-penalty = {{ .Values.admin.uwsgi.cheaper.busynessPenalty | default 5 }}
   cheaper-busyness-verbose = {{ .Values.admin.uwsgi.cheaper.busynessVerbose | default true }}
-  cheaper-busyness-backlog-alert = {{ .Values.admin.uwsgi.cheaper.busynessBacklogAlert | default 40 }}
-  cheaper-busyness-backlog-multiplier = {{ .Values.admin.uwsgi.cheaper.busynessBacklogMultiplier | default 2 }}
-  cheaper-busyness-backlog-step = {{ .Values.admin.uwsgi.cheaper.busynessBacklogStep | default 1 }}
+  cheaper-busyness-backlog-alert = {{ .Values.admin.uwsgi.cheaper.busynessBacklogAlert | default 15 }}
+  cheaper-busyness-backlog-multiplier = {{ .Values.admin.uwsgi.cheaper.busynessBacklogMultiplier | default 3 }}
+  cheaper-busyness-backlog-step = {{ .Values.admin.uwsgi.cheaper.busynessBacklogStep | default 2 }}
+  cheaper-busyness-backlog-nonzero = {{ .Values.admin.uwsgi.cheaper.busynessBacklogNonzero | default 10 }}
   {{- end}}
 
   {{- else }}
@@ -387,7 +388,7 @@ api-uwsgi.ini: |-
   cheaper-algo = {{ .Values.api.uwsgi.cheaper.algo }}
 
   # Min, initial, max workers
-  cheaper = {{ .Values.api.uwsgi.workerCount }}
+  cheaper = {{ .Values.api.uwsgi.cheaper.minWorkerCount }}
   cheaper-initial = {{ .Values.api.uwsgi.workerCount }}
   workers = {{ .Values.api.uwsgi.cheaper.maxWorkerCount }}
 
@@ -397,15 +398,16 @@ api-uwsgi.ini: |-
   # Required for algo "busyness" proper tuning
   # Note: These defaults are experimental
   # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html#busyness-cheaper-algorithm
-  cheaper-overload = {{ .Values.api.uwsgi.cheaper.overload | default 60 }}
+  cheaper-overload = {{ .Values.api.uwsgi.cheaper.overload | default 20 }}
   cheaper-busyness-min = {{ .Values.api.uwsgi.cheaper.busynessMin | default 30 }}
   cheaper-busyness-max = {{ .Values.api.uwsgi.cheaper.busynessMax | default 75 }}
   cheaper-busyness-multiplier = {{ .Values.api.uwsgi.cheaper.busynessMult | default 20 }}
   cheaper-busynes-penalty = {{ .Values.api.uwsgi.cheaper.busynessPenalty | default 5 }}
   cheaper-busyness-verbose = {{ .Values.api.uwsgi.cheaper.busynessVerbose | default true }}
-  cheaper-busyness-backlog-alert = {{ .Values.api.uwsgi.cheaper.busynessBacklogAlert | default 40 }}
-  cheaper-busyness-backlog-multiplier = {{ .Values.api.uwsgi.cheaper.busynessBacklogMultiplier | default 2 }}
-  cheaper-busyness-backlog-step = {{ .Values.api.uwsgi.cheaper.busynessBacklogStep | default 1 }}
+  cheaper-busyness-backlog-alert = {{ .Values.api.uwsgi.cheaper.busynessBacklogAlert | default 15 }}
+  cheaper-busyness-backlog-multiplier = {{ .Values.api.uwsgi.cheaper.busynessBacklogMultiplier | default 3 }}
+  cheaper-busyness-backlog-step = {{ .Values.api.uwsgi.cheaper.busynessBacklogStep | default 2 }}
+  cheaper-busyness-backlog-nonzero = {{ .Values.api.uwsgi.cheaper.busynessBacklogNonzero | default 10 }}
   {{- end}}
 
   {{- else }}
@@ -972,7 +974,7 @@ web-uwsgi.ini: |-
   cheaper-algo = {{ .Values.web.uwsgi.cheaper.algo }}
 
   # Min, initial, max workers
-  cheaper = {{ .Values.web.uwsgi.workerCount }}
+  cheaper = {{ .Values.web.uwsgi.cheaper.minWorkerCount }}
   cheaper-initial = {{ .Values.web.uwsgi.workerCount }}
   workers = {{ .Values.web.uwsgi.cheaper.maxWorkerCount }}
 
@@ -982,15 +984,16 @@ web-uwsgi.ini: |-
   # Required for algo "busyness" proper tuning
   # Note: These defaults are experimental
   # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html#busyness-cheaper-algorithm
-  cheaper-overload = {{ .Values.web.uwsgi.cheaper.overload | default 60 }}
+  cheaper-overload = {{ .Values.web.uwsgi.cheaper.overload | default 20 }}
   cheaper-busyness-min = {{ .Values.web.uwsgi.cheaper.busynessMin | default 30 }}
   cheaper-busyness-max = {{ .Values.web.uwsgi.cheaper.busynessMax | default 75 }}
   cheaper-busyness-multiplier = {{ .Values.web.uwsgi.cheaper.busynessMult | default 20 }}
   cheaper-busynes-penalty = {{ .Values.web.uwsgi.cheaper.busynessPenalty | default 5 }}
   cheaper-busyness-verbose = {{ .Values.web.uwsgi.cheaper.busynessVerbose | default true }}
-  cheaper-busyness-backlog-alert = {{ .Values.web.uwsgi.cheaper.busynessBacklogAlert | default 40 }}
-  cheaper-busyness-backlog-multiplier = {{ .Values.web.uwsgi.cheaper.busynessBacklogMultiplier | default 2 }}
-  cheaper-busyness-backlog-step = {{ .Values.web.uwsgi.cheaper.busynessBacklogStep | default 1 }}
+  cheaper-busyness-backlog-alert = {{ .Values.web.uwsgi.cheaper.busynessBacklogAlert | default 15 }}
+  cheaper-busyness-backlog-multiplier = {{ .Values.web.uwsgi.cheaper.busynessBacklogMultiplier | default 3 }}
+  cheaper-busyness-backlog-step = {{ .Values.web.uwsgi.cheaper.busynessBacklogStep | default 2 }}
+  cheaper-busyness-backlog-nonzero = {{ .Values.web.uwsgi.cheaper.busynessBacklogNonzero | default 10 }}
   {{- end}}
 
   {{- else }}
