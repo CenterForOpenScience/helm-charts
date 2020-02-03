@@ -418,11 +418,11 @@ cas.properties: |-
   ##
   # Open Science Framework Postgres Database
   #
-  osf.database.driverClass=org.postgresql.Driver
+  osf.database.driverClass=${OSF_DB_DRIVERCLASS:org.postgresql.Driver}
   osf.database.url=${OSF_DB_URL:jdbc:postgresql://127.0.0.1/osf?targetServerType=master}
   osf.database.user=${OSF_DB_USER:postgres}
   osf.database.password=${OSF_DB_PASSWORD:}
-  osf.database.hibernate.dialect=org.hibernate.dialect.PostgreSQL82Dialect
+  osf.database.hibernate.dialect=${OSF_DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQL82Dialect}
 
   ##
   # OAuth Provider
