@@ -422,7 +422,7 @@ cas.properties: |-
   osf.database.url=${OSF_DB_URL:jdbc:postgresql://127.0.0.1/osf?targetServerType=master}
   osf.database.user=${OSF_DB_USER:postgres}
   osf.database.password=${OSF_DB_PASSWORD:}
-  osf.database.hibernate.dialect=${OSF_DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQL82Dialect}
+  osf.database.hibernate.dialect=${OSF_DB_HIBERNATE_DIALECT:io.cos.cas.adaptors.postgres.hibernate.OSFPostgreSQLDialect}
 
   ##
   # OAuth Provider
