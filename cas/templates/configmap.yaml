@@ -386,6 +386,12 @@ cas.properties: |-
   cas.callutheran.client.name=${CAS_CALLUTHERAN_CLIENT_NAME:callutheran}
   cas.callutheran.cas.protocol=${CAS_CALLUTHERAN_CAS_PROTOCOL:SAML}
   #
+  # CAS Client: Concordia College
+  cas.cord.login.url=${CAS_CORD_LOGIN_URL:https://bprdeis.cord.edu:8443/cas/login}
+  cas.cord.prefix.url=${CAS_CORD_PREFIX_URL:https://bprdeis.cord.edu:8443/cas/}
+  cas.cord.client.name=${CAS_CORD_CLIENT_NAME:cord}
+  cas.cord.cas.protocol=${CAS_CORD_CAS_PROTOCOL:SAML}
+  #
   # CAS Client: Oklahoma State University
   cas.okstate.login.url=${CAS_OKSTATE_LOGIN_URL:https://stwcas.okstate.edu/cas/login}
   cas.okstate.prefix.url=${CAS_OKSTATE_PREFIX_URL:https://stwcas.okstate.edu/cas/}
