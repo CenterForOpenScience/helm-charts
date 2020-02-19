@@ -135,23 +135,18 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - gosu
-            - www-data
-            - celery
-            - -A
-            - waterbutler.tasks.app
-            - worker
+            - /bin/sh
             - -c
-            - "{{ .Values.worker.concurrency }}"
-            - -l
-            - "{{ .Values.worker.logLevel }}"
-            - -n
-            - worker.%h
-            - --without-gossip
-            {{- if .Values.worker.maxTasksPerChild }}
-            - --maxtasksperchild
-            - "{{ .Values.worker.maxTasksPerChild }}"
-            {{- end }}
+            - |-
+              set -e
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data celery -A waterbutler.tasks.app worker \
+                -c "{{ .Values.worker.concurrency }}" -l "{{ .Values.worker.logLevel }}" \
+                -n worker.%h --without-gossip
+                {{- if .Values.worker.maxTasksPerChild }} --maxtasksperchild "{{ .Values.worker.maxTasksPerChild }}" {{- end }}
           env:
             {{- include "wb.environment" . | nindent 12 }}
             - name: ENV
