@@ -6,7 +6,7 @@ replicaCount: 1
 image:
   repository: quay.io/centerforopenscience/pgbouncer
   tag: '1.8.1'
-  command: [ 'pgbouncer', '-u', 'pgbouncer' '/etc/pgbouncer/pgbouncer.ini' ]
+  command: [ 'pgbouncer', '-u', 'pgbouncer', '/etc/pgbouncer/pgbouncer.ini' ]
   pullPolicy: Always
 
 antiAffinity: soft
