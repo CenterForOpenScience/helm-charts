@@ -11,6 +11,8 @@ image:
 antiAffinity: soft
 additionalAffinities: {}
 
+command: [ 'pgbouncer', '-u', 'pgbouncer' '/etc/pgbouncer/pgbouncer.ini' ]
+
 budget:
   minAvailable: 0
 
