@@ -463,7 +463,7 @@ web-nginx-osf-web.conf: |-
 web-nginx-prerender.conf: |-
   set $prerender 0;
 
-  if ($http_user_agent ~* "baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|googlebot") {
+  if ($http_user_agent ~* "baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|googlebot|CrossrefEventDataBot") {
       set $prerender 1;
   }
 
