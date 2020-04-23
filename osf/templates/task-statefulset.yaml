@@ -71,18 +71,26 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - /bin/sh
+            - /bin/bash
             - -c
             - |-
               PREFIX=''
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
               fi
+              POSTFIX=''
+              {{- if .Values.task.reserve_worker }}
+              [[ `hostname` =~ -([0-9]+)$ ]]
+              ordinal=${BASH_REMATCH[1]}
+              if [[ $ordinal -eq 0 ]]; then
+                POSTFIX='--exclude-queues low,celery'
+              fi
+              {{- end}}
               $PREFIX su-exec www-data celery worker --app framework.celery_tasks \
                 --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
                 --hostname $POD_NAME --without-gossip -Ofair
                 {{- if .Values.task.maxTasksPerChild }} --maxtasksperchild "{{ .Values.task.maxTasksPerChild }}"{{- end }}
-                {{- if .Values.task.queues }} --queues "{{ .Values.task.queues }}"{{- end }}
+                {{- if .Values.task.queues }} --queues "{{ .Values.task.queues }}"{{- else}} $POSTFIX {{- end }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
