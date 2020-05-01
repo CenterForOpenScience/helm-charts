@@ -31,3 +31,39 @@ spec:
           - {{ . }}
           {{- end }}
 {{- end -}}
+{{- range $certificate := .Values.additionalCertificates }}
+{{- $name := default $.Chart.Name $.Values.nameOverride }}
+{{- $certificateFullName := (printf "%s-%s-%s" $.Release.Name $name $certificate.name | trunc 63 | trimSuffix "-") }}
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: {{ $certificateFullName }}
+  labels:
+    app: {{ template "nginx.name" $ }}
+    chart: {{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}
+    heritage: {{ $.Release.Service }}
+    release: {{ $.Release.Name }}
+spec:
+  secretName: {{ $certificateFullName }}
+  issuerRef:
+    name: {{ $certificate.issuerRef.name }}
+    kind: {{ $certificate.issuerRef.kind }}
+  commonName: {{ $certificate.commonName }}
+  dnsNames:
+    {{- range $certificate.dnsNames }}
+    - {{ . }}
+    {{- end }}
+  acme:
+    config:
+      - http01:
+          {{- if hasKey $certificate.acmeConfig.http01 "ingress" }}
+          ingress: {{ $certificate.acmeConfig.http01.ingress }}
+          {{- else }}
+          ingress: {{ template "nginx.fullname" $ }}
+          {{- end }}
+        domains:
+          {{- range $certificate.acmeConfig.domains }}
+          - {{ . }}
+          {{- end }}
+---
+{{- end }}
