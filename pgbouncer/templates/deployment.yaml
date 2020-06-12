@@ -49,11 +49,10 @@ spec:
         - name: pgbouncer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{ if .Values.image.command }}
           command:
-            - pgbouncer
-            - -u
-            - pgbouncer
-            - /etc/pgbouncer/pgbouncer.ini
+            {{ toYaml .Values.image.command | nindent 12 }}
+          {{ end }}
           env:
             {{- include "pgbouncer.environment" . | nindent 12 }}
           ports:
