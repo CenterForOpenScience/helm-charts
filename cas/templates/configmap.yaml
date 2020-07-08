@@ -673,15 +673,51 @@ log4j2.xml: |-
           </Raven>
       </Appenders>
       <Loggers>
-          <Logger name="io.cos" level="info" additivity="false">
+          <!-- OSF CAS -->
+          <Logger name="io.cos" level="debug" additivity="false">
               <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
           </Logger>
+          <!-- Jasig / Apereo -->
           <Logger name="org.jasig" level="info" additivity="false">
               <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
           </Logger>
+          <Logger name="org.jasig.cas" level="debug" additivity="false">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Logger>
+          <Logger name="org.jasig.cas.services.DefaultServicesManagerImpl" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Logger>
+          <Logger name="org.jasig.cas.web.support.InMemoryThrottledSubmissionByIpAddressAndUsernameHandlerInterceptorAdapter" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Logger>
+          <!-- Pac4j -->
+          <Logger name="org.pac4j" level="debug" additivity="false">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Logger>
+          <!-- Spring Framework -->
+          <Logger name="org.springframework" level="info" additivity="false">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Logger>
+          <Logger name="org.springframework.web.servlet" level="debug" additivity="false">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Logger>
+          <Logger name="org.springframework.webflow" level="debug" additivity="false">
+              <AppenderRef ref="Console" />
+              <AppenderRef ref="Sentry" />
+          </Logger>
+          <!-- perfStats is turned off to disable chatty metrics -->
           <Logger name="perfStatsLogger" level="off" additivity="false">
               <AppenderRef ref="Console" />
           </Logger>
+          <!-- Root logging level is set to "warn" -->
           <Root level="warn">
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
