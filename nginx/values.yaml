@@ -66,8 +66,24 @@ certificate:
   #   - example.org
   #   - subdomain.example.org
   # acmeConfig:
-  #   http01: {}
-  #     # ingress: ''
+  #   http01:
+  #     ingress: example-ingress
   #   domains:
   #     - example.org
   #     - subdomain.example.org
+
+# additionalCertificates:
+#   - name: cert-2
+#     commonName: example2.org
+#     dnsNames:
+#       - example2.org
+#       - www.example2.org
+#     issuerRef:
+#       name: letsencrypt-prod
+#       kind: ClusterIssuer
+#     acmeConfig:
+#       http01:
+#         ingress: example-ingress
+#       domains:
+#         - example2.org
+#         - www.example2.org

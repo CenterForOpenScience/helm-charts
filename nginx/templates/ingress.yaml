@@ -29,13 +29,9 @@ spec:
     {{- end }}
   {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls)) }}
   tls:
-    {{- range .Values.ingress.tls }}
-    - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
+    {{- if .Values.ingress.tls }}
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
+    {{- end -}}
     {{- if (and .Values.certificate.enabled .Values.certificate.tls) }}
     - secretName: "{{ template "nginx.certificate.fullname" . }}"
       hosts:
@@ -43,5 +39,14 @@ spec:
         - {{ . }}
         {{- end }}
     {{- end -}}
+    {{- range $certificate := .Values.additionalCertificates }}
+    {{- $name := default $.Chart.Name $.Values.nameOverride }}
+    {{- $certificateFullName := (printf "%s-%s-%s" $.Release.Name $name $certificate.name | trunc 63 | trimSuffix "-") }}
+    - secretName: {{ $certificateFullName }}
+      hosts:
+        {{- range $certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end }}
   {{- end }}
 {{- end }}
