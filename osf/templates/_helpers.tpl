@@ -79,6 +79,15 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Create a default fully qualified migration name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "osf.purge.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.purge.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Create a default fully qualified web name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
@@ -254,6 +263,18 @@ pod.beta.kubernetes.io/init-containers: null
   valueFrom:
     secretKeyRef:
       name: {{ $fullname }}-migration
+      key: {{ $key }}
+{{- end }}
+{{- end -}}
+
+{{- define "osf.purge.environment" -}}
+{{- include "osf.common.environment" . -}}
+{{- $fullname := include "osf.fullname" . -}}
+{{- range $key, $value := .Values.secretEnvs }}
+- name: {{ $key }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ $fullname }}-purge
       key: {{ $key }}
 {{- end }}
 {{- end -}}

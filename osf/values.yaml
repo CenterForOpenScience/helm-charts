@@ -321,6 +321,14 @@ migration:
 
   volumeMounts: []
 
+purge:
+  enabled: false
+  name: purge
+  volumeMounts: []
+  secretFiles: {}
+  persistence: {}
+
+
 web:
   enabled: true
   name: web
