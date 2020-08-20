@@ -277,6 +277,13 @@ pod.beta.kubernetes.io/init-containers: null
       name: {{ $fullname }}-purge
       key: {{ $key }}
 {{- end }}
+{{- range $key, $value := .Values.purge.secretEnvs }}
+- name: {{ $key }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ $fullname }}-purge
+      key: {{ $key }}
+{{- end }}
 {{- end -}}
 
 {{- define "osf.certificates.initContainer" -}}

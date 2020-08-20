@@ -2,7 +2,7 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: {{ template "osf.purge.fullname" . }}-{{ .Release.Time.Seconds }}
+  name: {{ template "osf.purge.fullname" . }}
   labels:
     app: {{ template "osf.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
@@ -11,7 +11,7 @@ metadata:
     release: {{ .Release.Name }}
 spec:
   schedule: {{ default "0 22 * * 6" .Values.purge.schedule | quote }}
-  startingDeadlineSeconds: 900
+  startingDeadlineSeconds: {{ default 900 .Values.purge.startingDeadlineSeconds }}
   activeDeadlineSeconds: {{ default 14400 .Values.purge.activeDeadlineSeconds }}
   concurrencyPolicy: Forbid
   jobTemplate:
@@ -53,7 +53,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - python3 -m scripts.purge_trashed_files {{- if .Values.purge.num_records }} --num {{ .Values.purge.num_records }} {{- end }}
+                - su-exec www-data python3 -m scripts.purge_trashed_files {{- if .Values.purge.num_records }} --num {{ .Values.purge.num_records }} {{- end }}
               env:
                 - name: DJANGO_SETTINGS_MODULE
                   value: api.base.settings
@@ -73,6 +73,9 @@ spec:
               {{- end }}
           volumes:
             {{- include "osf.volumes" . | nindent 12 }}
+            - name: purge-secret
+              secret:
+                secretName: {{ include "osf.purge.fullname" .}}
             - name: log
               {{- if .Values.purge.persistence.enabled }}
               persistentVolumeClaim:
