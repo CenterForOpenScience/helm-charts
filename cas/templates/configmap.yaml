@@ -401,6 +401,8 @@ cas.properties: |-
   oauth.orcid.client.secret=${OAUTH_ORCID_CLIENT_SECRET:}
   oauth.orcid.member=${OAUTH_ORCID_MEMBER:false}
   oauth.orcid.scope=${OAUTH_ORCID_SCOPE:/authenticate}
+  oauth.orcid.connect.timeout=${OAUTH_CONNECT_TIMEOUT:10000}
+  oauth.orcid.read.timeout=${OAUTH_READ_TIMEOUT:60000}
 
   ##
   # OSF URLs
