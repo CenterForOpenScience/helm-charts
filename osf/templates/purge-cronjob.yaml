@@ -12,10 +12,10 @@ metadata:
 spec:
   schedule: {{ default "0 22 * * 6" .Values.purge.schedule | quote }}
   startingDeadlineSeconds: {{ default 900 .Values.purge.startingDeadlineSeconds }}
-  activeDeadlineSeconds: {{ default 14400 .Values.purge.activeDeadlineSeconds }}
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      activeDeadlineSeconds: {{ default 14400 .Values.purge.activeDeadlineSeconds }}
       template:
         metadata:
           name: "{{ .Release.Name }}"
