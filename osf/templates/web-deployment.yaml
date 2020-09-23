@@ -2,7 +2,7 @@
 {{- $osfPreprints := (index .Values "osf-preprints") }}
 {{- $osfReviews := (index .Values "osf-reviews") }}
 {{- $osfWeb := (index .Values "osf-web") }}
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "osf.web.fullname" . }}
