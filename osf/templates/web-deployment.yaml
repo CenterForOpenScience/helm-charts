@@ -14,9 +14,10 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   selector:
-    app: {{ template "osf.name" . }}
-    component: "{{ .Values.web.name }}"
-    release: {{ .Release.Name }}
+    matchLabels:
+      app: {{ template "osf.name" . }}
+      component: "{{ .Values.web.name }}"
+      release: {{ .Release.Name }}
   replicas: {{ .Values.web.replicaCount }}
   template:
     metadata:

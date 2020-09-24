@@ -11,9 +11,10 @@ metadata:
     release: {{ .Release.Name }}
 spec:
   selector:
-    app: {{ template "osf.name" . }}
-    component: "{{ .Values.beat.name }}"
-    release: {{ .Release.Name }}
+    matchLabels:
+      app: {{ template "osf.name" . }}
+      component: "{{ .Values.beat.name }}"
+      release: {{ .Release.Name }}
   replicas: 1
   strategy:
     type: Recreate
