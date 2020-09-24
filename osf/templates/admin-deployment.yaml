@@ -10,6 +10,10 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    app: {{ template "osf.name" . }}
+    component: "{{ .Values.admin.name }}"
+    release: {{ .Release.Name }}
   replicas: {{ .Values.admin.replicaCount }}
   template:
     metadata:
