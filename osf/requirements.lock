@@ -1,21 +1,21 @@
 dependencies:
 - name: elasticsearch
-  repository: file://../elasticsearch
+  repository: https://centerforopenscience.github.io/helm-charts/
   version: 0.5.1
 - name: elasticsearch
-  repository: file://../elasticsearch
+  repository: https://centerforopenscience.github.io/helm-charts/
   version: 0.5.1
 - name: maintenance
-  repository: file://../maintenance
+  repository: https://centerforopenscience.github.io/helm-charts/
   version: 0.1.0
 - name: postgresql
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 0.8.1
 - name: rabbitmq
   repository: https://centerforopenscience.github.io/helm-charts/
-  version: 0.6.8
+  version: 6.9.0
 - name: redis
-  repository: file://../redis
+  repository: https://centerforopenscience.github.io/helm-charts/
   version: 1.1.2
-digest: sha256:a78a6fb6b904d009d2bd504985f262eb12a22340ce26ec54d8ec4c17c0cabb2d
-generated: 2019-11-06T11:55:22.082148-05:00
+digest: sha256:1a1019d5d6f17e6910e1d77b3450bf17ff35afc22adbdc833998d536b85f122a
+generated: 2020-09-28T11:59:29.199025-04:00
