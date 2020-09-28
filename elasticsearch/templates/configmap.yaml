@@ -110,7 +110,7 @@ data:
       curl -s \
         --cacert ${SERVICE_ACCOUNT_PATH}/ca.crt \
         -H "Authorization: Bearer $KUBE_TOKEN" \
-        "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_PORT_443_TCP_PORT}/apis/apps/v1beta1/namespaces/${KUBE_NAMESPACE}/statefulsets/${STATEFULSET_NAME}/status"
+        "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_PORT_443_TCP_PORT}/apis/apps/v1/namespaces/${KUBE_NAMESPACE}/statefulsets/${STATEFULSET_NAME}/status"
     )
     INSTANCES_DESIRED=$(
     	python - <<-EOF
