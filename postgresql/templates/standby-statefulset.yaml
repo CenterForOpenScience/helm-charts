@@ -1,5 +1,5 @@
 {{- if .Values.standby.enabled }}
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ template "postgresql.standby.fullname" . }}
@@ -10,6 +10,11 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "postgresql.name" . }}
+      component: "{{ .Values.standby.name }}"
+      release: {{ .Release.Name }}
   serviceName: {{ template "postgresql.standby.fullname" . }}
   replicas: {{ .Values.standby.replicaCount }}
   {{- if .Values.standby.updateStrategy }}

@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ template "nessus.fullname" . }}
@@ -8,6 +8,10 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "nessus.name" . }}
+      release: {{ .Release.Name }}
   serviceName: {{ template "nessus.fullname" . }}
   replicas: 1
   updateStrategy:

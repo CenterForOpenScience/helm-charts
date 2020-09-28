@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "webhook.fullname" . }}
@@ -9,6 +9,10 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ include "webhook.name" . }}
+      release: {{ .Release.Name }}
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:

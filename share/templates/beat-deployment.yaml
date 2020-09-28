@@ -1,5 +1,5 @@
 {{- if .Values.beat.enabled -}}
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "share.beat.fullname" . }}
@@ -10,6 +10,11 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "share.name" . }}
+      component: "{{ .Values.beat.name }}"
+      release: {{ .Release.Name }}
   replicas: 1
   strategy:
     type: Recreate

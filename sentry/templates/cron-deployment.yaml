@@ -1,12 +1,18 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "sentry.fullname" . }}-cron
   labels:
     {{- include "sentry.labels.standard" . | nindent 4 }}
+    component: {{ template "sentry.fullname" . }}-cron
 spec:
   # Only one replica of the cron service is recommended
   # https://docs.sentry.io/server/queue/#starting-the-cron-process
+  selector:
+    matchLabels:
+      app: {{ template "sentry.name" . }}
+      release: {{ .Release.Name }}
+      component: {{ template "sentry.fullname" . }}-cron
   replicas: 1
   template:
     metadata:

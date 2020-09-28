@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "wb.fullname" . }}
@@ -8,6 +8,11 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "wb.name" . }}
+      release: {{ .Release.Name }}
+
   replicas: {{ .Values.replicaCount }}
   {{- if .Values.strategy }}
   strategy:

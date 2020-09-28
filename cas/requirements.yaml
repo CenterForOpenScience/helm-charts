@@ -1,7 +1,7 @@
 dependencies:
   - name: maintenance
     version: 0.1.0
-    repository: file://../maintenance
+    repository: https://centerforopenscience.github.io/helm-charts/
     condition: maintenance.enabled, global.maintenance.enabled
   - name: postgresql
     version: 0.7.1

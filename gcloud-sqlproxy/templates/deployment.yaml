@@ -1,5 +1,5 @@
 {{- if and .Values.serviceAccountKey (ne .Values.cloudsql.instance "PROJECT:REGION:INSTANCE") }}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "gcloud-sqlproxy.fullname" . }}
@@ -9,6 +9,10 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "gcloud-sqlproxy.name" . }}
+      release: {{ .Release.Name }}
   replicas: {{ .Values.replicasCount }}
   {{- if .Values.strategy }}
   strategy:

@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -8,6 +8,10 @@ metadata:
     release: {{ .Release.Name }}
   name: {{ template "http-redirect.fullname" . }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "http-redirect.name" . }}
+      release: {{ .Release.Name }}
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:

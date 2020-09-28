@@ -1,5 +1,5 @@
 {{- if .Values.indexer.enabled -}}
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "share.indexer.fullname" . }}
@@ -10,6 +10,11 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "share.name" . }}
+      component: "{{ .Values.indexer.name }}"
+      release: {{ .Release.Name }}
   replicas: {{ .Values.indexer.replicaCount }}
   template:
     metadata:

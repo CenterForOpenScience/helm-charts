@@ -2,9 +2,9 @@
 dependencies:
 - name: webhook
   version: "v0.8.1"
-  repository: "file://../webhook"
+  repository: https://centerforopenscience.github.io/helm-charts/
   condition: webhook.enabled
 - name: cainjector
   version: "v0.8.1"
-  repository: "file://../cainjector"
+  repository: https://centerforopenscience.github.io/helm-charts/
   condition: cainjector.enabled

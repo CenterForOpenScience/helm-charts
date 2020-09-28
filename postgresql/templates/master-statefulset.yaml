@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ template "postgresql.master.fullname" . }}
@@ -9,6 +9,11 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "postgresql.name" . }}
+      component: "{{ .Values.master.name }}"
+      release: {{ .Release.Name }}
   serviceName: {{ template "postgresql.master.fullname" . }}
   replicas: 1
   {{- if .Values.master.updateStrategy }}
