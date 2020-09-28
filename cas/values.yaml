@@ -180,18 +180,15 @@ maintenance:
 
 postgresql:
   enabled: false
-  ## postgres image repository
-  image: "postgres"
-  ## postgres image version
+  ## image:
+  ##   repository: postgres image repository
+  ##   tag: postgres image version
+  ##   pullPolicy: Always
   ## ref: https://hub.docker.com/r/library/postgres/tags/
-  ##
-  imageTag: "9.6"
-
+  #
   ## Specify a imagePullPolicy
   ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
-  ##
-  # imagePullPolicy:
 
   ## Create a database user
   ## Default: postgres

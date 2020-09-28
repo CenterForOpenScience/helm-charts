@@ -128,19 +128,19 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
 - name: RABBITMQ_HOST
   value: {{ template "share.rabbitmq.fullname" . }}
 - name: RABBITMQ_PORT
-  value: {{ .Values.rabbitmq.service.ports.amqp | quote }}
+  value: {{ .Values.rabbitmq.service.port | quote }}
 - name: RABBITMQ_VHOST
   valueFrom:
     configMapKeyRef:
       name: {{ template "share.rabbitmq.fullname" . }}
       key: RABBITMQ_VHOST
-- name: RABBITMQ_USERNAME
+- name: username
   valueFrom:
     secretKeyRef:
       name: {{ template "share.rabbitmq.fullname" . }}
       key: RABBITMQ_DEFAULT_USER
   value: {{ .Values.rabbitmq.rabbitmqUsername | quote }}
-- name: RABBITMQ_PASSWWORD
+- name: password
   valueFrom:
     secretKeyRef:
       name: {{ template "share.rabbitmq.fullname" . }}

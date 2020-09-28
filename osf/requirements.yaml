@@ -1,21 +1,21 @@
 dependencies:
   # WORKAROUND: ElasticSearch chart versions must match due to a bug in helm package, see: https://github.com/helm/helm/issues/3909
   - name: elasticsearch
-    version: 0.5.1
+    version: 0.5.2
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch.enabled, global.elasticsearch.enabled
     alias: elasticsearch
   - name: elasticsearch
-    version: 0.5.1
+    version: 0.5.2
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch6.enabled, global.elasticsearch6.enabled
     alias: elasticsearch6
   - name: maintenance
-    version: 0.1.0
+    version: 0.2.0
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: maintenance.enabled, global.maintenance.enabled
   - name: postgresql
-    version: 0.8.1
+    version: 0.11.0
     repository: https://kubernetes-charts.storage.googleapis.com
     condition: postgresql.enabled, global.postgresql.enabled
   - name: rabbitmq
