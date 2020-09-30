@@ -5,20 +5,6 @@ image:
 
 master:
   name: master
-  # additionalAffinities:
-  #   nodeAffinity:
-  #     preferredDuringSchedulingIgnoredDuringExecution:
-  #       - weight: 50
-  #         preference:
-  #           matchExpressions:
-  #             - key: cloud.google.com/gke-preemptible
-  #               operator: NotIn
-  #               values:
-  #                 - "true"
-  updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      partition: 0
   resources: {}
   persistence:
     enabled: true
@@ -37,24 +23,8 @@ master:
   terminationGracePeriodSeconds: 3600
 
 standby:
-  enabled: false
   name: standby
   replicaCount: 1
-  antiAffinity: "soft"
-  # additionalAffinities:
-  #   nodeAffinity:
-  #     preferredDuringSchedulingIgnoredDuringExecution:
-  #       - weight: 50
-  #         preference:
-  #           matchExpressions:
-  #             - key: cloud.google.com/gke-preemptible
-  #               operator: NotIn
-  #               values:
-  #                 - "true"
-  updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      partition: 0
   resources: {}
   persistence:
     enabled: true
@@ -118,6 +88,14 @@ metrics:
   #      - size_bytes:
   #          usage: "GAUGE"
   #          description: "Size of the database in bytes"
+
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
 
 networkPolicy:
   ## Enable creation of NetworkPolicy resources.

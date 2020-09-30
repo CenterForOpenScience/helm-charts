@@ -1,4 +1,3 @@
-{{- if .Values.standby.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -47,4 +46,3 @@ spec:
     app: {{ template "postgresql.name" . }}
     component: "{{ .Values.standby.name }}"
     release: {{ .Release.Name }}
-{{- end }}
