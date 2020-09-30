@@ -4,6 +4,6 @@ dependencies:
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: maintenance.enabled, global.maintenance.enabled
   - name: postgresql
-    version: 0.11.0
+    version: 0.11.1
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: postgresql.enabled, global.postgresql.enabled
