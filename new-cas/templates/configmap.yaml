@@ -319,703 +319,139 @@ httpd/conf.d/shib.conf: |-
   </VirtualHost>
 {{- end -}}
 {{- define "cas.jetty.inlineconfigs" }}
-cas.properties: |-
-  #
-  # Licensed to Apereo under one or more contributor license
-  # agreements. See the NOTICE file distributed with this work
-  # for additional information regarding copyright ownership.
-  # Apereo licenses this file to you under the Apache License,
-  # Version 2.0 (the "License"); you may not use this file
-  # except in compliance with the License.  You may obtain a
-  # copy of the License at the following location:
-  #
-  #   http://www.apache.org/licenses/LICENSE-2.0
-  #
-  # Unless required by applicable law or agreed to in writing,
-  # software distributed under the License is distributed on an
-  # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  # KIND, either express or implied.  See the License for the
-  # specific language governing permissions and limitations
-  # under the License.
-  #
-
-
-  ####
-  #### OSF CAS
-  ####
-  #### This section "OSF CAS" contains new properties for OSF-oriented CAS customization.
-  ####
-
-  ##
-  # Google Analytics
-  #
-  google.analytics.id=${GOOGLE_ANALYTICS_ID:}
-  google.analytics.autoLink=${GOOGLE_ANALYTICS_AUTOLINK:}
-
-  ##
-  # CAS Login and Logout URLs
-  #
-  cas.osf.login.url=/login?
-  cas.logout.url=/logout
-  cas.institution.login.url=/login?campaign=institution
-
-  ##
-  # Login Rate Limiting
-  #
-  cas.rateLimiting.failureRangeInSeconds=${CAS_RL_FAILURE_RANGE_IN_SECONDS:1}
-  cas.rateLimiting.failureThreshold=${CAS_RL_FAILURE_THRESHOLD:5}
-  cas.rateLimiting.usernameParameter=${CAS_RL_USERNAME_PARAMETER:username}
-  cas.rateLimiting.startDelay=${CAS_RL_START_DELAY:1000}
-  cas.rateLimiting.repeatInterval=${CAS_RL_REPEAT_INTERVAL:5000}
-
-  ##
-  # Authentication Delegation: General
-  #
-  delegation.redirect.uri=https://{{ .Values.casDomain }}/login
-  #
-  ##
-  # Authentication Delegation: Clients
-  #
-  # CAS Client: California Lutheran University
-  cas.callutheran.login.url=${CAS_CALLUTHERAN_LOGIN_URL:https://login.callutheran.edu/cas/login}
-  cas.callutheran.prefix.url=${CAS_CALLUTHERAN_PREFIX_URL:https://login.callutheran.edu/cas/}
-  cas.callutheran.client.name=${CAS_CALLUTHERAN_CLIENT_NAME:callutheran}
-  cas.callutheran.cas.protocol=${CAS_CALLUTHERAN_CAS_PROTOCOL:SAML}
-  #
-  # CAS Client: Concordia College
-  cas.cord.login.url=${CAS_CORD_LOGIN_URL:https://bprdeis.cord.edu:8443/cas/login}
-  cas.cord.prefix.url=${CAS_CORD_PREFIX_URL:https://bprdeis.cord.edu:8443/cas/}
-  cas.cord.client.name=${CAS_CORD_CLIENT_NAME:cord}
-  cas.cord.cas.protocol=${CAS_CORD_CAS_PROTOCOL:SAML}
-  #
-  # CAS Client: Oklahoma State University
-  cas.okstate.login.url=${CAS_OKSTATE_LOGIN_URL:https://stwcas.okstate.edu/cas/login}
-  cas.okstate.prefix.url=${CAS_OKSTATE_PREFIX_URL:https://stwcas.okstate.edu/cas/}
-  cas.okstate.client.name=${CAS_OKSTATE_CLIENT_NAME:okstate}
-  cas.okstate.cas.protocol=${CAS_OKSTATE_CAS_PROTOCOL:SAML}
-  #
-  # OAuth Client: ORCiD
-  oauth.orcid.authorize.url=${OAUTH_ORCID_AUTHORIZATION_URL:https://orcid.org/oauth/authorize}
-  oauth.orcid.token.url=${OAUTH_ORCID_TOKEN_URL:https://pub.orcid.org/oauth/token}
-  oauth.orcid.client.id=${OAUTH_ORCID_CLIENT_ID:}
-  oauth.orcid.client.secret=${OAUTH_ORCID_CLIENT_SECRET:}
-  oauth.orcid.member=${OAUTH_ORCID_MEMBER:false}
-  oauth.orcid.scope=${OAUTH_ORCID_SCOPE:/authenticate}
-  oauth.orcid.connect.timeout=${OAUTH_CONNECT_TIMEOUT:10000}
-  oauth.orcid.read.timeout=${OAUTH_READ_TIMEOUT:60000}
-
-  ##
-  # OSF URLs
-  #
-  osf.url=https://{{ .Values.osfDomain }}/
-  osf.institutionLogin.url=https://{{ .Values.osfDomain }}/login/?campaign=institution
-  osf.resendConfirmation.url=https://{{ .Values.osfDomain }}/resend/
-  osf.forgotPassword.url=https://{{ .Values.osfDomain }}/forgotpassword/
-  osf.createAccount.url=https://{{ .Values.osfDomain }}/register/
-
-  ##
-  # API URLs
-  #
-  osf.api.institutions.auth.url=https://{{ .Values.apiDomain }}/v2/institutions/auth/
-  # The encryption secret key. By default, must be a octet string of size 256.
-  osf.api.institutions.auth.jweSecret=${OSF_JWE_SECRET}
-  osf.api.institutions.auth.jwtSecret=${OSF_JWT_SECRET}
-  osf.api.institutions.auth.xslLocation=file:/etc/cas/institutions-auth.xsl
-
-  ##
-  # Open Science Framework Postgres Database
-  #
-  osf.database.driverClass=${OSF_DB_DRIVERCLASS:org.postgresql.Driver}
-  osf.database.url=${OSF_DB_URL:jdbc:postgresql://127.0.0.1/osf?targetServerType=master}
-  osf.database.user=${OSF_DB_USER:postgres}
-  osf.database.password=${OSF_DB_PASSWORD:}
-  osf.database.hibernate.dialect=${OSF_DB_HIBERNATE_DIALECT:io.cos.cas.adaptors.postgres.hibernate.OSFPostgreSQLDialect}
-
-  ##
-  # OAuth Provider
-  #
-  # OAuth Access Token session length in seconds
-  oauth.accessTokenDuration=3600
-  oauth.loginUrl=https://{{ .Values.casDomain }}/login
-
-
-
-  ####
-  #### Central Authentication Service (CAS)
-  ####
-  #### This section "Central Authentication Service (CAS)" contains default properties from jasig/apereo.
-  ####
-
-  server.name=https://{{ .Values.casDomain }}
-  server.prefix=${server.name}
-
-  # Spring Security's EL-based access rules for the /status URI of CAS that exposes health check information
-  cas.securityContext.status.access=hasIpAddress('127.0.0.1')
-
-  # Spring Security's EL-based access rules for the /statistics URI of CAS that exposes stats about the CAS server
-  cas.securityContext.statistics.access=hasIpAddress('127.0.0.1')
-
-  cas.themeResolver.defaultThemeName=cas-theme-default
-
-  # Path prefix for where views are to be found
-  # cas.viewResolver.defaultViewsPathPrefix=/WEB-INF/view/jsp/default/ui/
-
-  # Location of the Spring xml config file where views may be collected
-  # cas.viewResolver.xmlFile=/META-INF/spring/views.xml
-
-  ##
-  # Unique CAS node name
-  # host.name is used to generate unique Service Ticket IDs and SAMLArtifacts.  This is usually set to the specific
-  # hostname of the machine running the CAS node, but it could be any label so long as it is unique in the cluster.
-  host.name={{ .Values.casDomain }}
-
-  ##
-  # Database flavors for Hibernate
-  #
-  database.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-  database.hibernate.batchSize=1
-  database.hibernate.showSql=false
-  database.driverClass=org.postgresql.Driver
-  database.url=${DATABASE_URL}
-  database.user=${DATABASE_USER}
-  database.password=${DATABASE_PASSWORD}
-
-  ##
-  # CAS SSO Cookie Generation & Security
-  # See https://github.com/mitreid-connect/json-web-key-generator
-  #
-  # Do note that the following settings MUST be generated per deployment.
-  #
-  # Defaults at spring-configuration/ticketGrantingTicketCookieGenerator.xml
-  # The encryption secret key. By default, must be a octet string of size 256.
-  tgc.encryption.key=${TGC_ENCRYPTION_KEY}
-  #
-  # The signing secret key. By default, must be a octet string of size 512.
-  tgc.signing.key=${TGC_SIGNING_KEY}
-  #
-  # Allow non-secure cookie generation, Must set this `true` for production.
-  tgc.cookie.secure=true
-  #
-  # Do not allow client side script to access the cookie, MUST set this `true` for production.
-  tgc.cookie.httponly=true
-
-  ##
-  # CAS Session Cookie
-  #
-  jsession.cookie.secure=true
-  jsession.cookie.httponly=true
-
-  ##
-  # CAS Logout Behavior
-  # WEB-INF/cas-servlet.xml
-  #
-  # Specify whether CAS should redirect to the specified service parameter on /logout requests
-  cas.logout.followServiceRedirects=true
-
-  ##
-  # CAS Cached Attributes Timeouts
-  # Controls the cached attribute expiration policy
-  #
-  # Notes the duration in which attributes will be kept alive
-  # cas.attrs.timeToExpireInHours=2
-
-  ##
-  # Single Sign-On Session
-  #
-  # Indicates whether an SSO session should be created for renewed authentication requests.
-  # create.sso.renewed.authn=true
-  #
-  # Indicates whether an SSO session can be created if no service is present.
-  # create.sso.missing.service=true
-
-  ##
-  # Spring Webflow Web Application Session
-  # Define the settings that are required to encrypt and persist the CAS web application session.
-  # See the cas-servlet.xml file to understand how these properties are used.
-  #
-  # cas.webflow.cipher.alg=AES
-  # cas.webflow.cipher.mode=CBC
-  # cas.webflow.cipher.padding=PKCS7
-  # cas.webflow.keystore=classpath:/etc/keystore.jceks
-  # cas.webflow.keystore.type=JCEKS
-  # cas.webflow.keystore.password=changeit
-  # cas.webflow.keyalias=aes128
-  # cas.webflow.keypassword=changeit
-
-  ##
-  # Single Sign-On Session Timeouts
-  # Defaults sourced from WEB-INF/spring-configuration/ticketExpirationPolices.xml
-  #
-  # Maximum session timeout - TGT will expire in maxTimeToLiveInSeconds regardless of usage
-  # tgt.maxTimeToLiveInSeconds=28800
-  #
-  # Idle session timeout -  TGT will expire sooner than maxTimeToLiveInSeconds if no further requests
-  # for STs occur within timeToKillInSeconds
-  # tgt.timeToKillInSeconds=7200
-  #
-  # Long term authentication session length in seconds (30 days)
-  tgt.rememberMeDuration=${TGT_REMEMBER_ME_DURATION:2592000}
-
-  ##
-  # Service Ticket Timeout
-  # Default sourced from WEB-INF/spring-configuration/ticketExpirationPolices.xml
-  #
-  # Service Ticket timeout - typically kept short as a control against replay attacks, default is 10s.  You'll want to
-  # increase this timeout if you are manually testing service ticket creation/validation via tamperdata or similar tools
-  st.timeToKillInSeconds=${ST_TIME_TO_KILL_IN_SECONDS:60}
-
-  ##
-  # Http Client Settings
-  #
-  # The http client read timeout in milliseconds
-  # http.client.read.timeout=5000
-  #
-  # The http client connection timeout in milliseconds
-  # http.client.connection.timeout=5000
-  #
-  # The http client truststore file, in addition to the default's
-  #http.client.truststore.file=classpath:truststore.jks
-  #
-  # The http client truststore's password
-  # http.client.truststore.psw=changeit
-
-  ##
-  # Single Logout Out Callbacks
-  # Default sourced from WEB-INF/spring-configuration/argumentExtractorsConfiguration.xml
-  #
-  # To turn off all back channel SLO requests set this to true
-  slo.callbacks.disabled=true
-  #
-  # To send callbacks to endpoints synchronously, set this to false
-  # slo.callbacks.asynchronous=true
-
-  ##
-  # CAS Protocol Security Filter
-  #
-  # Are multi-valued parameters accepted?
-  # cas.http.allow.multivalue.params=false
-  #
-  # Define the list of request parameters to examine for sanity
-  # cas.http.check.params=ticket,service,renew,gateway,warn,target,SAMLart,pgtUrl,pgt,pgtId,pgtIou,targetService
-  #
-  # Define the list of request parameters only allowed via POST
-  cas.http.allow.post.params=password,oneTimePassword
-
-  ##
-  # JSON Service Registry
-  #
-  # Directory location where JSON service files may be found.
-  service.registry.config.location=file:/etc/cas/services
-
-  ##
-  # Service Registry Periodic Reloading Scheduler
-  # Default sourced from WEB-INF/spring-configuration/applicationContext.xml
-  #
-  # Force a startup delay of 2 minutes.
-  # service.registry.quartz.reloader.startDelay=120000
-  #
-  # Reload services every 2 minutes
-  # service.registry.quartz.reloader.repeatInterval=120000
-
-  ##
-  # Log4j
-  # Default sourced from WEB-INF/spring-configuration/log4jConfiguration.xml:
-  #
-  # It is often time helpful to externalize log4j.xml to a system path to preserve settings between upgrades.
-  log4j.config.location=file:/etc/cas/log4j2.xml
-
-  ##
-  # Metrics
-  # Default sourced from WEB-INF/spring-configuration/metricsConfiguration.xml:
-  #
-  # Define how often should metric data be reported. Default is 30 seconds.
-  metrics.refresh.internal=${METRICS_REFRESH_INTERNAL:9999s}
-
-  ##
-  # Encoding
-  #
-  # Set the encoding to use for requests. Default is UTF-8
-  # httprequest.web.encoding=UTF-8
-  #
-  # Default is true. Switch this to "false" to not enforce the specified encoding in any case,
-  # applying it as default response encoding as well.
-  # httprequest.web.encoding.force=true
-
-  ##
-  # Reports
-  #
-  # Setting to whether include the ticket granting ticket id in the report
-  # sso.sessions.include.tgt=false
-
-  ##
-  # Password Policy
-  #
-  # Warn all users of expiration date regardless of warningDays value.
-  # password.policy.warnAll=false
-  #
-  # Threshold number of days to begin displaying password expiration warnings.
-  # password.policy.warningDays=30
-  #
-  # URL to which the user will be redirected to change the password.
-  # password.policy.url=https://password.example.edu/change
-log4j2.xml: |-
-  <?xml version="1.0" encoding="UTF-8" ?>
-  <Configuration monitorInterval="60">
-      <Appenders>
-          <Console name="Console" target="SYSTEM_OUT">
-              <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n" />
-          </Console>
-          <Raven name="Sentry">
-              <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
-              <DSN>{{ .Values.sentryDSN }}</DSN>
-          </Raven>
-      </Appenders>
-      <Loggers>
-          <!-- OSF CAS -->
-          <Logger name="io.cos" level="debug" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <!-- Jasig / Apereo -->
-          <Logger name="org.jasig" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <Logger name="org.jasig.cas" level="debug" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <Logger name="org.jasig.cas.services.DefaultServicesManagerImpl" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <Logger name="org.jasig.cas.web.support.InMemoryThrottledSubmissionByIpAddressAndUsernameHandlerInterceptorAdapter" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <!-- Pac4j -->
-          <Logger name="org.pac4j" level="debug" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <!-- Spring Framework -->
-          <Logger name="org.springframework" level="info" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <Logger name="org.springframework.web.servlet" level="debug" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <Logger name="org.springframework.webflow" level="debug" additivity="false">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Logger>
-          <!-- perfStats is turned off to disable chatty metrics -->
-          <Logger name="perfStatsLogger" level="off" additivity="false">
-              <AppenderRef ref="Console" />
-          </Logger>
-          <!-- Root logging level is set to "warn" -->
-          <Root level="warn">
-              <AppenderRef ref="Console" />
-              <AppenderRef ref="Sentry" />
-          </Root>
-      </Loggers>
-  </Configuration>
 services/cas.json: |-
   {
-    "@class" : "org.jasig.cas.services.RegexRegisteredService",
-    "id" : 983219871349823,
-    "name" : "",
-    "description" : "",
-    "serviceId" : "^https://{{ .Values.casDomain | replace "." "\\\\." }}/.*",
-    "evaluationOrder": "2000",
-    "logo": "",
-    "attributeReleasePolicy" : {
-      "@class" : "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-      "allowedAttributes" : [ "java.util.ArrayList", [ "givenName", "familyName" ] ]
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ .Values.casDomain | replace "." "\\\\." }}/.*",
+    "name": "OSF CAS",
+    "description": "OSF CAS is the centralized authentication and authorization service for OSF",
+    "id": 203948234207100,
+    "evaluationOrder": 10,
+    "logo": "/images/osf-banner.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
     },
-    "properties" : {
-      "@class": "java.util.HashMap",
-      "title": {
-        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-        "values": [
-          "java.util.HashSet",
-          [
-            "Open Science Framework"
-          ]
-        ]
-      },
-      "titleAbbr": {
-        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-        "values": [
-          "java.util.HashSet",
-          [
-            "OSF"
-          ]
-        ]
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          []
+        ],
+        "permitUndefined": false
       }
     }
-  }
-services/oauth2.json: |-
-  {
-    "@class" : "org.jasig.cas.support.oauth.services.OAuthCallbackAuthorizeService",
-    "id" : 983450982340993434,
-    "name" : "",
-    "description" : "",
-    "serviceId" : "^https://{{ .Values.casDomain | replace "." "\\\\." }}/oauth2/callbackAuthorize",
-    "evaluationOrder": "1000",
-    "properties" : {
-      "@class": "java.util.HashMap",
-      "title": {
-        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-        "values": [
-          "java.util.HashSet",
-          [
-            "Open Science Framework"
-          ]
-        ]
-      },
-      "titleAbbr": {
-        "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-        "values": [
-          "java.util.HashSet",
-          [
-            "OSF"
-          ]
-        ]
-      }
-    }
-  }
-services/osf-campaigns-erpc.json: |-
-  {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207232,
-      "name": "Election Research<br>Preacceptance Competition",
-      "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/erpc/.*",
-      "logo": "",
-      "evaluationOrder": 1000,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
-          ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "?campaign=erpc"
-                  ]
-              ]
-          }
-      }
-  }
-services/osf-campaigns-prereg.json: |-
-  {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207231,
-      "name": "Preregistration Challenge",
-      "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/prereg/.*",
-      "logo": "",
-      "evaluationOrder": 1000,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
-          ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "?campaign=prereg"
-                  ]
-              ]
-          }
-      }
   }
 services/osf.json: |-
   {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207230,
-      "name": "",
-      "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/(?!oauth/callback).*",
-      "logo": "",
-      "evaluationOrder": 2000,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https?://(localhost|127\\.0\\.0\\.1|192\\.168\\.168\\.167):5000/(login|logout)/?\\?next=.*",
+    "name": "OSF",
+    "description": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
+    "id": 203948234207230,
+    "evaluationOrder": 20,
+    "logo": "/images/osf-logo.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
           ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      ""
-                  ]
-              ]
-          }
+        ],
+        "permitUndefined": false
       }
+    }
   }
 services/registries-osf.json: |-
   {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207340,
-      "name": "",
-      "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
-      "logo": "https://{{ .Values.casDomain }}/images/registries-osf-logo-black.png",
-      "evaluationOrder": 1001,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
+    "name": "OSF Registries",
+    "description": "The open registires network",
+    "id": 203948234207340,
+    "evaluationOrder": 15,
+    "logo": "/images/osfpreprints-banner.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
           ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "?campaign=osf-registries"
-                  ]
-              ]
-          }
+        ],
+        "permitUndefined": false
       }
+    }
   }
 services/preprints-osf.json: |-
   {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": 203948234207240,
-      "name": "",
-      "description": "",
-      "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)preprints(%2F|/).*",
-      "logo": "https://{{ .Values.casDomain }}/images/preprints-osf-logo-black.png",
-      "evaluationOrder": 1001,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)preprints(%2F|/).*",
+    "name": "OSF Preprints",
+    "description": "Accelerating scholarly review, publishing, and discovery.",
+    "id": 203948234207240,
+    "evaluationOrder": 15,
+    "logo": "/images/osfpreprints-banner.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
           ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "?campaign=osf-preprints"
-                  ]
-              ]
-          }
+        ],
+        "permitUndefined": false
       }
+    }
   }
 {{- $osfDomainRegex := .Values.osfDomain | replace "." "\\\\." -}}
 {{- $casDomain := .Values.casDomain -}}
@@ -1025,61 +461,49 @@ services/preprints-osf.json: |-
 {{- range $key, $val := (include "cas.jetty.preprint-services" . | fromYaml) }}
 services/preprints-{{ $key }}.json: |-
   {
-      "@class": "org.jasig.cas.services.RegexRegisteredService",
-      "id": {{ $val.id }},
-      "name": "{{ $val.name }}",
-      "description": "",
-      "serviceId": "^https://{{ $osfDomainRegex }}/(login|logout)/?\\?next=https(%3A|:)(%2F|/)(%2F|/)
-          {{- if hasKey $val "domain" -}}
-              (
-                {{- if $domainOverride -}}
-                    {{- printf "%s%s%s" $domainPrefix $key $domainSuffix | replace "." "\\\\." -}}
-                {{- else -}}
-                    {{- $val.domain | replace "." "\\\\." -}}
-                {{- end -}}
-               |{{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}($|%2F|/))
-          {{- else -}}
-              {{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}
-          {{- end -}}
-      .*",
-      "logo": "https://{{ $casDomain }}/images/preprints-{{ $key }}-logo.png",
-      "evaluationOrder": 1000,
-      "attributeReleasePolicy": {
-          "@class": "org.jasig.cas.services.ReturnAllowedAttributeReleasePolicy",
-          "allowedAttributes": [
-              "java.util.ArrayList", [
-                  "given-names",
-                  "family-name"
-              ]
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ $osfDomainRegex }}/(login|logout)/?\\?next=https(%3A|:)(%2F|/)(%2F|/)
+        {{- if hasKey $val "domain" -}}
+            (
+              {{- if $domainOverride -}}
+                  {{- printf "%s%s%s" $domainPrefix $key $domainSuffix | replace "." "\\\\." -}}
+              {{- else -}}
+                  {{- $val.domain | replace "." "\\\\." -}}
+              {{- end -}}
+             |{{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}($|%2F|/))
+        {{- else -}}
+            {{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}
+        {{- end -}}
+    .*",
+    "name": "{{ $val.name }}",
+    "description": "",
+    "id": {{ $val.id }},
+    "evaluationOrder": 10,
+    "logo": "",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
           ]
-      },
-      "properties": {
-          "@class": "java.util.HashMap",
-          "title": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "Open Science Framework"
-                  ]
-              ]
-          },
-          "titleAbbr": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "OSF"
-                  ]
-              ]
-          },
-          "registerUrl": {
-              "@class": "org.jasig.cas.services.DefaultRegisteredServiceProperty",
-              "values": [
-                  "java.util.HashSet", [
-                      "?campaign={{ $key }}-preprints"
-                  ]
-              ]
-          }
+        ],
+        "permitUndefined": false
       }
+    }
   }
 {{- end -}}
 {{- end -}}
