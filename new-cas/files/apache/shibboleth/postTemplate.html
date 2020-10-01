@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <title>Login Completed</title>
+        <script language="Javascript">
+        <!--
+        function submitOnce() {
+          if (location.hash.length>0) {
+             if (confirm("Are you sure you want to resubmit this form information a second time?")) {
+                document.getElementById("shib_continue").click();
+             } else {
+                document.body.innerHTML="<html>Form information was not resubmitted.</html>";
+             }
+          } else {
+             var loc = window.location;
+             window.location = loc + "#submitted";
+             document.getElementById("shib_continue").click();
+          }
+        }
+        // -->
+        </script>
+    </head>
+    <body onload="submitOnce()">
+        <h2>Login Completed</h2>
+
+        <noscript>
+        <p>A form submission to this site was interrupted by the login process.
+        If you would like to complete it now, submit this form.</p>
+        </noscript>
+
+        <form method="POST" action="<shibmlp action/>">
+        <shibmlpfor PostedData>
+            <input type="hidden" name="<shibmlp $name/>" value="<shibmlp $value/>"/>
+        </shibmlpfor>
+        <input type="submit" id="shib_continue" name="_shib_continue_" value="Continue"/>
+        </form>
+    </body>
+</html>
