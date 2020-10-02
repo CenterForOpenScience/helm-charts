@@ -68,7 +68,7 @@ spec:
           value: {{ template "elasticsearch.master.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.cluster.kubernetesDomain }}
         - name: NODE_DATA
           value: "false"
-        {{- if semverCompare ">= 5.x" .Values.appVersion }}
+        {{- if semverCompare ">= 6.x" .Values.appVersion }}
         - name: NODE_INGEST
           value: "false"
         - name: ES_HEAP_SIZE

@@ -73,7 +73,7 @@ spec:
           valueFrom:
             resourceFieldRef:
               resource: limits.cpu
-        {{- if semverCompare ">= 5.x" .Values.appVersion }}
+        {{- if semverCompare ">= 6.x" .Values.appVersion }}
         - name: ES_HEAP_SIZE
           value: "{{ .Values.data.heapSize }}"
         {{- end }}
