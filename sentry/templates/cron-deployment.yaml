@@ -4,7 +4,7 @@ metadata:
   name: {{ template "sentry.fullname" . }}-cron
   labels:
     {{- include "sentry.labels.standard" . | nindent 4 }}
-    component: {{ template "sentry.fullname" . }}-cron
+    role: cron
 spec:
   # Only one replica of the cron service is recommended
   # https://docs.sentry.io/server/queue/#starting-the-cron-process
@@ -12,7 +12,7 @@ spec:
     matchLabels:
       app: {{ template "sentry.name" . }}
       release: {{ .Release.Name }}
-      component: {{ template "sentry.fullname" . }}-cron
+      role: cron
   replicas: 1
   template:
     metadata:

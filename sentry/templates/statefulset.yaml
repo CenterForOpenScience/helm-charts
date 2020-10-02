@@ -4,13 +4,13 @@ metadata:
   name: {{ template "sentry.fullname" . }}
   labels:
     {{- include "sentry.labels.standard" . | nindent 4 }}
-    component: {{ template "sentry.fullname" . }}
+    role: web
 spec:
   selector:
     matchLabels:
       app: {{ template "sentry.name" . }}
       release: {{ .Release.Name }}
-      component: {{ template "sentry.fullname" . }}
+      role: web
   replicas: {{ .Values.web.replicaCount }}
   updateStrategy:
     type: RollingUpdate

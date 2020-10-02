@@ -4,13 +4,13 @@ metadata:
   name: {{ template "sentry.fullname" . }}-worker
   labels:
     {{- include "sentry.labels.standard" . | nindent 4 }}
-    component: {{ template "sentry.fullname" . }}-worker
+    role: worker
 spec:
   selector:
     matchLabels:
       app: {{ template "sentry.name" . }}
       release: {{ .Release.Name }}
-      component: {{ template "sentry.fullname" . }}-worker
+      role: worker
   replicas: {{ .Values.worker.replicaCount }}
   template:
     metadata:
