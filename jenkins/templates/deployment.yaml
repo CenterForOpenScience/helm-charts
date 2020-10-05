@@ -46,7 +46,7 @@ spec:
       {{- end }}
       securityContext:
         runAsUser: 0
-# CUSTOM START
+    #CUSTOM START
       initContainers:
         - name: copy-default-config
           image: "{{ .Values.master.image.repository }}:{{ .Values.master.image.tag }}"
@@ -147,7 +147,10 @@ spec:
         - name: secrets-volume
           emptyDir: {}
         - name: persistent-storage
-        {{- if .Values.persistence.enabled }}
+        {{- if .Values.persistence.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}
+        {{- else if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "jenkins.fullname" .) }}
         {{- else }}

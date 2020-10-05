@@ -272,7 +272,7 @@ data:
     mkdir -p /usr/share/jenkins/ref/secrets/;
     echo "false" > /usr/share/jenkins/ref/secrets/slave-to-master-security-kill-switch;
     cp -n /var/jenkins_config/config.xml /var/jenkins_home;
-    {{- if .Values.installPlugins }}
+    {{- if .Values.installPlugins.enabled }}
     cp /var/jenkins_config/plugins.txt /var/jenkins_home;
     /usr/local/bin/install-plugins.sh `echo $(cat /var/jenkins_home/plugins.txt)`;
     {{- end }}
@@ -288,8 +288,8 @@ data:
 {{ $val | indent 4 }}
 {{- end }}
   plugins.txt: |-
-{{- if .Values.installPlugins }}
-{{- range $index, $val := .Values.installPlugins }}
+{{- if .Values.installPlugins.enabled }}
+{{- range $index, $val := .Values.installPlugins.plugins }}
 {{ $val | indent 4 }}
 {{- end }}
 {{- end }}
