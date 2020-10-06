@@ -1,0 +1,539 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cas.fullname" . }}
+  labels:
+    app: {{ template "cas.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+{{- define "cas.jetty.preprint-services" }}
+africarxiv:
+  id: '203948234207264'
+  name: 'AfricArXiv Preprints'
+arabixiv:
+  id: '203948234207262'
+  name: Arabixiv Preprints
+  domain: arabixiv.org
+banglarxiv:
+  id: '203948234207266'
+  name: Banglarxiv Preprints
+biohackrxiv:
+  id: '203948234207272'
+  name: BioHackrXiv Preprints
+  domain: biohackrxiv.org
+bitss:
+  id: '203948234207245'
+  name: BITSS Preprints
+bodoarxiv:
+  id: '203948234207268'
+  name: BodoArXiv Preprints
+eartharxiv:
+  id: '203948234207261'
+  name: EarthArXiv Preprints
+  domain: eartharxiv.org
+ecoevorxiv:
+  id: '203948234207265'
+  name: EcoEvoRxiv Preprints
+  domain: ecoevorxiv.org
+ecsarxiv:
+  id: '203948234207259'
+  name: ECSarXiv Preprints
+  domain: ecsarxiv.org
+edarxiv:
+  id: '203948234207270'
+  name: EdArXiv Preprints
+  domain: edarxiv.org
+engrxiv:
+  id: '203948234207242'
+  name: engrXiv Preprints
+  domain: engrxiv.org
+experimentalprotocols:
+  id: '203948234207258'
+  name: Experimental Protocols Preprints
+focusarchive:
+  id: '203948234207248'
+  name: FocUS Archive Preprints
+frenxiv:
+  id: '203948234207263'
+  name: Frenxiv Preprints
+  domain: frenxiv.org
+hsrxiv:
+  id: '203948234207273'
+  name: HSRxiv Preprints
+inarxiv:
+  id: '203948234207257'
+  name: INA-Rxiv Preprints
+indiarxiv:
+  id: '203948234207271'
+  name: IndiaRxiv Preprints
+  domain: indiarxiv.org
+lawarxiv:
+  id: '203948234207247'
+  name: LawArXiv Papers
+lissa:
+  id: '203948234207249'
+  name: LIS Scholarship Archive Preprints
+livedata:
+  id: '203948234207254'
+  name: LiveData
+marxiv:
+  id: '203948234207260'
+  name: MarXiv Papers
+  domain: marxiv.org
+medarxiv:
+  id: '203948234207256'
+  name: MedArXiv Preprints
+mediarxiv:
+  id: '203948234207267'
+  name: MediArXiv Preprints
+  domain: mediarxiv.org
+metaarxiv:
+  id: '203948234207269'
+  name: MetaArXiv Preprints
+mindrxiv:
+  id: '203948234207250'
+  name: MindRxiv Preprints
+  domain: mindrxiv.org
+nutrixiv:
+  id: '203948234207255'
+  name: NutriXiv Preprints
+paleorxiv:
+  id: '203948234207251'
+  name: PaleorXiv Preprints
+  domain: paleorxiv.org
+psyarxiv:
+  id: '203948234207243'
+  name: PsyArXiv Preprints
+  domain: psyarxiv.com
+scielo:
+  id: '203948234207246'
+  name: SciELO Preprints
+socarxiv:
+  id: '203948234207241'
+  name: SocArXiv Preprints
+sportrxiv:
+  id: '203948234207252'
+  name: SportRxiv Preprints
+  domain: sportrxiv.org
+thesiscommons:
+  id: '203948234207253'
+  name: Thesis Commons
+  domain: thesiscommons.org
+{{- end -}}
+{{- define "cas.apache.inlineconfigs" }}
+shibboleth/shibboleth2.xml: |-
+  <SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
+      xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
+      xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+      xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+      xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+      clockSkew="180">
+
+      <InProcess logger="native.logger" checkSpoofing="true"/>
+
+      <!--
+      By default, in-memory StorageService, ReplayCache, ArtifactMap, and SessionCache
+      are used. See example-shibboleth2.xml for samples of explicitly configuring them.
+      -->
+
+      <!--
+      To customize behavior for specific resources on Apache, and to link vhosts or
+      resources to ApplicationOverride settings below, use web server options/commands.
+      See https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPConfigurationElements for help.
+
+      For examples with the RequestMap XML syntax instead, see the example-shibboleth2.xml
+      file, and the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPRequestMapHowTo topic.
+      -->
+
+      <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
+      <ApplicationDefaults entityID="https://{{ .Values.casDomain }}/shibboleth"
+                            REMOTE_USER="eppn persistent-id targeted-id" attributePrefix="AUTH-">
+
+          <!--
+          Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
+          You MUST supply an effectively unique handlerURL value for each of your applications.
+          The value defaults to /Shibboleth.sso, and should be a relative path, with the SP computing
+          a relative value based on the virtual host. Using handlerSSL="true", the default, will force
+          the protocol to be https. You should also set cookieProps to "https" for SSL-only sites.
+          Note that while we default checkAddress to "false", this has a negative impact on the
+          security of your site. Stealing sessions via cookie theft is much easier with this disabled.
+          -->
+          <Sessions lifetime="28800" timeout="3600" relayState="ss:mem"
+                    checkAddress="false" handlerSSL="false" cookieProps="http">
+
+              <!--
+              Configures SSO for a default IdP. To allow for >1 IdP, remove
+              entityID property and adjust discoveryURL to point to discovery service.
+              (Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
+              You can also override entityID on /Login query string, or in RequestMap/htaccess.
+              -->
+              <!-- <SSO entityID="https://idp.testshib.org/idp/shibboleth"
+                    discoveryProtocol="SAMLDS" discoveryURL="https://ds.example.org/DS/WAYF">
+                SAML2 SAML1
+              </SSO> -->
+              <!-- <SSO entityID="https://idp.testshib.org/idp/shibboleth">SAML2 SAML1</SSO> -->
+              <!-- <SSO discoveryProtocol="SAMLDS" discoveryURL="https://wayf.incommonfederation.org/DS/WAYF">SAML2 SAML1</SSO> -->
+              <SSO>SAML2 SAML1</SSO>
+
+              <!-- SAML and local-only logout. -->
+              <Logout>SAML2 Local</Logout>
+
+              <!-- Extension service that generates "approximate" metadata based on SP configuration. -->
+              <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
+
+              <!-- Status reporting service. -->
+              <!-- <Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/> -->
+              <Handler type="Status" Location="/Status"/>
+
+              <!-- Session diagnostic service. -->
+              <!-- <Handler type="Session" Location="/Session" showAttributeValues="false"/> -->
+              <Handler type="Session" Location="/Session" showAttributeValues="true"/>
+
+              <!-- JSON feed of discovery information. -->
+              <Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+          </Sessions>
+
+          <!--
+          Allows overriding of error template information/filenames. You can
+          also add attributes with values that can be plugged into the templates.
+          -->
+          <Errors supportContact="support@cos.io" helpLocation="/about.html" styleSheet="/shibboleth-sp/main.css"/>
+          <!-- <Errors supportContact="EMAIL" logoLocation="/shibboleth-sp/logo.jpg" styleSheet="/shibboleth-sp/main.css"/> -->
+
+          <!-- Example of remotely supplied batch of signed metadata. -->
+          <!--
+          <MetadataProvider type="XML" uri="http://federation.org/federation-metadata.xml"
+                backingFilePath="federation-metadata.xml" reloadInterval="7200">
+              <MetadataFilter type="RequireValidUntil" maxValidityInterval="2419200"/>
+              <MetadataFilter type="Signature" certificate="fedsigner.pem"/>
+          </MetadataProvider>
+          -->
+
+          <!-- Example of locally maintained metadata. -->
+          <!--
+          <MetadataProvider type="XML" file="partner-metadata.xml"/>
+          -->
+
+          <!-- InCommon -->
+          <!-- <MetadataProvider type="XML" uri="http://md.incommon.org/InCommon/InCommon-metadata.xml"
+                            backingFilePath="incommon-idp-metadata.xml" reloadInterval="86400">
+              <MetadataFilter type="Signature" certificate="incommon-idp-signature.pem"/>
+          </MetadataProvider> -->
+
+          <!-- Map to extract attributes from SAML assertions. -->
+          <AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
+
+          <!-- Use a SAML query if no attributes are supplied during SSO. -->
+          <AttributeResolver type="Query" subjectMatch="true"/>
+
+          <!-- Default filtering policy for recognized attributes, lets other data pass. -->
+          <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+          <!-- Simple file-based resolver for using a single keypair. -->
+          <CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"/>
+
+          <!--
+          The default settings can be overridden by creating ApplicationOverride elements (see
+          the https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPApplicationOverride topic).
+          Resource requests are mapped by web server commands, or the RequestMapper, to an
+          applicationId setting.
+
+          Example of a second application (for a second vhost) that has a different entityID.
+          Resources on the vhost would map to an applicationId of "admin":
+          -->
+          <!--
+          <ApplicationOverride id="admin" entityID="https://admin.example.org/shibboleth"/>
+          -->
+      </ApplicationDefaults>
+
+      <!-- Policies that determine how to process and authenticate runtime messages. -->
+      <SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
+
+      <!-- Low-level configuration about protocols and bindings available for use. -->
+      <ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
+
+  </SPConfig>
+httpd/conf.d/shib.conf: |-
+  LoadModule mod_shib /usr/lib64/shibboleth/mod_shib_24.so
+
+  <VirtualHost *:{{ .Values.service.internalPort }}>
+    ServerName health
+    LoadModule status_module "modules/mod_status.so"
+
+    <Location "/healthz">
+      LogLevel crit
+      Require ip 10.0.0.0/8
+      Require local
+      SetHandler server-status
+    </Location>
+  </VirtualHost>
+  <VirtualHost *:{{ .Values.service.internalPort }}>
+    ServerName https://{{ required "casDomain must be set" .Values.casDomain }}:443
+    UseCanonicalName On
+    ServerAdmin admin@osf.io
+
+    # Mitigate clickjacking
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+    Header set X-Frame-Options "deny"
+
+    ProxyRequests off
+
+    # the google health check must have a 200 from /
+    RewriteEngine On
+    RewriteCond %{HTTP_USER_AGENT} "googlehc" [NC]
+    SetEnvIfNoCase User-Agent "googlehc" dontlog
+    RewriteRule ^/ - [L,R=200]
+
+    # Redirect HTTP to HTTPS
+    RewriteCond %{HTTP:X-Forwarded-Proto} =http [NC]
+    RewriteRule . https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
+
+    <Location />
+      # ShibDisable on
+      ShibRequestSetting REMOTE_ADDR X-Forwarded-For
+
+      ProxyPass http://127.0.0.1:{{ .Values.service.externalPort }}/
+      ProxyPassReverse http://127.0.0.1:{{ .Values.service.externalPort }}/
+    </Location>
+
+    <Location /login>
+      AuthType shibboleth
+      # ShibRequestSetting requireSession 0
+      Require shibboleth
+
+      # https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPSpoofChecking
+      # - Jetty 9 drops AJP Support (https://bugs.eclipse.org/bugs/show_bug.cgi?id=425244)
+      ShibUseEnvironment off
+      ShibUseHeaders on
+
+      ProxyPass http://127.0.0.1:{{ .Values.service.externalPort }}/login
+      ProxyPassReverse http://127.0.0.1:{{ .Values.service.externalPort }}/login
+    </Location>
+
+    <Location /Shibboleth.sso>
+      ProxyPass !
+      SetHandler shib
+    </Location>
+  </VirtualHost>
+{{- end -}}
+{{- define "cas.jetty.inlineconfigs" }}
+services/cas.json: |-
+  {
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ .Values.casDomain | replace "." "\\\\." }}/.*",
+    "name": "OSF CAS",
+    "description": "OSF CAS is the centralized authentication and authorization service for OSF",
+    "id": 203948234207100,
+    "evaluationOrder": 10,
+    "logo": "/images/osf-banner.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          []
+        ],
+        "permitUndefined": false
+      }
+    }
+  }
+services/osf.json: |-
+  {
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https?://(localhost|127\\.0\\.0\\.1|192\\.168\\.168\\.167):5000/(login|logout)/?\\?next=.*",
+    "name": "OSF",
+    "description": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
+    "id": 203948234207230,
+    "evaluationOrder": 20,
+    "logo": "/images/osf-logo.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
+          ]
+        ],
+        "permitUndefined": false
+      }
+    }
+  }
+services/registries-osf.json: |-
+  {
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
+    "name": "OSF Registries",
+    "description": "The open registires network",
+    "id": 203948234207340,
+    "evaluationOrder": 15,
+    "logo": "/images/osfpreprints-banner.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
+          ]
+        ],
+        "permitUndefined": false
+      }
+    }
+  }
+services/preprints-osf.json: |-
+  {
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)preprints(%2F|/).*",
+    "name": "OSF Preprints",
+    "description": "Accelerating scholarly review, publishing, and discovery.",
+    "id": 203948234207240,
+    "evaluationOrder": 15,
+    "logo": "/images/osfpreprints-banner.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
+          ]
+        ],
+        "permitUndefined": false
+      }
+    }
+  }
+{{- $osfDomainRegex := .Values.osfDomain | replace "." "\\\\." -}}
+{{- $casDomain := .Values.casDomain -}}
+{{- $domainOverride := .Values.preprintProviderDomains.override -}}
+{{- $domainPrefix := .Values.preprintProviderDomains.prefix -}}
+{{- $domainSuffix := .Values.preprintProviderDomains.suffix -}}
+{{- range $key, $val := (include "cas.jetty.preprint-services" . | fromYaml) }}
+services/preprints-{{ $key }}.json: |-
+  {
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^https://{{ $osfDomainRegex }}/(login|logout)/?\\?next=https(%3A|:)(%2F|/)(%2F|/)
+        {{- if hasKey $val "domain" -}}
+            (
+              {{- if $domainOverride -}}
+                  {{- printf "%s%s%s" $domainPrefix $key $domainSuffix | replace "." "\\\\." -}}
+              {{- else -}}
+                  {{- $val.domain | replace "." "\\\\." -}}
+              {{- end -}}
+             |{{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}($|%2F|/))
+        {{- else -}}
+            {{ $osfDomainRegex }}(%2F|/)preprints(%2F|/){{ $key }}
+        {{- end -}}
+    .*",
+    "name": "{{ $val.name }}",
+    "description": "",
+    "id": {{ $val.id }},
+    "evaluationOrder": 10,
+    "logo": "",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          [
+            "orcid"
+          ]
+        ],
+        "permitUndefined": false
+      }
+    }
+  }
+{{- end -}}
+{{- end -}}
+
+{{- define "cas.apache.fileconfigs" -}}
+{{- range $path, $bytes := .Files.Glob "files/apache/**" }}
+{{ $path | trimPrefix "files/apache/" }}: |-
+{{ printf "%s" $bytes | indent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{- define "cas.jetty.fileconfigs" -}}
+{{- range $path, $bytes := .Files.Glob "files/jetty/**" }}
+{{ $path | trimPrefix "files/jetty/" }}: |-
+{{ printf "%s" $bytes | indent 2 }}
+{{- end -}}
+{{- end -}}
+
+{{- range $key, $value := .Values.apache.configEnvs }}
+  apache-{{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- range $key, $value := merge .Values.apache.configFiles (include "cas.apache.inlineconfigs" . | fromYaml) (include "cas.apache.fileconfigs" . | fromYaml) }}
+  apache-{{ $key | replace "/" "-" }}: |-
+    {{- $value | nindent 4 }}
+{{- end }}
+
+{{- range $key, $value := .Values.jetty.configEnvs }}
+  jetty-{{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- range $key, $value := merge .Values.jetty.configFiles (include "cas.jetty.inlineconfigs" . | fromYaml) (include "cas.jetty.fileconfigs" . | fromYaml) }}
+  jetty-{{ $key | replace "/" "-" }}: |-
+    {{- $value | nindent 4 }}
+{{- end }}

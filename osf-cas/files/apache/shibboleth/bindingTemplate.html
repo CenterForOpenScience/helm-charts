@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<title>Shibboleth Authentication Request</title>
+	</head>
+	<body onload="document.forms[0].submit()">
+
+		<h1>Shibboleth Authentication Request</h1>
+
+		<script type="text/javascript">
+		<!--
+		document.write("<p>You are automatically being redirected to the authentication service. ");
+		document.write("If the browser appears to be hung up after 15-20 seconds, try reloading ");
+		document.write("the page before contacting the technical support staff in charge of the ");
+		document.write("authentication service you are trying to access.</p>");
+		document.write("<h2>Redirecting...</h2>");
+		// -->
+		</script>
+
+		<noscript>
+		<p>
+		<strong>Note:</strong> Since your browser does not support JavaScript, you must press the
+		Continue button once to proceed to the authentication service.
+		</p>
+		</noscript>
+
+		<form method="POST" action="<shibmlp action/>">
+		<shibmlpif TARGET>
+			<input type="hidden" name="TARGET" value="<shibmlp TARGET/>"/>
+		</shibmlpif>
+		<shibmlpif RelayState>
+			<input type="hidden" name="RelayState" value="<shibmlp RelayState/>"/>
+		</shibmlpif>
+		<shibmlpif SAMLRequest>
+			<input type="hidden" name="SAMLRequest" value="<shibmlp SAMLRequest/>"/>
+		</shibmlpif>
+		<shibmlpif SAMLResponse>
+			<input type="hidden" name="SAMLResponse" value="<shibmlp SAMLResponse/>"/>
+		</shibmlpif>
+		<shibmlpif SAMLart>
+			<input type="hidden" name="SAMLart" value="<shibmlp SAMLart/>"/>
+		</shibmlpif>
+		<shibmlpif SigAlg>
+			<input type="hidden" name="SigAlg" value="<shibmlp SigAlg/>"/>
+		</shibmlpif>
+		<shibmlpif Signature>
+			<input type="hidden" name="Signature" value="<shibmlp Signature/>"/>
+		</shibmlpif>
+        <shibmlpif KeyInfo>
+            <input type="hidden" name="KeyInfo" value="<shibmlp KeyInfo/>"/>
+        </shibmlpif>
+		<noscript>
+		<div>
+		<input type="submit" value="Continue"/>
+		</div>
+		</noscript>
+		</form>
+	</body>
+</html>
