@@ -700,9 +700,9 @@ services/cas.json: |-
 services/osf.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
-    "serviceId": "^https?://(localhost|127\\.0\\.0\\.1|192\\.168\\.168\\.167):5000/(login|logout)/?\\?next=.*",
+    "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/(?!oauth/callback).*",
     "name": "OSF",
-    "description": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
+    "description": "Manage and share your research with OSF – an free, open, easy and integrated platform to support your research and enable collaboration.",
     "id": 203948234207230,
     "evaluationOrder": 20,
     "logo": "/images/osf-logo.png",
