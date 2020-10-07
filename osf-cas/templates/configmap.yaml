@@ -319,6 +319,352 @@ httpd/conf.d/shib.conf: |-
   </VirtualHost>
 {{- end -}}
 {{- define "cas.jetty.inlineconfigs" }}
+config/cas.properties: |-
+  ########################################################################################################################
+  # Server Settings
+  ########################################################################################################################
+  # Server
+  #
+  server.port=${TOMCAT_HTTP_PORT:8080}
+  # Servlet
+  server.servlet.contextPath=/
+  #
+  # SSL
+  server.ssl.enabled=false
+  #
+  # CAS Server
+  cas.server.name=https://{{ .Values.casDomain }}
+  cas.server.prefix=${cas.server.name}
+  # cas.server.scope={{ .Values.casDomain }}
+  #
+  # Tomcat Server
+  #
+  cas.server.tomcat.server-name=OSF CAS
+  # Enable additional HTTP connections for the embedded Tomcat container (when SSL is enabled by default)
+  # cas.server.tomcat.http.port=${TOMCAT_HTTP_PORT:80}
+  # cas.server.tomcat.http.protocol=org.apache.coyote.http11.Http11NioProtocol
+  # cas.server.tomcat.http.enabled=true
+  # cas.server.tomcat.http.attributes=
+  # e.g. cas.server.tomcat.http.attributes.{attribute-name}={attributeValue}
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # Logging Settings
+  ########################################################################################################################
+  logging.config=file:/etc/cas/config/log4j2.xml
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # Accept Users Authentication - Demo purpose only, must set to empty on production
+  ########################################################################################################################
+  cas.authn.accept.users=
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # JSON Service Registry
+  # See: https://apereo.github.io/cas/6.2.x/services/JSON-Service-Management.html
+  ########################################################################################################################
+  cas.serviceRegistry.json.location=file:/etc/cas/services
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # CAS Logout and Single Logout (SLO)
+  # https://apereo.github.io/cas/6.2.x/installation/Logout-Single-Signout.html
+  ########################################################################################################################
+  # CAS Logout
+  #
+  cas.logout.follow-service-redirects=true
+  cas.logout.redirect-parameter=service
+  cas.logout.confirm-logout=false
+  cas.logout.remove-descendant-tickets=false
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # OSF PostgreSQL Authentication
+  # See: https://apereo.github.io/cas/6.2.x/installation/Configuring-Custom-Authentication.html
+  ########################################################################################################################
+  # Authentication settings
+  #
+  cas.authn.osf-postgres.enabled=true
+  cas.authn.osf-postgres.order=0
+  #
+  # JPA settings for OSF PostgreSQL
+  #
+  cas.authn.osf-postgres.jpa.user=${OSF_DB_USER:postgres}
+  cas.authn.osf-postgres.jpa.password=${OSF_DB_PASSWORD:}
+  cas.authn.osf-postgres.jpa.driver-class=${OSF_DB_DRIVER_CLASS:org.postgresql.Driver}
+  cas.authn.osf-postgres.jpa.url=${OSF_DB_URL:jdbc:postgresql://192.168.168.167:5432/osf?targetServerType=master&readOnly=true}
+  cas.authn.osf-postgres.jpa.dialect=${OSF_DB_HIBERNATE_DIALECT:io.cos.cas.osf.hibernate.dialect.OsfPostgresDialect}
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # JPA Ticket Registry
+  # See: https://apereo.github.io/cas/6.2.x/ticketing/JPA-Ticket-Registry.html
+  ########################################################################################################################
+  # Global JDBC Settings
+  #
+  cas.jdbc.show-sql=false
+  cas.jdbc.gen-ddl=true
+  cas.jdbc.case-insensitive=false
+  # cas.jdbc.physical-table-names=
+  # e.g. cas.jdbc.physical-table-names.{table-name}={new-table-name}
+  #
+  # General JPA Settings
+  #
+  cas.ticket.registry.jpa.user=${CAS_DB_USER:postgres}
+  cas.ticket.registry.jpa.password=${CAS_DB_PASSWORD:}
+  cas.ticket.registry.jpa.driver-class=${CAS_DB_DRIVER_CLASS:org.postgresql.Driver}
+  cas.ticket.registry.jpa.url=${CAS_DB_URL:jdbc:postgresql://127.0.0.1:5432/osf-cas?targetServerType=master}
+  cas.ticket.registry.jpa.dialect=${CAS_DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQL95Dialect}
+  cas.ticket.registry.jpa.ddl-auto=update
+  cas.ticket.registry.jpa.default-catalog=
+  cas.ticket.registry.jpa.default-schema=
+  cas.ticket.registry.jpa.health-query=
+  cas.ticket.registry.jpa.idle-timeout=PT10M
+  cas.ticket.registry.jpa.leak-threshold=6000
+  cas.ticket.registry.jpa.batchSize=5
+  cas.ticket.registry.jpa.fail-fast-timeout=1
+  cas.ticket.registry.jpa.autocommit=false
+  cas.ticket.registry.jpa.isolate-internal-queries=false
+  cas.ticket.registry.jpa.isolation-level-name=ISOLATION_READ_COMMITTED
+  cas.ticket.registry.jpa.data-source-name=
+  cas.ticket.registry.jpa.data-source-proxy=false
+  cas.ticket.registry.jpa.physical-naming-strategy-class-name=org.apereo.cas.hibernate.CasHibernatePhysicalNamingStrategy
+  cas.ticket.registry.jpa.propagation-behaviorName=PROPAGATION_REQUIRED
+  #
+  # JPA Connection Pooling Properties
+  # e.g. cas.ticket.registry.jpa.properties.property-name=propertyValue
+  #
+  cas.ticket.registry.jpa.pool.min-size=6
+  cas.ticket.registry.jpa.pool.max-size=18
+  cas.ticket.registry.jpa.pool.max-wait=PT2S
+  cas.ticket.registry.jpa.pool.suspension=false
+  cas.ticket.registry.jpa.pool.timeout-millis=1000
+  #
+  # JPA Ticket Registry Settings
+  #
+  cas.ticket.registry.jpa.ticket-lock-type=NONE
+  cas.ticket.registry.jpa.jpa-locking-timeout=PT1H
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # Signing and Encryption
+  # See: https://apereo.github.io/cas/6.2.x/configuration/Configuration-Properties-Common.html#signing--encryption
+  ########################################################################################################################
+  # Spring Client Session
+  # See: https://apereo.github.io/cas/6.2.x/configuration/Configuration-Properties.html#spring-webflow-client-side-session
+  #
+  cas.webflow.crypto.signing.key=${WEB_FLOW_SIGNING_KEY}
+  cas.webflow.crypto.encryption.key=${WEB_FLOW_ENCRYPTION_KEY}
+  #
+  # Ticket Granting Cookie (TGC)
+  # See: https://apereo.github.io/cas/6.2.x/configuration/Configuration-Properties.html#signing--encryption-4
+  #
+  cas.tgc.crypto.signing.key=${TGC_SIGNING_KEY}
+  cas.tgc.crypto.encryption.key=${TGC_ENCRYPTION_KEY}
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # Long-term Authentication: Ticket Granting Cookie (TGC) and Ticket Granting Ticket (TGT)
+  # See https://apereo.github.io/cas/6.2.x/installation/Configuring-LongTerm-Authentication.html
+  ########################################################################################################################
+  # General Cookie Setting for Ticket Granting Cookie
+  #
+  cas.tgc.name=osf-cas
+  cas.tgc.domain={{ .Values.casDomain }}
+  cas.tgc.path=/
+  cas.tgc.comment=OSF CAS Ticket Granting Cookie
+  cas.tgc.maxAge=-1
+  cas.tgc.secure=true
+  cas.tgc.http-only=true
+  cas.tgc.same-site-policy=Lax
+  cas.tgc.pin-to-session=true
+  #
+  # Ticket Granting Cookie Specific Settings
+  #
+  cas.tgc.remember-me-max-age=P28D
+  cas.tgc.auto-configure-cookie-path=true
+  #
+  # Ticket Granting Ticket Persistence Settings
+  #
+  cas.ticket.tgt.remember-me.enabled=true
+  cas.ticket.tgt.remember-me.time-to-kill-in-seconds=7200
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # Pac4j Delegated Authentication
+  # https://apereo.github.io/cas/6.2.x/integration/Delegate-Authentication.html
+  ########################################################################################################################
+  # General settings
+  #
+  cas.authn.pac4j.typed-id-used=true
+  cas.authn.pac4j.lazy-init=true
+  cas.authn.pac4j.replicate-sessions=false
+  #
+  # Non-institution clients
+  cas.authn.osf-postgres.non-institution-clients[0]=${cas.authn.pac4j.orcid.client-name}
+  #
+  # Institution clients
+  #
+  cas.authn.osf-postgres.institution-clients[0]=${cas.authn.pac4j.cas[0].client-name}
+  cas.authn.osf-postgres.institution-clients[1]=${cas.authn.pac4j.cas[1].client-name}
+  #
+  # Delegation Client: ORCiD
+  #
+  cas.authn.pac4j.orcid.id=${OAUTH_ORCID_CLIENT_ID:}
+  cas.authn.pac4j.orcid.secret=${OAUTH_ORCID_CLIENT_SECRET:}
+  cas.authn.pac4j.orcid.client-name=orcid
+  cas.authn.pac4j.orcid.enabled=true
+  cas.authn.pac4j.orcid.callback-url-type=QUERY_PARAMETER
+  #
+  # Delegation Client: CAS
+  #
+  cas.authn.pac4j.cas[0].login-url=https://accounts.staging.osf.io/login
+  cas.authn.pac4j.cas[0].client-name=stage1cas
+  cas.authn.pac4j.cas[0].protocol=SAML
+  cas.authn.pac4j.cas[0].callback-url-type=QUERY_PARAMETER
+  #
+  cas.authn.pac4j.cas[1].login-url=https://accounts.staging2.osf.io/login
+  cas.authn.pac4j.cas[1].client-name=stage2cas
+  cas.authn.pac4j.cas[1].protocol=CAS30
+  cas.authn.pac4j.cas[1].callback-url-type=QUERY_PARAMETER
+  ########################################################################################################################
+config/log4j2.xml: |-
+  <?xml version="1.0" encoding="UTF-8" ?>
+  <!-- Specify the refresh internal in seconds. -->
+  <Configuration monitorInterval="5" packages="org.apereo.cas.logging">
+      <Properties>
+          <Property name="baseDir">/var/log</Property>
+          <!-- OSF CAS logging level -->
+          <Property name="cas.log.level">debug</Property>
+          <!-- Apache logging levels -->
+          <Property name="apache.log.level">info</Property>
+          <Property name="apache.http.log.level">warn</Property>
+          <!-- Apereo and Jasig logging levels -->
+          <Property name="apereo.log.level">info</Property>
+          <Property name="apereo.cas.log.level">debug</Property>
+          <Property name="apereo.service.log.level">warn</Property>
+          <Property name="apereo.inspektr.log.level">info</Property>
+          <!-- Spring framework logging levels -->
+          <Property name="spring.boot.admin.log.level">warn</Property>
+          <Property name="spring.boot.log.level">info</Property>
+          <Property name="spring.cloud.log.level">warn</Property>
+          <Property name="spring.security.log.level">info</Property>
+          <Property name="spring.web.log.level">debug</Property>
+          <Property name="spring.webflow.log.level">debug</Property>
+          <!-- Logging levels for 6.2.x packages that are explicitly used by OSF CAS -->
+          <Property name="thymeleaf.log.level">info</Property>
+          <Property name="pac4j.log.level">info</Property>
+          <!-- Logging levels for new packages that are added by OSF CAS -->
+          <Property name="hibernate.log.level">warn</Property>
+          <Property name="scribejava.log.level">warn</Property>
+          <Property name="google.gson.log.level">warn</Property>
+          <!-- Generic logging levels for 6.2.x packages that are not explicitly used by OSF CAS -->
+          <Property name="generic.off.log.level">off</Property>
+          <Property name="generic.error.log.level">error</Property>
+          <Property name="generic.warn.log.level">warn</Property>
+          <Property name="generic.info.log.level">info</Property>
+          <Property name="generic.debug.log.level">debug</Property>
+      </Properties>
+      <Appenders>
+          <Console name="console" target="SYSTEM_OUT">
+              <PatternLayout pattern="%highlight{%d %p [%c] - &lt;%m&gt;}%n"/>
+          </Console>
+          <RollingFile name="file" fileName="${baseDir}/cas.log" append="true"
+                      filePattern="${baseDir}/cas-%d{yyyy-MM-dd-HH}-%i.log">
+              <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
+              <Policies>
+                  <OnStartupTriggeringPolicy/>
+                  <SizeBasedTriggeringPolicy size="10 MB"/>
+                  <TimeBasedTriggeringPolicy/>
+              </Policies>
+          </RollingFile>
+          <RollingFile name="auditlogfile" fileName="${baseDir}/cas_audit.log" append="true"
+                      filePattern="${baseDir}/cas_audit-%d{yyyy-MM-dd-HH}-%i.log">
+              <PatternLayout pattern="%d %p [%c] - %m%n"/>
+              <Policies>
+                  <OnStartupTriggeringPolicy/>
+                  <SizeBasedTriggeringPolicy size="10 MB"/>
+                  <TimeBasedTriggeringPolicy/>
+              </Policies>
+          </RollingFile>
+          <CasAppender name="casAudit">
+              <AppenderRef ref="auditlogfile"/>
+          </CasAppender>
+          <CasAppender name="casFile">
+              <AppenderRef ref="file"/>
+          </CasAppender>
+          <CasAppender name="casConsole">
+              <AppenderRef ref="console"/>
+          </CasAppender>
+      </Appenders>
+      <Loggers>
+          <!-- If adding a Logger with level set higher than warn, make category as selective as possible -->
+          <!-- Loggers inherit appenders from Root Logger unless additivity is false -->
+          <!-- Logger: OSF CAS -->
+          <AsyncLogger name="io.cos.cas" level="${sys:cas.log.level}" includeLocation="true"/>
+          <!-- Logger: Apache -->
+          <AsyncLogger name="org.apache" level="${sys:apache.log.level}"/>
+          <AsyncLogger name="org.apache.http" level="${sys:apache.http.log.level}"/>
+          <!-- Logger: Apereo and Jasig -->
+          <AsyncLogger name="org.apereo" level="${sys:apereo.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.apereo.cas" level="${sys:apereo.cas.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.apereo.services" level="${sys:apereo.service.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.apereo.spring" level="${sys:apereo.log.level}" includeLocation="true"/>
+          <!-- Logger: Spring framework -->
+          <AsyncLogger name="org.springframework" level="warn" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.boot" level="${sys:spring.boot.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.boot.context.embedded" level="${sys:generic.info.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration" level="${sys:spring.security.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.boot.autoconfigure.security" level="${sys:spring.security.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.boot.devtools" level="${sys:generic.off.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.web" level="${sys:spring.web.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.web.client" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.web.socket" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.webflow" level="${sys:spring.webflow.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.webflow.engine.impl" level="${sys:generic.info.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.webflow.mvc.view" level="${sys:generic.info.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.cloud" level="${sys:spring.cloud.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.cloud.vault" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.amqp" level="${sys:generic.error.log.level}"/>
+          <AsyncLogger name="org.springframework.aop" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.context.annotation" level="${sys:generic.off.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.integration" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.messaging" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.orm.jpa" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.scheduling" level="${sys:generic.info.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.security" level="${sys:spring.security.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.session" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.springframework.scheduling" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <!-- Logger: 6.2.x packages explicitly used by OSF CAS -->
+          <AsyncLogger name="org.pac4j" level="${sys:pac4j.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.thymeleaf" level="${org.thymeleaf.log.level}" includeLocation="true"/>
+          <!-- Logger: new packages added (and explicitly used) by OSF CAS-->
+          <AsyncLogger name="com.github.scribejava" level="${sys:scribejava.log.level}" includeLocation="true"/>
+          <AsyncLogger name="com.google.code.gson" level="${sys:google.gson.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.hibernate" level="${sys:hibernate.log.level}" includeLocation="true"/>
+          <!-- Logger: 6.2.x packages not explicitly used by OSF CAS -->
+          <AsyncLogger name="PROTOCOL_MESSAGE" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="com.couchbase" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="com.hazelcast" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="de.codecentric" level="${sys:spring.boot.admin.log.level}" includeLocation="true"/>
+          <AsyncLogger name="net.jradius" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="net.sf.ehcache" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.ldaptive" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.opensaml" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <AsyncLogger name="org.openid4java" level="${sys:generic.warn.log.level}" includeLocation="true"/>
+          <!-- Log audit to all root appenders, and also to audit log (additivity is not false) -->
+          <AsyncLogger name="org.apereo.inspektr.audit.support" level="${sys:org.apereo.inspektr.log.level}" includeLocation="true">
+              <AppenderRef ref="casAudit"/>
+          </AsyncLogger>
+          <!-- All Loggers inherit appenders specified here, unless additivity="false" on the Logger -->
+          <AsyncRoot level="warn">
+              <AppenderRef ref="casFile"/>
+              <!--  For deployment to an application server running as service,  delete the casConsole appender below -->
+              <AppenderRef ref="casConsole"/>
+          </AsyncRoot>
+      </Loggers>
+  </Configuration>
 services/cas.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
