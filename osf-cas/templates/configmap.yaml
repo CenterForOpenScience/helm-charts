@@ -665,15 +665,15 @@ config/log4j2.xml: |-
           </AsyncRoot>
       </Loggers>
   </Configuration>
-services/cas.json: |-
+services/cas-203948234207100.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.casDomain | replace "." "\\\\." }}/.*",
-    "name": "OSF CAS",
-    "description": "OSF CAS is the centralized authentication and authorization service for OSF",
+    "name": "",
+    "description": "OSF CAS is the centralized authentication service for OSF",
     "id": 203948234207100,
     "evaluationOrder": 10,
-    "logo": "/images/osf-banner.png",
+    "logo": "/images/osf-cas-banner.png",
     "attributeReleasePolicy": {
       "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
       "allowedAttributes": [
@@ -697,15 +697,15 @@ services/cas.json: |-
       }
     }
   }
-services/osf.json: |-
+services/osf-203948234207230.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/(?!oauth/callback).*",
-    "name": "OSF",
-    "description": "Manage and share your research with OSF – an free, open, easy and integrated platform to support your research and enable collaboration.",
+    "name": "",
+    "description": "There's a better way to manage your research! OSF is a free, open platform to support your research and enable collaboration.",
     "id": 203948234207230,
     "evaluationOrder": 20,
-    "logo": "/images/osf-logo.png",
+    "logo": "/images/osf-banner.png",
     "attributeReleasePolicy": {
       "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
       "allowedAttributes": [
@@ -731,15 +731,15 @@ services/osf.json: |-
       }
     }
   }
-services/registries-osf.json: |-
+services/registries-203948234207340.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
-    "name": "OSF Registries",
+    "name": "",
     "description": "The open registires network",
     "id": 203948234207340,
     "evaluationOrder": 15,
-    "logo": "/images/osfpreprints-banner.png",
+    "logo": "/images/osf-registries-banner.png",
     "attributeReleasePolicy": {
       "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
       "allowedAttributes": [
@@ -765,15 +765,15 @@ services/registries-osf.json: |-
       }
     }
   }
-services/preprints-osf.json: |-
+services/preprints-203948234207240.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)preprints(%2F|/).*",
-    "name": "OSF Preprints",
+    "name": "",
     "description": "Accelerating scholarly review, publishing, and discovery.",
     "id": 203948234207240,
     "evaluationOrder": 15,
-    "logo": "/images/osfpreprints-banner.png",
+    "logo": "/images/osf-preprints-banner.png",
     "attributeReleasePolicy": {
       "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
       "allowedAttributes": [
@@ -805,7 +805,7 @@ services/preprints-osf.json: |-
 {{- $domainPrefix := .Values.preprintProviderDomains.prefix -}}
 {{- $domainSuffix := .Values.preprintProviderDomains.suffix -}}
 {{- range $key, $val := (include "cas.jetty.preprint-services" . | fromYaml) }}
-services/preprints-{{ $key }}.json: |-
+services/{{ $key }}-{{ $val.id }}.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ $osfDomainRegex }}/(login|logout)/?\\?next=https(%3A|:)(%2F|/)(%2F|/)
