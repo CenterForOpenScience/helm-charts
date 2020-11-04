@@ -323,13 +323,10 @@ config/cas.properties: |-
   ########################################################################################################################
   # Server Settings
   ########################################################################################################################
-  # Server
+  # General
   #
   server.port=${TOMCAT_HTTP_PORT:8080}
-  # Servlet
   server.servlet.contextPath=/
-  #
-  # SSL
   server.ssl.enabled=false
   #
   # CAS Server
@@ -346,6 +343,16 @@ config/cas.properties: |-
   # cas.server.tomcat.http.enabled=true
   # cas.server.tomcat.http.attributes=
   # e.g. cas.server.tomcat.http.attributes.{attribute-name}={attributeValue}
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # CAS Web Application Endpoints Security
+  # See: https://docs.spring.io/spring-boot/docs/2.2.8.RELEASE/reference/htmlsingle/#boot-features-security
+  # Currently, no sensitive endpoint is exposed. However, set them to prevent auto-generated and logged password
+  ########################################################################################################################
+  # spring.security.user.name=${SPRING_SECURITY_USER_NAME:casuser}
+  # spring.security.user.password=${SPRING_SECURITY_USER_PASSWORD:}
+  # spring.security.user.roles=${SPRING_SECURITY_USER_ROLES:}
   ########################################################################################################################
 
   ########################################################################################################################
