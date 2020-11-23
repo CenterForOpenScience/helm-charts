@@ -697,6 +697,44 @@ web-nginx.conf: |-
       {{- end }}
       {{- end }}
 
+      {{- if .Values.web.nginx.brandedSubdomains }}
+      server {
+          listen {{ .Values.web.service.internalPort }};
+          server_name "~^(?<sub>({{ join "|" .Values.web.nginx.brandedSubdomains }}))\.{{ .Values.web.nginx.primaryDomain | replace "." "\\." }}$";
+
+          if ($http_x_forwarded_proto = "http") {
+              return 301 https://$host$request_uri;
+          }
+
+          location = /favicon.ico {
+              alias /static/code/website/static/favicon.ico;
+          }
+
+          location = /robots.txt {
+              alias /usr/share/nginx/html/robots.txt;
+          }
+
+          location / {
+              {{- if .Values.prerender.enabled }}
+              include /etc/nginx/prerender.conf;
+              {{- end }}
+
+              # # Mitigate HTTPoxy Vulnerability
+              # # https://www.nginx.com/blog/mitigating-the-httpoxy-vulnerability-with-nginx/
+              # proxy_set_header Proxy                  "";
+
+              # proxy_redirect off;
+              # proxy_buffering off;
+              # proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
+              if ($request_uri ~* "^/\w{5}(/.*)?/?$") {
+                return 307 https://{{ .Values.web.nginx.primaryDomain }}$request_uri;
+              }
+              return 307 https://{{ .Values.web.nginx.primaryDomain }}/registries/$sub$request_uri;
+          }
+
+      }
+      {{- end }}
+
       {{- if .Values.web.nginx.preprintDomains }}
       server {
           listen {{ .Values.web.service.internalPort }};
