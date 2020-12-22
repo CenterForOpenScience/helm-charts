@@ -13,8 +13,8 @@ install:
   - chmod +x /tmp/helm
 
 before_script:
-  - /tmp/helm init --client-only
-  - /tmp/helm repo add stable https://kubernetes-charts.storage.googleapis.com
+  - /tmp/helm init --client-only --stable-repo-url https://charts.helm.sh/stable
+  - /tmp/helm repo add stable https://charts.helm.sh/stable
   - /tmp/helm repo add cos https://centerforopenscience.github.io/helm-charts/
   - |
     for chart in $(find . -name 'requirements.yaml'); do
