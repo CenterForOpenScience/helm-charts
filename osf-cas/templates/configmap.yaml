@@ -391,7 +391,9 @@ config/cas.properties: |-
   cas.authn.osf-url.logout=https://{{ .Values.osfDomain }}/logout/
   cas.authn.osf-url.resend-confirmation=https://{{ .Values.osfDomain }}/resend/
   cas.authn.osf-url.forgot-password=https://{{ .Values.osfDomain }}/forgotpassword/
+  cas.authn.osf-url.forgot-password-institution=https://{{ .Values.osfDomain }}/forgotpassword-institution/
   cas.authn.osf-url.register=https://{{ .Values.osfDomain }}/register/
+  cas.authn.osf-url.institutions-home=https://{{ .Values.osfDomain }}/institutions/
   ########################################################################################################################
 
   ########################################################################################################################
