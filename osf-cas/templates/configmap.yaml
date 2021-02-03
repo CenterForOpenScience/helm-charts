@@ -337,12 +337,6 @@ config/cas.properties: |-
   # Tomcat Server
   #
   cas.server.tomcat.server-name=OSF CAS
-  # Enable additional HTTP connections for the embedded Tomcat container (when SSL is enabled by default)
-  # cas.server.tomcat.http.port=${TOMCAT_HTTP_PORT:80}
-  # cas.server.tomcat.http.protocol=org.apache.coyote.http11.Http11NioProtocol
-  # cas.server.tomcat.http.enabled=true
-  # cas.server.tomcat.http.attributes=
-  # e.g. cas.server.tomcat.http.attributes.{attribute-name}={attributeValue}
   ########################################################################################################################
 
   ########################################################################################################################
@@ -387,6 +381,39 @@ config/cas.properties: |-
   ########################################################################################################################
 
   ########################################################################################################################
+  # OSF URLs
+  ########################################################################################################################
+  # OSF
+  #
+  cas.authn.osf-url.home=https://{{ .Values.osfDomain }}/
+  cas.authn.osf-url.dashboard=https://{{ .Values.osfDomain }}/dashboard/
+  cas.authn.osf-url.login-with-next=https://{{ .Values.osfDomain }}/login?next=
+  cas.authn.osf-url.logout=https://{{ .Values.osfDomain }}/logout/
+  cas.authn.osf-url.resend-confirmation=https://{{ .Values.osfDomain }}/resend/
+  cas.authn.osf-url.forgot-password=https://{{ .Values.osfDomain }}/forgotpassword/
+  cas.authn.osf-url.forgot-password-institution=https://{{ .Values.osfDomain }}/forgotpassword-institution/
+  cas.authn.osf-url.register=https://{{ .Values.osfDomain }}/register/
+  cas.authn.osf-url.institutions-home=https://{{ .Values.osfDomain }}/institutions/
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # OSF API Settings for Institution Authentication
+  ########################################################################################################################
+  # Authentication Endpoint
+  #
+  cas.authn.osf-api.instn-authn-endpoint=https://{{ .Values.apiDomain }}/v2/institutions/auth/
+  #
+  # JWT / JWE secrets for signing and encrypting authentication request payload
+  #
+  cas.authn.osf-api.instn-authn-jwt-secret=${OSF_JWT_SECRET}
+  cas.authn.osf-api.instn-authn-jwe-secret=${OSF_JWE_SECRET}
+  #
+  # Path of the XSL file for parsing and transforming XML authentication responses
+  #
+  cas.authn.osf-api.instn-authn-xsl-location=file:/etc/cas/institutions-auth.xsl
+  ########################################################################################################################
+
+  ########################################################################################################################
   # OSF PostgreSQL Authentication
   # See: https://apereo.github.io/cas/6.2.x/installation/Configuring-Custom-Authentication.html
   ########################################################################################################################
@@ -413,8 +440,6 @@ config/cas.properties: |-
   cas.jdbc.show-sql=false
   cas.jdbc.gen-ddl=true
   cas.jdbc.case-insensitive=false
-  # cas.jdbc.physical-table-names=
-  # e.g. cas.jdbc.physical-table-names.{table-name}={new-table-name}
   #
   # General JPA Settings
   #
@@ -526,14 +551,14 @@ config/cas.properties: |-
   #
   # Delegation Client: CAS
   #
-  cas.authn.pac4j.cas[0].login-url=https://accounts.staging.osf.io/login
-  cas.authn.pac4j.cas[0].client-name=stage1cas
+  cas.authn.pac4j.cas[0].login-url=https://bprdeis.cord.edu:8443/cas/login
+  cas.authn.pac4j.cas[0].client-name=cord
   cas.authn.pac4j.cas[0].protocol=SAML
   cas.authn.pac4j.cas[0].callback-url-type=QUERY_PARAMETER
   #
-  cas.authn.pac4j.cas[1].login-url=https://accounts.staging2.osf.io/login
-  cas.authn.pac4j.cas[1].client-name=stage2cas
-  cas.authn.pac4j.cas[1].protocol=CAS30
+  cas.authn.pac4j.cas[1].login-url=https://stwcas.okstate.edu/cas/login
+  cas.authn.pac4j.cas[1].client-name=okstate
+  cas.authn.pac4j.cas[1].protocol=SAML
   cas.authn.pac4j.cas[1].callback-url-type=QUERY_PARAMETER
   ########################################################################################################################
 config/log4j2.xml: |-
@@ -677,10 +702,42 @@ services/cas-203948234207100.json: |-
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.casDomain | replace "." "\\\\." }}/.*",
     "name": "",
-    "description": "OSF CAS is the centralized authentication service for OSF",
+    "description": "",
     "id": 203948234207100,
     "evaluationOrder": 10,
-    "logo": "/images/osf-cas-banner.png",
+    "logo": "/images/osf-banner.png",
+    "attributeReleasePolicy": {
+      "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
+      "allowedAttributes": [
+        "java.util.ArrayList",
+        [
+          "givenName",
+          "familyName",
+          "username"
+        ]
+      ]
+    },
+    "accessStrategy": {
+      "@class": "org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy",
+      "delegatedAuthenticationPolicy": {
+        "@class": "org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy",
+        "allowedProviders": [
+          "java.util.ArrayList",
+          []
+        ],
+        "permitUndefined": false
+      }
+    }
+  }
+services/cas-203948234207101.json: |-
+  {
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^/(login|logout)\\?.*",
+    "name": "",
+    "description": "",
+    "id": 203948234207101,
+    "evaluationOrder": 10,
+    "logo": "/images/osf-banner.png",
     "attributeReleasePolicy": {
       "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
       "allowedAttributes": [
@@ -708,8 +765,8 @@ services/osf-203948234207230.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/(?!oauth/callback).*",
-    "name": "",
-    "description": "There's a better way to manage your research! OSF is a free, open platform to support your research and enable collaboration.",
+  "name": "",
+    "description": "",
     "id": 203948234207230,
     "evaluationOrder": 20,
     "logo": "/images/osf-banner.png",
@@ -731,6 +788,8 @@ services/osf-203948234207230.json: |-
         "allowedProviders": [
           "java.util.ArrayList",
           [
+            "cord",
+            "okstate",
             "orcid"
           ]
         ],
@@ -743,7 +802,7 @@ services/registries-203948234207340.json: |-
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)registries(%2F|/).*",
     "name": "",
-    "description": "The open registires network",
+    "description": "",
     "id": 203948234207340,
     "evaluationOrder": 15,
     "logo": "/images/osf-registries-banner.png",
@@ -765,6 +824,8 @@ services/registries-203948234207340.json: |-
         "allowedProviders": [
           "java.util.ArrayList",
           [
+            "cord",
+            "okstate",
             "orcid"
           ]
         ],
@@ -777,7 +838,7 @@ services/preprints-203948234207240.json: |-
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ .Values.osfDomain | replace "." "\\\\." }}/login/?\\?next=https(%3A|:)(%2F|/)(%2F|/){{ .Values.osfDomain | replace "." "\\\\." }}(%2F|/)preprints(%2F|/).*",
     "name": "",
-    "description": "Accelerating scholarly review, publishing, and discovery.",
+    "description": "",
     "id": 203948234207240,
     "evaluationOrder": 15,
     "logo": "/images/osf-preprints-banner.png",
@@ -799,6 +860,8 @@ services/preprints-203948234207240.json: |-
         "allowedProviders": [
           "java.util.ArrayList",
           [
+            "cord",
+            "okstate",
             "orcid"
           ]
         ],
@@ -812,7 +875,7 @@ services/preprints-203948234207240.json: |-
 {{- $domainPrefix := .Values.preprintProviderDomains.prefix -}}
 {{- $domainSuffix := .Values.preprintProviderDomains.suffix -}}
 {{- range $key, $val := (include "cas.jetty.preprint-services" . | fromYaml) }}
-services/{{ $key }}-{{ $val.id }}.json: |-
+services/preprints-{{ $key }}-{{ $val.id }}.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ $osfDomainRegex }}/(login|logout)/?\\?next=https(%3A|:)(%2F|/)(%2F|/)
@@ -832,7 +895,7 @@ services/{{ $key }}-{{ $val.id }}.json: |-
     "description": "",
     "id": {{ $val.id }},
     "evaluationOrder": 10,
-    "logo": "",
+    "logo": "https://{{ $casDomain }}/images/branded/preprints-{{ $key }}-logo.png",
     "attributeReleasePolicy": {
       "@class": "org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy",
       "allowedAttributes": [
@@ -851,6 +914,8 @@ services/{{ $key }}-{{ $val.id }}.json: |-
         "allowedProviders": [
           "java.util.ArrayList",
           [
+            "cord",
+            "okstate",
             "orcid"
           ]
         ],
