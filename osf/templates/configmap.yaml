@@ -328,6 +328,10 @@ api-nginx.conf: |-
           location ~* ^/v2/static/(.*) {
               alias /static/code/api/static/vendor/$1;
           }
+          
+          {{- if (index .Values.api.nginx "additionalConfig") }}
+          {{- .Values.api.nginx.additionalConfig | nindent 10 }}
+          {{- end }}
 
           include /etc/nginx/conf.d/*.conf;
 
