@@ -358,6 +358,7 @@ cas.properties: |-
   cas.osf.login.url=/login?
   cas.logout.url=/logout
   cas.institution.login.url=/login?campaign=institution
+  cas.institution.unsupported.url=/login?campaign=unsupportedinstitution
 
   ##
   # Login Rate Limiting
@@ -411,7 +412,9 @@ cas.properties: |-
   osf.institutionLogin.url=https://{{ .Values.osfDomain }}/login/?campaign=institution
   osf.resendConfirmation.url=https://{{ .Values.osfDomain }}/resend/
   osf.forgotPassword.url=https://{{ .Values.osfDomain }}/forgotpassword/
+  osf.forgotPasswordInstitution.url=https://{{ .Values.osfDomain }}/forgotpassword-institution/
   osf.createAccount.url=https://{{ .Values.osfDomain }}/register/
+  osf.osfi.url=https://{{ .Values.osfDomain }}/institutions/
 
   ##
   # API URLs
