@@ -675,7 +675,7 @@ log4j2.xml: |-
       </Appenders>
       <Loggers>
           <!-- OSF CAS -->
-          <Logger name="io.cos" level="debug" additivity="false">
+          <Logger name="io.cos" level="info" additivity="false">
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Logger>
@@ -684,7 +684,7 @@ log4j2.xml: |-
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Logger>
-          <Logger name="org.jasig.cas" level="debug" additivity="false">
+          <Logger name="org.jasig.cas" level="info" additivity="false">
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Logger>
@@ -697,7 +697,7 @@ log4j2.xml: |-
               <AppenderRef ref="Sentry" />
           </Logger>
           <!-- Pac4j -->
-          <Logger name="org.pac4j" level="debug" additivity="false">
+          <Logger name="org.pac4j" level="info" additivity="false">
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Logger>
@@ -706,11 +706,11 @@ log4j2.xml: |-
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Logger>
-          <Logger name="org.springframework.web.servlet" level="debug" additivity="false">
+          <Logger name="org.springframework.web.servlet" level="info" additivity="false">
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Logger>
-          <Logger name="org.springframework.webflow" level="debug" additivity="false">
+          <Logger name="org.springframework.webflow" level="info" additivity="false">
               <AppenderRef ref="Console" />
               <AppenderRef ref="Sentry" />
           </Logger>
