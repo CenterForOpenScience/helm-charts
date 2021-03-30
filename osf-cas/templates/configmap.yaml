@@ -340,6 +340,21 @@ config/cas.properties: |-
   ########################################################################################################################
 
   ########################################################################################################################
+  # Throttling
+  # Configuration guide: https://apereo.github.io/cas/6.2.x/installation/Configuring-Authentication-Throttling.html
+  # Properties: https://apereo.github.io/cas/6.2.x/configuration/Configuration-Properties.html#authentication-throttling
+  ########################################################################################################################
+  #
+  # Authentication Failure Throttling
+  #
+  cas.authn.throttle.username-parameter=username
+  cas.authn.throttle.app-code=CAS
+  cas.authn.throttle.failure.code=AUTHENTICATION_FAILED
+  cas.authn.throttle.failure.threshold=5
+  cas.authn.throttle.failure.range-seconds=1
+  ########################################################################################################################
+
+  ########################################################################################################################
   # CAS Web Application Endpoints Security
   # See: https://docs.spring.io/spring-boot/docs/2.2.8.RELEASE/reference/htmlsingle/#boot-features-security
   # Currently, no sensitive endpoint is exposed. However, set them to prevent auto-generated and logged password
@@ -560,6 +575,46 @@ config/cas.properties: |-
   cas.authn.pac4j.cas[1].client-name=okstate
   cas.authn.pac4j.cas[1].protocol=SAML
   cas.authn.pac4j.cas[1].callback-url-type=QUERY_PARAMETER
+  ########################################################################################################################
+
+  ########################################################################################################################
+  # OAuth 2.0 Server
+  # Configuration guide: https://apereo.github.io/cas/6.2.x/installation/OAuth-OpenId-Authentication.html
+  # Properties: https://apereo.github.io/cas/6.2.x/configuration/Configuration-Properties.html#oauth2
+  ########################################################################################################################
+  # Authorization Code
+  #
+  cas.authn.oauth.code.time-to-kill-in-seconds=60
+  cas.authn.oauth.code.number-of-uses=1
+  #
+  # Access token
+  #
+  cas.authn.oauth.access-token.time-to-kill-in-seconds=7200
+  cas.authn.oauth.access-token.max-time-to-live-in-seconds=28800
+  #
+  # OAuth JWT Access Tokens
+  # Signing and encryption are not enabled for Token / JWT Tickets.
+  # The keys will only attempt to produce signed (signing key) and plain (encryption key) objects.
+  #
+  cas.authn.oauth.access-token.create-as-jwt=false
+  cas.authn.oauth.access-token.crypto.encryption-enabled=false
+  cas.authn.oauth.access-token.crypto.signing-enabled=false
+  cas.authn.oauth.access-token.crypto.signing.key=${OAUTH_JWT_ACCESS_TOKEN_SIGNING_KEY}
+  cas.authn.oauth.access-token.crypto.encryption.key=${OAUTH_JWT_ACCESS_TOKEN_ENCRYPTION_KEY}
+  #
+  # Refresh token
+  #
+  cas.authn.oauth.refresh-token.time-to-kill-in-seconds=2592000
+  #
+  # Personal access token
+  #
+  cas.authn.oauth.personal-access-token.time-to-kill-in-seconds=2592000
+  cas.authn.oauth.personal-access-token.max-time-to-live-in-seconds=31104000
+  #
+  # Signing and encryption for OAuth registered service
+  #
+  cas.authn.oauth.crypto.signing.key=${OAUTH_REGISTERED_SERVICE_SIGNING_KEY}
+  cas.authn.oauth.crypto.encryption.key=${OAUTH_REGISTERED_SERVICE_ENCRYPTION_KEY}
   ########################################################################################################################
 config/log4j2.xml: |-
   <?xml version="1.0" encoding="UTF-8" ?>
