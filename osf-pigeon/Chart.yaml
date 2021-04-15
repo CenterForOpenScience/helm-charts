@@ -1,0 +1,15 @@
+apiVersion: v1
+description: A Helm chart for Kubernetes
+name: osf-pigeon
+version: 0.0.1
+sources:
+  - https://github.com/CenterForOpenScience/osf-pigeon/
+maintainers:
+  - name: Matt Frazier
+    email: matt@cos.io
+    url: https://github.com/mfraezz
+  - name: Matt Clark
+    email: mattclark@cos.io
+    url: https://github.com/mattclark
+engine: gotpl
+tillerVersion: '>=2.7.0'
