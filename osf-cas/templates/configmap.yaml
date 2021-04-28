@@ -566,12 +566,12 @@ config/cas.properties: |-
   #
   # Delegation Client: CAS
   #
-  cas.authn.pac4j.cas[0].login-url=https://bprdeis.cord.edu:8443/cas/login
+  cas.authn.pac4j.cas[0].login-url=${CAS_CORD_LOGIN_URL:https://bprdeis.cord.edu:8443/cas/login}
   cas.authn.pac4j.cas[0].client-name=cord
   cas.authn.pac4j.cas[0].protocol=SAML
   cas.authn.pac4j.cas[0].callback-url-type=QUERY_PARAMETER
   #
-  cas.authn.pac4j.cas[1].login-url=https://stwcas.okstate.edu/cas/login
+  cas.authn.pac4j.cas[1].login-url=${CAS_OKSTATE_LOGIN_URL:https://stwcas.okstate.edu/cas/login}
   cas.authn.pac4j.cas[1].client-name=okstate
   cas.authn.pac4j.cas[1].protocol=SAML
   cas.authn.pac4j.cas[1].callback-url-type=QUERY_PARAMETER
