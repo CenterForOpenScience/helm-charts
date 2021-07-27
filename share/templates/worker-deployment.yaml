@@ -62,7 +62,7 @@ spec:
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
               fi
-              $PREFIX gosu www-data celery worker --app project \
+              $PREFIX gosu www-data celery --app project worker \
                 --concurrency "{{ .Values.worker.concurrency }}" --loglevel "{{ .Values.worker.logLevel }}" \
                 --hostname $POD_NAME --without-gossip -Ofair
                 {{- if .Values.worker.maxTasksPerChild }} --maxtasksperchild "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
