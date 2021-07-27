@@ -43,7 +43,7 @@ spec:
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
               fi
-              $PREFIX gosu www-data celery beat --app project \
+              $PREFIX gosu www-data celery --app project beat \
                 --loglevel "{{ .Values.beat.logLevel }}" --pidfile=
           env:
             {{- include "share.environment" . | nindent 12 }}
