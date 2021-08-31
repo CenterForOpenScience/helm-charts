@@ -141,3 +141,22 @@ secretEnvs: {}
   # OSF_BEARER_TOKEN: "CHANGEME"
   # IA_ACCESS_KEY: "CHANGEME"
   # IA_SECRET_KEY: CHANGEME
+
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+persistence:
+  enabled: false
+  ## Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  accessModes:
+    - ReadWriteOnce
+  size: 100Gi
+
+  mountPath: /var/lib/pigeonlocaldata/

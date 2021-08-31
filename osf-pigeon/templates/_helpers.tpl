@@ -48,4 +48,8 @@ checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha25
       name: {{ $fullname }}
       key: {{ $key }}
 {{- end }}
+{{- if and .Values.persistence.enabled .Values.persistence.mountPath }}
+- name: PIGEON_FILESTORE_DIR
+  value: {{ .Values.persistence.mountPath }}
+{{- end }}
 {{- end -}}
