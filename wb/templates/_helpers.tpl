@@ -50,7 +50,27 @@ checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sh
 checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
 {{- end -}}
 
+{{/*
+Create a default fully qualified redis name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "redis.fullname" -}}
+{{- $name := "redis" -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "wb.environment" -}}
+{{- if .Values.redis.enabled }}
+- name: REDIS_HOST
+  value: {{ template "redis.fullname" . }}
+{{- if hasKey .Values.redis.secretEnvs "REDIS_PASSWORD" }}
+- name: REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ template "redis.fullname" . }}
+      key: REDIS_PASSWORD
+{{- end }}
+{{- end }}
 {{- $fullname := include "wb.fullname" . -}}
 {{- range $key, $value := .Values.configEnvs }}
 - name: {{ $key }}

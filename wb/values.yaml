@@ -268,3 +268,60 @@ rabbitmq:
     requests:
       memory: 256Mi
       cpu: 100m
+
+redis:
+  enabled: true
+
+  image:
+    repository: redis
+    tag: alpine
+    pullPolicy: IfNotPresent
+
+  secretEnvs: {}
+    # REDIS_PASSWORD: ''
+
+  ## Redis command arguments
+  ##
+  ## Can be used to specify command line arguments, for example:
+  ##
+  ## args:
+  ##  - --maxmemory 200mb
+  ##  - --maxmemory-policy volatile-ttl
+  args:
+
+  ## Enable persistence using Persistent Volume Claims
+  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  ##
+  persistence:
+    enabled: false
+
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+
+    ## redis data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    # storageClass: "-"
+    accessMode: ReadWriteOnce
+    size: 8Gi
+
+  ## Configure resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources: {}
+    #limits:
+    #  cpu: 100m
+    #  memory: 256Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 256Mi
+
+
+    
+
