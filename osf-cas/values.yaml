@@ -19,6 +19,8 @@ apache:
     repository: quay.io/centerforopenscience/shibboleth-sp
     tag: latest
     pullPolicy: Always
+  livenessProbe: {}
+  readinessProbe: {}
   resources: {}
     #limits:
     #  cpu: 1
@@ -44,6 +46,8 @@ jetty:
     repository: quay.io/centerforopenscience/cas
     tag: develop
     pullPolicy: Always
+  livenessProbe: {}
+  readinessProbe: {}
   resources: {}
     #limits:
     #  cpu: 1

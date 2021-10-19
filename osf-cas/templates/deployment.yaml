@@ -88,7 +88,7 @@ spec:
       containers:
         - name: apache
           image: "{{ .Values.apache.image.repository }}:{{ .Values.apache.image.tag }}"
-          imagePullPolicy: {{ .Values.apache.image.pullPolicy }}
+          im: {{ .Values.apache.image.pullPolicy }}
           env:
             {{- include "cas.apache.environment" . | nindent 12 }}
           ports:
@@ -102,6 +102,10 @@ spec:
               path: /healthz
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 300
+            timeoutSeconds: {{ default "1" .Values.apache.livenessProbe.timeoutSeconds }}
+            periodSeconds: {{ default "10" .Values.apache.livenessProbe.periodSeconds }}
+            successThreshold: {{ default "1" .Values.apache.livenessProbe.successThreshold }}
+            failureThreshold: {{ default "10" .Values.apache.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
               httpHeaders:
@@ -110,6 +114,10 @@ spec:
               path: /Shibboleth.sso/Status
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
+            timeoutSeconds: {{ default "1" .Values.apache.readinessProbe.timeoutSeconds }}
+            periodSeconds: {{ default "10" .Values.apache.readinessProbe.periodSeconds }}
+            successThreshold: {{ default "1" .Values.apache.readinessProbe.successThreshold }}
+            failureThreshold: {{ default "3" .Values.apache.readinessProbe.failureThreshold }}
           resources:
             {{- toYaml .Values.apache.resources | nindent 12 }}
           volumeMounts:
@@ -127,11 +135,19 @@ spec:
               path: /login
               port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 300
+            timeoutSeconds: {{ default "1" .Values.jetty.livenessProbe.timeoutSeconds }}
+            periodSeconds: {{ default "10" .Values.jetty.livenessProbe.periodSeconds }}
+            successThreshold: {{ default "1" .Values.jetty.livenessProbe.successThreshold }}
+            failureThreshold: {{ default "10" .Values.jetty.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
               path: /login
               port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 10
+            timeoutSeconds: {{ default "1" .Values.jetty.readinessProbe.timeoutSeconds }}
+            periodSeconds: {{ default "10" .Values.jetty.readinessProbe.periodSeconds }}
+            successThreshold: {{ default "1" .Values.jetty.readinessProbe.successThreshold }}
+            failureThreshold: {{ default "3" .Values.jetty.readinessProbe.failureThreshold }}
           resources:
             {{- toYaml .Values.jetty.resources | nindent 12 }}
           volumeMounts:
