@@ -588,9 +588,9 @@ config/cas.properties: |-
   cas.authn.oauth.code.number-of-uses=1
   #
   # Access token
-  #
-  cas.authn.oauth.access-token.time-to-kill-in-seconds=7200
-  cas.authn.oauth.access-token.max-time-to-live-in-seconds=28800
+  # Both time-to-kill and max-time-to-live must be set the same since the OAuth 2.0 protocol only defines one
+  cas.authn.oauth.access-token.time-to-kill-in-seconds=3600
+  cas.authn.oauth.access-token.max-time-to-live-in-seconds=3600
   #
   # OAuth JWT Access Tokens
   # Signing and encryption are not enabled for Token / JWT Tickets.
@@ -604,11 +604,11 @@ config/cas.properties: |-
   #
   # Refresh token
   #
-  cas.authn.oauth.refresh-token.time-to-kill-in-seconds=2592000
+  cas.authn.oauth.refresh-token.time-to-kill-in-seconds=7776000
   #
   # Personal access token
   #
-  cas.authn.oauth.personal-access-token.time-to-kill-in-seconds=2592000
+  cas.authn.oauth.personal-access-token.time-to-kill-in-seconds=31104000
   cas.authn.oauth.personal-access-token.max-time-to-live-in-seconds=31104000
   #
   # Signing and encryption for OAuth registered service
