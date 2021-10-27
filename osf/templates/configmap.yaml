@@ -179,6 +179,9 @@ admin-uwsgi.ini: |-
   {{- if .Values.admin.uwsgi.maxRequestsDelta }}
   max-requests-delta = {{ .Values.admin.uwsgi.maxRequestsDelta }}
   {{- end }}
+  {{- if .Values.web.uwsgi.maxWorkerLifetime }}
+  max-worker-lifetime = {{ .Values.web.uwsgi.maxWorkerLifetime }}
+  {{- end }}
 
   {{- if .Values.admin.uwsgi.cheaper.enabled }}
   # Adaptive process spawning
@@ -384,6 +387,9 @@ api-uwsgi.ini: |-
   {{- end }}
   {{- if .Values.api.uwsgi.maxRequestsDelta }}
   max-requests-delta = {{ .Values.api.uwsgi.maxRequestsDelta }}
+  {{- end }}
+  {{- if .Values.web.uwsgi.maxWorkerLifetime }}
+  max-worker-lifetime = {{ .Values.web.uwsgi.maxWorkerLifetime }}
   {{- end }}
 
   {{- if .Values.api.uwsgi.cheaper.enabled }}
@@ -1008,6 +1014,9 @@ web-uwsgi.ini: |-
   {{- end }}
   {{- if .Values.web.uwsgi.maxRequestsDelta }}
   max-requests-delta = {{ .Values.web.uwsgi.maxRequestsDelta }}
+  {{- end }}
+  {{- if .Values.web.uwsgi.maxWorkerLifetime }}
+  max-worker-lifetime = {{ .Values.web.uwsgi.maxWorkerLifetime }}
   {{- end }}
 
   {{- if .Values.web.uwsgi.cheaper.enabled }}
