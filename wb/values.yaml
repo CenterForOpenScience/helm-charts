@@ -322,6 +322,27 @@ redis:
     #  cpu: 100m
     #  memory: 256Mi
 
+  service:
+    type: ClusterIP
+    loadBalancerIP:
+    #annotations: {}
+    # If using type: LoadBalancer
+    #loadBalancerIP: 0.0.0.0
+    #loadBalancerSourceRanges:
+    #  - 0.0.0.0/0
+    port: 6379
+    externalIPs: []
 
+  networkPolicy:
+    ## Enable creation of NetworkPolicy resources.
+    ##
+    enabled: false
+
+    ## The Policy model to apply. When set to false, only pods with the correct
+    ## client label will have network access to the port Redis is listening
+    ## on. When true, Redis will accept connections from any source
+    ## (with the correct destination port).
+    ##
+    allowExternal: true
     
 
