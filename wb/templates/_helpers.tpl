@@ -61,10 +61,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 
 {{- define "wb.environment" -}}
 {{- if .Values.redis.enabled }}
-- name: REDIS_HOST
+- name: SERVER_CONFIG_REDIS_HOST
   value: {{ template "redis.fullname" . }}
+{{- if .Values.redis.rateLimiting.enabled }}
+- name: SERVER_CONFIG_ENABLE_RATE_LIMITING
+  value: "1"
+{{- end }}
 {{- if hasKey .Values.redis.secretEnvs "REDIS_PASSWORD" }}
-- name: REDIS_PASSWORD
+- name: SERVER_CONFIG_REDIS_PASSWORD
   valueFrom:
     secretKeyRef:
       name: {{ template "redis.fullname" . }}
