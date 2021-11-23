@@ -59,12 +59,17 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "redis.service" -}}
+{{- $name := "redis" -}}
+{{- printf "%s-%s.%s.%s" .Release.Name $name .Release.Namespace "svc.cluster.local" -}}
+{{- end -}}
+
 {{- $rateLimitingEnabled  := .Values.redis.rateLimiting.enabled -}}
 
 {{- define "wb.environment" -}}
 {{- if .Values.redis.enabled }}
 - name: SERVER_CONFIG_REDIS_HOST
-  value: {{ template "redis.fullname" . }}
+  value: {{ template "redis.service" . }}
 {{- if .Values.redis.rateLimitingEnabled }}
 - name: SERVER_CONFIG_ENABLE_RATE_LIMITING
   value: "1"
