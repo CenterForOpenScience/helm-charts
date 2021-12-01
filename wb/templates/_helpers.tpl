@@ -74,6 +74,10 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 - name: SERVER_CONFIG_ENABLE_RATE_LIMITING
   value: "1"
 {{- end }}
+{{- if hasKey .Values.redis.service.port "REDIS_PORT" }}
+- name: SERVER_CONFIG_REDIS_PORT
+  value: REDIS_PORT
+{{- end }}
 {{- if hasKey .Values.redis.secretEnvs "REDIS_PASSWORD" }}
 - name: SERVER_CONFIG_REDIS_PASSWORD
   valueFrom:
