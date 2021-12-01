@@ -269,6 +269,9 @@ rabbitmq:
       memory: 256Mi
       cpu: 100m
 
+rateLimiting:
+  enabled: false
+
 redis:
   enabled: true
 
