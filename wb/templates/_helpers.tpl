@@ -75,7 +75,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 - name: SERVER_CONFIG_REDIS_HOST
   value: {{ template "redis.service" . }}
 - name: SERVER_CONFIG_REDIS_PORT
-  value: {{ .Values.redis.service.port }} 
+  value: {{ .Values.redis.service.port | quote }} 
 {{- if hasKey .Values.redis.secretEnvs "REDIS_PASSWORD" }}
 - name: SERVER_CONFIG_REDIS_PASSWORD
   valueFrom:
