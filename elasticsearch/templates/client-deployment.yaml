@@ -83,6 +83,7 @@ spec:
         - name: ES_JAVA_OPTS
           value: >-
             -Djava.net.preferIPv4Stack=true
+            -Dlog4j2.formatMsgNoLookups=true
             {{- if semverCompare "< 5.x" .Values.appVersion }}
             -Xms{{ .Values.client.heapSize }}
             -Xmx{{ .Values.client.heapSize }}
