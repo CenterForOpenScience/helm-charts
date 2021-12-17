@@ -84,6 +84,9 @@ spec:
             -Xms{{ .Values.data.heapSize }}
             -Xmx{{ .Values.data.heapSize }}
             {{- end }}
+            {{- if .Values.data.additionalJavaOpts}}
+            {{ .Values.data.additionalJavaOpts }}
+            {{- end }}
         {{- range $key, $value :=  .Values.cluster.env }}
         - name: {{ $key }}
           value: {{ $value | quote }}
