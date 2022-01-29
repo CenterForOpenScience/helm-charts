@@ -36,3 +36,6 @@ ingress:
     # - secretName: chart-example-tls
     #   hosts:
     #     - chart-example.local
+
+command:
+  broker: amqp://guest:guest@rabbitmq:5672//
