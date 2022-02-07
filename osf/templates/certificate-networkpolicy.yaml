@@ -13,8 +13,7 @@ spec:
   - Ingress
   podSelector:
     matchExpressions:
-    - {key: certmanager.k8s.io/acme-http-domain, operator: Exists}
-    - {key: certmanager.k8s.io/acme-http-token, operator: Exists}
+    - {key: acme.cert-manager.io/http01-solver, operator: Exists}
   ingress:
   - from: []
 {{- end }}
