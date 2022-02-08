@@ -532,10 +532,12 @@ config/cas.properties: |-
   cas.tgc.remember-me-max-age=P28D
   cas.tgc.auto-configure-cookie-path=true
   #
-  # Ticket Granting Ticket Persistence Settings
+  # Ticket Granting Ticket Settings
   #
+  cas.ticket.tgt.max-time-to-live-in-seconds=7776000
+  cas.ticket.tgt.time-to-kill-in-seconds=7776000
   cas.ticket.tgt.remember-me.enabled=true
-  cas.ticket.tgt.remember-me.time-to-kill-in-seconds=7200
+  cas.ticket.tgt.remember-me.time-to-kill-in-seconds=7776000
   ########################################################################################################################
 
   ########################################################################################################################
