@@ -1,5 +1,5 @@
 {{- if .Values.certificate.enabled -}}
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: certmanager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "nginx.certificate.fullname" . }}"
@@ -34,7 +34,7 @@ spec:
 {{- range $certificate := .Values.additionalCertificates }}
 {{- $name := default $.Chart.Name $.Values.nameOverride }}
 {{- $certificateFullName := (printf "%s-%s-%s" $.Release.Name $name $certificate.name | trunc 63 | trimSuffix "-") }}
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: certmanager.io/v1
 kind: Certificate
 metadata:
   name: {{ $certificateFullName }}

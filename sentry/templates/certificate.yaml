@@ -1,5 +1,5 @@
 {{- if .Values.certificate.enabled -}}
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: certmanager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "sentry.certificate.fullname" . }}"
