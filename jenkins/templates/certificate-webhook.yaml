@@ -1,5 +1,5 @@
 {{- if and .Values.ingress.webhook.enabled .Values.ingress.webhook.certificate.enabled -}}
-apiVersion: certmanager.io/v1
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "jenkins.webhook.certificate.fullname" . }}"

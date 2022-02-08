@@ -1,5 +1,5 @@
 {{- if .Values.certificate.enabled -}}
-apiVersion: certmanager.io/v1
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "osf-pigeon.certificate.fullname" . }}"
