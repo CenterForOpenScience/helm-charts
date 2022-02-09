@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "share.migration.fullname" . }}-{{ now | unixEpoch }}
+  name: {{ template "share.migration.fullname" . }}
   labels:
     app: {{ template "share.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
