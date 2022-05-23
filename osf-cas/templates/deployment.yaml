@@ -132,7 +132,7 @@ spec:
               containerPort: {{ .Values.service.externalPort }}
           livenessProbe:
             httpGet:
-              path: /login
+              path: {{ default "/login" .Values.jetty.livenessProbe.path}}
               port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 300
             timeoutSeconds: {{ default "1" .Values.jetty.livenessProbe.timeoutSeconds }}
@@ -141,7 +141,7 @@ spec:
             failureThreshold: {{ default "10" .Values.jetty.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /login
+              path: {{ default "/login" .Values.jetty.readinessProbe.path }}
               port: {{ .Values.service.externalPort }}
             initialDelaySeconds: 10
             timeoutSeconds: {{ default "1" .Values.jetty.readinessProbe.timeoutSeconds }}
