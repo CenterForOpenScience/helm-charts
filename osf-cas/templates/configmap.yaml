@@ -355,6 +355,16 @@ config/cas.properties: |-
   ########################################################################################################################
 
   ########################################################################################################################
+  # CAS Monitoring & Statistics Endpoints
+  # See: https://apereo.github.io/cas/6.2.x/monitoring/Monitoring-Statistics.html
+  ########################################################################################################################
+  management.endpoints.web.exposure.include=health
+  management.endpoint.health.enabled=true
+  management.endpoint.health.show-details=WHEN_AUTHORIZED
+  cas.monitor.endpoints.endpoint.health.access=ANONYMOUS
+  ########################################################################################################################
+
+  ########################################################################################################################
   # CAS Web Application Endpoints Security
   # See: https://docs.spring.io/spring-boot/docs/2.2.8.RELEASE/reference/htmlsingle/#boot-features-security
   # Currently, no sensitive endpoint is exposed. However, set them to prevent auto-generated and logged password
