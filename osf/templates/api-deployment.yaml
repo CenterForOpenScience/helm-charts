@@ -121,7 +121,12 @@ spec:
               if [ -f /code/newrelic.ini ]; then
                 PREFIX='newrelic-admin run-program'
               fi
-              $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.api.service.externalPort }}
+              {{- if .Values.api.uwsgi.listenQueueSize }}
+                  POSTFIX='--listen {{ .Values.api.uwsgi.listenQueueSize }}'
+              {{- else }}
+                  POSTFIX=''
+              {{- end}}
+              $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.api.service.externalPort }} $POSTFIX
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: api.base.settings
