@@ -585,11 +585,6 @@ config/cas.properties: |-
   cas.authn.pac4j.cas[0].client-name=cord
   cas.authn.pac4j.cas[0].protocol=SAML
   cas.authn.pac4j.cas[0].callback-url-type=QUERY_PARAMETER
-  #
-  cas.authn.pac4j.cas[1].login-url=${CAS_OKSTATE_LOGIN_URL:https://stwcas.okstate.edu/cas/login}
-  cas.authn.pac4j.cas[1].client-name=okstate
-  cas.authn.pac4j.cas[1].protocol=SAML
-  cas.authn.pac4j.cas[1].callback-url-type=QUERY_PARAMETER
   ########################################################################################################################
 
   ########################################################################################################################
@@ -859,7 +854,6 @@ services/osf-203948234207230.json: |-
           "java.util.ArrayList",
           [
             "cord",
-            "okstate",
             "orcid"
           ]
         ],
@@ -895,7 +889,6 @@ services/registries-203948234207340.json: |-
           "java.util.ArrayList",
           [
             "cord",
-            "okstate",
             "orcid"
           ]
         ],
@@ -931,7 +924,6 @@ services/preprints-203948234207240.json: |-
           "java.util.ArrayList",
           [
             "cord",
-            "okstate",
             "orcid"
           ]
         ],
@@ -985,7 +977,6 @@ services/preprints-{{ $key }}-{{ $val.id }}.json: |-
           "java.util.ArrayList",
           [
             "cord",
-            "okstate",
             "orcid"
           ]
         ],
