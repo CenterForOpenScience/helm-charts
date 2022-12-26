@@ -1,6 +1,6 @@
 {{- if (and .Values.web.enabled .Values.web.ingress.enabled) -}}
 {{- $ingressPaths := .Values.web.ingress.paths -}}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ template "osf.web.fullname" . }}
@@ -25,9 +25,12 @@ spec:
         paths:
           {{- range $ingressPaths }}
           - path: {{ . }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
           {{- end -}}
     {{- end -}}
     {{- else -}}
@@ -44,16 +47,22 @@ spec:
           {{- if $shareJSEnabled }}
           {{- range $shareJSIngressPaths }}
           - path: {{ . }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $shareJSServiceName }}
-              servicePort: {{ $shareJSServicePort }}
+              service:
+                name: {{ $shareJSServiceName }}
+                port:
+                  number: {{ $shareJSServicePort }}
           {{- end }}
           {{- end }}
           {{- range $ingressPaths }}
           - path: {{ . }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
           {{- end }}
     {{- end -}}
     {{- end -}}

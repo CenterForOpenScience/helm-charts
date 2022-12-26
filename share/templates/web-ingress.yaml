@@ -1,5 +1,5 @@
 {{- if .Values.web.ingress.enabled -}}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ template "share.web.fullname" . }}
@@ -21,9 +21,12 @@ spec:
         paths:
           {{- range $.Values.web.ingress.paths }}
           - path: {{ . }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ include "share.web.fullname" $ }}
-              servicePort: {{ $.Values.web.service.name }}
+              service:
+                name: {{ include "share.web.fullname" $ }}
+                port:
+                  number: {{ $.Values.web.service.name }}
           {{- end -}}
     {{- end -}}
   {{- if (or .Values.web.ingress.tls (and .Values.web.certificate.enabled .Values.web.certificate.tls)) }}

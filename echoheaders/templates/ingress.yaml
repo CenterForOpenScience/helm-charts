@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
 {{- if .Values.ingress.annotations }}
@@ -17,9 +17,11 @@ spec:
   tls:
     {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end }}
-  backend:
-    serviceName: {{ template "fullname" . }}
-    servicePort: 80
+  defaultBackend:
+    service:
+      name: {{ template "fullname" . }}
+      port:
+        number: 80
   {{- if .Values.ingress.rules }}
   rules:
     {{- toYaml .Values.ingress.rules | nindent 4 }}

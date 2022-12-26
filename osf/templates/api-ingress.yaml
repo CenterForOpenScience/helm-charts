@@ -1,6 +1,6 @@
 {{- if (and .Values.api.enabled .Values.api.ingress.enabled) -}}
 {{- $ingressPaths := .Values.api.ingress.paths -}}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ template "osf.api.fullname" . }}
@@ -25,9 +25,12 @@ spec:
         paths:
           {{- range $ingressPaths }}
           - path: {{ . }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
           {{- end -}}
     {{- end -}}
     {{- else -}}
@@ -39,9 +42,12 @@ spec:
         paths:
           {{- range $ingressPaths }}
           - path: {{ . }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
           {{- end -}}
     {{- end -}}
     {{- end -}}

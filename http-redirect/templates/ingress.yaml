@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   labels:
@@ -13,7 +13,9 @@ metadata:
     {{- toYaml .Values.ingress.annotations | nindent 4 }}
   {{- end }}
 spec:
-  backend:
-    serviceName: {{ template "http-redirect.fullname" . }}
-    servicePort: {{ .Values.service.externalPort }}
+  defaultBackend:
+    service:
+      name:  {{ template "http-redirect.fullname" . }}
+      port:
+        number: {{ .Values.service.externalPort }}
 {{- end }}
