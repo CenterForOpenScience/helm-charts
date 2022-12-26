@@ -8,6 +8,6 @@ dependencies:
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: postgresql.enabled, global.postgresql.enabled
   - name: rabbitmq
-    version: 6.9.0
+    version: 6.9.1
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: rabbitmq.enabled, global.rabbitmq.enabled
