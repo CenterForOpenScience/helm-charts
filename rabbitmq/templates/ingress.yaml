@@ -25,12 +25,12 @@ spec:
   {{- end }}
       paths:
         - path: {{ .Values.ingress.path }}
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: {{ template "rabbitmq.fullname" . }}
-                port:
-                  number: {{ .Values.service.managerPort }}
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: {{ template "rabbitmq.fullname" . }}
+              port:
+                number: {{ .Values.service.managerPort }}
 {{- if .Values.ingress.tls }}
   tls:
   - hosts:
