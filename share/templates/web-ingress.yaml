@@ -26,7 +26,7 @@ spec:
               service:
                 name: {{ include "share.web.fullname" $ }}
                 port:
-                  number: {{ $.Values.web.service.name }}
+                  number: {{ $.Values.web.service.externalPort }}
           {{- end -}}
     {{- end -}}
   {{- if (or .Values.web.ingress.tls (and .Values.web.certificate.enabled .Values.web.certificate.tls)) }}
