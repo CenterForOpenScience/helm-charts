@@ -95,4 +95,7 @@ spec:
         - name: secret
           secret:
             secretName: {{ template "share.fullname" . }}
+        - name: elasticsearch-certs
+          secret:
+            secretName: {{ .Values.elasticsearchCertificateSecret }}
 {{- end -}}

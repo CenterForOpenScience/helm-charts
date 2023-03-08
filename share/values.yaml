@@ -6,6 +6,8 @@ image:
   tag: develop
   pullPolicy: Always
 
+elasticsearchCertificateSecret:
+
 beat:
   enabled: true
   name: beat
