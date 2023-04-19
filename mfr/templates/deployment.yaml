@@ -21,6 +21,7 @@ spec:
     metadata:
       labels:
         app: {{ template "mfr.name" . }}
+        component: {{ template "mfr.name" . }}
         release: {{ .Release.Name }}
       annotations:
         {{- include "mfr.deploymentAnnotations" . | nindent 8 }}

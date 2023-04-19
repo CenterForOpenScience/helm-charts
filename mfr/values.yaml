@@ -65,6 +65,10 @@ unoconv:
     #   cpu: 100m
     #   memory: 128Mi
 
+autoroll:
+  enabled: false
+  name: autoroll
+
 horizontalPodAutoscaler:
   enabled: false
   maxReplicas: 3

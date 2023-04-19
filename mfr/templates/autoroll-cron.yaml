@@ -1,0 +1,71 @@
+{{- if .Values.autoroll.enabled -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: role-pod-list-delete
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: deleter-rolebinding
+  namespace: {{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: deleter
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: role-pod-list-delete
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: deleter
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ template "mfr.autoroll.fullname" . }}
+  labels:
+    app: {{ template "mfr.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.autoroll.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  schedule: {{ default "0 4 * * *" .Values.autoroll.schedule | quote }}
+  startingDeadlineSeconds: {{ default 900 .Values.autoroll.startingDeadlineSeconds }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: {{ default 14400 .Values.autoroll.activeDeadlineSeconds }}
+      template:
+        metadata:
+          name: "{{ .Release.Name }}"
+          labels:
+            app: {{ template "mfr.name" . }}
+            component: "{{ .Values.autoroll.name }}"
+            release: {{ .Release.Name }}
+        spec:
+          serviceAccountName: deleter
+          restartPolicy: Never
+          containers:
+            - name: {{ .Values.autoroll.name }}
+              image: {{ default "bitnami/kubectl:latest" .Values.autoroll.image | quote }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command:
+                - kubectl
+              args:
+                - delete
+                - pod
+                - -l app=mfr,component=mfr
+          nodeSelector:
+            {{- toYaml .Values.autoroll.nodeSelector | nindent 12 }}
+{{- end -}}
