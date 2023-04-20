@@ -37,6 +37,7 @@ spec:
               labelSelector:
                 matchLabels:
                   app: {{ template "mfr.name" . }}
+                  component: {{ template "mfr.name" . }}
                   release: {{ .Release.Name }}
         {{- else if eq .Values.antiAffinity "soft" }}
         podAntiAffinity:
@@ -47,6 +48,7 @@ spec:
                 labelSelector:
                   matchLabels:
                     app: {{ template "mfr.name" . }}
+                    component: {{ template "mfr.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
       containers:
