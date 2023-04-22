@@ -15,76 +15,83 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{/*
-Create a default fully qualified client name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-*/}}
-{{- define "elasticsearch.client.fullname" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- printf "%s-%s-%s" .Release.Name $name .Values.client.name | trunc 63 | trimSuffix "-" -}}
+{{- define "elasticsearch.uname" -}}
+{{- if empty .Values.fullnameOverride -}}
+{{- if empty .Values.nameOverride -}}
+{{ .Values.clusterName }}-{{ .Values.nodeGroup }}
+{{- else -}}
+{{ .Values.nameOverride }}-{{ .Values.nodeGroup }}
+{{- end -}}
+{{- else -}}
+{{ .Values.fullnameOverride }}
+{{- end -}}
 {{- end -}}
 
 {{/*
-Create a default fully qualified data name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+Generate certificates when the secret doesn't exist
 */}}
-{{- define "elasticsearch.data.fullname" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- printf "%s-%s-%s" .Release.Name $name .Values.data.name | trunc 63 | trimSuffix "-" -}}
+{{- define "elasticsearch.gen-certs" -}}
+{{- $certs := lookup "v1" "Secret" .Release.Namespace ( printf "%s-certs" (include "elasticsearch.uname" . ) ) -}}
+{{- if $certs -}}
+tls.crt: {{ index $certs.data "tls.crt" }}
+tls.key: {{ index $certs.data "tls.key" }}
+ca.crt: {{ index $certs.data "ca.crt" }}
+{{- else -}}
+{{- $altNames := list ( include "elasticsearch.masterService" . ) ( printf "%s.%s" (include "elasticsearch.masterService" .) .Release.Namespace ) ( printf "%s.%s.svc" (include "elasticsearch.masterService" .) .Release.Namespace ) -}}
+{{- $ca := genCA "elasticsearch-ca" 365 -}}
+{{- $cert := genSignedCert ( include "elasticsearch.masterService" . ) nil $altNames 365 $ca -}}
+tls.crt: {{ $cert.Cert | toString | b64enc }}
+tls.key: {{ $cert.Key | toString | b64enc }}
+ca.crt: {{ $ca.Cert | toString | b64enc }}
+{{- end -}}
+{{- end -}}
+
+{{- define "elasticsearch.masterService" -}}
+{{- if empty .Values.masterService -}}
+{{- if empty .Values.fullnameOverride -}}
+{{- if empty .Values.nameOverride -}}
+{{ .Values.clusterName }}-master
+{{- else -}}
+{{ .Values.nameOverride }}-master
+{{- end -}}
+{{- else -}}
+{{ .Values.fullnameOverride }}
+{{- end -}}
+{{- else -}}
+{{ .Values.masterService }}
+{{- end -}}
+{{- end -}}
+
+{{- define "elasticsearch.endpoints" -}}
+{{- $replicas := int (toString (.Values.replicas)) }}
+{{- $uname := (include "elasticsearch.uname" .) }}
+  {{- range $i, $e := untilStep 0 $replicas 1 -}}
+{{ $uname }}-{{ $i }},
+  {{- end -}}
+{{- end -}}
+
+{{- define "elasticsearch.roles" -}}
+{{- range $.Values.roles -}}
+{{ . }},
+{{- end -}}
+{{- end -}}
+
+{{- define "elasticsearch.esMajorVersion" -}}
+{{- if .Values.esMajorVersion -}}
+{{ .Values.esMajorVersion }}
+{{- else -}}
+{{- $version := int (index (.Values.imageTag | splitList ".") 0) -}}
+  {{- if and (contains "docker.elastic.co/elasticsearch/elasticsearch" .Values.image) (not (eq $version 0)) -}}
+{{ $version }}
+  {{- else -}}
+8
+  {{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
-Create a default fully qualified master name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+Use the fullname if the serviceAccount value is not set
 */}}
-{{- define "elasticsearch.master.fullname" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- printf "%s-%s-%s" .Release.Name $name .Values.master.name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Default list of standard annotations for all deployments and statefulsets.
-*/}}
-{{- define "elasticsearch.annotations" }}
-checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
-{{- end -}}
-
-{{- define "elasticsearch.initContainers.common" }}
-- name: increase-memory-limits
-  image: busybox
-  command:
-    - sh
-    - -c
-    - |-
-      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
-      # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
-      # and https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode
-      sysctl -w vm.max_map_count=262144
-      # To increase the ulimit
-      # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
-      ulimit -l unlimited
-  securityContext:
-    privileged: true
-{{- if .Values.plugins.enabled }}
-- name: plugins
-  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-  imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
-  command:
-    - /bin/sh
-    - -c
-    - |-
-      {{- if semverCompare "^2.x" .Values.appVersion }}
-      {{ if .Values.plugins.remove }}bin/plugin remove {{ join " && bin/plugin remove " .Values.plugins.remove }}{{ end }}
-      {{ if .Values.plugins.install }}bin/plugin install {{ join " && bin/plugin install " .Values.plugins.install }}{{ end }}
-      {{- end }}
-      {{- if semverCompare ">= 5.x" .Values.appVersion }}
-      {{ if .Values.plugins.remove }}bin/elasticsearch-plugin remove {{ join " && bin/elasticsearch-plugin remove " .Values.plugins.remove }}{{ end }}
-      {{ if .Values.plugins.install }}bin/elasticsearch-plugin install -b {{ join " && bin/elasticsearch-plugin install -b " .Values.plugins.install }}{{ end }}
-      {{- end }}
-      cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
-  volumeMounts:
-    - mountPath: /plugins
-      name: plugins
-{{- end }}
+{{- define "elasticsearch.serviceAccount" -}}
+{{- .Values.rbac.serviceAccountName | default (include "elasticsearch.uname" .) -}}
 {{- end -}}
