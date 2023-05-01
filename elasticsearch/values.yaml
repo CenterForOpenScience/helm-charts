@@ -24,6 +24,11 @@ roles:
 replicas: 3
 minimumMasterNodes: 2
 
+# This bootstrap config was added by COS to address. Do not enable this unless you are initializing a cluster for the FIRST time with NO data.
+# "WARN", "message":"this node is locked into cluster UUID [ExMKZxxjTgibsmbAPCg2GA] but [cluster.initial_master_nodes] is set to [s1elasticsearch8-master-0, s1elasticsearch8-master-1, s1elasticsearch8-master-2]; remove this setting to avoid possible data loss caused by subsequent cluster bootstrap attempts; for further information see https://www.elastic.co/guide/en/elasticsearch/reference/8.7/important-settings.html#initial_master_nodes",
+bootstrap:
+  enabled: false
+
 esMajorVersion: ""
 
 # Allows you to add any config files in /usr/share/elasticsearch/config/

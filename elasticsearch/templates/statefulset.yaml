@@ -310,9 +310,11 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
+          {{- if .Values.bootstrap.enabled }}
           {{- if has "master" .Values.roles }}
           - name: cluster.initial_master_nodes
             value: "{{ template "elasticsearch.endpoints" . }}"
+          {{- end }}
           {{- end }}
           {{- if gt (len (include "elasticsearch.roles" .)) 0 }}
           - name: node.roles
