@@ -434,6 +434,13 @@ web-nginx-osf-preprints.conf: |-
   }
   {{- end }}
 
+  location ~* ^/preprints/(\w+)/(discover/?$).* {
+      rewrite ^/preprints/(.*)$ /$1 break;
+      proxy_redirect off;
+      proxy_buffering off;
+      proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
+  }
+
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
