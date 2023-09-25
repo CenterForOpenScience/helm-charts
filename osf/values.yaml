@@ -346,11 +346,11 @@ web:
       guids: []
         # - di8cg
       cookieName: <change_me>
-    institutionDomains: []
+    institutionDomainMap: {}
+      # institution.edu: institutionId
     brandedSubdomains: []
-    preprintDomains: []
-    preprintDomainRedirects: {}
-      # providerId: domain.org
+    preprintDomainMap: {}
+      # domain.org: providerId
     modules: []
       # - modules/path/to/dynamic_module.so
     additionalRewrites: []
