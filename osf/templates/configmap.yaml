@@ -429,6 +429,10 @@ api-uwsgi.ini: |-
   gevent-early-monkey-patch = true
 web-nginx-osf-preprints.conf: |-
   location ~* ^/preprints/((\w+)/)?(discover/?$).* {
+      {{- range .Values.web.nginx.preprintRewrites }}
+      {{ . }}
+      {{- end }}
+
       rewrite ^/preprints/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
