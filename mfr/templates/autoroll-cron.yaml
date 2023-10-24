@@ -29,7 +29,7 @@ metadata:
   name: deleter
   namespace: {{ .Release.Namespace }}
 ---
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ template "mfr.autoroll.fullname" . }}
