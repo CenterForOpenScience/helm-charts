@@ -428,11 +428,7 @@ api-uwsgi.ini: |-
   gevent = 500
   gevent-early-monkey-patch = true
 web-nginx-osf-preprints.conf: |-
-  location ~* "^/preprints/((\w+)/){1,2}((edit|submit)/?$).*" {
-      {{- if .Values.prerender.enabled }}
-      include /etc/nginx/prerender.conf;
-      {{- end }}
-
+  location ~* ^/preprints/((\w+)/)?(discover/?$).* {
       {{- range .Values.web.nginx.preprintRewrites }}
       {{ . }}
       {{- end }}
@@ -440,7 +436,7 @@ web-nginx-osf-preprints.conf: |-
       rewrite ^/preprints/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
+      proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
   }
 
   location ~* ^/preprints/(?!(\w+/download|\w+/\w+/download)/?$).* {
@@ -455,7 +451,7 @@ web-nginx-osf-preprints.conf: |-
       rewrite ^/preprints/(.*)$ /$1 break;
       proxy_redirect off;
       proxy_buffering off;
-      proxy_pass http://{{ $osfWeb.service.name }}:{{ $osfWeb.service.externalPort }};
+      proxy_pass http://{{ $osfPreprints.service.name }}:{{ $osfPreprints.service.externalPort }};
   }
 web-nginx-osf-reviews.conf: |-
   location ~* ^/reviews(/?$|/.*) {
