@@ -428,7 +428,7 @@ api-uwsgi.ini: |-
   gevent = 500
   gevent-early-monkey-patch = true
 web-nginx-osf-preprints.conf: |-
-  location ~* ^/preprints/((\w+)/){1,2}((edit|submit)/?$).* {
+  location ~* "^/preprints/((\w+)/){1,2}((edit|submit)/?$).*" {
       {{- if .Values.prerender.enabled }}
       include /etc/nginx/prerender.conf;
       {{- end }}
