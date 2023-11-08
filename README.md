@@ -15,7 +15,7 @@ Kubernetes Helm Charts for the Open Science Framework
 # Add the charts repository
 helm repo add cos https://centerforopenscience.github.io/helm-charts/
 # List the available charts
-helm search cos/
+helm search repo cos/
 ```
 
 ## Check which charts are installed
