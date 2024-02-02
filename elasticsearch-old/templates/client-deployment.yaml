@@ -1,0 +1,195 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "elasticsearch.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    component: "{{ .Values.client.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "elasticsearch.client.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "elasticsearch.name" . }}
+      component: "{{ .Values.client.name }}"
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.client.replicas }}
+  {{- if .Values.client.strategy }}
+  strategy:
+    {{- toYaml .Values.client.strategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "elasticsearch.name" . }}
+        component: "{{ .Values.client.name }}"
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "elasticsearch.annotations" . | nindent 8 }}
+        {{- if .Values.client.podAnnotations }}
+          {{- toYaml .Values.client.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "elasticsearch.fullname" . }}
+      securityContext:
+        fsGroup: 1000  # elasticsearch
+      affinity:
+        {{- if .Values.client.additionalAffinities }}
+        {{- toYaml .Values.client.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.client.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: "{{ template "elasticsearch.name" . }}"
+                  release: "{{ .Release.Name }}"
+                  component: "{{ .Values.client.name }}"
+        {{- else if eq .Values.client.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: "{{ template "elasticsearch.name" . }}"
+                    release: "{{ .Release.Name }}"
+                    component: "{{ .Values.client.name }}"
+        {{- end }}
+      initContainers:
+        {{- include "elasticsearch.initContainers.common" . | nindent 8 }}
+      containers:
+      - name: elasticsearch
+        env:
+        - name: DISCOVERY_SERVICE
+          value: {{ template "elasticsearch.master.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.cluster.kubernetesDomain }}
+        - name: NODE_DATA
+          value: "false"
+        {{- if semverCompare ">= 6.x" .Values.appVersion }}
+        - name: NODE_INGEST
+          value: "false"
+        - name: ES_HEAP_SIZE
+          value: "{{ .Values.client.heapSize }}"
+        {{- end }}
+        - name: NODE_MASTER
+          value: "false"
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: ES_JAVA_OPTS
+          value: >-
+            -Djava.net.preferIPv4Stack=true
+            {{- if semverCompare "< 5.x" .Values.appVersion }}
+            -Xms{{ .Values.client.heapSize }}
+            -Xmx{{ .Values.client.heapSize }}
+            {{- end }}
+            {{- if .Values.client.additionalJavaOpts}}
+            {{ .Values.client.additionalJavaOpts }}
+            {{- end }}
+        {{- range $key, $value :=  .Values.cluster.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.client.resources | nindent 12 }}
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
+                {{- if .Values.tls.enabled }}
+                --insecure
+                --crlfile /usr/share/elasticsearch/config/ca_crl.pem
+                --key /usr/share/elasticsearch/config/server_key.pem
+                --cacert /usr/share/elasticsearch/config/ca_cert.pem
+                --cert /usr/share/elasticsearch/config/server_cert.pem
+                {{- end }}
+                http{{ if .Values.tls.enabled }}s{{ end }}://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
+          initialDelaySeconds: 5
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
+                {{- if .Values.tls.enabled }}
+                --insecure
+                --crlfile /usr/share/elasticsearch/config/ca_crl.pem
+                --key /usr/share/elasticsearch/config/server_key.pem
+                --cacert /usr/share/elasticsearch/config/ca_cert.pem
+                --cert /usr/share/elasticsearch/config/server_cert.pem
+                {{- end }}
+                http{{ if .Values.tls.enabled }}s{{ end }}://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
+          initialDelaySeconds: 90
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          name: config
+          subPath: elasticsearch.yml
+          readOnly: true
+        {{- if semverCompare "^2.x" .Values.appVersion }}
+        - mountPath: /usr/share/elasticsearch/config/logging.yml
+          name: config
+          subPath: logging.yml
+          readOnly: true
+        {{- end }}
+        {{- if semverCompare ">= 5.x" .Values.appVersion }}
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+          readOnly: true
+        {{- end }}
+        {{- if .Values.tls.enabled }}
+        {{- range $key := keys .Values.tls.files }}
+        - mountPath: /usr/share/elasticsearch/config/{{ $key }}
+          name: secret
+          subPath: tls-{{ $key | replace "/" "-" }}
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- if .Values.searchguard.enabled }}
+        {{- range $key := keys .Values.searchguard.files }}
+        - mountPath: /usr/share/elasticsearch/plugins/{{ $key }}
+          name: secret
+          subPath: sg-{{ $key | replace "/" "-" }}
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- if .Values.plugins.enabled }}
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: plugins
+        {{- end }}
+    {{- with .Values.client.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "elasticsearch.fullname" . }}
+      {{- if or .Values.tls.enabled .Values.searchguard.enabled }}
+      - name: secret
+        secret:
+          secretName: {{ template "elasticsearch.fullname" . }}
+      {{- end }}
+      {{- if .Values.plugins.enabled }}
+      - name: plugins
+        emptyDir: {}
+      {{- end }}
