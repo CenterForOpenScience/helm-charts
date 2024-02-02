@@ -1,11 +1,11 @@
 dependencies:
   # WORKAROUND: ElasticSearch chart versions must match due to a bug in helm package, see: https://github.com/helm/helm/issues/3909
-  - name: elasticsearch
+  - name: elasticsearch-old
     version: 0.5.3
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch.enabled, global.elasticsearch.enabled
     alias: elasticsearch
-  - name: elasticsearch
+  - name: elasticsearch-old
     version: 0.5.3
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: elasticsearch6.enabled, global.elasticsearch6.enabled
