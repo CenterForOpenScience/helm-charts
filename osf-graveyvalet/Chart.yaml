@@ -1,0 +1,15 @@
+apiVersion: v1
+description: A Helm chart for Kubernetes
+name: osf-gravyvalet
+version: 0.1.0
+sources:
+  - https://github.com/CenterForOpenScience/osf-gravyvalet/
+maintainers:
+  - name: Matt Frazier
+    email: matt@cos.io
+    url: https://github.com/mfraezz
+  - name: Matt Clark
+    email: mattclark@cos.io
+    url: https://github.com/mattclark
+engine: gotpl
+tillerVersion: '>=2.7.0'

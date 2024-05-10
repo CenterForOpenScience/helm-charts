@@ -1,0 +1,34 @@
+{{- if .Values.certificate.enabled -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ template "osf-gravyvalet.certificate.fullname" . }}"
+  labels:
+    app: {{ template "osf-gravyvalet.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.certificate.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  secretName: "{{ template "osf-gravyvalet.certificate.fullname" . }}"
+  issuerRef:
+    name: {{ .Values.certificate.issuerRef.name }}
+    kind: {{ .Values.certificate.issuerRef.kind }}
+  commonName: {{ .Values.certificate.commonName }}
+  dnsNames:
+    {{- range .Values.certificate.dnsNames }}
+    - {{ . }}
+    {{- end }}
+  acme:
+    config:
+      - http01:
+          {{- if hasKey .Values.certificate.acmeConfig.http01 "ingress" }}
+          ingress: {{ .Values.certificate.acmeConfig.http01.ingress }}
+          {{- else }}
+          ingress: {{ template "osf-gravyvalet.fullname" . }}
+          {{- end }}
+        domains:
+          {{- range .Values.certificate.acmeConfig.domains }}
+          - {{ . }}
+          {{- end }}
+{{- end -}}

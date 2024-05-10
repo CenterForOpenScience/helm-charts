@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "osf-gravyvalet.fullname" . }}
+  labels:
+    app: {{ template "osf-gravyvalet.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "osf-gravyvalet.name" . }}
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  {{- if .Values.strategy }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "osf-gravyvalet.name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "osf-gravyvalet.deploymentAnnotations" . | nindent 8 }}
+    spec:
+      affinity:
+        {{- if .Values.additionalAffinities }}
+        {{- toYaml .Values.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "osf-gravyvalet.name" . }}
+                  release: {{ .Release.Name }}
+        {{- else if eq .Values.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "osf-gravyvalet.name" . }}
+                    release: {{ .Release.Name }}
+        {{- end }}
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          command:
+            - nginx
+            - -c
+            - /etc/nginx/nginx.conf
+            - -g
+            - daemon off;
+          ports:
+            - name: http-internal
+              containerPort: {{ .Values.service.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+          volumeMounts:
+            - name: config
+              subPath: nginx.conf
+              mountPath: /etc/nginx/nginx.conf
+              readOnly: true
+            - name: config
+              subPath: robots.txt
+              mountPath: /usr/share/nginx/html/robots.txt
+              readOnly: true
+          resources:
+            {{- toYaml .Values.nginx.resources | nindent 12 }}
+        - name: asgi
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - python3 manage.py runserver 0.0.0.0:8000
+          env:
+            {{- include "osf-gravyvalet.environment" . | nindent 12 }}
+          ports:
+            - name: http-external
+              containerPort: {{ .Values.service.externalPort }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.externalPort }}
+          volumeMounts:
+            - name: localcache
+              mountPath: /tmp/gravyvaletlocalcache
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.asgi.resources | nindent 12 }}
+      volumes:
+        - name: localcache
+          emptyDir: {}
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "osf-gravyvalet.fullname" .) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: config
+          configMap:
+            name: {{ template "osf-gravyvalet.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ template "osf-gravyvalet.fullname" . }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          {{- range .Values.persistence.accessModes }}
+          - {{ . | quote }}
+          {{- end }}
+        {{- if hasKey .Values.persistence "storageClass" }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+  {{- end }}
