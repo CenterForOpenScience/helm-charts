@@ -77,13 +77,13 @@ spec:
               readOnly: true
           resources:
             {{- toYaml .Values.nginx.resources | nindent 12 }}
-        - name: asgi
+        - name: daphne
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - /bin/sh
             - -c
-            - python3 manage.py runserver 0.0.0.0:8000
+            - python3 manage.py runserver 0.0.0.0:{{ .Values.service.externalPort }}
           env:
             {{- include "osf-gravyvalet.environment" . | nindent 12 }}
           ports:
@@ -101,7 +101,7 @@ spec:
               mountPath: {{ .Values.persistence.mountPath }}
             {{- end }}
           resources:
-            {{- toYaml .Values.asgi.resources | nindent 12 }}
+            {{- toYaml .Values.daphne.resources | nindent 12 }}
       volumes:
         - name: localcache
           emptyDir: {}

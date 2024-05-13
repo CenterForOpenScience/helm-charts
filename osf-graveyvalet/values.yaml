@@ -43,7 +43,7 @@ nginx:
     statusZoneSize: 10m
     defaultFilterKey: "$geoip_country_code country::*"
 
-asgi:
+daphne:
   resources: {}
     # limits:
     #   cpu: 100m
@@ -60,7 +60,7 @@ horizontalPodAutoscaler:
 service:
   name: http
   type: ClusterIP
-  externalPort: 2020
+  externalPort: 8000
   internalPort: 80
 
 ingress:
@@ -99,6 +99,22 @@ certificate:
   #   domains:
   #     - example.org
   #     - subdomain.example.org
+
+migration:
+  enabled: true
+  name: migration
+
+  resources: {}
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+  env: {}
+
+  volumeMounts: []
 
 networkPolicy:
   enabled: false

@@ -25,6 +25,15 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 
 {{/*
+Create a default fully qualified migration name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "osf-gravyvalet.migration.fullname" -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.migration.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Overridable deployment annotations
 */}}
 {{- define "osf-gravyvalet.deploymentAnnotations" -}}
