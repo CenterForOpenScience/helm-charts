@@ -20,8 +20,12 @@ spec:
         app: {{ template "osf-gravyvalet.name" . }}
         component: "{{ .Values.migration.name }}"
         release: {{ .Release.Name }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/migration-secret.yaml") . | sha256sum }}
     spec:
       restartPolicy: Never
+      initContainers:
+        {{- include "gravyvalet.certificates.initContainer" . | nindent 8 }}
       containers:
         - name: {{ .Values.migration.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -37,6 +41,7 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           volumeMounts:
+            {{- include "gravyvalet.volumeMounts" . | nindent 12 }}
             {{- if .Values.volumeMounts }}
             {{- toYaml .Values.volumeMounts | nindent 12 }}
             {{- end }}
@@ -44,6 +49,7 @@ spec:
             {{- toYaml .Values.migration.volumeMounts | nindent 12 }}
             {{- end }}
       volumes:
+        {{- include "osf-gravyvalet.volumes" . | nindent 8 }}
         - name: config-volume
           configMap:
             name: {{ template "osf-gravyvalet.fullname" . }}
