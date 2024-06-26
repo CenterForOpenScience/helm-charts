@@ -171,3 +171,34 @@ persistence:
   size: 100Gi
 
   # mountPath: /var/lib/gravyvaletlocaldata/
+
+# Client-side TLS
+tls:
+  enabled: false
+
+  postgresql:
+    enabled: false
+    mountPath: /var/www/.postgresql
+    files:
+      # Root Certificate
+      root.crt: |-
+
+      # Root Certificate Revocation List
+      root.crl: |-
+        
+      # Database key
+      postgresql.key: |-
+        
+      # Database certificate
+      postgresql.crt: |-
+  
+  rabbitmq:
+    enabled: true
+    mountPath: /var/www/.rabbitmq
+    files:
+      worker.key: |-
+        
+      worker.pem: |-
+        
+      ca-chain.cert.pem: |-
+
