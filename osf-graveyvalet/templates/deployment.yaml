@@ -48,6 +48,10 @@ spec:
                     app: {{ template "osf-gravyvalet.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
+      {{- if .Values.tls.enabled }}
+      initContainers:
+        {{- include "gravyvalet.certificates.initContainer" . | nindent 8 }}
+      {{- end }}
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -91,18 +95,23 @@ spec:
               containerPort: {{ .Values.service.externalPort }}
           readinessProbe:
             httpGet:
-              path: /
+              path: /v1/status/
               port: {{ .Values.service.externalPort }}
           volumeMounts:
             - name: localcache
               mountPath: /tmp/gravyvaletlocalcache
+            {{- include "gravyvalet.volumeMounts" . | nindent 12 }}
             {{- if .Values.persistence.enabled }}
+            {{- if .Values.gravyvalet.volumeMounts }}
+            {{- toYaml .Values.web.volumeMounts | nindent 12 }}
+            {{- end }}
             - name: data
               mountPath: {{ .Values.persistence.mountPath }}
             {{- end }}
           resources:
             {{- toYaml .Values.daphne.resources | nindent 12 }}
       volumes:
+        {{- include "osf-gravyvalet.volumes" . | nindent 8 }}
         - name: localcache
           emptyDir: {}
         - name: data
