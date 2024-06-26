@@ -87,7 +87,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - python3 manage.py runserver 0.0.0.0:{{ .Values.service.externalPort }}
+            - daphne -b 0.0.0.0 -p {{ .Values.service.externalPort }} app.asgi:application
           env:
             {{- include "osf-gravyvalet.environment" . | nindent 12 }}
           ports:
