@@ -100,6 +100,38 @@ certificate:
   #     - example.org
   #     - subdomain.example.org
 
+worker:
+  enabled: true
+  name: worker
+  replicaCount: 1
+
+  antiAffinity: soft
+
+  budget:
+    minAvailable: 0
+
+  concurrency: 5
+  logLevel: INFO
+  maxTasksPerChild: 5
+  # queues: ...
+
+  resources: {}
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+  horizontalPodAutoscaler:
+    enabled: false
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 90
+
+  env: {}
+
+  volumeMounts: []
+
 migration:
   enabled: true
   name: migration
