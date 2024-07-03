@@ -50,6 +50,17 @@ spec:
         {{- end }}
       {{- if .Values.tls.enabled }}
       initContainers:
+        - name: collectstatic
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - python
+            - manage.py
+            - collectstatic
+            - --noinput
+          volumeMounts:
+            - mountPath: /code/static
+              name: static
         {{- include "gravyvalet.certificates.initContainer" . | nindent 8 }}
       {{- end }}
       containers:
@@ -79,6 +90,8 @@ spec:
               subPath: robots.txt
               mountPath: /usr/share/nginx/html/robots.txt
               readOnly: true
+            - mountPath: /static
+              name: static
           resources:
             {{- toYaml .Values.nginx.resources | nindent 12 }}
         - name: daphne
