@@ -125,6 +125,8 @@ spec:
             {{- toYaml .Values.daphne.resources | nindent 12 }}
       volumes:
         {{- include "osf-gravyvalet.volumes" . | nindent 8 }}
+        - name: static
+          emptyDir: {}
         - name: localcache
           emptyDir: {}
         - name: data
