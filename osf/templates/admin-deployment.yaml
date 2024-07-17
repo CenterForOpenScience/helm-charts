@@ -125,11 +125,7 @@ spec:
             - |-
               set -e
               su-exec www-data python3 manage.py check_deploy_ready
-              PREFIX=''
-              if [ -f /code/newrelic.ini ]; then
-                PREFIX='newrelic-admin run-program'
-              fi
-              $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.admin.service.externalPort }}
+              uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.admin.service.externalPort }}
           env:
             - name: DJANGO_SETTINGS_MODULE
               value: admin.base.settings

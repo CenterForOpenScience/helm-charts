@@ -79,10 +79,6 @@ spec:
             - /bin/bash
             - -c
             - |-
-              PREFIX=''
-              if [ -f /code/newrelic.ini ]; then
-                PREFIX='newrelic-admin run-program'
-              fi
               POSTFIX=''
               {{- if .Values.task.reserve_worker }}
               [[ `hostname` =~ -([0-9]+)$ ]]
@@ -91,7 +87,7 @@ spec:
                 POSTFIX='--exclude-queues low,celery'
               fi
               {{- end}}
-              $PREFIX su-exec www-data celery --app framework.celery_tasks worker \
+              su-exec www-data celery --app framework.celery_tasks worker \
                 --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
                 --hostname $POD_NAME --without-gossip -Ofair
                 {{- if .Values.task.maxTasksPerChild }} --maxtasksperchild "{{ .Values.task.maxTasksPerChild }}"{{- end }}
