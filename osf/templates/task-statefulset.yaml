@@ -90,7 +90,7 @@ spec:
               su-exec www-data celery --app framework.celery_tasks worker \
                 --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
                 --hostname $POD_NAME --without-gossip -Ofair
-                {{- if .Values.task.maxTasksPerChild }} --maxtasksperchild "{{ .Values.task.maxTasksPerChild }}"{{- end }}
+                {{- if .Values.task.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.task.maxTasksPerChild }}"{{- end }}
                 {{- if .Values.task.queues }} --queues "{{ .Values.task.queues }}"{{- end}} $POSTFIX
           env:
             - name: DJANGO_SETTINGS_MODULE
