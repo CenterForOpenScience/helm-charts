@@ -136,10 +136,10 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
-        - name: config
+        - name: config-volume
           configMap:
             name: {{ template "osf-gravyvalet.fullname" . }}
-        - name: secret
+        - name: secret-volume
           secret:
             secretName: {{ template "osf-gravyvalet.fullname" . }}
       {{- if .Values.nodeSelector }}
