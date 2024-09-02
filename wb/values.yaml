@@ -102,6 +102,7 @@ ingress:
 
 certificate:
   enabled: false
+  createCert: false
   name: cert
   # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
   # - Issue: https://github.com/jetstack/cert-manager/issues/606
