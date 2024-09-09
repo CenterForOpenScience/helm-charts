@@ -18,6 +18,7 @@ data:
     http {
         include       mime.types;
         default_type  application/octet-stream;
+        server_tokens off;
 
         sendfile        on;
 
