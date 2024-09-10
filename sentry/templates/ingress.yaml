@@ -13,6 +13,9 @@ metadata:
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
+  {{- if .Values.ingress.ingressClassName }}
+    {{- toYaml .Values.ingress.ingressClassName | nindent 2 }}
+  {{- end -}}
   rules:
     {{- range .Values.ingress.hosts }}
     - host: {{ . }}
