@@ -132,7 +132,7 @@ admin-nginx.conf: |-
           location / {
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
-              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+              add_header Expires "-1";
               add_header Pragma "no-cache";
 
               # Mitigate HTTPoxy Vulnerability
@@ -341,7 +341,7 @@ api-nginx.conf: |-
           location / {
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
-              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+              add_header Expires "-1";
               add_header Pragma "no-cache";
 
               # Mitigate HTTPoxy Vulnerability
@@ -836,7 +836,7 @@ web-nginx.conf: |-
 
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
-              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+              add_header Expires "-1";
               add_header Pragma "no-cache";
 
               # Mitigate HTTPoxy Vulnerability
@@ -868,7 +868,7 @@ web-nginx.conf: |-
 
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
-              add_header Expires "Mon, 01 Jan 1990 00:00:00 GMT";
+              add_header Expires "-1";
               add_header Pragma "no-cache";
 
               # Mitigate HTTPoxy Vulnerability
