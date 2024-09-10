@@ -67,6 +67,8 @@ nginx.conf: |-
       set_real_ip_from {{ . }};
       {{- end }}
 
+      server_tokens off;
+
       gzip on;
       gzip_disable "MSIE [1-6]\.(?!.*SV1)";
       gzip_comp_level 2;
