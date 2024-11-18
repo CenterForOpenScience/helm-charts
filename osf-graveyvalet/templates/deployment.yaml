@@ -114,10 +114,10 @@ spec:
             - name: localcache
               mountPath: /tmp/gravyvaletlocalcache
             {{- include "gravyvalet.volumeMounts" . | nindent 12 }}
-            {{- if .Values.persistence.enabled }}
-            {{- if .Values.gravyvalet.volumeMounts }}
-            {{- toYaml .Values.web.volumeMounts | nindent 12 }}
+            {{- if .Values.daphne.volumeMounts }}
+            {{- toYaml .Values.daphne.volumeMounts | nindent 12 }}
             {{- end }}
+            {{- if .Values.persistence.enabled }}
             - name: data
               mountPath: {{ .Values.persistence.mountPath }}
             {{- end }}
