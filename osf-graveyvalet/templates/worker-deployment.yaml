@@ -58,11 +58,7 @@ spec:
             - /bin/sh
             - -c
             - |-
-              PREFIX=''
-              if [ -f /code/newrelic.ini ]; then
-                PREFIX='newrelic-admin run-program'
-              fi
-              $PREFIX python -m celery --app app worker \
+              python -m celery --app app worker \
                 --concurrency "{{ .Values.worker.concurrency }}" --loglevel "{{ .Values.worker.logLevel }}" \
                 --hostname $POD_NAME --without-gossip -Ofair
                 {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
