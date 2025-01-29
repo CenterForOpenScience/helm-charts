@@ -48,7 +48,6 @@ spec:
                     app: {{ template "osf-gravyvalet.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
-      {{- if .Values.tls.enabled }}
       initContainers:
         - name: collectstatic
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -61,6 +60,7 @@ spec:
           volumeMounts:
             - mountPath: /code/static
               name: static
+      {{- if .Values.tls.enabled }}
         {{- include "gravyvalet.certificates.initContainer" . | nindent 8 }}
       {{- end }}
       containers:
