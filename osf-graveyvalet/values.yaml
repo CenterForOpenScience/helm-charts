@@ -132,6 +132,39 @@ worker:
 
   volumeMounts: []
 
+beat:
+  enabled: true
+  name: beat
+
+  antiAffinity: soft
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+  volumeMounts: []
+
+  persistence:
+    enabled: true
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    # existingClaim:
+    # storageClass: ssd
+    accessMode: ReadWriteOnce
+    size: 4Gi
+
 migration:
   enabled: true
   name: migration
