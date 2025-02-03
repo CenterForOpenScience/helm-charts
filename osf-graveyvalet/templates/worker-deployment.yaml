@@ -50,6 +50,10 @@ spec:
                     release: "{{ .Release.Name }}"
                     component: "{{ .Values.worker.name }}"
         {{- end }}
+      {{- if .Values.tls.enabled }}
+      initContainers:
+        {{- include "gravyvalet.certificates.initContainer" . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Values.worker.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -74,9 +78,7 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
           volumeMounts:
-            {{- if .Values.volumeMounts }}
-            {{- toYaml .Values.volumeMounts | nindent 12 }}
-            {{- end }}
+            {{- include "gravyvalet.volumeMounts" . | nindent 12 }}
             {{- if .Values.worker.volumeMounts }}
             {{- toYaml .Values.worker.volumeMounts | nindent 12 }}
             {{- end }}
@@ -85,10 +87,5 @@ spec:
             {{- toYaml .Values.worker.resources | nindent 12 }}
           {{- end }}
       volumes:
-        - name: config
-          configMap:
-            name: {{ template "osf-gravyvalet.fullname" . }}
-        - name: secret
-          secret:
-            secretName: {{ template "osf-gravyvalet.fullname" . }}
+        {{- include "osf-gravyvalet.volumes" . | nindent 8 }}
 {{- end -}}
