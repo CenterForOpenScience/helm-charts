@@ -114,6 +114,11 @@ spec:
             httpGet:
               path: /v1/status/
               port: {{ .Values.service.externalPort }}
+              {{- if .Values.service.probeHost }}
+              httpHeaders:
+                - name: host
+                  value: {{ .Values.service.probeHost }}
+              {{- end }}
           volumeMounts:
             - name: localcache
               mountPath: /tmp/gravyvaletlocalcache
