@@ -37,6 +37,34 @@ nginx:
     tag: alpine
     pullPolicy: Always
 
+  primaryDomain: ""
+  modules: []
+  proxySourceRanges: []
+  realIpHeader: X-Real-IP
+  realIpRecursive: "off"
+  vts:
+    enabled: false
+    internalPort: 18080
+    statusZoneSize: 10m
+    defaultFilterKey: "$geoip_country_code country::*"
+
+  brandedSubdomains: []
+  preprintDomainMap: {}
+    # domain.org: providerId
+  institutionDomainMap: {}
+    # institution.edu: institutionId
+  additionalRewrites: []
+    # - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
+  # additionalConfig: |-
+    #   ...
+  redirects:
+    enabled: false
+    domains: {}
+      # - to: example.com
+      #   from:
+      #     - www.example.com
+      #     - another.domain.com
+
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious 
     # choice for the user. This also increases chances charts run on environments with little 
@@ -85,3 +113,21 @@ configFiles: {}
   #   # http://www.robotstxt.org
   #   User-agent: *
   #   Disallow:
+
+# Supporting services
+share:
+  url: "share.osf.io"
+
+prerender:
+  enabled: false
+  service:
+    name: prerender
+    externalPort: 3000
+
+sharejs:
+  enabled: false
+  service:
+    name: sharejs
+    externalPort: 7007
+  ingress:
+    path: /sharejs

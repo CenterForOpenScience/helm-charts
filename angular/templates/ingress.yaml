@@ -11,16 +11,31 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+  {{- if .Values.ingress.annotations }}
   annotations:
-    {{- range $key, $value := .Values.ingress.annotations }}
-      {{ $key }}: {{ $value | quote }}
-    {{- end }}
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+  {{- end }}
 spec:
   rules:
-    {{- range $host := .Values.ingress.hosts }}
-    - host: {{ $host }}
+    {{- $shareJSEnabled := .Values.sharejs.enabled -}}
+    {{- $shareJSServiceName := .Values.sharejs.service.name -}}
+    {{- $shareJSServicePort := .Values.sharejs.service.externalPort -}}
+    {{- $shareJSIngressPaths := .Values.sharejs.ingress.paths -}}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . }}
       http:
         paths:
+          {{- if $shareJSEnabled }}
+          {{- range $shareJSIngressPaths }}
+          - path: {{ . }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $shareJSServiceName }}
+                port:
+                  number: {{ $shareJSServicePort }}
+          {{- end }}
+          {{- end }}
           {{- range $ingressPaths }}
           - path: {{ . }}
             pathType: ImplementationSpecific
@@ -29,10 +44,28 @@ spec:
                 name: {{ $serviceName }}
                 port:
                   number: {{ $servicePort }}
-          {{- end -}}
+          {{- end }}
     {{- end -}}
-  {{- if .Values.ingress.tls }}
+  {{- if (or .Values.ingress.tls (and .Values.certificate.enabled .Values.certificate.tls) .Values.additionalCertificates) }}
   tls:
+    {{- if .Values.ingress.tls }}
     {{- toYaml .Values.ingress.tls | nindent 4 }}
+    {{- end -}}
+    {{- if (and .Values.certificate.enabled .Values.certificate.tls) }}
+    - secretName: "{{ template "angular.certificate.fullname" . }}"
+      hosts:
+        {{- range .Values.certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end -}}
+    {{- range $certificate := .Values.additionalCertificates }}
+    {{- $name := default $.Chart.Name $.Values.nameOverride }}
+    {{- $certificateFullName := (printf "%s-%s-%s" $.Release.Name $name $certificate.name | trunc 63 | trimSuffix "-") }}
+    - secretName: {{ $certificateFullName }}
+      hosts:
+        {{- range $certificate.acmeConfig.domains }}
+        - {{ . }}
+        {{- end }}
+    {{- end }}
   {{- end -}}
 {{- end -}}
