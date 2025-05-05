@@ -9,7 +9,6 @@ metadata:
     release: {{ .Release.Name }}
 data:
 {{- define "share.inlineconfigs" }}
-{{- $shareWeb := (index .Values "share-web") }}
 nginx.conf: |-
   user nginx;
   worker_processes 1;
@@ -106,19 +105,6 @@ nginx.conf: |-
           }
           {{- end }}
 
-          location ~* ^/(admin|api|o|oai-pmh|accounts|favicons|icons|trove|vocab)($|/) {
-              # Disable caching of application requests
-              add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
-              add_header Expires "-1";
-              add_header Pragma "no-cache";
-
-              # Pass requests to uwsgi application
-              include /etc/nginx/uwsgi_params;
-              uwsgi_buffering off;
-              uwsgi_request_buffering off;
-              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
-          }
-
           location / {
               # Disable caching of application requests
               add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
@@ -127,10 +113,12 @@ nginx.conf: |-
               add_header Strict-Transport-Security "max-age=31536000";
 
               # Pass requests to uwsgi application
-              proxy_redirect off;
-              proxy_buffering off;
-              proxy_pass http://{{ $shareWeb.service.name }}:{{ $shareWeb.service.externalPort }};
+              include /etc/nginx/uwsgi_params;
+              uwsgi_buffering off;
+              uwsgi_request_buffering off;
+              uwsgi_pass uwsgi://127.0.0.1:{{ .Values.web.service.externalPort }};
           }
+
       }
   }
 {{- end -}}

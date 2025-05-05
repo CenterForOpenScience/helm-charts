@@ -208,12 +208,6 @@ secretFiles: {}
 #     subPath: googleAppCreds.json
 #     readOnly: true
 
-share-web:
-  enabled: false
-  service:
-    name: shareweb
-    externalPort: 80
-
 postgresql:
   enabled: true
   standby:
