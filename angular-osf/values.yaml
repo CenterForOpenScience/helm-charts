@@ -130,4 +130,14 @@ sharejs:
     name: sharejs
     externalPort: 7007
   ingress:
-    path: /sharejs
+    paths: 
+      - /sharejs
+
+legacy:
+  enabled: false
+  service:
+    name: osf-web
+    externalPort: 5000
+  ingress:
+    paths:
+      - /api/v1
