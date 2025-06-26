@@ -55,4 +55,9 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ template "share.fullname" . }}
+        {{- if .Values.postgresqlCertificateSecret }}
+        - name: postgresql-certs
+          secret:
+            secretName: {{ .Values.postgresqlCertificateSecret }}
+        {{- end }}
 {{- end -}}

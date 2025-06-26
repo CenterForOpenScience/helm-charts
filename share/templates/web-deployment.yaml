@@ -147,4 +147,9 @@ spec:
         - name: elasticsearch-certs
           secret:
             secretName: {{ .Values.elasticsearchCertificateSecret }}
+        {{- if .Values.postgresqlCertificateSecret }}
+        - name: postgresql-certs
+          secret:
+            secretName: {{ .Values.postgresqlCertificateSecret }}
+        {{- end }}
 {{- end -}}

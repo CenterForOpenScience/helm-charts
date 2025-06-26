@@ -7,6 +7,7 @@ image:
   pullPolicy: Always
 
 elasticsearchCertificateSecret:
+postgresqlCertificateSecret:
 
 beat:
   enabled: true
@@ -207,6 +208,11 @@ secretFiles: {}
 #     name: secret-volume
 #     subPath: googleAppCreds.json
 #     readOnly: true
+
+tls:
+  enabled: false
+  postgresql:
+    enabled: false
 
 postgresql:
   enabled: true

@@ -55,6 +55,9 @@ spec:
             {{- if .Values.volumeMounts }}
             {{- toYaml .Values.volumeMounts | nindent 12 }}
             {{- end }}
+            {{- if .Values.beat.volumeMounts }}
+            {{- toYaml .Values.beat.volumeMounts | nindent 12 }}
+            {{- end }}
           {{- if .Values.beat.resources }}
           resources:
             {{- toYaml .Values.beat.resources | nindent 12 }}
@@ -66,4 +69,9 @@ spec:
         - name: secret
           secret:
             secretName: {{ template "share.fullname" . }}
+        {{- if .Values.postgresqlCertificateSecret }}
+        - name: postgresql-certs
+          secret:
+            secretName: {{ .Values.postgresqlCertificateSecret }}
+        {{- end }}
 {{- end -}}
