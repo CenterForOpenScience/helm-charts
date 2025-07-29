@@ -51,6 +51,19 @@ spec:
                     component: {{ template "mfr.name" . }}
                     release: {{ .Release.Name }}
         {{- end }}
+      initContainers:
+        - name: exportdir
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              mkdir /tmp/mfrlocalcache/export
+              chmod 777 /tmp/mfrlocalcache/export
+          volumeMounts:
+            - mountPath: /tmp/mfrlocalcache
+              name: localcache
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
