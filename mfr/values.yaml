@@ -271,3 +271,13 @@ worker:
   env: {}
 
   volumeMounts: []
+
+rabbitmq:
+    enabled: true
+    mountPath: /var/www/.rabbitmq
+    files:
+      worker.key: |-
+        
+      worker.pem: |-
+        
+      ca-chain.cert.pem: |-
