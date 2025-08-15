@@ -70,6 +70,9 @@ spec:
       #  {{- end }}
       #  {{- include "mfr.certificates.initContainer" . | nindent 8 }}
       #  {{- end }}
+      initContainers:
+        {{- include "mfr.certificates.initContainer" . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Values.worker.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
