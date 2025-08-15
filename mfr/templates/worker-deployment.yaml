@@ -84,8 +84,8 @@ spec:
                 {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
                 {{- if .Values.worker.queues }} --queues "{{ .Values.worker.queues }}"{{- end }}
           env:
-            - name: DJANGO_SETTINGS_MODULE
-              value: api.base.settings
+            #- name: DJANGO_SETTINGS_MODULE
+            #  value: api.base.settings
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -95,17 +95,17 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-          volumeMounts:
-            {{- if not .Values.task.enabled }}
-            - mountPath: /data
-              name: data
-            - mountPath: /log
-              name: log
-            {{- end }}
-            {{- include "mfr.volumeMounts" . | nindent 12 }}
-            {{- if .Values.worker.volumeMounts }}
-            {{- toYaml .Values.worker.volumeMounts | nindent 12 }}
-            {{- end }}
+          #volumeMounts:
+          #  {{- if not .Values.task.enabled }}
+          #  - mountPath: /data
+          #    name: data
+          #  - mountPath: /log
+          #    name: log
+          #  {{- end }}
+          #  {{- include "mfr.volumeMounts" . | nindent 12 }}
+          #  {{- if .Values.worker.volumeMounts }}
+          #  {{- toYaml .Values.worker.volumeMounts | nindent 12 }}
+          #  {{- end }}
           {{- if .Values.worker.resources }}
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
