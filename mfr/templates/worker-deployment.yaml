@@ -51,25 +51,25 @@ spec:
                     component: "{{ .Values.worker.name }}"
         {{- end }}
       {{- if or (not .Values.task.enabled) .Values.tls.enabled }}
-      initContainers:
-        {{- if not .Values.task.enabled }}
-        - name: chown
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/bash
-            - -c
-            - chown -R www-data:www-data /data /log
-          securityContext:
-            runAsUser: 0
-          volumeMounts:
-            - mountPath: /data
-              name: data
-            - mountPath: /log
-              name: log
-        {{- end }}
-        {{- include "mfr.certificates.initContainer" . | nindent 8 }}
-        {{- end }}
+      #initContainers:
+      #  {{- if not .Values.task.enabled }}
+      #  - name: chown
+      #    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      #    imagePullPolicy: {{ .Values.image.pullPolicy }}
+      #    command:
+      #      - /bin/bash
+      #      - -c
+      #      - chown -R www-data:www-data /data /log
+      #    securityContext:
+      #      runAsUser: 0
+      #    volumeMounts:
+      #      - mountPath: /data
+      #        name: data
+      #      - mountPath: /log
+      #        name: log
+      #  {{- end }}
+      #  {{- include "mfr.certificates.initContainer" . | nindent 8 }}
+      #  {{- end }}
       containers:
         - name: {{ .Values.worker.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
