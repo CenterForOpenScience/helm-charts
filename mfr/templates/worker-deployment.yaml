@@ -1,0 +1,125 @@
+{{- if .Values.worker.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "mfr.worker.fullname" . }}
+  labels:
+    app: {{ template "mfr.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    component: "{{ .Values.worker.name }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "mfr.name" . }}
+      component: "{{ .Values.worker.name }}"
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.worker.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "mfr.name" . }}
+        component: "{{ .Values.worker.name }}"
+        release: {{ .Release.Name }}
+      annotations:
+        {{- include "mfr.deploymentAnnotations" . | nindent 8 }}
+    spec:
+      affinity:
+        {{- if .Values.worker.additionalAffinities }}
+        {{- toYaml .Values.worker.additionalAffinities | nindent 8 }}
+        {{- end }}
+        {{- if eq .Values.worker.antiAffinity "hard" }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "mfr.name" . }}
+                  release: "{{ .Release.Name }}"
+                  component: "{{ .Values.worker.name }}"
+        {{- else if eq .Values.worker.antiAffinity "soft" }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: {{ template "mfr.name" . }}
+                    release: "{{ .Release.Name }}"
+                    component: "{{ .Values.worker.name }}"
+        {{- end }}
+      {{- if or (not .Values.task.enabled) .Values.tls.enabled }}
+      initContainers:
+        {{- if not .Values.task.enabled }}
+        - name: chown
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - chown -R www-data:www-data /data /log
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            - mountPath: /log
+              name: log
+        {{- end }}
+        {{- include "mfr.certificates.initContainer" . | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ .Values.worker.name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              su-exec www-data celery --app framework.celery_tasks worker \
+                --concurrency "{{ .Values.worker.concurrency }}" --loglevel "{{ .Values.worker.logLevel }}" \
+                --hostname $POD_NAME --without-gossip -Ofair
+                {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
+                {{- if .Values.worker.queues }} --queues "{{ .Values.worker.queues }}"{{- end }}
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: api.base.settings
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            {{- include "mfr.environment" . | nindent 12 }}
+            {{- range $key, $value := .Values.worker.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          volumeMounts:
+            {{- if not .Values.task.enabled }}
+            - mountPath: /data
+              name: data
+            - mountPath: /log
+              name: log
+            {{- end }}
+            {{- include "mfr.volumeMounts" . | nindent 12 }}
+            {{- if .Values.worker.volumeMounts }}
+            {{- toYaml .Values.worker.volumeMounts | nindent 12 }}
+            {{- end }}
+          {{- if .Values.worker.resources }}
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          {{- end }}
+      volumes:
+        {{- include "mfr.volumes" . | nindent 8 }}
+        {{- if not .Values.task.enabled }}
+        - name: data
+          emptyDir: {}
+        - name: log
+          emptyDir: {}
+        {{- end }}
+      {{- if .Values.worker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.worker.nodeSelector | nindent 8 }}
+      {{- end }}
+{{- end -}}
