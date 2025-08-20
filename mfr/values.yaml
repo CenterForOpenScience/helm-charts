@@ -247,8 +247,8 @@ worker:
 
   concurrency: 1
   logLevel: INFO
+  queues: mfr
   # maxTasksPerChild: 5
-  # queues: non-logged-tasks
 
   resources: {}
     # limits:
@@ -274,10 +274,6 @@ worker:
 
 rabbitmq:
     enabled: true
-    mountPath: /var/www/.rabbitmq
-    files:
-      worker.key: |-
-        
-      worker.pem: |-
-        
-      ca-chain.cert.pem: |-
+    secretEnvs:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest

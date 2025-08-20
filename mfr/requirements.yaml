@@ -3,3 +3,7 @@ dependencies:
     version: 0.2.0
     repository: https://centerforopenscience.github.io/helm-charts/
     condition: maintenance.enabled, global.maintenance.enabled
+  - name: rabbitmq
+    repository: https://centerforopenscience.github.io/helm-charts/
+    version: 6.9.1
+    condition: rabbitmq.enabled, global.rabbitmq.enabled
