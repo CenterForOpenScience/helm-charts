@@ -234,3 +234,46 @@ secretFiles:
 
 maintenance:
   enabled: false
+
+worker:
+  enabled: true
+  name: worker
+  replicaCount: 1
+
+  antiAffinity: soft
+
+  budget:
+    minAvailable: 0
+
+  concurrency: 1
+  logLevel: INFO
+  queues: mfr
+  # maxTasksPerChild: 5
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 256Mi
+
+  horizontalPodAutoscaler:
+    enabled: false
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 90
+
+  ## Node labels for component pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  env: {}
+
+  volumeMounts: []
+
+rabbitmq:
+    enabled: true
+    secretEnvs:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
