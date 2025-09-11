@@ -53,11 +53,10 @@ spec:
             - -c
             - |-
               set -e
-              # TODO: Determine how to inject angular config
-              # {{ if hasKey .Values.configFiles "config.json" -}}
-              # node /code/replace-config.js
-              # {{- end }}
               cp -Rf /code/dist/osf/browser/* /static/
+              {{ if hasKey .Values.configFiles "config.json" -}}
+              cp -Rf /code/config.json /static/assets/config/config.json
+              {{- end }}
               cp -Rf /code/robots.txt /static/robots.txt
           env:
             {{- include "angular.environment" . | indent 12 }}
@@ -66,18 +65,14 @@ spec:
               mountPath: /static
             {{- if hasKey .Values.configFiles "config.json" }}
             - name: config
-              mountPath: /code/replace-config.js
-              subPath: replace-config.js
-              readOnly: true
-            - name: config
               mountPath: /code/config.json
               subPath: config.json
               readOnly: true
+            {{- end }}
             - name: config
               mountPath: /code/robots.txt
               subPath: robots.txt
               readOnly: true
-            {{- end }}
       containers:
         - name: {{ .Values.nginx.name }}
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
