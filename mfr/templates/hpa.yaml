@@ -15,5 +15,17 @@ spec:
     name: {{ template "mfr.fullname" . }}
   minReplicas: {{ .Values.replicaCount }}
   maxReplicas: {{ .Values.horizontalPodAutoscaler.maxReplicas }}
+  {{- if .Values.horizontalPodAutoscaler.metrics }}
+  metrics:
+  {{ range $name, $target := .Values.horizontalPodAutoscaler.metrics }}
+  - type: Resource
+    resource:
+      name: {{ $name }}
+      target:
+        type: Utilization
+        averageUtilization: {{ $target }}
+  {{- end }}
+  {{- else if .Values.horizontalPodAutoscaler.targetCPUUtilizationPercentage -}}
   targetCPUUtilizationPercentage: {{ .Values.horizontalPodAutoscaler.targetCPUUtilizationPercentage }}
+  {{- end -}}
 {{- end -}}

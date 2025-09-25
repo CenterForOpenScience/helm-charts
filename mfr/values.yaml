@@ -72,7 +72,13 @@ autoroll:
 horizontalPodAutoscaler:
   enabled: false
   maxReplicas: 3
-  targetCPUUtilizationPercentage: 90
+  # metrics:
+  #   cpu: 50
+  #   memory: 50
+  # # OR
+  # targetCPUUtilizationPercentage: 90
+  # # values.horizontalPodAutoscaler.metrics takes priority
+
 
 service:
   name: http
