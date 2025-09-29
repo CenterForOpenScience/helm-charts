@@ -93,12 +93,6 @@ spec:
               name: config
               subPath: nginx.conf
               readOnly: true
-            {{- if .Values.prerender.enabled }}
-            - mountPath: /etc/nginx/prerender.conf
-              name: config
-              subPath: nginx-prerender.conf
-              readOnly: true
-            {{- end }}
             {{- if .Values.nginx.volumeMounts }}
             {{- toYaml .Values.nginx.volumeMounts | nindent 12 }}
             {{- end }}

@@ -36,7 +36,10 @@ nginx.conf: |-
       log_format main '$remote_addr - $upstream_cache_status $remote_user [$time_local] '
                       '"$request" $status $body_bytes_sent '
                       '"$http_referer" "$http_user_agent" "$http_x_forwarded_for" '
-                      'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
+                      'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"'
+                      ' Proxy: "$proxy_host" "$upstream_addr"'
+                      ' URI: "$uri"'
+                      ' Prerender: "$prerender"';
       access_log /var/log/nginx/access.log main;
 
       real_ip_header {{ .Values.nginx.realIpHeader }};
@@ -97,6 +100,44 @@ nginx.conf: |-
       server {
           listen {{ .Values.service.internalPort }};
           server_name "~^(?<sub>({{ join "|" .Values.nginx.brandedSubdomains }}))\.{{ .Values.nginx.primaryDomain | replace "." "\\." }}$";
+          {{- if .Values.prerender.enabled }}
+          set $prerender 0;
+
+          if ($http_user_agent ~* "baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|googlebot|google-inspectiontool|archive.org_bot|pingbot") {
+              set $prerender 1;
+          }
+
+          # Google translate
+          if ($http_referer ~* "translate\.googleusercontent\.com") {
+              set $prerender 1;
+          }
+
+          if ($args ~* "_escaped_fragment_") {
+              set $prerender 1;
+          }
+
+          if ($http_user_agent ~* "prerender") {
+              set $prerender 0;
+          }
+
+          if ($uri ~* "\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|doc|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent|ttf|woff)") {
+              set $prerender 0;
+          }
+
+          # Exclude download links from prerender
+          if ($arg_action ~* "download") {
+              set $prerender 0;
+          }
+
+          if ($uri ~* ^/\w+/download(/?$|/.*)) {
+              set $prerender 0;
+          }
+
+          if ($uri ~* ^/preprints/(\w+/download|\w+/\w+/download)(/?$|/.*)) {
+              set $prerender 0;
+          }
+          {{- end }}
+
 
           if ($http_x_forwarded_proto = "http") {
               return 301 https://$host$request_uri;
@@ -113,7 +154,10 @@ nginx.conf: |-
 
           location / {
               {{- if .Values.prerender.enabled }}
-              include /etc/nginx/prerender.conf;
+              if ($prerender = 1) {
+                  rewrite .* /https://$host$request_uri? break;
+                  proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
+              }
               {{- end }}
 
               # TODO: Ensure Angular can route based off of custom domains
@@ -154,6 +198,43 @@ nginx.conf: |-
 
           root /static;
           index index.html;
+          {{- if .Values.prerender.enabled }}
+          set $prerender 0;
+
+          if ($http_user_agent ~* "baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|googlebot|google-inspectiontool|archive.org_bot|pingbot") {
+              set $prerender 1;
+          }
+
+          # Google translate
+          if ($http_referer ~* "translate\.googleusercontent\.com") {
+              set $prerender 1;
+          }
+
+          if ($args ~* "_escaped_fragment_") {
+              set $prerender 1;
+          }
+
+          if ($http_user_agent ~* "prerender") {
+              set $prerender 0;
+          }
+
+          if ($uri ~* "\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|doc|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent|ttf|woff)") {
+              set $prerender 0;
+          }
+
+          # Exclude download links from prerender
+          if ($arg_action ~* "download") {
+              set $prerender 0;
+          }
+
+          if ($uri ~* ^/\w+/download(/?$|/.*)) {
+              set $prerender 0;
+          }
+
+          if ($uri ~* ^/preprints/(\w+/download|\w+/\w+/download)(/?$|/.*)) {
+              set $prerender 0;
+          }
+          {{- end }}
 
           if ($http_x_forwarded_proto = "http") {
               return 301 https://$host$request_uri;
@@ -186,7 +267,10 @@ nginx.conf: |-
 
           location / {
               {{- if .Values.prerender.enabled }}
-              include /etc/nginx/prerender.conf;
+              if ($prerender = 1) {
+                  rewrite .* /https://$host$request_uri? break;
+                  proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
+              }
               {{- end }}
 
               # Disable caching of application requests
@@ -217,47 +301,6 @@ nginx.conf: |-
       }
       {{- end }}
       {{- end }}
-  }
-nginx-prerender.conf: |-
-  set $prerender 0;
-
-  if ($http_user_agent ~* "baiduspider|twitterbot|facebookexternalhit|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|googlebot|google-inspectiontool|archive.org_bot|pingbot") {
-      set $prerender 1;
-  }
-
-  # Google translate
-  if ($http_referer ~* "translate\.googleusercontent\.com") {
-      set $prerender 1;
-  }
-
-  if ($args ~* "_escaped_fragment_") {
-      set $prerender 1;
-  }
-
-  if ($http_user_agent ~* "prerender") {
-      set $prerender 0;
-  }
-
-  if ($uri ~* "\.(js|css|xml|less|png|jpg|jpeg|gif|pdf|doc|txt|ico|rss|zip|mp3|rar|exe|wmv|doc|avi|ppt|mpg|mpeg|tif|wav|mov|psd|ai|xls|mp4|m4a|swf|dat|dmg|iso|flv|m4v|torrent|ttf|woff)") {
-      set $prerender 0;
-  }
-
-  # Exclude download links from prerender
-  if ($arg_action ~* "download") {
-      set $prerender 0;
-  }
-
-  if ($uri ~* ^/\w+/download(/?$|/.*)) {
-      set $prerender 0;
-  }
-
-  if ($uri ~* ^/preprints/(\w+/download|\w+/\w+/download)(/?$|/.*)) {
-      set $prerender 0;
-  }
-
-  if ($prerender = 1) {
-      rewrite .* /https://$host$request_uri? break;
-      proxy_pass http://{{ .Values.prerender.service.name }}:{{ .Values.prerender.service.externalPort }};
   }
 {{- end -}}
 {{- range $key, $value := .Values.configEnvs }}
