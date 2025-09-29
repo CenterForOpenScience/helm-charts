@@ -167,7 +167,7 @@ nginx.conf: |-
       }
       {{- end }}
 
-      {{- if .Values.nginx.preprintdomainmap }}
+      {{- if .Values.nginx.preprintDomainMap }}
       {{- range $key, $val := .Values.nginx.preprintDomainMap }}
       server {
           listen {{ $.Values.service.internalPort }};
