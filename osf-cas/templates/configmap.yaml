@@ -340,6 +340,12 @@ config/cas.properties: |-
   # Tomcat Server
   #
   cas.server.tomcat.server-name=OSF CAS
+  #
+  # Dev Mode Options
+  #
+  cas.server.dev-mode.allow-force-authn-exception=${ALLOW_FORCE_AUTHN_EXCEPTION:false}
+  cas.server.dev-mode.allow-force-http-error=${ALLOW_FORCE_HTTP_ERROR:false}
+  #
   ########################################################################################################################
 
   ########################################################################################################################
@@ -415,6 +421,12 @@ config/cas.properties: |-
   #
   cas.authn.osf-url.home=https://{{ .Values.osfDomain }}/
   cas.authn.osf-url.dashboard=https://{{ .Values.osfDomain }}/dashboard/
+  cas.authn.osf-url.search=https://{{ .Values.osfDomain }}/search/
+  cas.authn.osf-url.support=https://help.osf.io
+  cas.authn.osf-url.registries=https://{{ .Values.osfDomain }}/registries/discover/
+  cas.authn.osf-url.preprints=https://{{ .Values.osfDomain }}/preprints/discover/
+  cas.authn.osf-url.meetings=https://{{ .Values.osfDomain }}/meetings/
+  cas.authn.osf-url.donate=https://www.cos.io/support-cos
   cas.authn.osf-url.login-with-next=https://{{ .Values.osfDomain }}/login?next=
   cas.authn.osf-url.logout=https://{{ .Values.osfDomain }}/logout/
   cas.authn.osf-url.resend-confirmation=https://{{ .Values.osfDomain }}/resend/
