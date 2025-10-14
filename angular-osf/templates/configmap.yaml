@@ -282,9 +282,14 @@ nginx.conf: |-
               rewrite "^/project/.*?/node/(.*)" https://$host/$1 permanent;
               rewrite "^/project/([a-zA-Z0-9]{5,}.*)" https://$host/$1 permanent;
               rewrite "^/profile/([a-zA-Z0-9]{5,})" https://$host/$1 permanent;
+              rewrite "^/([a-zA-Z0-9]{5})/download(/.*)?" https://$host/download/$1 permanent;
               {{- range .Values.nginx.additionalRewrites }}
               {{ . }}
               {{- end }}
+              if ($args ~* "(.*)action=download(.*)") {
+                  set $args "$1$2";
+                  rewrite "^/([a-zA-Z0-9]{5})(/.*)?" https://$host/download/$1 permanent;
+              }
 
               try_files $uri $uri/ /index.html;
           }
