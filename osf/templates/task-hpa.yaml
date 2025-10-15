@@ -1,5 +1,5 @@
 {{- if .Values.task.horizontalPodAutoscaler.enabled -}}
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ template "osf.task.fullname" . }}
