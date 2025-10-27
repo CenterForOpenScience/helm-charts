@@ -65,7 +65,7 @@ nginx.conf: |-
       tcp_nodelay on;
       keepalive_timeout 620s;
       types_hash_max_size 2048;
-      sendfile_max_chunk 512;
+    #   sendfile_max_chunk 512;
       server_tokens off;
 
       gzip on;
