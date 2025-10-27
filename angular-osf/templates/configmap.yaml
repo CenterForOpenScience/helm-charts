@@ -65,6 +65,7 @@ nginx.conf: |-
       tcp_nodelay on;
       keepalive_timeout 620s;
       types_hash_max_size 2048;
+      sendfile_max_chunk 512;
       server_tokens off;
 
       gzip on;
@@ -195,7 +196,6 @@ nginx.conf: |-
 
           client_max_body_size 25M;
           keepalive_timeout 620s;
-          sendfile_max_chunk 512;
 
           root /static;
           index index.html;
