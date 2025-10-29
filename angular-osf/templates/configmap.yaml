@@ -275,9 +275,23 @@ nginx.conf: |-
               {{- end }}
 
               # Disable caching of application requests
-              add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
-              add_header Expires "-1";
-              add_header Pragma "no-cache";
+              #add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
+              #add_header Expires "-1";
+              #add_header Pragma "no-cache";
+
+              # Don't cache index.html and main bundle files
+              location ~* (?:index\.html|main.*\.js|*\.json)$ {
+                  expires -1;
+                  add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
+              }
+
+              # Cache static assets
+              location ~* \.(?:jpg|jpeg|gif|png|ico|svg|woff|woff2|ttf|eot|css|js)$ {
+                  expires 1y;
+                  add_header Cache-Control "public, immutable";
+                  access_log off;
+              }
+
 
               # URL rewrites
               rewrite "^/project/.*?/node/(.*)" https://$host/$1 permanent;
