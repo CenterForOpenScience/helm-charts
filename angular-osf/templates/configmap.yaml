@@ -280,7 +280,7 @@ nginx.conf: |-
               #add_header Pragma "no-cache";
 
               # Don't cache index.html and main bundle files
-              location ~* (?:index\.html|main.*\.js)$ {
+              location ~* (?:index\.html|main.*\.js|*\.json)$ {
                   expires -1;
                   add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
               }
