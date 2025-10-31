@@ -11,7 +11,7 @@ data:
 {{- define "angular.inlineconfigs" }}
 nginx.conf: |-
   user nginx;
-  worker_processes auto;
+  worker_processes 1;
 
   load_module /usr/lib/nginx/modules/ngx_http_brotli_filter_module.so;
   {{- if .Values.nginx.vts.enabled }}
