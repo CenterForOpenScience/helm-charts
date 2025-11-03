@@ -191,7 +191,7 @@ nginx.conf: |-
       {{- end }}
 
       server {
-          listen {{ .Values.service.internalPort }} default_server;
+          listen {{ .Values.service.internalPort }} default_server http2;
           server_name _;
 
           client_max_body_size 25M;
