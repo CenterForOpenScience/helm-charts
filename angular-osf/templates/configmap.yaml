@@ -161,8 +161,10 @@ nginx.conf: |-
               }
               {{- end }}
 
-              # TODO: Ensure Angular can route based off of custom domains
-              try_files $uri $uri/ /index.html;
+              if ($request_uri ~* "^/\w{5}(/.*)?/?$") {
+                return 307 https://{{ .Values.nginx.primaryDomain }}$request_uri;
+              }
+              return 307 https://{{ .Values.nginx.primaryDomain }}/registries/$sub$request_uri;
           }
 
       }
@@ -173,8 +175,7 @@ nginx.conf: |-
       server {
           listen {{ $.Values.service.internalPort }};
           server_name {{ $key }};
-          # TODO: Ensure Angular can route based off of custom domains
-          try_files $uri $uri/ /index.html;
+          return 301 https://{{ $.Values.nginx.primaryDomain }}/preprints/{{ $val }}$request_uri;
       }
       {{- end }}
       {{- end }}
@@ -184,8 +185,7 @@ nginx.conf: |-
       server {
           listen {{ $.Values.service.internalPort }};
           server_name {{ $key }};
-          # TODO: Ensure Angular can route based off of custom domains
-          try_files $uri $uri/ /index.html;
+          return 301 https://{{ $.Values.nginx.primaryDomain }}/institutions/{{ $val }}$request_uri;
       }
       {{- end }}
       {{- end }}
