@@ -25,7 +25,7 @@ spec:
     {{- $legacyServiceName := .Values.legacy.service.name -}}
     {{- $legacyServicePort := .Values.legacy.service.externalPort -}}
     {{- $legacyIngressPaths := .Values.legacy.ingress.paths -}}
-    {{- range .Values.ingress.hosts }}
+    {{- range .Values.ingress.primaryHosts }}
     - host: {{ . }}
       http:
         paths:
@@ -49,6 +49,31 @@ spec:
                 name: {{ $legacyServiceName }}
                 port:
                   number: {{ $legacyServicePort }}
+          {{- end }}
+          {{- end }}
+          {{- range $ingressPaths }}
+          - path: {{ . }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
+          {{- end }}
+    {{- end -}}
+    {{- range .Values.ingress.additionalHosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          {{- if $shareJSEnabled }}
+          {{- range $shareJSIngressPaths }}
+          - path: {{ . }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $shareJSServiceName }}
+                port:
+                  number: {{ $shareJSServicePort }}
           {{- end }}
           {{- end }}
           {{- range $ingressPaths }}

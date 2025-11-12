@@ -91,8 +91,11 @@ service:
 ingress:
   enabled: false
   # Used to create Ingress record (should used with service.type: ClusterIP).
-  hosts:
+  primaryHost:
     - chart-example.local
+  # Additional hosts will not have legacy path annotations
+  # additionalHosts:
+  # - chart-example-2.local
   paths:
     - /
   annotations:
