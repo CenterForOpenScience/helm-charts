@@ -151,7 +151,7 @@ spec:
               $PREFIX gosu www-data celery -A waterbutler.tasks.app worker \
                 -c "{{ .Values.worker.concurrency }}" -l "{{ .Values.worker.logLevel }}" \
                 -n worker.%h --without-gossip
-                {{- if .Values.worker.maxTasksPerChild }} --maxTasksPerChild "{{ .Values.worker.maxTasksPerChild }}" {{- end }}
+                {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}" {{- end }}
           env:
             {{- include "wb.environment" . | nindent 12 }}
             - name: ENV
