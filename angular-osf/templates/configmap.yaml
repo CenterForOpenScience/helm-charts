@@ -126,6 +126,10 @@ nginx.conf: |-
           }
 
           # Exclude download links from prerender
+          if ($uri ~* ^/download.*) {
+              set $prerender 0;
+          }
+
           if ($arg_action ~* "download") {
               set $prerender 0;
           }
@@ -224,6 +228,10 @@ nginx.conf: |-
           }
 
           # Exclude download links from prerender
+          if ($uri ~* ^/download.*) {
+              set $prerender 0;
+          }
+
           if ($arg_action ~* "download") {
               set $prerender 0;
           }
