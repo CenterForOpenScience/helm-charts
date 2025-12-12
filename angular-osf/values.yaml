@@ -1,146 +1,384 @@
-# Default values for osf-preprints.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-name: angular
-replicaCount: 1
+## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+## or in other form current naming is Release.Name-Chart.Name
 
-image:
-  repository: quay.io/centerforopenscience/angular-osf
-  tag: develop
-  pullPolicy: Always
+## =============== MAIN Component ===============
+main:
+  enabled: true
 
-antiAffinity: soft
+  replicas: 1
 
-budget:
-  minAvailable: 0
+  http:
+    containers:
+      nginx:
+        internalPort: 80
+        externalPort: 80
+        serviceType: ClusterIP
 
-configEnvs:
-  MULTI_CONFIG: false
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious 
-  # choice for the user. This also increases chances charts run on environments with little 
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following 
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-nginx:
-  name: nginx
-
+# ------- Configuration follows for containerName: nginx -------
   image:
     repository: nginx
     tag: alpine
     pullPolicy: Always
 
-  primaryDomain: ""
-  modules: []
-  proxySourceRanges: []
-  realIpHeader: X-Real-IP
-  realIpRecursive: "off"
-  vts:
-    enabled: false
-    internalPort: 18080
-    statusZoneSize: 10m
-    defaultFilterKey: "$geoip_country_code country::*"
+  containerName: nginx
 
-  brandedSubdomains: []
-  preprintDomainMap: {}
-    # domain.org: providerId
-  institutionDomainMap: {}
-    # institution.edu: institutionId
-  additionalRewrites: []
-    # - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
-  # additionalConfig: |-
-    #   ...
-  redirects:
-    enabled: false
-    domains: {}
-      # - to: example.com
-      #   from:
-      #     - www.example.com
-      #     - another.domain.com
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
+
+  env: []
+  
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "env") | trim }}'
+
+  probes:
+    readiness:
+      httpGet:
+        path: /
+        port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+
+  ports:
+    - name: nginx
+      containerPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: static
+      mountPath: /static
+      readOnly: true
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+      readOnly: true
+
+  additionalVolumeMounts: []
 
   resources: {}
-    # We usually recommend not to specify default resources and to leave this as a conscious 
-    # choice for the user. This also increases chances charts run on environments with little 
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following 
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
 
-horizontalPodAutoscaler:
-  enabled: false
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 90
+# ------- Init containers -------
+  angular:
+    image:
+      repository: quay.io/centerforopenscience/angular-osf
+      tag: develop
+      pullPolicy: Always
+    resources:
+        limits:
+          cpu: 1
+          memory: 128Mi
+        requests:
+          cpu: "0"
+          memory: 128Mi
 
-service:
-  name: nginx
-  type: ClusterIP
-  externalPort: 80
-  internalPort: 80
+  initContainers:
+    - name: angular
+      image: "{{ .Values.main.angular.image.repository }}:{{ .Values.main.angular.image.tag }}"
+      imagePullPolicy: "{{ .Values.main.angular.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          set -e
+          cp -Rf /code/dist/osf/browser/* /static/
+          {{- if hasKey .Values.main.configMap.data "config.json" }}
+          cp -Rf /config/config.json /static/assets/config/config.json
+          {{- end }}
+          cp -Rf /config/robots.txt /static/robots.txt
 
-ingress:
-  enabled: false
-  # Used to create Ingress record (should used with service.type: ClusterIP).
-  primaryHost:
-    - chart-example.local
-  # Additional hosts will not have legacy path annotations
-  # additionalHosts:
-  # - chart-example-2.local
-  paths:
-    - /
-  annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  tls:
-    # Secrets must be manually created in the namespace.
-    # - secretName: chart-example-tls
-    #   hosts:
-    #     - chart-example.local
+      env: []
 
-configFiles: {}
-  # Angular config (merges and overrides the default config in the container)
-  # config.json: |-
-  #   {
-  #   }
-  # robots.txt: |-
-  #   # http://www.robotstxt.org
-  #   User-agent: *
-  #   Disallow:
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "env") | trim }}'
 
-# Supporting services
-share:
-  url: "share.osf.io"
+      volumeMounts:
+        - name: static
+          mountPath: /static
+        - name: config
+          mountPath: /config/config.json
+          subPath: config.json
+          readOnly: true
+        - name: config
+          mountPath: /config/robots.txt
+          subPath: robots.txt
+          readOnly: true
+      resources:
+        limits:
+          cpu: "{{ .Values.main.angular.resources.limits.cpu }}"
+          memory: "{{ .Values.main.angular.resources.limits.memory }}"
+        requests:
+          cpu: "{{ .Values.main.angular.resources.requests.cpu }}"
+          memory: "{{ .Values.main.angular.resources.requests.memory }}"
 
-prerender:
-  enabled: false
+  additionalInitContainers: []
+
+
+# ------- Additional containers -------
+  additionalContainers: []
+
+  sidecars: [] # same as additionalContainers, but maybe you prefer this name more :)
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: static
+      emptyDir: {}
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+
+  additionalVolumes: []
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Chart.Name }}" # in this case (always for main) component name = chart name, because we leave name in main.yaml empty.
+
+  additionalAffinities: []
+    # - nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #         - matchExpressions:
+    #             - key: cloud.google.com/gke-preemptible
+    #               operator: In
+    #               values:
+    #                 - "true"
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/config: "{{ sha256sum (tpl (toYaml .Values.main.configMap.data) . ) }}"
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
   service:
-    name: prerender
-    externalPort: 3000
+    enabled: true
+    type: "{{ .Values.main.http.containers.nginx.serviceType }}"
+    ports:
+      - name: nginx
+        port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        targetPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
 
-sharejs:
-  enabled: false
-  service:
-    name: sharejs
-    externalPort: 7007
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
   ingress:
-    paths: 
-      - /sharejs
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+      secondary:
+        - chart-example-2.local
+    rules:
+      - name: main
+        includeForPrimaryHost: true
+        includeForSecondaryHost: true
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+          port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        paths:
+          - /
 
-legacy:
-  enabled: false
-  service:
-    name: osf-web
-    externalPort: 5000
-  ingress:
-    paths:
-      - /api/v1
+      - name: legacy
+        includeForPrimaryHost: true
+        includeForSecondaryHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: osf-web
+          externalPort: 5000
+        paths:
+          - /api/v1
+
+      - name: s1sharejs
+        includeForPrimaryHost: true 
+        includeForSecondaryHost: true
+        pathType: ImplementationSpecific
+        service:
+          name: sharejs
+          externalPort: 7007
+        paths:
+          - /sharejs
+    tls: []
+      # - secretName: secret_name
+      #   hosts: 
+      #     - chart-example.local
+
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "certificate") | trim }}'
+  certificate:
+    enabled: false
+    # secretName: secret-with-cert # default secret name is certificate name
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    commonName: example.org
+    dnsNames:
+      - example.org
+
+  # additionalCertificates:
+  # cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "certificate") | trim }}' + name
+  #   - name: example-org-cert
+  #     enabled: false
+  #     secretName: secret-with-cert
+  #     commonName: example.org
+  #     dnsNames:
+  #       - example.org
+  #       - submdomain.example.org
+  #     issuerRef:
+  #       name: letsencrypt-prod
+  #       kind: ClusterIssuer
+  #     acmeConfig:
+  #       http01: {}
+  #         # ingress: ''
+  #       domains:
+  #         - example.org
+  #         - subdomain.example.org
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.main.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 1
+
+
+# ------- Network Policy configuration -------
+# Network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  networkPolicy:
+    enabled: false
+    allowEgress: false
+    ingressRules:
+      - from:
+        - podSelector:
+            matchLabels: 
+              '{{ include "cos-common.fullname" (dict "root" . "name" "client") | trim }}': "true"
+        ports:
+          - port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+      - ports:
+        - port: "{{ .Values.main.nginx.vts.internalPort }}"
+    egressRules: 
+      - {}
+
+# Additional network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalNetworkPolicies:
+    - name: cert-solver-example
+      enabled: false
+      podSelector:
+        matchExpressions:
+          - key: acme.cert-manager.io/http01-solver
+            operator: Exists
+      ingressRules:
+        - from: []
+
+
+# ------- ConfigMap configuration -------
+# ConfigMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  configMap:
+    enabled: true
+    tpl: true
+    data:
+      robots.txt: |
+        {{ .Files.Get "files/robots.txt" }}
+      config.json: |-
+        {
+        }
+      nginx.conf: |
+        {{ tpl (.Files.Get "files/nginx.conf") (dict "Values" .Values "root" .) }}
+
+# Additional configMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: 
+        MULTI_CONFIG: "false"
+
+
+# ------- Secrets configuration -------
+# Secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  secret:
+    enabled: false
+    includeTls: false
+    data: 
+      superSecret: "secret" 
+      fileExample.txt: |-
+        MySecretFile
+
+  # additionalSecrets:
+  ## Additional secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  #   - name: additional
+  #     enabled: false
+  #     includeTls: false
+  #     data: 
+  #       superSecret: "secret" 
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+
+# ------- Other variables which are used accross files or values.yaml -------
+  nginx:
+    modules: []
+    proxySourceRanges: []
+    realIpHeader: X-Real-IP
+    realIpRecursive: "off"
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
+    brandedSubdomains: []
+    primaryDomain: ""
+    preprintDomainMap: {}
+    institutionDomainMap: {}
+    additionalRewrites: []
+    additionalConfig: ""
+    # Example additional rewrites (uncomment to use):
+    # additionalRewrites:
+    #   - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
+    #   - rewrite "^/legacy-path/(.*)" https://$host/new/$1 permanent;
+    #   - rewrite "^/old-section$" /index.html break;
+    redirects:
+      enabled: false
+      domains: []
+
+  share:
+    url: "share.osf.io"
+
+  prerender:
+    enabled: false
+    service:
+      name: prerender
+      externalPort: 3000

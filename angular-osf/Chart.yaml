@@ -1,9 +1,18 @@
-apiVersion: v1
-description: An Angular application for the Open Science Framework
+apiVersion: v2
 name: angular-osf
-version: 0.0.4
+description: Angular OSF application
+type: application
+version: 1.0.0
+appVersion: "0.0.5"
 keywords:
   - angular
+dependencies:
+  # - name: cos-common
+  #   version: 1.0.0
+  #   repository: "file://../cos-common"
+  - name: cos-common
+    version: 1.0.0
+    repository: https://centerforopenscience.github.io/helm-charts/
 maintainers:
   - name: Matt Frazier
     email: matt@cos.io
@@ -11,5 +20,3 @@ maintainers:
   - name: Uditi Mehta
     email: uditi@cos.io
     url: https://github.com/uditijmehta
-engine: gotpl
-tillerVersion: '>=2.7.0'
