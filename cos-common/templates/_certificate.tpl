@@ -5,9 +5,12 @@
 {{- define "cos-common.buildCertSpec" -}}
 {{- $src := .src -}}
 {{- $secretName := .secretName -}}
+{{- $root := .root -}}
+{{- $values := default dict .values -}}
 {{- $spec := dict "secretName" $secretName -}}
 
 {{- $fields := list
+    "acme"
     "commonName"
     "dnsNames"
     "ipAddresses"
@@ -27,6 +30,33 @@
     {{- $_ := set $spec $field . }}
   {{- end }}
 {{- end }}
+
+{{- /* Back-compat convenience: map certificate.acmeConfig -> spec.acme.config[]. */ -}}
+{{- if and (not (hasKey $spec "acme")) -}}
+  {{- with (get $src "acmeConfig") -}}
+  {{- $acmeCfg := default dict . -}}
+  {{- $http01 := default dict (get $acmeCfg "http01") -}}
+  {{- $domains := default list (get $acmeCfg "domains") -}}
+
+  {{- $shouldAddAcme := or (gt (len $domains) 0) (gt (len $http01) 0) -}}
+  {{- if $shouldAddAcme -}}
+
+  {{- $http01Rendered := dict -}}
+  {{- if gt (len $http01) 0 -}}
+    {{- $http01Rendered = merge (dict) $http01 -}}
+  {{- end -}}
+
+  {{- if not (hasKey $http01Rendered "ingress") -}}
+    {{- if not $root }}
+      {{- fail "cos-common.buildCertSpec requires root when certificate.acmeConfig.http01.ingress is not set" -}}
+    {{- end }}
+    {{- $_ := set $http01Rendered "ingress" ((include "cos-common.fullname" (dict "root" $root "name" "" "values" $values)) | trim) -}}
+  {{- end -}}
+
+    {{- $_ := set $spec "acme" (dict "config" (list (dict "http01" $http01Rendered "domains" $domains))) -}}
+  {{- end -}}
+  {{- end -}}
+{{- end -}}
 
 {{- toYaml $spec -}}
 {{- end }}
@@ -61,6 +91,7 @@ metadata:
   }}
 spec:
   {{- tpl (toYaml $spec) $root | nindent 2 }}
+{{- print "\n" -}}
 {{- end }}
 
 
@@ -91,7 +122,7 @@ spec:
   {{- $secretName := default $name $cert.secretName -}}
 
   {{- $spec := (include "cos-common.buildCertSpec"
-        (dict "src" $cert "secretName" $secretName)
+        (dict "src" $cert "secretName" $secretName "root" .root "values" $vals)
       ) | fromYaml
   -}}
 
@@ -118,7 +149,8 @@ spec:
   {{- $prefix := printf "%s-%s-%s-" $releaseName $chartName $component -}}
   {{- $items := list -}}
   {{- range $item := default list $vals.additionalCertificates }}
-    {{- $items = append $items (merge (dict "name" (default $item.name $item.secretName)) $item) }}
+    {{- $itemName := default $item.secretName $item.name -}}
+    {{- $items = append $items (merge $item (dict "name" $itemName)) }}
   {{- end }}
   {{- include "cos-common.renderAdditionalResources" (dict
       "root" $root

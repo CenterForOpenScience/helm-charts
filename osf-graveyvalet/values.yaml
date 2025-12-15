@@ -319,9 +319,15 @@ main:
     commonName: example.org
     dnsNames:
       - example.org
+    acmeConfig:
+      http01:
+        ingress: 'example'
+      domains:
+        - example.org
+        - subdomain.example.org
 
   # additionalCertificates:
-  # certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}' + name
+  # # certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}' + name
   #   - name: example-org-cert
   #     enabled: false
   #     secretName: secret-with-cert # default secret name is certificate name

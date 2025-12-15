@@ -698,6 +698,21 @@
             "type": "string"
           }
         },
+        "acmeConfig": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "http01": {
+              "$ref": "#/definitions/anyMap"
+            },
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "ipAddresses": {
           "type": "array",
           "items": {

@@ -757,9 +757,9 @@ Resolve a name for additional resources (configmaps/secrets) with either name or
 {{- $prefix := default "" .prefix -}}
 {{- $error := default "additional entry must have either name or fullnameOverride" .error -}}
 {{- if $fullnameOverride }}
-{{ $fullnameOverride }}
+{{- $fullnameOverride -}}
 {{- else if $name }}
-{{ printf "%s%s" $prefix $name }}
+{{- printf "%s%s" $prefix $name -}}
 {{- else }}
 {{- fail $error -}}
 {{- end }}
@@ -916,15 +916,17 @@ Renderer for additional Certificates.
   {{- fail (printf "component %s.additionalCertificates[%s] missing issuerRef" $component (default $item.name $item.secretName)) }}
 {{- end }}
 {{- $generatedName := .name -}}
-{{- $secretName := default $item.secretName $generatedName -}}
+{{- $secretName := default $generatedName $item.secretName -}}
 {{- if not .fromOverride }}
-  {{- $generatedName = include "cos-common.trim63" $generatedName -}}
+  {{- $generatedName = (include "cos-common.trim63" $generatedName) | trim -}}
 {{- end }}
 {{- if not $item.secretName }}
-  {{- $secretName = include "cos-common.trim63" $secretName -}}
+  {{- $secretName = (include "cos-common.trim63" $secretName) | trim -}}
+{{- else }}
+  {{- $secretName = $secretName | trim -}}
 {{- end }}
 {{- $spec := (include "cos-common.buildCertSpec"
-      (dict "src" $item "secretName" $secretName)
+      (dict "src" $item "secretName" $secretName "root" $root "values" .values)
     ) | fromYaml
 }}
 {{- include "cos-common.renderCertificate" (dict

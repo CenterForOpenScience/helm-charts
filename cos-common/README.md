@@ -141,7 +141,7 @@ app:
 - **HPA**: when `enabled`, `minReplicas`, `maxReplicas`, and `metrics` are required.
 - **PDB**: when `enabled`, set either `minAvailable` or `maxUnavailable` (not both).
 - **NetworkPolicy**: defaults to namespace-local ingress allow; egress only if `allowEgress: true` or `extraEgressRules` present. Use `componentScoped: false` to drop the component label when you want one policy to cover multiple components. `additionalNetworkPolicies[]` supported.
-- **Certificates**: renders cert-manager `Certificate`; `issuerRef` required when enabled. `additionalCertificates[]` available.
+- **Certificates**: renders cert-manager `Certificate`; `issuerRef` required when enabled. `certificate.acmeConfig` maps to `spec.acme.config[]` (defaults `http01.ingress` to the chart fullname when not set). `additionalCertificates[]` available.
 - **Persistence**: component-level `persistence` or `volumes[].persistence` can auto-create PVCs (unless `existingClaim`); per-volume persistence forbids `emptyDir` and wires the volume to the claim automatically.
 - **CronJob**: `schedule` is required; job-spec knobs (`parallelism`, `backoffLimit`, `podFailurePolicy`, etc.) live directly under the component block.
 - **Annotations**: `annotations` apply broadly by default; set `annotationsWorkloadOnly: true` or use `workloadAnnotations` to scope/override annotations on the workload resources only (deployment/statefulset/job/cronjob), e.g., for Helm hooks.
