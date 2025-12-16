@@ -283,7 +283,6 @@ main:
 # Network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
   networkPolicy:
     enabled: false
-    allowEgress: false
     ingressRules:
       - from:
         - podSelector:

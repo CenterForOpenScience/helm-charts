@@ -2,9 +2,11 @@
 {{- define "cos-common.networkpolicy.single" -}}
 {{- $vals := default dict .values -}}
 {{- $np := default dict $vals.networkPolicy -}}
+{{- /* Only render when the component is enabled and NP feature toggled on. */ -}}
 {{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
 {{- $render := and $componentEnabled (default false $np.enabled) -}}
 {{- if $render }}
+{{- /* Merge component + NP specific labels/annotations. */ -}}
 {{- $labels := merge (dict) (default (dict) $vals.labels) (default (dict) $np.labels) -}}
 {{- $annotations := include "cos-common.annotations" (dict "values" $vals "resource" $np.annotations) | fromJson -}}
 {{- $fullnameOverride := coalesce $np.name $np.fullnameOverride $vals.fullnameOverride -}}
@@ -47,7 +49,7 @@ spec:
     {{ end }}
   ingress:
     {{- if gt (len $ingressRules) 0 }}
-    {{- /* Normalize each ingress rule and any port maps inside it. */ -}}
+    {{- /* Normalize each ingress rule and any port maps inside it (casts digit strings to ints). */ -}}
     {{- range $rule := $ingressRules }}
       {{- $rendered := tpl (toYaml $rule) $.root | fromYaml }}
       {{- if hasKey $rendered "ports" }}
@@ -98,6 +100,7 @@ spec:
 {{- if $componentEnabled }}
   {{- $releaseName := include "cos-common.releaseName" (dict "root" $root) -}}
   {{- $componentName := include "cos-common.componentName" (dict "root" $root "name" $name) -}}
+  {{- /* Render any additionalNetworkPolicies[] entries using the generic renderer. */ -}}
   {{- include "cos-common.renderAdditionalResources" (dict
       "root" $root
       "component" $name

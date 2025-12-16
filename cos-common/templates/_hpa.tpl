@@ -12,6 +12,8 @@
 {{- $scaleTarget := merge $scaleTargetDefaults (default (dict) $hpa.scaleTargetRef) -}}
 {{- $targetName := coalesce $hpa.scaleTargetName $scaleTarget.name (include "cos-common.fullname" (dict "root" .root "name" .name "values" $vals)) -}}
 {{- $metrics := $hpa.metrics -}}
+{{- $minReplicas := tpl (toString (default 1 $hpa.minReplicas)) .root | int -}}
+{{- $maxReplicas := tpl (toString (default 1 $hpa.maxReplicas)) .root | int -}}
 {{- if not $metrics }}
 {{- $metrics = list (dict "type" "Resource" "resource" (dict "name" "cpu" "target" (dict "type" "Utilization" "averageUtilization" 70))) -}}
 {{ end }}
@@ -26,8 +28,8 @@ spec:
     apiVersion: {{ default "apps/v1" $scaleTarget.apiVersion }}
     kind: {{ default "Deployment" $scaleTarget.kind }}
     name: {{ $targetName }}
-  minReplicas: {{ default 1 $hpa.minReplicas }}
-  maxReplicas: {{ default 1 $hpa.maxReplicas }}
+  minReplicas: {{ $minReplicas }}
+  maxReplicas: {{ $maxReplicas }}
   {{- /* Provide a sane CPU target if none supplied to avoid schema errors. */}}
   metrics:
     {{- range $metric := $metrics }}

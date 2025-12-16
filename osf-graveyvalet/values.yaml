@@ -371,7 +371,6 @@ main:
   networkPolicy:
     enabled: false
     componentScoped: false # this network policy will be applied to all components
-    allowEgress: true
     ingressRules:
       - from:
         - podSelector:
