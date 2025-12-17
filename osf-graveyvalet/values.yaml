@@ -265,9 +265,8 @@ main:
 
 
 # ------- Pod Annotations -------
-  podAnnotations:
-    checksum/config: "{{ sha256sum (tpl (toYaml .Values.main.configMap.data) . ) }}"
-    checksum/secret: "{{ sha256sum (tpl (toYaml .Values.main.secret.data) . ) }}"
+# Checksum for configmap and secret will be added automatically
+  podAnnotations: []
 
 # ------- Service configuration -------
 # service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
@@ -532,9 +531,8 @@ worker:
 
 
 # ------- Pod Annotations -------
-  podAnnotations:
-    checksum/config: "{{ sha256sum (tpl (toYaml .Values.main.configMap.data) . ) }}"
-    checksum/secret: "{{ sha256sum (tpl (toYaml .Values.main.secret.data) . ) }}"
+# Checksum for configmap and secret will be added automatically
+  podAnnotations: []
 
 
 # ------- HPA configuration -------
@@ -718,9 +716,8 @@ beat:
 
 
 # ------- Pod Annotations -------
-  podAnnotations:
-    checksum/config: "{{ sha256sum (tpl (toYaml .Values.main.configMap.data) . ) }}"
-    checksum/secret: "{{ sha256sum (tpl (toYaml .Values.main.secret.data) . ) }}"
+# Checksum for configmap and secret will be added automatically
+  podAnnotations: []
 
 
 # ------- ConfigMap configuration -------
@@ -821,9 +818,8 @@ migration:
 
 
 # ------- Pod Annotations -------
-  podAnnotations:
-    checksum/config: "{{ sha256sum (tpl (toYaml .Values.main.configMap.data) . ) }}"
-    checksum/secret: "{{ sha256sum (tpl (toYaml .Values.main.secret.data) . ) }}"
+# Checksum for configmap and secret will be added automatically
+  podAnnotations: []
 
 
 # ------- ConfigMap configuration -------

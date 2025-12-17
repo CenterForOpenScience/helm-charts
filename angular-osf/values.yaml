@@ -158,8 +158,8 @@ main:
 
 
 # ------- Pod Annotations -------
-  podAnnotations:
-    checksum/config: "{{ sha256sum (tpl (toYaml .Values.main.configMap.data) . ) }}"
+# Checksum for configmap and secret will be added automatically
+  podAnnotations: []
 
 
 # ------- Service configuration -------
