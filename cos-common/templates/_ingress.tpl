@@ -182,7 +182,74 @@ Determine whether we are in "rules mode":
 
   {{- /* Repeat the same expansion logic for SECONDARY hosts */ -}}
   {{- /* (logic intentionally duplicated for clarity and isolation) */ -}}
-  {{- /* ... secondary block unchanged ... */ -}}
+  {{- range $host := $secondaryHosts }}
+    {{- $paths := list }}
+
+    {{- range $rule := $normalizedRules }}
+      {{- /* Rules may explicitly opt out of secondary hosts */ -}}
+      {{- $include := $rule.includeForSecondaryHost }}
+      {{- if eq $include nil }}{{- $include = true }}{{- end }}
+
+      {{- if $include }}
+        {{- /* Validate rule paths */ -}}
+        {{- $rulePaths := default (list) $rule.paths -}}
+        {{- if not $rulePaths }}
+          {{- fail (printf "component %s.ingress.rules entry requires paths" $.name) }}
+        {{- end }}
+
+        {{- /* Resolve rule-level defaults */ -}}
+        {{- $rulePathType := default "ImplementationSpecific" $rule.pathType }}
+        {{- $svc := default (dict) $rule.service }}
+        {{- $ruleServiceName := $serviceName }}
+        {{- $ruleServicePort := $defaultServicePort }}
+
+        {{- /* Rule-level overrides disabled during maintenance */ -}}
+        {{- if not $maintenanceEnabled }}
+          {{- $ruleServiceName = coalesce $rule.serviceName $svc.name $svc.serviceName $ruleServiceName }}
+          {{- $ruleServicePort = coalesce $rule.servicePort $svc.port $svc.servicePort $svc.externalPort $ruleServicePort }}
+        {{- end }}
+
+        {{- /* Expand individual paths */ -}}
+        {{- range $p := $rulePaths }}
+          {{- $pathVal := "" -}}
+          {{- $pathType := $rulePathType -}}
+          {{- $pathServiceName := $ruleServiceName -}}
+          {{- $pathPort := $ruleServicePort -}}
+
+          {{- /* Path can be string or map */ -}}
+          {{- if kindIs "map" $p }}
+            {{- $pathVal = default "" $p.path }}
+            {{- $pathType = default $pathType $p.pathType }}
+            {{- if not $maintenanceEnabled }}
+              {{- $pathServiceName = coalesce $p.serviceName $pathServiceName }}
+              {{- $pathPort = coalesce $p.port $p.servicePort $p.externalPort $pathPort }}
+            {{- end }}
+          {{- else }}
+            {{- $pathVal = $p }}
+          {{- end }}
+
+          {{- $pathVal = default "/" $pathVal }}
+          {{- $pathPort = coalesce $pathPort $defaultServicePort }}
+
+          {{- if not $pathPort }}
+            {{- fail (printf "component %s.ingress rule %s path %s requires a port" $.name (default "<unnamed>" $rule.name) $pathVal) }}
+          {{- end }}
+
+          {{- $paths = append $paths (dict
+                "path" $pathVal
+                "pathType" $pathType
+                "serviceName" $pathServiceName
+                "port" $pathPort
+          ) }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+
+    {{- /* Only emit host entry if at least one path was produced */ -}}
+    {{- if gt (len $paths) 0 }}
+      {{- $hosts = append $hosts (dict "host" $host "paths" $paths) }}
+    {{- end }}
+  {{- end }}
 
 {{- else }}
 

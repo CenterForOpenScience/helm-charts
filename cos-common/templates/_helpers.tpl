@@ -215,41 +215,54 @@ workload-specific additions via `workloadAnnotations`.
 {{- $annotations | toJson -}}
 {{- end }}
 
-{{/*
-Render and hash a component resource (secret/configmap/etc).
-Usage:
-  {{ include "cos-common.componentChecksum" (dict "root" . "name" "web" "values" .Values.web "resource" "secret") }}
-*/}}
 {{- define "cos-common.componentChecksum" -}}
-{{- $template := .template -}}
+{{- $resource := default "configmap" .resource -}}
+{{- $templates := dict
+    "configmap" "cos-common.configmap"
+    "secret" "cos-common.secret"
+-}}
+{{- $template := get $templates $resource -}}
 {{- if not $template }}
-  {{- $resource := default "secret" .resource -}}
-  {{- $templates := dict
-      "secret" "cos-common.secret"
-      "configmap" "cos-common.configmap"
-      "deployment" "cos-common.deployment"
-      "statefulset" "cos-common.statefulset"
-      "service" "cos-common.service"
-      "ingress" "cos-common.ingress"
-      "pdb" "cos-common.pdb"
-      "networkpolicy" "cos-common.networkpolicy"
-      "certificate" "cos-common.certificate"
-      "hpa" "cos-common.hpa"
-      "job" "cos-common.job"
-      "cronjob" "cos-common.cronjob"
-    -}}
-  {{- $template = get $templates $resource -}}
-  {{- if not $template }}
-    {{- fail (printf "unknown resource '%s' for cos-common.componentChecksum" $resource) -}}
-  {{- end }}
+  {{- fail (printf "unsupported resource '%s' for checksum" $resource) -}}
 {{- end }}
-{{- $render := include $template (dict "root" .root "name" .name "values" .values) -}}
+{{- $render := include $template (dict
+      "root" .root
+      "name" .name
+      "values" .values
+  ) -}}
 {{- if $render }}
-{{- $checksum := trimSuffix "\n" (sha256sum $render) -}}
-{{- if $checksum }}
-{{- $checksum -}}
+{{- trimSuffix "\n" (sha256sum $render) -}}
 {{- end }}
 {{- end }}
+
+{{/*
+Compute pod checksum annotations for resources that affect runtime.
+Currently:
+- ConfigMap
+- Secret
+*/}}
+{{- define "cos-common.podChecksums" -}}
+
+{{- /* ConfigMap checksum */ -}}
+{{- if and .values.configMap (default false .values.configMap.enabled) }}
+checksum/configmap: {{ include "cos-common.componentChecksum" (dict
+    "root" .root
+    "name" .name
+    "values" .values
+    "resource" "configmap"
+) }}
+{{- end }}
+
+{{- /* Secret checksum */ -}}
+{{- if and .values.secret (default false .values.secret.enabled) }}
+checksum/secret: {{ include "cos-common.componentChecksum" (dict
+    "root" .root
+    "name" .name
+    "values" .values
+    "resource" "secret"
+) }}
+{{- end }}
+
 {{- end }}
 
 {{/*
