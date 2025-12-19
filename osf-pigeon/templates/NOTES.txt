@@ -1,17 +1,28 @@
-1. Get the application URL by running these commands:
-{{- if .Values.ingress.hostname }}
-  http://{{- .Values.ingress.hostname }}
-{{- else if contains "NodePort" .Values.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "osf-pigeon.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.service.type }}
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get svc -w {{ template "osf-pigeon.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ template "osf-pigeon.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-  echo http://$SERVICE_IP:{{ .Values.service.externalPort }}
-{{- else if contains "ClusterIP"  .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "osf-pigeon.fullname" . }}" -o jsonpath="{.items[0].metadata.name}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
-  kubectl port-forward $POD_NAME 8080:{{ .Values.service.externalPort }}
+Component fullname: {{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) }}
+
+{{- if and .Values.main.ingress.enabled (.Values.main.ingress.hosts) }}
+Ingress hosts:
+{{- $hosts := list }}
+{{- if and (kindIs "map" .Values.main.ingress.hosts) (or (hasKey .Values.main.ingress.hosts "primary") (hasKey .Values.main.ingress.hosts "secondary")) }}
+  {{- range $h := (default (list) .Values.main.ingress.hosts.primary) }}
+    {{- $hosts = append $hosts $h }}
+  {{- end }}
+  {{- range $h := (default (list) .Values.main.ingress.hosts.secondary) }}
+    {{- $hosts = append $hosts $h }}
+  {{- end }}
+{{- else }}
+  {{- range $h := .Values.main.ingress.hosts }}
+    {{- $hosts = append $hosts $h.host }}
+  {{- end }}
+{{- end }}
+{{- range $hosts }}
+ - {{ . }}
+{{- end }}
+{{- else }}
+Service ports:
+{{- range .Values.main.service.ports }}
+ - {{ .name }}: {{ .port }}
+{{- end }}
+Port-forward example:
+kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) }} 8080:{{ (index .Values.main.service.ports 0).port }}
 {{- end }}

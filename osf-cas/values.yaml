@@ -1,199 +1,17 @@
-# Default values for cas.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-replicaCount: 1
-
-antiAffinity: soft
-
-# strategy:
-#   rollingUpdate:
-#     maxSurge: 25%
-#     maxUnavailable: 25%
-#   type: RollingUpdate
-
-budget:
-  minAvailable: 0
-
-apache:
-  image:
-    repository: quay.io/centerforopenscience/shibboleth-sp
-    tag: latest
-    pullPolicy: Always
-  livenessProbe: {}
-  readinessProbe: {}
-  resources: {}
-    #limits:
-    #  cpu: 1
-    #  memory: 128Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-  configEnvs: {}
-  configFiles: {}
-  secretEnvs: {}
-  secretFiles: {}
-    # shibboleth/incommon-idp-signature.pem: |-
-      
-    # shibboleth/sp-cert.pem: |-
-      
-    # shibboleth/sp-key.pem: |-
-      
-    # shibboelth/shibboleth2.xml: |-
-      
-
-jetty:
-  image:
-    repository: quay.io/centerforopenscience/cas
-    tag: develop
-    pullPolicy: Always
-  livenessProbe: {}
-  readinessProbe: {}
-  resources: {}
-    #limits:
-    #  cpu: 1
-    #  memory: 128Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-  configEnvs:
-    JAVA_OPTIONS: -Xms512m -Xmx512m
-  configFiles: {}
-  secretEnvs:
-    OAUTH_ORCID_CLIENT_ID: ''
-    OAUTH_ORCID_CLIENT_SECRET: ''
-    OSF_DB_URL: 'jdbc:postgresql://osf-postgresql.namespace/osf?targetServerType=master'
-    OSF_DB_USER: ''
-    OSF_DB_PASSWORD: ''
-    OSF_JWE_SECRET: ''
-    OSF_JWT_SECRET: ''
-    TGC_ENCRYPTION_KEY: ''
-    TGC_SIGNING_KEY: ''
-    ## If postgresql.enabled is false
-    # DATABASE_URL: ''
-    # DATABASE_USER: ''
-    # DATABASE_PASSWORD: ''
-  secretFiles: {}
-
-horizontalPodAutoscaler:
-  enabled: false
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 90
-
-service:
-  name: cas
-  type: ClusterIP
-  sessionAffinity: None
-  externalPort: 8080
-  internalPort: 80
-
-ingress:
-  enabled: false
-  # Used to create Ingress record (should used with service.type: ClusterIP).
-  hosts:
-    - chart-example.local
-  paths:
-    - /
-  annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  tls:
-    # Secrets must be manually created in the namespace.
-    # - secretName: chart-example-tls
-    #   hosts:
-    #     - chart-example.local
-casDomain: 'staging-accounts.osf.io'
-osfDomain: 'staging.osf.io'
-apiDomain: 'staging-api.osf.io'
-preprintProviderDomains:
-  override: true
-  prefix: staging-
-  suffix: .cos.io
-
-certificate:
-  enabled: false
-  createCert: false
-  name: cert
-  # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-  # - Issue: https://github.com/jetstack/cert-manager/issues/606
-  # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-  tls: true
-  # issuerRef:
-  #   name: letsencrypt-prod
-  #   kind: ClusterIssuer
-  # commonName: example.org
-  # dnsNames:
-  #   - example.org
-  #   - subdomain.example.org
-  # acmeConfig:
-  #   http01: {}
-  #     # ingress: ''
-  #   domains:
-  #     - example.org
-  #     - subdomain.example.org
-
-networkPolicy:
-  enabled: false
-  # Allows external access to the pod, otherwise access is restricted to
-  # clients with the explicit label.
-  allowExternal: true
-  egress: {}
-    # - to:
-    #   - namespaceSelector: {}
-    #   ports:
-    #     - port: 53  # dns
-    #       protocol: TCP
-    #     - port: 53  # dns
-    #       protocol: UDP
-    # - to:
-    #   - ipBlock:
-    #       cidr: 0.0.0.0/0
-    #       except:
-    #         - 10.0.0.0/8
-    #         - 172.16.0.0/12
-    #         - 192.168.0.0/16
-    #   ports:
-    #     - port: 80  # http
-    #       protocol: TCP
-    #     - port: 443  # https
-    #       protocol: TCP
-
-### https://sentry.cos.io/sentry/{project}/settings/keys/
-sentryDSN: ''
-
-# Database connection TLS
-tls:
-  enabled: false
-  files:
-    # Root Certificate
-    root.crt: |-
-      
-    # CAS database certificate
-    postgresql.crt: |-
-      
-    # OSF database certificate
-    osf.crt: |-
-      
-  # Files already base64 encoded
-  base64Files:
-    # CAS database key (PK8 DER Format, must be named postgresql.pk8 unless otherwise specified)
-    postgresql.pk8: ''
-    # OSF database key (PK8 DER Format)
-    osf.pk8: ''
+### ---------- Global or Reusable parts across values.yaml ----------
 
 maintenance:
   enabled: false
+  service:
+    externalPort: 8080
 
 postgresql:
-  enabled: false
+  enabled: false # do not forget tu update networkPolicy
   ## image:
   ##   repository: postgres image repository
   ##   tag: postgres image version
   ##   pullPolicy: Always
   ## ref: https://hub.docker.com/r/library/postgres/tags/
-  #
-  ## Specify a imagePullPolicy
-  ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
-  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
 
   ## Create a database user
   ## Default: postgres
@@ -234,3 +52,384 @@ postgresql:
     requests:
       memory: 256Mi
       cpu: 100m
+
+# Domain defaults (used in templated service definitions)
+casDomain: staging-accounts.osf.io
+osfDomain: staging.osf.io
+apiDomain: staging-api.osf.io
+preprintProviderDomains:
+  override: true
+  prefix: staging-
+  suffix: .cos.io
+
+apache:
+  configEnvs: {}
+  configFiles: {}
+  secretEnvs: {}
+  secretFiles: {}
+
+jetty:
+  configEnvs:
+    JAVA_OPTIONS: -Xms512m -Xmx512m
+  configFiles: {}
+  secretEnvs:
+    OAUTH_ORCID_CLIENT_ID: ''
+    OAUTH_ORCID_CLIENT_SECRET: ''
+    OSF_DB_URL: 'jdbc:postgresql://osf-postgresql.namespace/osf?targetServerType=master'
+    OSF_DB_USER: ''
+    OSF_DB_PASSWORD: ''
+    OSF_JWE_SECRET: ''
+    OSF_JWT_SECRET: ''
+    TGC_ENCRYPTION_KEY: ''
+    TGC_SIGNING_KEY: ''
+    ## If postgresql.enabled is false
+    # DATABASE_URL: ''
+    # DATABASE_USER: ''
+    # DATABASE_PASSWORD: ''
+  secretFiles: {}
+
+# Database connection TLS
+tls:
+  enabled: false
+  postgresql:
+    enabled: false
+    mountPath: /root/.postgresql
+    files:
+      # Root Certificate
+      root.crt: |-
+        
+      # CAS database certificate
+      postgresql.crt: |-
+        
+      # OSF database certificate
+      osf.crt: |-
+        
+    # Files already base64 encoded
+    base64Files:
+      # CAS database key (PK8 DER Format, must be named postgresql.pk8 unless otherwise specified)
+      postgresql.pk8: ""
+      # OSF database key (PK8 DER Format)
+      osf.pk8: ""
+
+
+## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+## or in other form current naming is Release.Name-Chart.Name
+
+## =============== MAIN Component ===============
+main:
+
+  enabled: true
+
+  replicas: 1
+
+  http:
+    containers:
+      apache:
+        internalPort: 80
+        externalPort: 8080
+        serviceType: ClusterIP
+
+# ------- Configuration follows for containerName: jetty -------
+  image:
+    repository: quay.io/centerforopenscience/cas
+    tag: develop
+    pullPolicy: Always
+
+  containerName: jetty
+
+  env: []
+
+  envFrom: []
+
+  probes:
+    liveness:
+      httpGet:
+        path: /login
+        port: "{{ .Values.main.http.containers.apache.externalPort }}"
+      initialDelaySeconds: 300
+      timeoutSeconds: 1
+      periodSeconds: 10
+      successThreshold: 1
+      failureThreshold: 10
+
+    readiness:
+      httpGet:
+        path: /login
+        port: "{{ .Values.main.http.containers.apache.externalPort }}"
+      initialDelaySeconds: 10
+      timeoutSeconds: 1
+      periodSeconds: 10
+      successThreshold: 1
+      failureThreshold: 3
+
+  ports:
+    - name: http
+      containerPort: "{{ .Values.main.http.containers.apache.externalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: cas
+      mountPath: /etc/cas
+      
+  additionalVolumeMounts: []
+
+  resources: {}
+
+
+# ------- Init containers -------
+  initContainers: []
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    mountToContainer: jetty
+    userCertsOwner: root:root
+
+
+# ------- Additional containers -------
+  apache:
+    image:
+      repository: quay.io/centerforopenscience/shibboleth-sp
+      tag: latest
+      pullPolicy: Always
+    resources:
+      limits:
+        cpu: 1
+        memory: 512Mi
+      requests:
+        cpu: 10m
+        memory: 256Mi
+        # ephemeral-storage: 10Gi
+
+  additionalContainers:
+    - name: apache
+      image: "{{ .Values.main.apache.image.repository }}:{{ .Values.main.apache.image.tag }}"
+      imagePullPolicy: "{{ .Values.main.apache.image.pullPolicy }}"
+      env: []
+      envFrom: []
+      ports:
+        - name: http-internal
+          containerPort: "{{ .Values.main.http.containers.apache.internalPort }}"
+      readinessProbe:
+        httpGet:
+          path: /Shibboleth.sso/Status
+          port: "{{ .Values.main.http.containers.apache.internalPort }}"
+          httpHeaders:
+            - name: Host
+              value: "{{ .Values.casDomain }}"
+        initialDelaySeconds: 10
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 3
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: "{{ .Values.main.http.containers.apache.internalPort }}"
+          httpHeaders:
+            - name: Host
+              value: health
+        initialDelaySeconds: 300
+        timeoutSeconds: 1
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 10
+      resources:
+        limits:
+          cpu: "{{ .Values.main.apache.resources.limits.cpu }}"
+          memory: "{{ .Values.main.apache.resources.limits.memory }}"
+        requests:
+          cpu: "{{ .Values.main.apache.resources.requests.cpu }}"
+          memory: "{{ .Values.main.apache.resources.requests.memory }}"
+          # ephemeral-storage: "{{ index .Values.main.apache.resources.requests \"ephemeral-storage\" }}"
+      volumeMounts: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: cas
+      emptyDir: {}
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) | trim }}'
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) | trim }}'
+
+  additionalVolumes: []
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    # # Soft
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Chart.Name }}" # in this case component name = chart name, because we leave component name in main.yaml empty.
+      # Hard
+      # podAntiAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     - topologyKey: kubernetes.io/hostname
+      #       labelSelector:
+      #         matchLabels:
+      #           app.kubernetes.io/name: "{{ .Chart.Name }}"
+      #           app.kubernetes.io/instance: "{{ .Release.Name }}"
+      #           app.kubernetes.io/component: "{{ .Chart.Name }}" # in this case component name = chart name, because we leave component name in main.yaml empty.
+
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations: []
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: true
+    type: "{{ .Values.main.http.containers.apache.serviceType }}"
+    sessionAffinity: None
+    ports:
+      - name: http
+        port: "{{ .Values.main.http.containers.apache.externalPort }}"
+        targetPort: "{{ .Values.main.http.containers.apache.internalPort }}"
+        protocol: TCP
+
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+    rules:
+      - name: main
+        includeForPrimaryHost: true
+        includeForSecondaryHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+          port: "{{ .Values.main.http.containers.apache.externalPort }}"
+        paths:
+          - /
+    tls: []
+      # - secretName: secret_name
+      #   hosts: 
+      #     - chart-example.local
+
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}'
+  certificate:
+    enabled: false
+    # secretName: secret-with-cert # default secret name is certificate name
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    commonName: example.org
+    dnsNames:
+      - example.org
+    acmeConfig:
+      http01:
+        ingress: 'test'
+      domains:
+        - example.org
+
+  # additionalCertificates:
+  # # cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "certificate") | trim }}' + name
+  #   - name: example-org-cert
+  #     enabled: false
+  #     # secretName: secret-with-cert
+  #     commonName: example.org
+  #     dnsNames:
+  #       - example.org
+  #       - submdomain.example.org
+  #     issuerRef:
+  #       name: letsencrypt-prod
+  #       kind: ClusterIssuer
+  #     acmeConfig:
+  #       http01: {}
+  #         # ingress: ''
+  #       domains:
+  #         - example.org
+  #         - subdomain.example.org
+
+
+  # ---------- HPA configuration ----------
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+  # ---------- PDB configuration ----------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- Network Policy configuration -------
+# Network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  networkPolicy:
+    enabled: false
+    componentScoped: true # this network policy will be applied to all components
+    ingressRules:
+      - ports:
+        - port: "{{ .Values.main.http.containers.apache.internalPort }}"
+        from:
+        - podSelector:
+            matchLabels:
+              '{{ include "cos-common.fullname" (dict "root" . "name" "client") | trim }}': "true"
+    egressRules: 
+      - to:
+        - podSelector:
+            matchLabels:
+              '{{ include "cos-common.fullname" (dict "root" . "name" "client") | trim }}': "true"
+        ports:
+          - port: 5432
+            protocol: TCP
+
+# Additional network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalNetworkPolicies:
+    - name: cert-solver
+      enabled: false
+      podSelector:
+        matchExpressions:
+          - key: acme.cert-manager.io/http01-solver
+            operator: Exists
+      ingressRules:
+        - from: []
+
+
+# ------- Secrets configuration -------
+# Secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+#
+# It is important to set secret.enabled to false when you have enabledInitContainersCertificate for the component but secret object
+# created not by cos-common library.
+#
+  secret:
+    enabled: false 
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}

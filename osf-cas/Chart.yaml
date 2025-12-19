@@ -1,7 +1,8 @@
-apiVersion: v1
+apiVersion: v2
 description: Central Authentication Service
 name: osf-cas
-version: 0.2.0
+type: application
+version: 1.0.0
 keywords:
   - authentication
 sources:
@@ -13,5 +14,18 @@ maintainers:
   - name: Matt Clark
     email: mattclark@cos.io
     url: https://github.com/mattclark
-engine: gotpl
-tillerVersion: '>=2.7.0'
+dependencies:
+  - name: maintenance
+    version: 0.2.0
+    repository: https://centerforopenscience.github.io/helm-charts/
+    condition: maintenance.enabled, global.maintenance.enabled
+  - name: postgresql
+    version: 0.11.1
+    repository: https://centerforopenscience.github.io/helm-charts/
+    condition: postgresql.enabled, global.postgresql.enabled
+  - name: cos-common
+    version: 1.0.0
+    repository: https://centerforopenscience.github.io/helm-charts/
+  # - name: cos-common
+  #   version: 1.0.0
+  #   repository: "file://../cos-common"

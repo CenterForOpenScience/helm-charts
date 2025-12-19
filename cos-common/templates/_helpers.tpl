@@ -26,7 +26,7 @@ Parse init-certs config (supports boolean for backward compatibility).
 {{- $enabled := default false $cfg.enabled -}}
 {{- $mount := $cfg.mountToContainer -}}
 {{- $owner := default "www-data:www-data" $cfg.userCertsOwner -}}
-{{- dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner -}}
+{{- toYaml (dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner) -}}
 {{- end }}
 
 {{/*

@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "cas.fullname" . }}
+  name: {{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) | trim }}
   labels:
-    app: {{ template "cas.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: cas
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ printf "%s-%s" .Chart.Name (replace "+" "_" .Chart.Version) }}
 data:
 {{- define "cas.jetty.preprint-services" }}
 africarxiv:
@@ -261,7 +262,7 @@ shibboleth/shibboleth2.xml: |-
 httpd/conf.d/shib.conf: |-
   LoadModule mod_shib /usr/lib64/shibboleth/mod_shib_24.so
 
-  <VirtualHost *:{{ .Values.service.internalPort }}>
+  <VirtualHost *:{{ .Values.main.http.containers.apache.internalPort }}>
     ServerName health
     LoadModule status_module "modules/mod_status.so"
 
@@ -272,7 +273,7 @@ httpd/conf.d/shib.conf: |-
       SetHandler server-status
     </Location>
   </VirtualHost>
-  <VirtualHost *:{{ .Values.service.internalPort }}>
+  <VirtualHost *:{{ .Values.main.http.containers.apache.internalPort }}>
     ServerName https://{{ required "casDomain must be set" .Values.casDomain }}:443
     UseCanonicalName On
     ServerAdmin admin@osf.io
@@ -297,8 +298,8 @@ httpd/conf.d/shib.conf: |-
       # ShibDisable on
       ShibRequestSetting REMOTE_ADDR X-Forwarded-For
 
-      ProxyPass http://127.0.0.1:{{ .Values.service.externalPort }}/
-      ProxyPassReverse http://127.0.0.1:{{ .Values.service.externalPort }}/
+      ProxyPass http://127.0.0.1:{{ .Values.main.http.containers.apache.externalPort }}/
+      ProxyPassReverse http://127.0.0.1:{{ .Values.main.http.containers.apache.externalPort }}/
     </Location>
 
     <Location /login>
@@ -311,8 +312,8 @@ httpd/conf.d/shib.conf: |-
       ShibUseEnvironment off
       ShibUseHeaders on
 
-      ProxyPass http://127.0.0.1:{{ .Values.service.externalPort }}/login
-      ProxyPassReverse http://127.0.0.1:{{ .Values.service.externalPort }}/login
+      ProxyPass http://127.0.0.1:{{ .Values.main.http.containers.apache.externalPort }}/login
+      ProxyPassReverse http://127.0.0.1:{{ .Values.main.http.containers.apache.externalPort }}/login
     </Location>
 
     <Location /Shibboleth.sso>
