@@ -205,6 +205,7 @@ main:
 
   additionalContainers:
     - name: apache
+      inheritResourcesFrom: apache # <----- gets resources from apache set of vars above
       image: "{{ .Values.main.apache.image.repository }}:{{ .Values.main.apache.image.tag }}"
       imagePullPolicy: "{{ .Values.main.apache.image.pullPolicy }}"
       env: []
@@ -236,15 +237,6 @@ main:
         periodSeconds: 10
         successThreshold: 1
         failureThreshold: 10
-      resources:
-        limits:
-          cpu: "{{ .Values.main.apache.resources.limits.cpu }}"
-          memory: "{{ .Values.main.apache.resources.limits.memory }}"
-        requests:
-          cpu: "{{ .Values.main.apache.resources.requests.cpu }}"
-          memory: "{{ .Values.main.apache.resources.requests.memory }}"
-          # ephemeral-storage: "{{ index .Values.main.apache.resources.requests \"ephemeral-storage\" }}"
-      volumeMounts: []
 
 
 # ------- Volumes configuration for the pod -------
@@ -288,7 +280,7 @@ main:
 
 
 # ------- Pod Annotations -------
-  podAnnotations: []
+  podAnnotations: {}
 
 
 # ------- Service configuration -------

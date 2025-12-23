@@ -262,6 +262,10 @@
           "type": "object",
           "additionalProperties": true
         },
+        "inheritResourcesFrom": {
+          "type": "string",
+          "description": "Name of another container entry in this component whose resources should be merged into this container."
+        },
         "securityContext": {
           "type": "object",
           "additionalProperties": true
@@ -271,6 +275,10 @@
           "items": {
             "$ref": "#/definitions/volumeMount"
           }
+        },
+        "inheritVolumeMountsFrom": {
+          "type": "string",
+          "description": "Name of another container entry in this component whose volumeMounts should be copied into this container."
         },
         "livenessProbe": {
           "$ref": "#/definitions/probe"

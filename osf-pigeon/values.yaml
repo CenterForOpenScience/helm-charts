@@ -80,18 +80,19 @@ main:
         cpu: 10m
         memory: 282Mi
         ephemeral-storage: 10Gi
-      volumeMounts:
-        - name: localcache
-          mountPath: /tmp/pigeonlocalcache
-        #### If Enabled persistence < ----------
-        # - name: data
-        #   mountPath: /var/lib/pigeonlocaldata/
+    volumeMounts:
+      - name: localcache
+        mountPath: /tmp/pigeonlocalcache
+      #### If Enabled persistence < ----------
+      # - name: data
+      #   mountPath: /var/lib/pigeonlocaldata/
 
   sidecars: [] # same as additionalContainers, but maybe you prefer this name more :)
 
   additionalContainers:
     - name: sanic
       inheritVolumeMountsFrom: sanic # <----- gets volume mounts from sanic set of vars above
+      inheritResourcesFrom: sanic # <----- gets resources from sanic set of vars above
       image: "{{ .Values.main.sanic.image.repository }}:{{ .Values.main.sanic.image.tag }}"
       imagePullPolicy: "{{ .Values.main.sanic.image.pullPolicy }}"
       command:
@@ -114,14 +115,6 @@ main:
         httpGet:
           path: /
           port: "{{ .Values.main.http.containers.nginx.externalPort }}"
-      resources:
-        limits:
-          cpu: "{{ .Values.main.sanic.resources.limits.cpu }}"
-          memory: "{{ .Values.main.sanic.resources.limits.memory }}"
-        requests:
-          cpu: "{{ .Values.main.sanic.resources.requests.cpu }}"
-          memory: "{{ .Values.main.sanic.resources.requests.memory }}"
-          ephemeral-storage: "{{ index .Values.main.sanic.resources.requests \"ephemeral-storage\" }}"
 
 
 # ------- Volumes configuration for the pod -------
@@ -186,8 +179,12 @@ main:
 
 
 # ------- Pod Annotations -------
-# Checksum for secret and configmap generated automatically
-  podAnnotations: []
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-sanic-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "sanic-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+    checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
 
 
 # ------- Service configuration -------

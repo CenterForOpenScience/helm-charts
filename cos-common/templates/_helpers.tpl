@@ -236,50 +236,25 @@ workload-specific additions via `workloadAnnotations`.
 {{- end }}
 
 {{/*
-Compute pod checksum annotations for resources that affect runtime.
-Currently:
-- ConfigMap
-- Secret
-*/}}
-{{- define "cos-common.podChecksums" -}}
-
-{{- /* ConfigMap checksum */ -}}
-{{- if and .values.configMap (default false .values.configMap.enabled) }}
-checksum/configmap: {{ include "cos-common.componentChecksum" (dict
-    "root" .root
-    "name" .name
-    "values" .values
-    "resource" "configmap"
-) }}
-{{- end }}
-
-{{- /* Secret checksum */ -}}
-{{- if and .values.secret (default false .values.secret.enabled) }}
-checksum/secret: {{ include "cos-common.componentChecksum" (dict
-    "root" .root
-    "name" .name
-    "values" .values
-    "resource" "secret"
-) }}
-{{- end }}
-
-{{- end }}
-
-{{/*
 Render pod metadata labels and annotations.
 */}}
 {{- define "cos-common.podMetadata" -}}
 labels:
   {{- include "cos-common.podLabels" . | nindent 2 }}
   {{- with .values.podLabels }}
-  {{ tpl (toYaml .) .root | nindent 2 }}
-  {{ end }}
+  {{- range $k, $v := . }}
+  {{ $k }}: {{ tpl (printf "%s" $v) $.root | quote }}
+  {{- end }}
+  {{- end }}
+
 {{- with .values.podAnnotations }}
 annotations:
-  {{- $podAnns := tpl (toYaml .) .root | trimSuffix "\n" }}
-  {{ $podAnns | nindent 2 }}
-{{ end }}
-{{ end }}
+  {{- range $k, $v := . }}
+  {{ $k }}: {{ tpl (printf "%s" $v) $.root | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
 
 {{/*
 Helper to render list values with tpl evaluation.
@@ -462,7 +437,7 @@ resources:
 
 {{/*
 Render additional containers (sidecars/extra).
-Merges sidecars and additionalContainers, lets you inherit mounts from another container,
+Merges sidecars and additionalContainers, lets you inherit mounts/resources from another container,
 adds TLS mounts, normalizes ports/probes, and strips helper-only keys before render.
 */}}
 {{- define "cos-common.additionalContainers" -}}
@@ -480,6 +455,7 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
   {{- $c := deepCopy . -}}
   {{- $name := default "" $c.name -}}
   {{- $volumeMounts := list -}}
+  {{- $inheritedResources := dict -}}
   {{- if $c.inheritVolumeMountsFrom }}
     {{- /* copy mounts from another named container section (e.g., main.daphne) */ -}}
     {{- $inheritFrom := tpl (toString $c.inheritVolumeMountsFrom) $.root -}}
@@ -493,8 +469,18 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
       {{- end }}
     {{- end }}
   {{- end }}
+  {{- if $c.inheritResourcesFrom }}
+    {{- $inheritResourcesFrom := tpl (toString $c.inheritResourcesFrom) $.root -}}
+    {{- $src := index $vals $inheritResourcesFrom -}}
+    {{- if kindIs "map" $src }}
+      {{- with $src.resources }}
+        {{- $inheritedResources = merge (dict) $inheritedResources . -}}
+      {{- end }}
+    {{- end }}
+  {{- end }}
   {{- /* remove helper-only key so it doesn't reach k8s */ -}}
   {{- $_ := unset $c "inheritVolumeMountsFrom" -}}
+  {{- $_ := unset $c "inheritResourcesFrom" -}}
   {{- $volumeMounts = concat $volumeMounts (default (list) $c.volumeMounts) -}}
   {{- if $tlsConfigs }}
     {{- range $app, $cfg := $tlsConfigs }}
@@ -505,6 +491,10 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
   {{- end }}
   {{- if gt (len $volumeMounts) 0 }}
     {{- $_ := set $c "volumeMounts" $volumeMounts -}}
+  {{- end }}
+  {{- $resources := merge (dict) $inheritedResources (default (dict) $c.resources) -}}
+  {{- if gt (len $resources) 0 }}
+    {{- $_ := set $c "resources" $resources -}}
   {{- end }}
   {{- if $c.ports }}
     {{- $ports := list }}

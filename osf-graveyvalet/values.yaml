@@ -146,18 +146,19 @@ main:
         cpu: 0
         memory: 256Mi
         ephemeral-storage: 10Gi
-      volumeMounts:
-        - name: localcache
-          mountPath: /tmp/gravyvaletlocalcache
-        #### If Enabled persistence < ----------
-        # - name: data
-        #   mountPath: /var/lib/gravyvaletlocaldata/
+    volumeMounts:
+      - name: localcache
+        mountPath: /tmp/gravyvaletlocalcache
+      #### If Enabled persistence < ----------
+      # - name: data
+      #   mountPath: /var/lib/gravyvaletlocaldata/
 
   sidecars: [] # same as additionalContainers, but maybe you prefer this name more :)
 
   additionalContainers:
     - name: daphne
       inheritVolumeMountsFrom: daphne # <----- gets volume mounts from daphne set of vars above
+      inheritResourcesFrom: daphne # <----- gets resources from daphne set of vars above
       image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
       imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
       command:
@@ -183,14 +184,6 @@ main:
         httpGet:
           path: /v1/status/
           port: "{{ .Values.main.http.containers.nginx.externalPort }}"
-      resources:
-        limits:
-          cpu: "{{ .Values.main.daphne.resources.limits.cpu }}"
-          memory: "{{ .Values.main.daphne.resources.limits.memory }}"
-        requests:
-          cpu: "{{ .Values.main.daphne.resources.requests.cpu }}"
-          memory: "{{ .Values.main.daphne.resources.requests.memory }}"
-          ephemeral-storage: "{{ index .Values.main.daphne.resources.requests \"ephemeral-storage\" }}"
 
 
 # ------- Volumes configuration for the pod -------
@@ -265,8 +258,13 @@ main:
 
 
 # ------- Pod Annotations -------
-# Checksum for configmap and secret will be added automatically
-  podAnnotations: []
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-daphne-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "daphne-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+    checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
+
 
 # ------- Service configuration -------
 # service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
@@ -531,8 +529,14 @@ worker:
 
 
 # ------- Pod Annotations -------
-# Checksum for configmap and secret will be added automatically
-  podAnnotations: []
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+    checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
+    checksum/worker-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.worker "resource" "configmap") }}'
+    checksum/worker-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.worker "resource" "secret") }}'
+    checksum/worker-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.worker "resource" "secret") }}'
 
 
 # ------- HPA configuration -------
@@ -716,8 +720,14 @@ beat:
 
 
 # ------- Pod Annotations -------
-# Checksum for configmap and secret will be added automatically
-  podAnnotations: []
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+    checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
+    checksum/beat-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.beat "resource" "configmap") }}'
+    checksum/beat-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.beat "resource" "secret") }}'
+    checksum/beat-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.beat "resource" "secret") }}'
 
 
 # ------- ConfigMap configuration -------
@@ -818,8 +828,14 @@ migration:
 
 
 # ------- Pod Annotations -------
-# Checksum for configmap and secret will be added automatically
-  podAnnotations: []
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+    checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
+    checksum/migration-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.migration "resource" "configmap") }}'
+    checksum/migration-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.migration "resource" "secret") }}'
+    checksum/migration-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.migration "resource" "secret") }}'
 
 
 # ------- ConfigMap configuration -------

@@ -35,16 +35,8 @@ spec:
   {{ end }}
   template:
     metadata:
-      labels:
-        {{- include "cos-common.podLabels" . | nindent 8 }}
-        {{- with $vals.podLabels }}
-        {{- tpl (toYaml .) $.root | nindent 8 }}
-        {{- end }}
-      annotations:
-        {{- with $vals.podAnnotations }}
-        {{- tpl (toYaml .) $.root | nindent 8 }}
-        {{- end }}
-        {{- include "cos-common.podChecksums" . | nindent 8 }}
+      {{- /* Pod labels/annotations stay aligned with selectors. */}}
+      {{- include "cos-common.podMetadata" . | nindent 6 }}
     spec:
       {{- /* Shared pod spec helper wires containers, volumes, TLS, affinities, etc. */}}
       {{- include "cos-common.podSpec" . | nindent 6 }}

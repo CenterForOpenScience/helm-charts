@@ -158,8 +158,9 @@ main:
 
 
 # ------- Pod Annotations -------
-# Checksum for configmap and secret will be added automatically
-  podAnnotations: []
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.main "resource" "configmap") }}'
 
 
 # ------- Service configuration -------
