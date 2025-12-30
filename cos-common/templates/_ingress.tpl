@@ -33,7 +33,8 @@ and backward-compatible across services.
 {{- /* Resolve service names:
       - default component service
       - maintenance service (when enabled) */ -}}
-{{- $maintenanceServiceName := include "cos-common.fullname" (dict "root" .root "name" "maintenance" "values" $maintenance) -}}
+{{- $maintenanceService := default (dict) $maintenance.service -}}
+{{- $maintenanceServiceName := coalesce $maintenanceService.name (include "cos-common.fullname" (dict "root" .root "name" "maintenance" "values" $maintenance)) -}}
 {{- $defaultServiceName := include "cos-common.fullname" (dict "root" .root "name" .name "values" $vals) -}}
 
 {{- /* Select backend service name depending on maintenance mode */ -}}

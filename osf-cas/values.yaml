@@ -3,7 +3,8 @@
 maintenance:
   enabled: false
   service:
-    externalPort: 8080
+    name: <release-name>-maintenance # default service name would be Release.name-Chart.name-maintenance
+    externalPort: 8080 # default port 80
 
 postgresql:
   enabled: false # do not forget tu update networkPolicy

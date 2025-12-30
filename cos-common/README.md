@@ -136,7 +136,7 @@ app:
 - **ConfigMap**: `tpl: true` renders `.data` through Helm’s engine. `additionalConfigMaps[]` lets you emit extra ConfigMaps without new templates.
 - **Secret**: `.data` is auto base64’d. `includeTls: true` can merge TLS files from `.Values.tls.*.files`. `additionalSecrets[]` is supported.
 - **Ingress**: requires `hosts` or `defaultBackend`. Besides the legacy `hosts[]` block, you can use grouped hosts via `hosts.primary`/`hosts.secondary` with `rules[]` (per-rule enablement and `includeForPrimaryHost`/`includeForSecondaryHost`) to fan out shared path sets across host groups; `servicePort` defaults to `service.ports[0]` when not set on a path/backend.
-- **Maintenance**: when `.Values.maintenance.enabled` is true, ingress targets the maintenance service/port (`maintenance.service.externalPort` or `maintenance.servicePort`) instead of the component service.
+- **Maintenance**: when `.Values.maintenance.enabled` is true, ingress targets the maintenance service/port (`maintenance.service.externalPort` or `maintenance.servicePort`) instead of the component service; override the maintenance service name with `maintenance.service.name` when needed.
 - **Affinity**: use `affinity` for your base rules and `additionalAffinities[]` to layer on more affinity snippets; later entries override earlier keys.
 - **HPA**: when `enabled`, `minReplicas`, `maxReplicas`, and `metrics` are required.
 - **PDB**: when `enabled`, set either `minAvailable` or `maxUnavailable` (not both).

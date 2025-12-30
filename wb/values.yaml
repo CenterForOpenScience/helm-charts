@@ -1,40 +1,12 @@
-# Default values for wb.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-replicaCount: 1
-
-image:
+### ------- Global or reusable parts across values.yaml -------
+appImage:
   repository: quay.io/centerforopenscience/waterbutler
   tag: develop
   pullPolicy: Always
 
-antiAffinity: soft
-
-# strategy:
-#   rollingUpdate:
-#     maxSurge: 25%
-#     maxUnavailable: 25%
-#   type: RollingUpdate
-
-budget:
-  minAvailable: 0
-
 nginx:
   workerCount: 1
-  image:
-    repository: quay.io/centerforopenscience/nginx
-    tag: latest
-    pullPolicy: Always
-  resources: {}
-    # limits:
-    #   cpu: 1
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
   proxySourceRanges: []
-    # - 130.211.0.0/22
-    # - 35.191.0.0/16
   realIpHeader: X-Real-IP
   realIpRecursive: "off"
   vts:
@@ -42,311 +14,535 @@ nginx:
     internalPort: 18080
     statusZoneSize: 10m
     defaultFilterKey: "$geoip_country_code country::*"
-  readTimeout: 60 # http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_read_timeout
-
-tornado:
-  resources: {}
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-  volumeMounts: []
-  env: {}
-
-worker:
-  concurrency: 2
-  logLevel: INFO
-  maxTasksPerChild: 5
-  resources: {}
-    # limits:
-    #   cpu: 2
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-  volumeMounts: []
-  env: {}
-
-horizontalPodAutoscaler:
-  enabled: false
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 90
-
-service:
-  name: http
-  type: ClusterIP
-  # If using type: LoadBalancer
-  #loadBalancerIP: 0.0.0.0
-  #loadBalancerSourceRanges:
-  #  - 0.0.0.0/0
-  externalPort: 7777
-  internalPort: 80
-
-ingress:
-  enabled: false
-  annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-    # ingress.kubernetes.io/proxy-body-size: 9999m
-    # nginx.org/client-max-body-size: 9999m
-  paths:
-    - /
-  hosts:
-  # - staging-files.osf.io
-  tls:
-  # - secretName: osf-io-tls
-  #   hosts:
-  #   - staging-files.osf.io
-
-certificate:
-  enabled: false
-  createCert: false
-  name: cert
-  # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-  # - Issue: https://github.com/jetstack/cert-manager/issues/606
-  # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-  tls: true
-  # issuerRef:
-  #   name: letsencrypt-prod
-  #   kind: ClusterIssuer
-  # commonName: example.org
-  # dnsNames:
-  #   - example.org
-  #   - subdomain.example.org
-  # acmeConfig:
-  #   http01: {}
-  #     # ingress: ''
-  #   domains:
-  #     - example.org
-  #     - subdomain.example.org
-
-networkPolicy:
-  enabled: false
-  # Allows external access to the pod, otherwise access is restricted to
-  # clients with the explicit label.
-  allowExternal: true
-  egress: {}
-    # - to:
-    #   - namespaceSelector: {}
-    #   ports:
-    #     - port: 53  # dns
-    #       protocol: TCP
-    #     - port: 53  # dns
-    #       protocol: UDP
-    # - to:
-    #   - ipBlock:
-    #       cidr: 0.0.0.0/0
-    #       except:
-    #         - 10.0.0.0/8
-    #         - 172.16.0.0/12
-    #         - 192.168.0.0/16
-    #   ports:
-    #     - port: 80  # http
-    #       protocol: TCP
-    #     - port: 443  # https
-    #       protocol: TCP
-
-configEnvs: {}
-
-configFiles: {}
-
-secretEnvs: {}
-
-secretFiles:
-  settings.json: |-
-    {
-      "ANALYTICS": {
-        "MFR_DOMAIN": "https://staging-mfr.osf.io",
-        "KEEN": {
-          "PRIVATE": {
-            "PROJECT_ID": "",
-            "WRITE_KEY": ""
-          },
-          "PUBLIC": {
-            "PROJECT_ID": "",
-            "WRITE_KEY": ""
-          }
-        }
-      },
-      "GITHUB_PROVIDER_CONFIG": {
-        "MOVE_MESSAGE": "Moved via the Open Science Framework",
-        "COPY_MESSAGE": "Copied via the Open Science Framework",
-        "UPLOAD_FILE_MESSAGE": "Added via the Open Science Framework",
-        "UPDATE_FILE_MESSAGE": "Updated via the Open Science Framework",
-        "DELETE_FILE_MESSAGE": "Deleted via the Open Science Framework",
-        "DELETE_FOLDER_MESSAGE": "Deleted via the Open Science Framework"
-      },
-      "OSFSTORAGE_PROVIDER_CONFIG": {
-        "FILE_PATH_PENDING": "/data/pending",
-        "FILE_PATH_COMPLETE": "/data/complete",
-        "HMAC_SECRET": "",
-        "RUN_TASKS": true
-      },
-      "SERVER_CONFIG": {
-        "DOMAIN": "https://staging-files.osf.io",
-        "ADDRESS": "0.0.0.0",
-        "PORT": 7777,
-        "DEBUG": false,
-        "XHEADERS": true,
-        "CORS_ALLOW_ORIGIN": [
-          "https://staging.osf.io",
-          "https://staging-mfr.osf.io"
-        ],
-        "HMAC_SECRET": "",
-        "MAX_BUFFER_SIZE": 157286400,
-        "AUTH_HANDLERS": [
-          "osf"
-        ]
-      },
-      "OSF_AUTH_CONFIG": {
-        "API_URL": "https://staging.osf.io/api/v1/files/auth/",
-        "JWE_SALT": "",
-        "JWE_SECRET": "",
-        "JWT_SECRET": ""
-      },
-      "TASKS_CONFIG": {
-        "BROKER_URL": "amqp://guest:guest@127.0.0.1:5672//",
-        "ADHOC_BACKEND_PATH": "/pickles"
-      },
-      "SENTRY_DSN": "",
-      "LOGGING": {
-        "version": 1,
-        "disable_existing_loggers": false,
-        "formatters": {
-          "defaultFormatter": {
-            "()": "waterbutler.core.logging.MaskFormatter",
-            "format": "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s",
-            "pattern": "(?<=cookie=)(.*?)(?=&|$)",
-            "mask": "***"
-          }
-        },
-        "handlers": {
-          "consoleHandler": {
-            "class": "logging.StreamHandler",
-            "level": "INFO",
-            "formatter": "defaultFormatter"
-          }
-        },
-        "loggers": {
-          "": {
-            "handlers": [
-              "consoleHandler"
-            ],
-            "level": "INFO",
-            "propagate": false
-          }
-        },
-        "root": {
-          "level": "INFO",
-          "handlers": [
-            "consoleHandler"
-          ]
-        }
-      }
-    }
-
-maintenance:
-  enabled: false
+  readTimeout: 60
 
 rabbitmq:
-  image:
-    repository: rabbitmq
-    tag: 3-management
-    pullPolicy: Always
-
   rabbitmqUsername: guest
   rabbitmqPassword: guest
   rabbitmqNodePort: 5672
   rabbitmqNodeType: stats
   rabbitmqNodeName: rabbit@localhost
-  # rabbitmqClusternodename:
+  rabbitmqClusterNodeName: ""
   rabbitmqVhost: /
   rabbitmqManagerPort: 15672
 
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 100m
-
-rateLimiting:
-  enabled: false
-
 redis:
-  enabled: true
-
+  enabled: false
   image:
     repository: redis
     tag: alpine
     pullPolicy: IfNotPresent
-
   secretEnvs: {}
-    # REDIS_PASSWORD: ''
-
-  ## Redis command arguments
-  ##
-  ## Can be used to specify command line arguments, for example:
-  ##
-  ## args:
-  ##  - --maxmemory 200mb
-  ##  - --maxmemory-policy volatile-ttl
-  args:
-
-  ## Enable persistence using Persistent Volume Claims
-  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
-  ##
+  args: []
   persistence:
     enabled: false
-
-    ## A manually managed Persistent Volume and Claim
-    ## Requires persistence.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    # existingClaim:
-
-    ## redis data Persistent Volume Storage Class
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
-    # storageClass: "-"
     accessMode: ReadWriteOnce
     size: 8Gi
-
-  ## Configure resource requests and limits
-  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-  ##
   resources: {}
-    #limits:
-    #  cpu: 100m
-    #  memory: 256Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 256Mi
-
   service:
     type: ClusterIP
-    loadBalancerIP:
-    #annotations: {}
-    # If using type: LoadBalancer
-    #loadBalancerIP: 0.0.0.0
-    #loadBalancerSourceRanges:
-    #  - 0.0.0.0/0
     port: 6379
     externalIPs: []
-
   networkPolicy:
-    ## Enable creation of NetworkPolicy resources.
-    ##
     enabled: false
-
-    ## The Policy model to apply. When set to false, only pods with the correct
-    ## client label will have network access to the port Redis is listening
-    ## on. When true, Redis will accept connections from any source
-    ## (with the correct destination port).
-    ##
     allowExternal: true
-    
 
+maintenance:
+  enabled: false
+  service: 
+    name: <release-name>-maintenance # default service name would be Release.name-Chart.name-maintenance
+
+
+## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+## or in other form current naming is Release.Name-Chart.Name
+
+## =============== MAIN Component ===============
+main:
+  enabled: true
+
+  replicas: 1
+
+  http:
+    containers:
+      nginx:
+        internalPort: 80
+        externalPort: 7777
+        serviceType: ClusterIP
+
+
+# ------- Configuration follows for containerName: nginx -------
+  image:
+    repository: quay.io/centerforopenscience/nginx
+    tag: latest
+    pullPolicy: Always
+
+  containerName: nginx
+
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
+
+  env: []
+
+  envFrom: []
+
+  probes:
+    readiness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+
+  ports:
+    - name: http
+      containerPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+      readOnly: true
+    - name: config
+      mountPath: /usr/share/nginx/html/robots.txt
+      subPath: robots.txt
+      readOnly: true
+
+  resources: {}
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: chown
+      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
+      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - chown -R www-data:www-data /pickles
+      volumeMounts:
+        - name: pickles
+          mountPath: /pickles
+
+
+# ------- Additional containers -------
+  tornado:
+    volumeMounts:
+      - name: secret
+        subPath: settings.json
+        mountPath: /home/.cos/waterbutler-kube.json
+        readOnly: true
+      - name: data
+        mountPath: /data
+      - name: pickles
+        mountPath: /pickles
+    resources: {}
+
+  worker:
+    volumeMounts:
+      - name: secret
+        subPath: settings.json
+        mountPath: /home/.cos/waterbutler-kube.json
+        readOnly: true
+      - name: data
+        mountPath: /data
+      - name: pickles
+        mountPath: /pickles
+    resources: {}
+    concurrency: 2
+    logLevel: INFO
+    maxTasksPerChild: 5
+
+  rabbitmq:
+    image:
+      repository: rabbitmq
+      tag: 3-management
+      pullPolicy: Always
+    volumeMounts:
+      - name: rabbitmq-data
+        mountPath: /bitnami/rabbitmq
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+
+  additionalContainers:
+    - name: tornado
+      inheritVolumeMountsFrom: tornado
+      inheritResourcesFrom: tornado
+      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
+      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          set -e
+          PREFIX=''
+          if [ -f /code/newrelic.ini ]; then
+            PREFIX='newrelic-admin run-program'
+          fi
+          $PREFIX gosu www-data invoke server
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+        - secretRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+      ports:
+        - name: http
+          containerPort: "{{ .Values.main.http.containers.nginx.externalPort }}"
+      readinessProbe:
+        httpGet:
+          path: /status
+          port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+
+    - name: worker
+      inheritVolumeMountsFrom: worker
+      inheritResourcesFrom: worker
+      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
+      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          set -e
+          PREFIX=''
+          if [ -f /code/newrelic.ini ]; then
+            PREFIX='newrelic-admin run-program'
+          fi
+          $PREFIX gosu www-data celery -A waterbutler.tasks.app worker \
+            -c "{{ .Values.main.worker.concurrency }}" -l "{{ .Values.main.worker.logLevel }}" \
+            -n worker.%h --without-gossip
+            {{- if .Values.main.worker.maxTasksPerChild }} --maxtasksperchild "{{ .Values.main.worker.maxTasksPerChild }}" {{- end }}
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+        - secretRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+
+    - name: rabbitmq
+      inheritVolumeMountsFrom: rabbitmq
+      inheritResourcesFrom: rabbitmq
+      image: "{{ .Values.main.rabbitmq.image.repository }}:{{ .Values.main.rabbitmq.image.tag }}"
+      imagePullPolicy: "{{ .Values.main.rabbitmq.image.pullPolicy }}"
+      env:
+        - name: RABBITMQ_USERNAME
+          value: "{{ .Values.rabbitmq.rabbitmqUsername }}"
+        - name: RABBITMQ_PASSWORD
+          value: "{{ .Values.rabbitmq.rabbitmqPassword }}"
+        - name: RABBITMQ_NODE_PORT_NUMBER
+          value: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
+        - name: RABBITMQ_NODE_TYPE
+          value: "{{ .Values.rabbitmq.rabbitmqNodeType }}"
+        - name: RABBITMQ_NODE_NAME
+          value: "{{ printf \"%s@%s\" .Values.rabbitmq.rabbitmqNodeName \"localhost\" }}"
+        - name: RABBITMQ_CLUSTER_NODE_NAME
+          value: "{{ .Values.rabbitmq.rabbitmqClusterNodeName }}"
+        - name: RABBITMQ_VHOST
+          value: "{{ .Values.rabbitmq.rabbitmqVhost }}"
+        - name: RABBITMQ_MANAGER_PORT_NUMBER
+          value: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
+      ports:
+        - name: amqp
+          containerPort: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
+        - name: stats
+          containerPort: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
+      livenessProbe:
+        exec:
+          command:
+            - rabbitmqctl
+            - status
+        initialDelaySeconds: 120
+        timeoutSeconds: 5
+        failureThreshold: 6
+      readinessProbe:
+        exec:
+          command:
+            - rabbitmqctl
+            - status
+        initialDelaySeconds: 10
+        timeoutSeconds: 3
+        periodSeconds: 5
+
+  sidecars: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: rabbitmq-data
+      emptyDir: {}
+    - name: data
+      emptyDir: {}
+    - name: pickles
+      emptyDir: {}
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+
+  additionalVolumes: []
+
+
+  # ------- Affinity configuration -------
+  affinity: {}
+
+  additionalAffinities:
+    - podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: "{{ .Chart.Name }}"
+                  app.kubernetes.io/instance: "{{ .Release.Name }}"
+                  app.kubernetes.io/component: "{{ .Chart.Name }}" # in this case component name = chart name, because we leave component name in main.yaml empty.
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+    checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: true
+    type: "{{ .Values.main.http.containers.nginx.serviceType }}"
+    ports:
+      - name: http
+        port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        targetPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
+
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  ingress:
+    enabled: true
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+    rules:
+      - name: main
+        includeForPrimaryHost: true
+        includeForSecondaryHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+          port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        paths:
+          - /
+    tls: []
+      # - secretName: secret_name
+      #   hosts: 
+      #     - chart-example.local
+
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}'
+  certificate:
+    enabled: false
+    # secretName: secret-with-cert # default secret name is certificate name
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    commonName: example.org
+    dnsNames:
+      - example.org
+    acmeConfig:
+      http01:
+        ingress: 'test'
+      domains:
+        - example.org
+
+
+# ---------- HPA configuration ----------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.main.replicas }}"
+    maxReplicas: 3
+    metrics: []
+    behavior: {}
+
+
+# ---------- PDB configuration ----------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- Network Policy configuration -------
+# Network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  networkPolicy:
+    enabled: false
+    ingressRules:
+      - ports:
+          - port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+        from:
+          - podSelector:
+              matchLabels:
+                '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}-client': "true"
+      - ports:
+          - port: "{{ .Values.nginx.vts.internalPort }}"
+    egressRules: []
+
+
+# Additional network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalNetworkPolicies:
+    - name: cert-solver
+      enabled: false
+      podSelector:
+        matchExpressions:
+          - key: acme.cert-manager.io/http01-solver
+            operator: Exists
+      ingressRules:
+        - from: []
+
+
+# ------- ConfigMap configuration -------
+# ConfigMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  configMap:
+    enabled: true
+    tpl: true
+    data:
+      nginx.conf: |
+        {{ tpl (.Files.Get "files/nginx.conf") (dict "Values" .Values "root" .) }}
+      robots.txt: |-
+        {{ .Files.Get "files/robots.txt" }}
+
+
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalConfigMaps:
+    - name: common-env
+      enabled: true
+      tpl: true
+      data:
+        ## Uncomment when rateLimiting enabled <----
+        # SERVER_CONFIG_ENABLE_RATE_LIMITING: "1"
+        ENV: kube
+        TASKS_CONFIG_BROKER_URL: "amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@127.0.0.1:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}"
+        ## If Redis enabled <----
+        # SERVER_CONFIG_REDIS_HOST: "{{ .Release.Name }}-redis.{{ .Release.Namespace }}.svc.cluster.local }}"
+        # SERVER_CONFIG_REDIS_PORT: "{{ .Values.redis.service.port }}"
+
+
+# ------- Secrets configuration -------
+# Secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  secret:
+    enabled: true
+    data:
+      settings.json: |-
+        {
+          "ANALYTICS": {
+            "MFR_DOMAIN": "https://staging-mfr.osf.io",
+            "KEEN": {
+              "PRIVATE": {
+                "PROJECT_ID": "",
+                "WRITE_KEY": ""
+              },
+              "PUBLIC": {
+                "PROJECT_ID": "",
+                "WRITE_KEY": ""
+              }
+            }
+          },
+          "GITHUB_PROVIDER_CONFIG": {
+            "MOVE_MESSAGE": "Moved via the Open Science Framework",
+            "COPY_MESSAGE": "Copied via the Open Science Framework",
+            "UPLOAD_FILE_MESSAGE": "Added via the Open Science Framework",
+            "UPDATE_FILE_MESSAGE": "Updated via the Open Science Framework",
+            "DELETE_FILE_MESSAGE": "Deleted via the Open Science Framework",
+            "DELETE_FOLDER_MESSAGE": "Deleted via the Open Science Framework"
+          },
+          "OSFSTORAGE_PROVIDER_CONFIG": {
+            "FILE_PATH_PENDING": "/data/pending",
+            "FILE_PATH_COMPLETE": "/data/complete",
+            "HMAC_SECRET": "",
+            "RUN_TASKS": true
+          },
+          "SERVER_CONFIG": {
+            "DOMAIN": "https://staging-files.osf.io",
+            "ADDRESS": "0.0.0.0",
+            "PORT": 7777,
+            "DEBUG": false,
+            "XHEADERS": true,
+            "CORS_ALLOW_ORIGIN": [
+              "https://staging.osf.io",
+              "https://staging-mfr.osf.io"
+            ],
+            "HMAC_SECRET": "",
+            "MAX_BUFFER_SIZE": 157286400,
+            "AUTH_HANDLERS": [
+              "osf"
+            ]
+          },
+          "OSF_AUTH_CONFIG": {
+            "API_URL": "https://staging.osf.io/api/v1/files/auth/",
+            "JWE_SALT": "",
+            "JWE_SECRET": "",
+            "JWT_SECRET": ""
+          },
+          "TASKS_CONFIG": {
+            "BROKER_URL": "amqp://guest:guest@127.0.0.1:5672//",
+            "ADHOC_BACKEND_PATH": "/pickles"
+          },
+          "SENTRY_DSN": "",
+          "LOGGING": {
+            "version": 1,
+            "disable_existing_loggers": false,
+            "formatters": {
+              "defaultFormatter": {
+                "()": "waterbutler.core.logging.MaskFormatter",
+                "format": "[%(asctime)s][%(levelname)s][%(name)s]: %(message)s",
+                "pattern": "(?<=cookie=)(.*?)(?=&|$)",
+                "mask": "***"
+              }
+            },
+            "handlers": {
+              "consoleHandler": {
+                "class": "logging.StreamHandler",
+                "level": "INFO",
+                "formatter": "defaultFormatter"
+              }
+            },
+            "loggers": {
+              "": {
+                "handlers": [
+                  "consoleHandler"
+                ],
+                "level": "INFO",
+                "propagate": false
+              }
+            },
+            "root": {
+              "level": "INFO",
+              "handlers": [
+                "consoleHandler"
+              ]
+            }
+          }
+        }
+
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name  
+  additionalSecrets:
+    - name: common-env
+      enabled: true
+      includeTls: false
+      data: {}
+        # If Redis enabled <----
+        # SERVER_CONFIG_REDIS_PASSWORD: superpass
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
