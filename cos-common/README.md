@@ -64,7 +64,7 @@ Use `cos-common.statefulset`, `cos-common.job`, or `cos-common.cronjob` the same
 - `cos-common.pvc`: PersistentVolumeClaims when `persistence.enabled` (component-level) or `volumes[].persistence.enabled`; auto-skips `existingClaim`; supports size/class/selector and spec overrides.
 - `cos-common.networkpolicy`: NetworkPolicy defaulting to namespace-local ingress allow; optional egress and extra ingress/egress rules; supports additional named policies.
 - `cos-common.configmap`: Main ConfigMap (tpl-aware) plus `additionalConfigMaps[]`.
-- `cos-common.secret`: Main Secret (auto base64, optional tls merge) plus `additionalSecrets[]`.
+- `cos-common.secret`: Main Secret (auto base64, optional tls merge, accepts pre-encoded `base64Files`) plus `additionalSecrets[]`.
 - `cos-common.certificate`: cert-manager Certificate from `certificate` block plus `additionalCertificates[]`.
 - Helpers: `cos-common.componentChecksum` to hash rendered resources; label/name helpers; pod spec builder for containers/init/sidecars/volumes, etc.
 

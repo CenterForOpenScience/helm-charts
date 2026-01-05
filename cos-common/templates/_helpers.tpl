@@ -176,7 +176,7 @@ Compose image reference supporting tag or digest.
 {{- else -}}
 {{- printf "%s:latest" $repo -}}
 {{ end }}
-{{ end }}
+{{- end -}}
 
 {{/*
 Render a generic metadata block, merging labels and annotations.

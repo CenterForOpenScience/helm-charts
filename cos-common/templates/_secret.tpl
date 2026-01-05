@@ -22,6 +22,14 @@
 {{- /* Global TLS configuration (shared across components). */ -}}
 {{- $tls := default dict $root.Values.tls -}}
 
+{{- /* Pre-encoded entries (e.g., base64Files) can be dropped straight into data. */ -}}
+{{- $encoded := dict }}
+{{- with $src.base64Files }}
+  {{- range $key, $value := . }}
+    {{- $_ := set $encoded $key (nospace (tpl (toString $value) $root)) }}
+  {{- end }}
+{{- end }}
+
 {{/* ============================================================================
    TLS MERGE
    Optionally inject TLS cert files into this Secret.
@@ -46,7 +54,7 @@
         {{- range $key, $value := . }}
           {{- $_ := set $data
                 (printf "certs-%s-%s" $app $key)
-                (b64enc $value)
+                $value
           }}
         {{- end }}
       {{- end }}
@@ -54,7 +62,7 @@
       {{- /* Already-base64 files → normalize only. */ -}}
       {{- with $tlsCfg.base64Files }}
         {{- range $key, $value := . }}
-          {{- $_ := set $data
+          {{- $_ := set $encoded
                 (printf "certs-%s-%s" $app $key)
                 (nospace $value)
           }}
@@ -74,8 +82,6 @@
    - Non-strings are converted to string and encoded
    - `.stringData` is NOT encoded here
    ============================================================================ */}}
-{{- $encoded := dict }}
-
 {{- range $k, $v := $data }}
   {{- if kindIs "string" $v }}
     {{- /* Allow Helm templating inside secret values. */ -}}

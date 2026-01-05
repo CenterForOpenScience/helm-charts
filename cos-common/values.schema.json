@@ -655,6 +655,12 @@
           "type": "object",
           "additionalProperties": true
         },
+        "base64Files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "stringData": {
           "type": "object",
           "additionalProperties": true
@@ -1052,6 +1058,12 @@
         "data": {
           "type": "object",
           "additionalProperties": true
+        },
+        "base64Files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         },
         "stringData": {
           "type": "object",
