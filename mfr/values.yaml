@@ -299,8 +299,8 @@ main:
     dnsNames:
       - example.org
     acmeConfig:
-      http01:
-        ingress: 'example'
+      http01: {}
+        # ingress: ''
       domains:
         - example.org
 

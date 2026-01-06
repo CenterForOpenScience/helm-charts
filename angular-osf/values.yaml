@@ -234,11 +234,10 @@ main:
     dnsNames:
       - example.org
     acmeConfig:
-      http01:
-        ingress: 'example'
+      http01: {}
+        # ingress: ''
       domains:
         - example.org
-        - subdomain.example.org
 
   # additionalCertificates:
   # # cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "certificate") | trim }}' + name

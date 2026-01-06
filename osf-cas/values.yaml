@@ -324,7 +324,7 @@ main:
 
 
 # ------- Certificate configuration ------- (if we want to create Certificate object)
-# cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}'
+# certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}'
   certificate:
     enabled: false
     # secretName: secret-with-cert # default secret name is certificate name
@@ -335,8 +335,8 @@ main:
     dnsNames:
       - example.org
     acmeConfig:
-      http01:
-        ingress: 'test'
+      http01: {}
+        # ingress: ''
       domains:
         - example.org
 
