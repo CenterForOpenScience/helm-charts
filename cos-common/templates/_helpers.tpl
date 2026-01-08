@@ -26,7 +26,8 @@ Parse init-certs config (supports boolean for backward compatibility).
 {{- $enabled := default false $cfg.enabled -}}
 {{- $mount := $cfg.mountToContainer -}}
 {{- $owner := default "www-data:www-data" $cfg.userCertsOwner -}}
-{{- toYaml (dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner) -}}
+{{- $containerName := default "certificates" $cfg.containerName -}}
+{{- toYaml (dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner "containerName" $containerName) -}}
 {{- end }}
 
 {{/*
@@ -532,6 +533,7 @@ Render init containers.
 {{- $items = concat $items . -}}
 {{ end }}
 {{- if $tlsConfigs }}
+  {{- $initCfg := include "cos-common.initCertConfig" (dict "values" $vals) | fromYaml -}}
   {{- $tlsVolumeMounts := list -}}
   {{- range $app, $cfg := $tlsConfigs }}
     {{- /* Mount cert files from the shared secret so the copy init container can stage them. */ -}}
@@ -541,14 +543,15 @@ Render init containers.
       {{- $tlsVolumeMounts = concat $tlsVolumeMounts (list (dict "name" "secret" "mountPath" (printf "/certs/%s/%s" $app $key) "subPath" (printf "certs-%s-%s" $app $key) "readOnly" true)) }}
     {{- end }}
   {{- end }}
-  {{- $owner := default "www-data:www-data" (get (default dict $vals.enabledInitContainersCertificate) "userCertsOwner") }}
+  {{- $owner := default "www-data:www-data" $initCfg.userCertsOwner }}
+  {{- $containerName := default "certificates" $initCfg.containerName }}
   {{- $script := include "cos-common.tlsCopyScript" (dict "configs" $tlsConfigs "owner" $owner) | trim }}
   {{- $pullPolicy := default "IfNotPresent" $vals.image.pullPolicy -}}
   {{- if and (kindIs "string" $pullPolicy) $.root -}}
     {{- $pullPolicy = tpl $pullPolicy $.root -}}
   {{- end -}}
   {{- $tlsContainer := dict
-      "name" "certificates"
+      "name" $containerName
       "image" (include "cos-common.image" (dict "image" $vals.image "name" .name "root" .root))
       "imagePullPolicy" $pullPolicy
       "command" (list "/bin/sh" "-c" $script)

@@ -481,7 +481,7 @@
           "additionalProperties": true
         },
         "hosts": {
-          "description": "Either legacy hosts[] array or grouped primary/secondary hosts map.",
+          "description": "Either legacy hosts[] array or grouped primary/additional hosts map.",
           "oneOf": [
             {
               "type": "array",
@@ -516,8 +516,9 @@
               "includeForPrimaryHost": {
                 "type": "boolean"
               },
-              "includeForSecondaryHost": {
-                "type": "boolean"
+              "includeForAdditionalHost": {
+                "type": "boolean",
+                "default": false
               },
               "pathType": {
                 "type": "string"
@@ -1330,6 +1331,9 @@
                   "type": "boolean"
                 },
                 "mountToContainer": {
+                  "type": "string"
+                },
+                "containerName": {
                   "type": "string"
                 },
                 "userCertsOwner": {

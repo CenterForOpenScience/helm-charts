@@ -64,20 +64,20 @@ and backward-compatible across services.
 
 {{- /*
 Determine whether we are in "rules mode":
-- hosts defined as a map with primary/secondary keys
+- hosts defined as a map with primary/additional keys
 - rules list exists and defines paths/services
 */ -}}
 {{- $rulesMode := and
       (kindIs "map" $hostsInput)
-      (or (hasKey $hostsInput "primary") (hasKey $hostsInput "secondary"))
+      (or (hasKey $hostsInput "primary") (hasKey $hostsInput "additional"))
       (gt (len $rules) 0)
 -}}
 
 {{- if $rulesMode }}
 
-  {{- /* Split hosts into primary and secondary groups */ -}}
+  {{- /* Split hosts into primary and additional groups */ -}}
   {{- $primaryHosts := default (list) $hostsInput.primary -}}
-  {{- $secondaryHosts := default (list) $hostsInput.secondary -}}
+  {{- $additionalHosts := default (list) $hostsInput.additional -}}
 
   {{- /* Normalize rule entries to a consistent structure:
         - supports named rules
@@ -181,15 +181,15 @@ Determine whether we are in "rules mode":
     {{- end }}
   {{- end }}
 
-  {{- /* Repeat the same expansion logic for SECONDARY hosts */ -}}
+  {{- /* Repeat the same expansion logic for ADDITIONAL hosts */ -}}
   {{- /* (logic intentionally duplicated for clarity and isolation) */ -}}
-  {{- range $host := $secondaryHosts }}
+  {{- range $host := $additionalHosts }}
     {{- $paths := list }}
 
     {{- range $rule := $normalizedRules }}
-      {{- /* Rules may explicitly opt out of secondary hosts */ -}}
-      {{- $include := $rule.includeForSecondaryHost }}
-      {{- if eq $include nil }}{{- $include = true }}{{- end }}
+      {{- /* Rules may explicitly opt out of additional hosts */ -}}
+      {{- $include := $rule.includeForAdditionalHost }}
+      {{- if eq $include nil }}{{- $include = false }}{{- end }}
 
       {{- if $include }}
         {{- /* Validate rule paths */ -}}
