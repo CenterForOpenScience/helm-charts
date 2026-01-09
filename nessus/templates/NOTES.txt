@@ -1,1 +1,24 @@
-...
+Component fullname: {{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) }}
+
+{{- if and .Values.main.ingress.enabled (.Values.main.ingress.hosts) }}
+Ingress hosts:
+{{- $hosts := list }}
+{{- if and (kindIs "map" .Values.main.ingress.hosts) (or (hasKey .Values.main.ingress.hosts "primary") (hasKey .Values.main.ingress.hosts "additional")) }}
+  {{- range $h := (default (list) .Values.main.ingress.hosts.primary) }}
+    {{- $hosts = append $hosts $h }}
+  {{- end }}
+  {{- range $h := (default (list) .Values.main.ingress.hosts.additional) }}
+    {{- $hosts = append $hosts $h }}
+  {{- end }}
+{{- else }}
+  {{- range $h := .Values.main.ingress.hosts }}
+    {{- $hosts = append $hosts $h.host }}
+  {{- end }}
+{{- end }}
+{{- range $hosts }}
+ - {{ . }}
+{{- end }}
+{{- else }}
+Port-forward example:
+kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) }} 8080:{{ ( .Values.main.http.containers.nessus.internalPort ) }}
+{{- end }}

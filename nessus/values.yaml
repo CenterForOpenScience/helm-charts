@@ -1,111 +1,259 @@
-## Nessus
-##
-image:
-  repository: us.gcr.io/cos-containers/nessus
-  tag: 7.1.2
-  pullPolicy: IfNotPresent
-
-persistence:
-  enabled: true
-  # storageClass:
-  accessMode: ReadWriteOnce
-  size: 10Gi
-
-## Node labels for component pod assignment
-## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-##
-nodeSelector: {}
-
-# Nessus license is tied to the MAC address
-macAddress: 12-34-56-78-90-01
-
-bootstrap:
+### ------- Global or Reusable parts across values.yaml -------
+scanner:
   image:
-    repository: busybox
-    tag: latest
-    pullPolicy: Always
+    repository: us.gcr.io/cos-containers/nessus
+    tag: 7.1.2
+    pullPolicy: IfNotPresent
 
 docker:
-  image:
-    repository: docker
-    tag: '17.06'
-    pullPolicy: Always
   imageCredentials:
-    enabled: false
-    #registry: https://gcr.io
-    #username: _json_key
-    #password: secret
-  resources: {}
-    #limits:
-    #  cpu: "1"
-    #  memory: 512Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 256Mi
+    registry: https://gcr.io
+    username: _json_key
+    password: secret    
 
-dind:
+## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+## or in other form current naming is Release.Name-Chart.Name
+
+## =============== MAIN Component ===============
+main:
+  enabled: true
+
+  replicas: 1
+
+  http:
+    containers:
+      nessus:
+        internalPort: 8834
+        externalPort: 443
+        serviceType: ClusterIP
+
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+        partition: 0
+
+  macAddress: 12-34-56-78-90-01
+
+# ------- Configuration follows for containerName: docker -------
   image:
     repository: docker
-    tag: 17.06-dind
-    pullPolicy: Always
+    tag: "17.06"
+    pullPolicy: IfNotPresent
+
+  containerName: docker
+
+  command:
+    - docker
+    - run
+    - --rm
+    - --interactive
+    - --mac-address
+    - "{{ .Values.main.macAddress }}"
+    - --publish
+    - "{{ .Values.main.http.containers.nessus.internalPort }}:{{ .Values.main.http.containers.nessus.internalPort }}"
+    - --volume
+    - /opt/nessus:/opt/nessus
+    - --name
+    - nessus
+    - "{{ .Values.scanner.image.repository }}:{{ .Values.scanner.image.tag }}"
+
+  env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
+
+  ports:
+    - name: https
+      containerPort: "{{ .Values.main.http.containers.nessus.internalPort }}"
+      protocol: TCP
+
+  probes:
+    readiness:
+      httpGet:
+        path: /
+        port: "{{ .Values.main.http.containers.nessus.internalPort }}"
+        scheme: HTTPS
+
+  volumeMounts:
+    - name: data
+      mountPath: /opt/nessus
+      subPath: nessus
+    - name: secret
+      mountPath: /root/.docker/config.json
+      subPath: .dockerconfigjson
+      readOnly: true
+
+  additionalVolumeMounts: []
+    ## If TLS enabled
+    #
+    # - name: secret
+    #   subPath: tls-servercert.pem
+    #   mountPath: /opt/nessus/com/nessus/CA/servercert.pem
+    #   readOnly: true
+    # - name: secret
+    #   subPath: tls-serverkey.pem
+    #   mountPath: /opt/nessus/var/nessus/CA/serverkey.pem
+    #   readOnly: true
+
   resources: {}
-    #limits:
-    #  cpu: "1"
-    #  memory: 512Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 256Mi
 
-service:
-  name: https
-  type: ClusterIP
-  externalPort: 443
-  internalPort: 8834
-  annotations: {}
-    # service.alpha.kubernetes.io/app-protocols: '{"https":"HTTPS"}'
 
-tls:
-  enabled: false
-  files:
-    # https://docs.tenable.com/nessus/Content/CustomSSLCertificates.htm
-    servercert.pem: |-
-      ...
-    serverkey.pem: |-
-      ...
+# ------- Init containers -------
+  bootstrap:
+    image:
+      repository: busybox
+      tag: latest
+      pullPolicy: Always
 
-ingress:
-  enabled: false
-  # Used to create Ingress record (should used with service.type: ClusterIP).
-  annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - chart-example.local
-  paths:
-    - /
-  tls:
-    # Secrets must be manually created in the namespace.
-    # - secretName: chart-example-tls
-    #   hosts:
-    #     - chart-example.local
+  initContainers:
+    - name: bootstrap
+      image: "{{ .Values.main.bootstrap.image.repository }}:{{ .Values.main.bootstrap.image.tag }}"
+      imagePullPolicy: "{{ .Values.main.bootstrap.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          set -e
+          if [ ! -d /data/nessus ]; then
+            cp -R /opt/nessus /data/nessus
+          fi
+      volumeMounts:
+        - name: data
+          mountPath: /data
 
-certificate:
-  enabled: false
-  name: cert
-  # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-  # - Issue: https://github.com/jetstack/cert-manager/issues/606
-  # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-  tls: true
-  # issuerRef:
-  #   name: letsencrypt-prod
-  #   kind: ClusterIssuer
-  # commonName: example.org
-  # dnsNames:
-  #   - example.org
-  #   - subdomain.example.org
-  # acmeConfig:
-  #   http01: {}
-  #     # ingress: ''
-  #   domains:
-  #     - example.org
-  #     - subdomain.example.org
+
+# ------- Additional containers -------          
+  dind:
+    image:
+      repository: docker
+      tag: 17.06-dind
+      pullPolicy: Always
+    volumeMounts:
+      - name: data
+        mountPath: /opt/nessus
+        subPath: nessus
+    resources: {}
+
+  additionalContainers:
+    - name: dind
+      inheritVolumeMountsFrom: dind
+      inheritResourcesFrom: dind
+      image: "{{ .Values.main.dind.image.repository }}:{{ .Values.main.dind.image.tag }}"
+      imagePullPolicy: "{{ .Values.main.dind.image.pullPolicy }}"
+      args:
+        - --storage-driver=overlay
+      ports:
+        - name: dind
+          containerPort: 2375
+      securityContext:
+        privileged: true
+
+
+# ------- Volumes configuration for the pod -------
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "10Gi"
+        # storageClassName: "default"
+
+  volumes:
+    - name: secret
+      secret:
+        # main secret name
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) | trim }}'
+
+
+# ------- Affinity configuration -------
+  affinity: {}
+
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: true
+    type: "{{ .Values.main.http.containers.nessus.serviceType }}"
+    annotations: {}
+    ports:
+      - name: https
+        port: "{{ .Values.main.http.containers.nessus.externalPort }}"
+        targetPort: "{{ .Values.main.http.containers.nessus.internalPort }}"
+
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+      # additional:
+      #   - chart-example-2.local
+    rules:
+      - name: main
+        includeForPrimaryHost: true
+        includeForAdditionalHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+          port: "{{ .Values.main.http.containers.nessus.externalPort }}"
+        paths:
+          - /
+    tls: []
+      # - secretName: secret_name
+      #   hosts: 
+      #     - chart-example.local
+
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}'
+  certificate:
+    enabled: false
+    # secretName: secret-with-cert # default secret name is certificate name
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    commonName: example.org
+    dnsNames:
+      - example.org
+    acmeConfig:
+      http01: {}
+        # ingress: ''
+      domains:
+        - example.org
+
+
+# ------- Secrets configuration -------
+# Secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  secret:
+    enabled: true
+    data:
+      .dockerconfigjson: |-
+        {{- $creds := .Values.docker.imageCredentials -}}
+        {{ printf "{\"auths\": {\"%s\": {\"auth\": \"%s\"}}}" $creds.registry (printf "%s:%s" $creds.username $creds.password | b64enc) }}
+      #
+      ## If TLS enabled
+      #
+      # tls-servercert.pem: |-
+      #   ...
+      # tls-serverkey.pem: |-
+      #   ...
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
