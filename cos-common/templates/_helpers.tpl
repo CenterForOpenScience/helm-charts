@@ -27,7 +27,8 @@ Parse init-certs config (supports boolean for backward compatibility).
 {{- $mount := $cfg.mountToContainer -}}
 {{- $owner := default "www-data:www-data" $cfg.userCertsOwner -}}
 {{- $containerName := default "certificates" $cfg.containerName -}}
-{{- toYaml (dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner "containerName" $containerName) -}}
+{{- $image := default dict $cfg.image -}}
+{{- toYaml (dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner "containerName" $containerName "image" $image) -}}
 {{- end }}
 
 {{/*
@@ -545,14 +546,15 @@ Render init containers.
   {{- end }}
   {{- $owner := default "www-data:www-data" $initCfg.userCertsOwner }}
   {{- $containerName := default "certificates" $initCfg.containerName }}
+  {{- $imageCfg := mergeOverwrite (dict) (default dict $vals.image) (default dict $initCfg.image) }}
   {{- $script := include "cos-common.tlsCopyScript" (dict "configs" $tlsConfigs "owner" $owner) | trim }}
-  {{- $pullPolicy := default "IfNotPresent" $vals.image.pullPolicy -}}
+  {{- $pullPolicy := default "IfNotPresent" $imageCfg.pullPolicy -}}
   {{- if and (kindIs "string" $pullPolicy) $.root -}}
     {{- $pullPolicy = tpl $pullPolicy $.root -}}
   {{- end -}}
   {{- $tlsContainer := dict
       "name" $containerName
-      "image" (include "cos-common.image" (dict "image" $vals.image "name" .name "root" .root))
+      "image" (include "cos-common.image" (dict "image" $imageCfg "name" .name "root" .root))
       "imagePullPolicy" $pullPolicy
       "command" (list "/bin/sh" "-c" $script)
       "volumeMounts" $tlsVolumeMounts

@@ -1338,6 +1338,24 @@
                 },
                 "userCertsOwner": {
                   "type": "string"
+                },
+                "image": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "repository": {
+                      "type": "string"
+                    },
+                    "tag": {
+                      "type": "string"
+                    },
+                    "digest": {
+                      "type": "string"
+                    },
+                    "pullPolicy": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
