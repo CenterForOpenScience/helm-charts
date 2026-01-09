@@ -1,17 +1,23 @@
-1. Get the application URL by running these commands:
-{{- if .Values.ingress.hostname }}
-  http://{{- .Values.ingress.hostname }}
-{{- else if contains "NodePort" .Values.service.type }}
-  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "wb.fullname" . }})
-  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
-  echo http://$NODE_IP:$NODE_PORT
-{{- else if contains "LoadBalancer" .Values.service.type }}
-     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
-           You can watch the status of by running 'kubectl get svc -w {{ template "wb.fullname" . }}'
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ template "wb.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-  echo http://$SERVICE_IP:{{ .Values.service.externalPort }}
-{{- else if contains "ClusterIP"  .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ template "wb.fullname" . }}" -o jsonpath="{.items[0].metadata.name}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
-  kubectl port-forward $POD_NAME 8080:{{ .Values.service.externalPort }}
+{{- $fullname := include "cos-common.fullname" (dict "root" . "name" "") | trim -}}
+{{- $service := .Values.main.service -}}
+{{- $externalPort := .Values.main.http.containers.nginx.externalPort -}}
+{{- $internalPort := .Values.main.http.containers.nginx.internalPort -}}
+
+1. Main service: {{ $fullname }}
+{{- if and $service (eq $service.enabled true) }}
+{{- if contains "LoadBalancer" $service.type }}
+   Wait for the external IP, then:
+   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ $fullname }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+   echo http://$SERVICE_IP:{{ $externalPort }}
+{{- else if contains "NodePort" $service.type }}
+   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ $fullname }})
+   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+   echo http://$NODE_IP:$NODE_PORT
+{{- else }}
+   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "cos-common.chartName" (dict "root" .) }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+   echo "Visit http://127.0.0.1:8080 to use your application"
+   kubectl port-forward $POD_NAME 8080:{{ $internalPort }}
+{{- end }}
+{{- else }}
+   Service disabled.
 {{- end }}
