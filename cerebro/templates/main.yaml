@@ -1,0 +1,2 @@
+{{- include "cos-common.secret"        (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.deployment"    (dict "root" . "name" "" "values" .Values.main) }}

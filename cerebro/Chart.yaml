@@ -1,9 +1,11 @@
+apiVersion: v2
 name: cerebro
-home: https://github.com/lmenezes/cerebro
-apiVersion: v1
-version: 0.4.0
-description: cerebro is an open source(MIT License) elasticsearch web admin tool built using Scala, Play Framework, AngularJS and Bootstrap.
-icon: https://github.com/lmenezes/cerebro/raw/master/public/img/logo.png
+description: Elasticsearch web admin tool
+type: application
+version: 1.0.0
+keywords:
+  - cerebro
+  - elasticsearch
 sources:
   - https://github.com/lmenezes/cerebro
 maintainers:
@@ -13,3 +15,10 @@ maintainers:
   - name: Matt Clark
     email: mattclark@cos.io
     url: https://github.com/mattclark
+dependencies:
+  - name: cos-common
+    version: 1.0.0
+    repository: https://centerforopenscience.github.io/helm-charts/
+  # - name: cos-common
+  #   version: 1.0.0
+  #   repository: "file://../cos-common"
