@@ -1,0 +1,6 @@
+{{- include "cos-common.deployment"    (dict "root" . "name" "beat" "values" .Values.beat) }}
+{{- include "cos-common.hpa"           (dict "root" . "name" "beat" "values" .Values.beat) }}
+{{- include "cos-common.pdb"           (dict "root" . "name" "beat" "values" .Values.beat) }}
+{{- include "cos-common.pvc"           (dict "root" . "name" "beat" "values" .Values.beat) }}
+{{- include "cos-common.configmap"     (dict "root" . "name" "beat" "values" .Values.beat) }}
+{{- include "cos-common.secret"        (dict "root" . "name" "beat" "values" .Values.beat) }}

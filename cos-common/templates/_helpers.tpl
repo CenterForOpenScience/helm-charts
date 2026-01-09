@@ -27,7 +27,8 @@ Parse init-certs config (supports boolean for backward compatibility).
 {{- $mount := $cfg.mountToContainer -}}
 {{- $owner := default "www-data:www-data" $cfg.userCertsOwner -}}
 {{- $containerName := default "certificates" $cfg.containerName -}}
-{{- toYaml (dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner "containerName" $containerName) -}}
+{{- $image := default dict $cfg.image -}}
+{{- toYaml (dict "enabled" $enabled "mountToContainer" $mount "userCertsOwner" $owner "containerName" $containerName "image" $image) -}}
 {{- end }}
 
 {{/*
@@ -375,9 +376,12 @@ args:
 {{- with $vals.workingDir }}
 workingDir: {{ tpl . $.root }}
 {{ end }}
-{{- with $vals.env }}
+{{- $env := default (list) $vals.env -}}
+{{- $extraEnv := default (list) $vals.extraEnv -}}
+{{- $combinedEnv := concat $env $extraEnv -}}
+{{- if gt (len $combinedEnv) 0 }}
 env:
-{{ include "cos-common.renderList" (dict "list" . "root" $.root) | nindent 2 }}
+{{ include "cos-common.renderList" (dict "list" $combinedEnv "root" $.root) | nindent 2 }}
 {{ end }}
 {{- with $vals.envFrom }}
 envFrom:
@@ -482,6 +486,16 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
   {{- /* remove helper-only key so it doesn't reach k8s */ -}}
   {{- $_ := unset $c "inheritVolumeMountsFrom" -}}
   {{- $_ := unset $c "inheritResourcesFrom" -}}
+  {{- /* merge env + extraEnv for additional containers */ -}}
+  {{- $env := default (list) $c.env -}}
+  {{- $extraEnv := default (list) $c.extraEnv -}}
+  {{- if gt (len $extraEnv) 0 }}
+    {{- $env = concat $env $extraEnv -}}
+  {{- end }}
+  {{- if gt (len $env) 0 }}
+    {{- $_ := set $c "env" $env -}}
+  {{- end }}
+  {{- $_ := unset $c "extraEnv" -}}
   {{- $volumeMounts = concat $volumeMounts (default (list) $c.volumeMounts) -}}
   {{- if $tlsConfigs }}
     {{- range $app, $cfg := $tlsConfigs }}
@@ -545,14 +559,15 @@ Render init containers.
   {{- end }}
   {{- $owner := default "www-data:www-data" $initCfg.userCertsOwner }}
   {{- $containerName := default "certificates" $initCfg.containerName }}
+  {{- $imageCfg := mergeOverwrite (dict) (default dict $vals.image) (default dict $initCfg.image) }}
   {{- $script := include "cos-common.tlsCopyScript" (dict "configs" $tlsConfigs "owner" $owner) | trim }}
-  {{- $pullPolicy := default "IfNotPresent" $vals.image.pullPolicy -}}
+  {{- $pullPolicy := default "IfNotPresent" $imageCfg.pullPolicy -}}
   {{- if and (kindIs "string" $pullPolicy) $.root -}}
     {{- $pullPolicy = tpl $pullPolicy $.root -}}
   {{- end -}}
   {{- $tlsContainer := dict
       "name" $containerName
-      "image" (include "cos-common.image" (dict "image" $vals.image "name" .name "root" .root))
+      "image" (include "cos-common.image" (dict "image" $imageCfg "name" .name "root" .root))
       "imagePullPolicy" $pullPolicy
       "command" (list "/bin/sh" "-c" $script)
       "volumeMounts" $tlsVolumeMounts
