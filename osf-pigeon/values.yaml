@@ -1,162 +1,370 @@
-# Default values for osf-pigeon.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-replicaCount: 1
+## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+## or in other form current naming is Release.Name-Chart.Name
 
-image:
-  repository: quay.io/centerforopenscience/osf-pigeon
-  tag: develop
-  pullPolicy: Always
+## =============== MAIN Component ===============
+main:
+  enabled: true
 
-antiAffinity: soft
+  replicas: 1
 
-# strategy:
-#   rollingUpdate:
-#     maxSurge: 25%
-#     maxUnavailable: 25%
-#   type: RollingUpdate
+  http:
+    containers:
+      nginx:
+        internalPort: 80
+        externalPort: 2020
+        serviceType: ClusterIP
 
-budget:
-  minAvailable: 0
-
-nginx:
-  workerCount: 1
+# ------- Configuration follows for containerName: nginx -------
   image:
-    repository: quay.io/centerforopenscience/nginx
+    repository: nginx
     tag: latest
     pullPolicy: Always
+
+  containerName: nginx
+
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
+
+  env: []
+
+  envFrom: []
+
+  probes:
+    readiness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+      initialDelaySeconds: 10
+
+  ports:
+    - name: http-internal
+      containerPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+      readOnly: true
+    - name: config
+      mountPath: /usr/share/nginx/html/robots.txt
+      subPath: robots.txt
+      readOnly: true
+
+  additionalVolumeMounts: []
+
   resources: {}
-    # limits:
-    #   cpu: 1
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-  proxySourceRanges: []
-    # - 130.211.0.0/22
-    # - 35.191.0.0/16
-  realIpHeader: X-Real-IP
-  realIpRecursive: "off"
-  vts:
+
+
+# ------- Init containers -------
+  initContainers: []
+
+  additionalInitContainers: []
+
+
+# ------- Additional containers -------
+  sanic:
+    image:
+      repository: quay.io/centerforopenscience/osf-pigeon
+      tag: develop
+      pullPolicy: Always
+    resources:
+      limits:
+        cpu: 1
+        memory: 564Mi
+      requests:
+        cpu: 10m
+        memory: 282Mi
+        ephemeral-storage: 10Gi
+    volumeMounts:
+      - name: localcache
+        mountPath: /tmp/pigeonlocalcache
+      #### If Enabled persistence < ----------
+      # - name: data
+      #   mountPath: /var/lib/pigeonlocaldata/
+
+  sidecars: [] # same as additionalContainers, but maybe you prefer this name more :)
+
+  additionalContainers:
+    - name: sanic
+      inheritVolumeMountsFrom: sanic # <----- gets volume mounts from sanic set of vars above
+      inheritResourcesFrom: sanic # <----- gets resources from sanic set of vars above
+      image: "{{ .Values.main.sanic.image.repository }}:{{ .Values.main.sanic.image.tag }}"
+      imagePullPolicy: "{{ .Values.main.sanic.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - python3 -m osf_pigeon
+      env: []
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+        - secretRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "sanic-env") | trim }}'  
+      ports:
+        - name: http-external
+          containerPort: "{{ .Values.main.http.containers.nginx.externalPort }}"
+          protocol: TCP
+      readinessProbe:
+        httpGet:
+          path: /
+          port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: localcache
+      emptyDir: {}
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+
+  additionalVolumes:
+    - name: data
+      emptyDir: {}
+    #### If Enabled persistence < ---------- 
+    # -----> Option 1 to create persistent volume
+    #
+    # - name: data # PVC name will be: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+    #   persistence: 
+    #     enabled: true 
+    #     accessModes:
+    #       - ReadWriteOnce
+    #     size: 100Gi
+    #     storageClass: ""
+    #     existingClaim: ""
+
+    # -----> Option 2 to create persistent volume
+    #
+    # - name: data
+    #   persistentVolumeClaim:
+    #     claimName: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+
+  # -----> Option 2 to create persistent volume
+  #
+  # PVC name will be '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  #
+  # persistence: 
+  #   enabled: true 
+  #   accessModes:
+  #     - ReadWriteOnce
+  #   size: 100Gi
+  #   storageClass: ""
+  #   existingClaim: ""
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Chart.Name }}" # in this case component name = chart name, because we leave component name in main.yaml empty.
+
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-sanic-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "sanic-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
+    checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: true
+    type: "{{ .Values.main.http.containers.nginx.serviceType }}"
+    ports:
+      - name: http
+        port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        targetPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
+        protocol: TCP
+
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  ingress:
     enabled: false
-    internalPort: 18080
-    statusZoneSize: 10m
-    defaultFilterKey: "$geoip_country_code country::*"
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+    rules:
+      - name: main
+        includeForPrimaryHost: true
+        includeForAdditionalHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+          port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        paths:
+          - /
+    tls: []
+      # - secretName: secret_name
+      #   hosts: 
+      #     - chart-example.local
 
-sanic:
-  resources: {}
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
 
-horizontalPodAutoscaler:
-  enabled: false
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 90
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}'
+  certificate:
+    enabled: false
+    # secretName: secret-with-cert # default secret name is certificate name
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    commonName: example.org
+    dnsNames:
+      - example.org
+    acmeConfig:
+      http01: {}
+        # ingress: ''
+      domains:
+        - example.org
+        - subdomain.example.org
 
-service:
-  name: http
-  type: ClusterIP
-  externalPort: 2020
-  internalPort: 80
+  # additionalCertificates:
+  # # cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "certificate") | trim }}' + name
+  #   - name: example-org-cert
+  #     enabled: false
+  #     # secretName: secret-with-cert
+  #     commonName: example.org
+  #     dnsNames:
+  #       - example.org
+  #       - submdomain.example.org
+  #     issuerRef:
+  #       name: letsencrypt-prod
+  #       kind: ClusterIssuer
+  #     acmeConfig:
+  #       http01: {}
+  #         # ingress: ''
+  #       domains:
+  #         - example.org
+  #         - subdomain.example.org
 
-ingress:
-  enabled: false
-  # Used to create Ingress record (should used with service.type: ClusterIP).
-  hosts:
-    - chart-example.local
-  annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  paths:
-    - /
-  tls:
-    # Secrets must be manually created in the namespace.
-    # - secretName: osf-io-tls
-    #   hosts:
-    #     - chart-example.local
 
-certificate:
-  enabled: false
-  name: cert
-  # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-  # - Issue: https://github.com/jetstack/cert-manager/issues/606
-  # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-  tls: true
-  # issuerRef:
-  #   name: letsencrypt-prod
-  #   kind: ClusterIssuer
-  # commonName: example.org
-  # dnsNames:
-  #   - example.org
-  #   - subdomain.example.org
-  # acmeConfig:
-  #   http01: {}
-  #     # ingress: ''
-  #   domains:
-  #     - example.org
-  #     - subdomain.example.org
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.main.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
 
-networkPolicy:
-  enabled: false
-  # Allows external access to the pod, otherwise access is restricted to
-  # clients with the explicit label.
-  allowExternal: true
-  egress: {}
-    # - to:
-    #   - namespaceSelector: {}
-    #   ports:
-    #     - port: 53  # dns
-    #       protocol: TCP
-    #     - port: 53  # dns
-    #       protocol: UDP
-    # - to:
-    #   - ipBlock:
-    #       cidr: 0.0.0.0/0
-    #       except:
-    #         - 10.0.0.0/8
-    #         - 172.16.0.0/12
-    #         - 192.168.0.0/16
-    #   ports:
-    #     - port: 80  # http
-    #       protocol: TCP
-    #     - port: 443  # https
-    #       protocol: TCP
 
-configEnvs: {}
-  # DEBUG: ""
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 1
 
-configFiles: {}
-  # Override configmap files here (and delete the {} above), e.g.:
-  #robots.txt: |-
-  #  User-agent: *
-  #  Disallow: /
 
-secretEnvs: {}
-  # DATACITE_USERNAME: "CHANGEME"
-  # DATACITE_PASSWORD: "CHANGEME"
-  # OSF_BEARER_TOKEN: "CHANGEME"
-  # IA_ACCESS_KEY: "CHANGEME"
-  # IA_SECRET_KEY: CHANGEME
+# ------- Network Policy configuration -------
+# Network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  networkPolicy:
+    enabled: false
+    componentScoped: true # this network policy will be applied to all components
+    ingressRules:
+      - ports:
+        - port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+        from:
+        - podSelector:
+            matchLabels:
+              '{{ include "cos-common.fullname" (dict "root" . "name" "client") | trim }}': "true"
+      - ports:
+        - port: "{{ .Values.main.nginx.vts.internalPort }}"
+    egressRules: 
+      - {}
 
-## Enable persistence using Persistent Volume Claims
-## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
-##
-persistence:
-  enabled: false
-  ## Persistent Volume Storage Class
-  ## If defined, storageClassName: <storageClass>
-  ## If set to "-", storageClassName: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClassName spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  # storageClass: "-"
-  accessModes:
-    - ReadWriteOnce
-  size: 100Gi
+# Additional network Policy name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalNetworkPolicies:
+    - name: cert-solver
+      enabled: false
+      podSelector:
+        matchExpressions:
+          - key: acme.cert-manager.io/http01-solver
+            operator: Exists
+      ingressRules:
+        - from: []
 
-  mountPath: /var/lib/pigeonlocaldata/
+
+# ------- ConfigMap configuration -------
+# ConfigMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  configMap:
+    enabled: true
+    tpl: true
+    data:
+      robots.txt: |
+        {{ .Files.Get "files/robots.txt" }}
+      nginx.conf: |
+        {{ tpl (.Files.Get "files/nginx.conf") (dict "Values" .Values "root" .) }}
+
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalConfigMaps:
+    - name: common-env
+      enabled: true
+      tpl: false
+      data: {}
+    - name: sanic-env
+      enabled: true
+      tpl: false
+      data: {}
+        #### If Enabled persistence < ----------
+        # PIGEON_FILESTORE_DIR: /var/lib/pigeonlocaldata/
+        # Provide other envs for sanic
+
+
+# ------- Secrets configuration -------
+# Secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  secret:
+    enabled: true
+    includeTls: false
+    data: {}
+
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name  
+  additionalSecrets:
+    - name: common-env
+      enabled: true
+      includeTls: false
+      data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+
+# ------- Other variables which are used accross files or values.yaml -------
+  nginx:
+    workerCount: 1
+    proxySourceRanges: []
+    realIpHeader: X-Real-IP
+    realIpRecursive: "off"
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
