@@ -1,0 +1,10 @@
+{{- $root := . -}}
+{{- $main := include "cas.main.values" (dict "root" $root "values" .Values.main) | fromYaml }}
+
+{{- include "cos-common.certificate"   (dict "root" $root "name" "cert" "values" $main) }}
+{{- include "cos-common.deployment"    (dict "root" $root "name" "" "values" $main) }}
+{{- include "cos-common.service"       (dict "root" $root "name" "" "values" $main) }}
+{{- include "cos-common.ingress"       (dict "root" $root "name" "" "values" $main) }}
+{{- include "cos-common.hpa"           (dict "root" $root "name" "" "values" $main) }}
+{{- include "cos-common.pdb"           (dict "root" $root "name" "" "values" $main) }}
+{{- include "cos-common.networkpolicy" (dict "root" $root "name" "" "values" $main) }}
