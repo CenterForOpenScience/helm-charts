@@ -99,7 +99,7 @@ spec:
               httpHeaders:
                 - name: Host
                   value: health
-              path: /healthz
+              path: {{ default "/healthz" .Values.apache.livenessProbe.path }}
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 300
             timeoutSeconds: {{ default "1" .Values.apache.livenessProbe.timeoutSeconds }}
@@ -111,7 +111,7 @@ spec:
               httpHeaders:
                 - name: Host
                   value: {{ .Values.casDomain }}
-              path: /Shibboleth.sso/Status
+              path: {{ default "/Shibboleth.sso/Status" .Values.apache.readinessProbe.path }}
               port: {{ .Values.service.internalPort }}
             initialDelaySeconds: 10
             timeoutSeconds: {{ default "1" .Values.apache.readinessProbe.timeoutSeconds }}
