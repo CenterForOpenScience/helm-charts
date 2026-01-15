@@ -1,0 +1,10 @@
+{{- include "cos-common.configmap"     (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.secret"        (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.certificate"   (dict "root" . "name" "cert" "values" .Values.main) }}
+{{- include "cos-common.deployment"    (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.service"       (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.ingress"       (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.hpa"           (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.pdb"           (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.networkpolicy" (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.pvc"           (dict "root" . "name" "" "values" .Values.main) }}

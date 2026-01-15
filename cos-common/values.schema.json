@@ -245,6 +245,13 @@
             "additionalProperties": true
           }
         },
+        "extraEnv": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
         "envFrom": {
           "type": "array",
           "items": {
@@ -1241,6 +1248,13 @@
             "additionalProperties": true
           }
         },
+        "extraEnv": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
         "envFrom": {
           "type": "array",
           "items": {
@@ -1338,6 +1352,24 @@
                 },
                 "userCertsOwner": {
                   "type": "string"
+                },
+                "image": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "repository": {
+                      "type": "string"
+                    },
+                    "tag": {
+                      "type": "string"
+                    },
+                    "digest": {
+                      "type": "string"
+                    },
+                    "pullPolicy": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
