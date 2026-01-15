@@ -2,13 +2,13 @@ apiVersion: v1
 entries:
   angular-osf:
   - apiVersion: v2
-    created: "2026-01-14T21:08:37.060150645Z"
+    created: "2026-01-15T20:58:10.702033088Z"
     dependencies:
     - name: cos-common
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 1.0.0
     description: Angular OSF application
-    digest: 40ff64e80793fae40ba5236e0ad470e4eaf11b363a8681d0cc7621b77149ff6c
+    digest: 199f0e8c4b766c56b9adac137486460f88ec0cfea9f81e703d12c9c099fd683b
     keywords:
     - angular
     maintainers:
@@ -24,7 +24,7 @@ entries:
     - angular-osf-1.0.0.tgz
     version: 1.0.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.056318271Z"
+    created: "2026-01-15T20:58:10.699167019Z"
     description: An Angular application for the Open Science Framework
     digest: 1f5b788058bbbb7b5fa5de78b3eaf05d081e40b37265c71d19652b8094b1a96f
     keywords:
@@ -41,7 +41,7 @@ entries:
     - angular-osf-0.0.4.tgz
     version: 0.0.4
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.054780255Z"
+    created: "2026-01-15T20:58:10.698309148Z"
     description: An Angular application for the Open Science Framework
     digest: 8390574d7a347ff0a1ef8e2fd9615f16cca6ea08fd5bf206085b6061dbe97cdf
     keywords:
@@ -58,7 +58,7 @@ entries:
     - angular-osf-0.0.3.tgz
     version: 0.0.3
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.053477417Z"
+    created: "2026-01-15T20:58:10.697467935Z"
     description: An Angular application for the Open Science Framework
     digest: 9f9d40fb582604ed65f730b3387f224d64f8db037c8e5d92b8af0a517bea0459
     keywords:
@@ -75,7 +75,7 @@ entries:
     - angular-osf-0.0.2.tgz
     version: 0.0.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.05212187Z"
+    created: "2026-01-15T20:58:10.696515624Z"
     description: An Angular application for the Open Science Framework
     digest: 41f5d7d87cd7f45c53d642a3840c521788c292200e4a958d445e6e5157a3ebfa
     keywords:
@@ -93,9 +93,9 @@ entries:
     version: 0.0.1
   barman:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.062524376Z"
+    created: "2026-01-15T20:58:10.705432045Z"
     description: Barman
-    digest: 3149387059063d0ef964fa362625617ad34e983f522b049654e872726c5c717d
+    digest: 8e4dddaeb4585aae40e3895dc7c80787c635fec4ba8ebb9334ba4cf091b0c547
     home: http://www.pgbarman.org/
     icon: http://www.pgbarman.org/wp-content/uploads/2012/06/logo1.png
     keywords:
@@ -116,7 +116,7 @@ entries:
     - barman-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.061920268Z"
+    created: "2026-01-15T20:58:10.704885018Z"
     description: Barman
     digest: a4092761a4580237bf391617aa13f94cc9d0d147827f6a2462d1ac9f7a814dc8
     home: http://www.pgbarman.org/
@@ -134,7 +134,7 @@ entries:
     - barman-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.061303223Z"
+    created: "2026-01-15T20:58:10.704298238Z"
     description: Barman
     digest: c8b50cf38c478ce44a3ba4cc8b1e252186cb26e72743f7c6975b7ec38b8bbc7c
     home: http://www.pgbarman.org/
@@ -152,7 +152,7 @@ entries:
     - barman-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.060702329Z"
+    created: "2026-01-15T20:58:10.703039374Z"
     description: Barman
     digest: 86b6ab511589d690d3b65726c6b3bd477a1c38608506e9709dff48fa651e76cf
     home: http://www.pgbarman.org/
@@ -172,7 +172,7 @@ entries:
   cainjector:
   - apiVersion: v1
     appVersion: v0.8.1
-    created: "2026-01-14T21:08:37.065427805Z"
+    created: "2026-01-15T20:58:10.706187204Z"
     description: A Helm chart for deploying the cert-manager cainjector component
     digest: 6a6e119fb4fd8b940fe68e766dfc297634355999c18d55064171ea50ccc428f6
     home: https://github.com/jetstack/cert-manager
@@ -192,7 +192,7 @@ entries:
     version: v0.9.0
   - apiVersion: v1
     appVersion: v0.8.1
-    created: "2026-01-14T21:08:37.064924552Z"
+    created: "2026-01-15T20:58:10.705819825Z"
     description: A Helm chart for deploying the cert-manager cainjector component
     digest: e9220d0a4f4741319c80d6a2a6789100e483b70702630887ebb9c0c4fd64afb5
     home: https://github.com/jetstack/cert-manager
@@ -212,7 +212,7 @@ entries:
     version: v0.8.1
   cas:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.109377059Z"
+    created: "2026-01-15T20:58:10.74291789Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -240,7 +240,7 @@ entries:
     - cas-0.9.1.tgz
     version: 0.9.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.106102273Z"
+    created: "2026-01-15T20:58:10.739573422Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -268,7 +268,7 @@ entries:
     - cas-0.9.0.tgz
     version: 0.9.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.100538477Z"
+    created: "2026-01-15T20:58:10.735600576Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -293,7 +293,7 @@ entries:
     - cas-0.8.1.tgz
     version: 0.8.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.094624214Z"
+    created: "2026-01-15T20:58:10.732220711Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -319,7 +319,7 @@ entries:
     - cas-0.8.0.tgz
     version: 0.8.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.089713415Z"
+    created: "2026-01-15T20:58:10.727746555Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -345,7 +345,7 @@ entries:
     - cas-0.7.0.tgz
     version: 0.7.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.085266551Z"
+    created: "2026-01-15T20:58:10.724430776Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -371,7 +371,7 @@ entries:
     - cas-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.080867306Z"
+    created: "2026-01-15T20:58:10.721678274Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -397,7 +397,7 @@ entries:
     - cas-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.075695715Z"
+    created: "2026-01-15T20:58:10.71886115Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -414,7 +414,7 @@ entries:
     - cas-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.071935343Z"
+    created: "2026-01-15T20:58:10.714925506Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -427,7 +427,7 @@ entries:
     - cas-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.069670932Z"
+    created: "2026-01-15T20:58:10.712504105Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -440,7 +440,7 @@ entries:
     - cas-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.067573195Z"
+    created: "2026-01-15T20:58:10.709185814Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -454,10 +454,10 @@ entries:
     version: 0.1.0
   cerebro:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.111662309Z"
+    created: "2026-01-15T20:58:10.746455178Z"
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
-    digest: 7b2604cc18e04edf74c538b4e65e70f60e3f3afd8d810009cb8af60a23a4e1fc
+    digest: 0bc7dccec57b8cda58109d8105e399663f17edf91461800a0ece1ce5e1e16dc2
     home: https://github.com/lmenezes/cerebro
     icon: https://github.com/lmenezes/cerebro/raw/master/public/img/logo.png
     maintainers:
@@ -474,7 +474,7 @@ entries:
     - cerebro-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.111117096Z"
+    created: "2026-01-15T20:58:10.745991673Z"
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
     digest: de57e34dce8f489b782d28e1e3a861ef51d0b3828b32169a4bdaae055b668d21
@@ -490,7 +490,7 @@ entries:
     - cerebro-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.110633722Z"
+    created: "2026-01-15T20:58:10.745181772Z"
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
     digest: 7c5a82ab718fd5d446b2dd82a34e63400303361cbf73bc1796ff22a7d0377c69
@@ -506,7 +506,7 @@ entries:
     - cerebro-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.110168913Z"
+    created: "2026-01-15T20:58:10.744333635Z"
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
     digest: e5cd9683f52796457ddd3e7b563f1023f8acfd20fd0effcc1a3e7c4cb50f7cc0
@@ -522,7 +522,7 @@ entries:
     - cerebro-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.109726273Z"
+    created: "2026-01-15T20:58:10.743393368Z"
     description: cerebro is an open source(MIT License) elasticsearch web admin tool
       built using Scala, Play Framework, AngularJS and Bootstrap.
     digest: 8680f961adb4a4ae4be266e58c676d49a46f045977c4fda86684daf3d4fefe23
@@ -542,9 +542,9 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v1
     appVersion: v1.7.0
-    created: "2026-01-14T21:08:37.134926687Z"
+    created: "2026-01-15T20:58:10.766876286Z"
     description: A Helm chart for cert-manager
-    digest: 53005428f6ee6e1a4589c0ddea907e2aba0542249f0b6855a5c71074fb285436
+    digest: a1360d7fb95eecd37cf9ce0e04663d1c49b4b198313c17edccee6d96a835aea2
     home: https://github.com/jetstack/cert-manager
     icon: https://raw.githubusercontent.com/jetstack/cert-manager/master/logo/logo.png
     keywords:
@@ -563,7 +563,7 @@ entries:
     version: v1.7.0
   - apiVersion: v1
     appVersion: v1.0.4
-    created: "2026-01-14T21:08:37.131563799Z"
+    created: "2026-01-15T20:58:10.761942581Z"
     description: A Helm chart for cert-manager
     digest: 8eb25346fe99d1cb055adecac36d35b3b795291661ccf3a70650ac118f2e1288
     home: https://github.com/jetstack/cert-manager
@@ -584,7 +584,7 @@ entries:
     version: v1.0.4
   - apiVersion: v1
     appVersion: v0.8.1
-    created: "2026-01-14T21:08:37.118028818Z"
+    created: "2026-01-15T20:58:10.74985479Z"
     dependencies:
     - condition: webhook.enabled
       name: webhook
@@ -614,7 +614,7 @@ entries:
     version: v0.9.0
   - apiVersion: v1
     appVersion: v0.8.1
-    created: "2026-01-14T21:08:37.116144142Z"
+    created: "2026-01-15T20:58:10.748494722Z"
     dependencies:
     - condition: webhook.enabled
       name: webhook
@@ -644,7 +644,7 @@ entries:
     version: v0.8.1
   - apiVersion: v1
     appVersion: v0.4.0
-    created: "2026-01-14T21:08:37.112472092Z"
+    created: "2026-01-15T20:58:10.747051921Z"
     description: A Helm chart for cert-manager
     digest: a9207d1804d2e566141638f6b04986339af8a8329ed097b48e18bbff146f7ac5
     home: https://github.com/jetstack/cert-manager
@@ -668,10 +668,10 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 2.6.0
-    created: "2026-01-14T21:08:37.135644902Z"
+    created: "2026-01-15T20:58:10.767890422Z"
     description: A Library Helm Chart for grouping common logic between bitnami charts.
       This chart is not deployable by itself.
-    digest: 92ddd5f80c1102b22fe78c7fe07a0d9f7e5d3761878c910b2cd7331b14c5d606
+    digest: 905b6068f49604fc5e7c9f3ad4fe0deb215dc0cfa287b95393849126902dcea9
     home: https://bitnami.com
     icon: https://bitnami.com/downloads/logos/bitnami-mark.png
     keywords:
@@ -692,9 +692,9 @@ entries:
     version: 2.6.0
   cos-common:
   - apiVersion: v2
-    created: "2026-01-14T21:08:37.137511708Z"
+    created: "2026-01-15T20:58:10.769630168Z"
     description: Reusable building blocks for platform application charts.
-    digest: cba6d107f16e982bc59df3436cab74cca800fdc1adf06ae83421039971745a66
+    digest: 295bcd718805010a31f9e41422b173578743784d0e3b2a017c9fe6796eabb71c
     kubeVersion: '>=1.32.0-0'
     name: cos-common
     type: library
@@ -703,7 +703,7 @@ entries:
     version: 1.0.0
   disk-usage-exporter:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.138415897Z"
+    created: "2026-01-15T20:58:10.76996448Z"
     description: A prometheus exporter that exports disk usage for all PersistentVolumes
       mounted on a Kubernetes Node
     digest: 7f36d0547d7948931c411f136d325de787f8a925f0f31c9e38969c2d824886c6
@@ -713,9 +713,9 @@ entries:
     version: 0.1.0
   echoheaders:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.14028133Z"
+    created: "2026-01-15T20:58:10.770968565Z"
     description: Echoheaders server for testing
-    digest: dc1ba1e126a81c69bcce24dc13888bc62bad46f7359563fa7bb457c810de6d93
+    digest: 2836fa3df947d56eaeca0a639118e27f7a14f9004dce4b6a8e4f134803045033
     maintainers:
     - email: matt@cos.io
       name: Matt Frazier
@@ -728,7 +728,7 @@ entries:
     - echoheaders-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.139713196Z"
+    created: "2026-01-15T20:58:10.770583398Z"
     description: Echoheaders server for testing
     digest: 18d2268d138aec984252dca92abf495f7cb1d34730a904b2714814aa6a728e93
     maintainers:
@@ -743,7 +743,7 @@ entries:
     - echoheaders-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.139177638Z"
+    created: "2026-01-15T20:58:10.770233412Z"
     description: Echoheaders server for testing
     digest: 2e7114f889d0e06aaf68b7a0d24a0139306603dfa58218df356f09638c084062
     maintainers:
@@ -755,7 +755,7 @@ entries:
     version: 0.1.0
   elastic-stack:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.146023992Z"
+    created: "2026-01-15T20:58:10.774629181Z"
     dependencies:
     - name: elasticsearch
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -764,13 +764,13 @@ entries:
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.2.1
     description: A Helm chart for Kubernetes
-    digest: 22d301198da88ec87799bd80ff4080f5fb1bbecf3f5f11e8a1e6febdcc286f1f
+    digest: 19afb14b858e2e4d3b37d99de8bab281d8e4a9ca2b0cb9ec19d5b4ab002b39fd
     name: elastic-stack
     urls:
     - elastic-stack-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.143374057Z"
+    created: "2026-01-15T20:58:10.772775919Z"
     dependencies:
     - name: elasticsearch
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -787,9 +787,9 @@ entries:
   elasticsearch:
   - apiVersion: v1
     appVersion: 8.5.1
-    created: "2026-01-14T21:08:37.170562044Z"
+    created: "2026-01-15T20:58:10.79120164Z"
     description: Official Elastic helm chart for Elasticsearch
-    digest: 178ce411a2fb41498b4e8d464b084229c7534ee9cc63c6838fcf736345bad698
+    digest: a286089e582208328c4cdbb4f3996e925ee311cdad9a606317499974465c663f
     home: https://github.com/elastic/helm-charts
     icon: https://helm.elastic.co/icons/elasticsearch.png
     maintainers:
@@ -802,10 +802,10 @@ entries:
     - elasticsearch-8.5.1.tgz
     version: 8.5.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.166483683Z"
+    created: "2026-01-15T20:58:10.788374266Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
-    digest: 575e3c94dd86f9d5d8dc69c6f6bc6cf3c0dbd246b8afd262dafa78beca890646
+    digest: 35e2a687a23d3a021c167f53d27782c901ec8e84bbe7f642d7cf9ef40d393d94
     home: https://www.elastic.co/products/elasticsearch
     icon: https://static-www.elastic.co/assets/blteb1c97719574938d/logo-elastic-elasticsearch-lt.svg
     maintainers:
@@ -823,7 +823,7 @@ entries:
     - elasticsearch-0.5.3.tgz
     version: 0.5.3
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.164640054Z"
+    created: "2026-01-15T20:58:10.787095488Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 3d5f6f4160a755f8e958e8bf2825f7d45796d322232189a2894c49c13870f707
@@ -844,7 +844,7 @@ entries:
     - elasticsearch-0.5.2.tgz
     version: 0.5.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.162749812Z"
+    created: "2026-01-15T20:58:10.785987942Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 7055afface983a778b4723d1dfe58595eb6beed951e3cae0a5c048cf489a91d4
@@ -865,7 +865,7 @@ entries:
     - elasticsearch-0.5.1.tgz
     version: 0.5.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.16064366Z"
+    created: "2026-01-15T20:58:10.784830186Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: a79d006a658e30c819ad6200523f0fad5ab20cf75d2d265d1c7edc77c07e02d1
@@ -886,7 +886,7 @@ entries:
     - elasticsearch-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.158561359Z"
+    created: "2026-01-15T20:58:10.783649149Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 7ceeb5bd2c0a0b3efe1e44efe22145d564a9c52cf44a215851971720f695871c
@@ -907,7 +907,7 @@ entries:
     - elasticsearch-0.4.1.tgz
     version: 0.4.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.155704233Z"
+    created: "2026-01-15T20:58:10.782608284Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: e90d9a8eeb820f960fab2f6b5d80debc028e8b5b7ffc2e9b2e81a0f5a3fbf28d
@@ -928,7 +928,7 @@ entries:
     - elasticsearch-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.153501017Z"
+    created: "2026-01-15T20:58:10.781523501Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: f55d85cf1f0adef662ee5a22555adf2db4b83be6382ff5dfd90566736cce301e
@@ -949,7 +949,7 @@ entries:
     - elasticsearch-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.151891864Z"
+    created: "2026-01-15T20:58:10.778734991Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 1fe30b9a6078475b50a4ccc883c4e323103d5c35762752a74a346502d65f3c3d
@@ -970,7 +970,7 @@ entries:
     - elasticsearch-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.147627275Z"
+    created: "2026-01-15T20:58:10.775840933Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 6803c2ca1ad65317d251b6784d12546748739078ce42d8caf875255e01930bc4
@@ -991,7 +991,7 @@ entries:
     - elasticsearch-0.1.10.tgz
     version: 0.1.10
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.150055962Z"
+    created: "2026-01-15T20:58:10.777424051Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: d00b94b3bb91b94a335ae6bf9455a1ac6e822e460f69bd2fee50bae1afeec967
@@ -1012,7 +1012,7 @@ entries:
     - elasticsearch-0.1.9.tgz
     version: 0.1.9
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.148916142Z"
+    created: "2026-01-15T20:58:10.776575929Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 2f3b7ecc33d8080ad6b80df420938256b3295d9feb2672ca9643e220c1b098c1
@@ -1034,7 +1034,7 @@ entries:
     version: 0.1.6
   elasticsearch-old:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.1719291Z"
+    created: "2026-01-15T20:58:10.792363974Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: d3c11e28ee7990a4cd1bb719c2194ef70682efbc05e2806f54b5c135ac8cf54b
@@ -1056,7 +1056,7 @@ entries:
     version: 0.5.3
   elasticsearch6:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.17325652Z"
+    created: "2026-01-15T20:58:10.794684541Z"
     description: Flexible and powerful open source, distributed real-time search and
       analytics engine.
     digest: 6b11bd272222957ad9b780fcfa235293f99b0bf69d384c36bdd6d5b937f9ec38
@@ -1078,9 +1078,9 @@ entries:
     version: 0.5.1
   ember:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.180441984Z"
+    created: "2026-01-15T20:58:10.799288954Z"
     description: A base ember application for the Open Science Framework
-    digest: 436fa19e3df4c7da24891829c9e25ef2530fa5246d1c30e2109481f90069e7af
+    digest: 747e340d4cb6670b5fddadefde7b7494b9a647e73dbecb9f261e1ed4d6d8c62d
     keywords:
     - authentication
     maintainers:
@@ -1097,7 +1097,7 @@ entries:
     - ember-0.7.1.tgz
     version: 0.7.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.179705118Z"
+    created: "2026-01-15T20:58:10.798656616Z"
     description: A base ember application for the Open Science Framework
     digest: 984bcfb4838bcc0063752431dcd5fca936821f927f212a9761fcfae814bf1dce
     keywords:
@@ -1116,7 +1116,7 @@ entries:
     - ember-0.7.0.tgz
     version: 0.7.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.178770623Z"
+    created: "2026-01-15T20:58:10.798057288Z"
     description: A base ember application for the Open Science Framework
     digest: 23c1844770f8ab0cc15d6d70619b755720a31fccc1b74e143b76b3b08e4b173b
     keywords:
@@ -1135,7 +1135,7 @@ entries:
     - ember-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.17792637Z"
+    created: "2026-01-15T20:58:10.797412196Z"
     description: A base ember application for the Open Science Framework
     digest: b05a433e1aadc1d95b432d7bf596667d99982317680e9a88740bc5e2a9348771
     keywords:
@@ -1154,7 +1154,7 @@ entries:
     - ember-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.177316642Z"
+    created: "2026-01-15T20:58:10.796812422Z"
     description: A base ember application for the Open Science Framework
     digest: 3289c7e4420bb57a7f2276ca2097972ed9e9017c2aa9b556295910fcd16a9013
     keywords:
@@ -1171,7 +1171,7 @@ entries:
     - ember-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.176553315Z"
+    created: "2026-01-15T20:58:10.796239257Z"
     description: A Helm chart for Kubernetes
     digest: a42464d307781e4f7223efa3a9626d44ccceec03d7077f1bfcac28b1d5168769
     name: ember
@@ -1179,7 +1179,7 @@ entries:
     - ember-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.175064826Z"
+    created: "2026-01-15T20:58:10.795720263Z"
     description: A Helm chart for Kubernetes
     digest: 07a9409685746f9495c29e94c5668e5ea0d80c40d2a7b97f70f6607bc420ddaf
     name: ember
@@ -1187,7 +1187,7 @@ entries:
     - ember-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.1741261Z"
+    created: "2026-01-15T20:58:10.79523548Z"
     description: A Helm chart for Kubernetes
     digest: 28b0683dd6331eac632bbbc74264956f3b0cb9c74191e11b0efe37734bc698a7
     name: ember
@@ -1196,9 +1196,9 @@ entries:
     version: 0.1.0
   flower:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.182032807Z"
+    created: "2026-01-15T20:58:10.800820799Z"
     description: Celery Flower
-    digest: 1bd2640c4f450b46edf3aa15134911bfcdf99a8ea08cb1a47ee4cde87c7dc0e0
+    digest: 5646c5cfaec6bf21ea6982619d8ddea92448a7ba6567465f3e86b5a7016ff49c
     keywords:
     - celery
     - flower
@@ -1216,7 +1216,7 @@ entries:
     - flower-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.181618532Z"
+    created: "2026-01-15T20:58:10.800428803Z"
     description: Celery Flower
     digest: efff26e926254c9deb1a3de25fdd2aa0d958341b37186334ecbe169360ce1d86
     keywords:
@@ -1236,7 +1236,7 @@ entries:
     - flower-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.181232676Z"
+    created: "2026-01-15T20:58:10.800045674Z"
     description: Celery Flower
     digest: 751660053707bfaa69615f56c97a0c672fb117b3b3d120692afa16759f8b21c3
     keywords:
@@ -1256,7 +1256,7 @@ entries:
     - flower-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.180819635Z"
+    created: "2026-01-15T20:58:10.799613771Z"
     description: A Helm chart for Kubernetes
     digest: e4f9bf886f186aad8dc642c5016f502dda0aa6cf681f1fe1fbd5820ecede3cd4
     name: flower
@@ -1265,9 +1265,9 @@ entries:
     version: 0.1.0
   gcloud-sqlproxy:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.183403226Z"
+    created: "2026-01-15T20:58:10.802407284Z"
     description: Google Cloud SQL Proxy
-    digest: 8dadc3b18c6651a9872709b9f590531b4b07a04d72cd3ae32d5558520129a43b
+    digest: 4304f3b0d77f27c8edb06e9eecf6d655776aeeac38d2d3a8189dcf0534482bbe
     home: https://cloud.google.com/sql/docs/postgres/sql-proxy
     keywords:
     - google
@@ -1286,7 +1286,7 @@ entries:
     - gcloud-sqlproxy-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.182957668Z"
+    created: "2026-01-15T20:58:10.801738551Z"
     description: Google Cloud SQL Proxy
     digest: 8b88059ea64d9d9370b0751276df870d9dc81684297b9df16959741927965a88
     home: https://cloud.google.com/sql/docs/postgres/sql-proxy
@@ -1307,7 +1307,7 @@ entries:
     - gcloud-sqlproxy-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.182458222Z"
+    created: "2026-01-15T20:58:10.801267815Z"
     description: Google Cloud SQL Proxy
     digest: 157a3d1e39c04c9697961d4756e782a5eb84f1b30f425cfa995d76b0bc6fd1b2
     home: https://cloud.google.com/sql/docs/postgres/sql-proxy
@@ -1329,10 +1329,10 @@ entries:
     version: 0.2.1
   http-redirect:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.185423516Z"
+    created: "2026-01-15T20:58:10.804508782Z"
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
-    digest: 56ee6ddecaf670980818116a44f977d602bd454e568b25e6ed5b257b8cfaccfe
+    digest: e92733f947fa3898204296d7dc200196a60bd6b0ca56815837f92a8ec2c2ed84
     keywords:
     - ingress
     - nginx
@@ -1349,7 +1349,7 @@ entries:
     - http-redirect-0.4.1.tgz
     version: 0.4.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.185048422Z"
+    created: "2026-01-15T20:58:10.804060126Z"
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
     digest: 8127c35e4e22c00677dcc14e297e5cb3f9b619d2b40986996513cebba8398198
@@ -1369,7 +1369,7 @@ entries:
     - http-redirect-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.18459803Z"
+    created: "2026-01-15T20:58:10.803600888Z"
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
     digest: 29dbca08613c3b39f9f2b8ccdedba87b6b8a14fe0d15dc7927736415f6c56041
@@ -1389,7 +1389,7 @@ entries:
     - http-redirect-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.184216963Z"
+    created: "2026-01-15T20:58:10.803199332Z"
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
     digest: e1bd63f848861412fadf757a5998a03e4030240051dfc7c7ad2799386ec69bc8
@@ -1405,7 +1405,7 @@ entries:
     - http-redirect-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.183832612Z"
+    created: "2026-01-15T20:58:10.802768784Z"
     description: An HTTP to HTTPS redirect nginx server that uses ConfigMap to store
       the nginx configuration.
     digest: 13f6534bdb778132d3c892bd1964b3e8a4707c1c3b45a64038e9b2205661fce1
@@ -1422,14 +1422,14 @@ entries:
     version: 0.1.0
   hubot:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.190350753Z"
+    created: "2026-01-15T20:58:10.809420107Z"
     dependencies:
     - condition: redis.enabled, redis.postgresql.enabled
       name: redis
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 1.1.3
     description: Hubot chatbot
-    digest: 2e70151a09e32855d8a8b4f84e7d34b7e8c4f35568761f55489def0f03e00f87
+    digest: b200f9ceaae6f4fa909a56d427fef7c40b9cfc17dcd672bcec4b04c33d9e3854
     icon: https://hubot.github.com/assets/images/layout/hubot-avatar@2x.png
     keywords:
     - chat
@@ -1448,7 +1448,7 @@ entries:
     - hubot-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.189050875Z"
+    created: "2026-01-15T20:58:10.808266606Z"
     dependencies:
     - condition: redis.enabled, redis.postgresql.enabled
       name: redis
@@ -1474,7 +1474,7 @@ entries:
     - hubot-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.186837181Z"
+    created: "2026-01-15T20:58:10.806964925Z"
     dependencies:
     - condition: redis.enabled, redis.postgresql.enabled
       name: redis
@@ -1510,10 +1510,10 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 1.1.2
-    created: "2026-01-14T21:08:37.197761594Z"
+    created: "2026-01-15T20:58:10.816112649Z"
     description: Ingress controller for Kubernetes using NGINX as a reverse proxy
       and load balancer
-    digest: ed907a571081d21855e0f78ebc588bc8daa90002b7a638de6a1effd1fb40bd38
+    digest: df4ae7b1157fd60a6bc8ff155de8580b00f532262ca80b5aa1a82daf0179e208
     home: https://github.com/kubernetes/ingress-nginx
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
     keywords:
@@ -1535,7 +1535,7 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 1.1.0
-    created: "2026-01-14T21:08:37.194140448Z"
+    created: "2026-01-15T20:58:10.81243223Z"
     description: Ingress controller for Kubernetes using NGINX as a reverse proxy
       and load balancer
     digest: 8a80fb7f49466b78324fab51dc01fc874ea05fe9fcf6a416312e983e8a30e32e
@@ -1557,11 +1557,11 @@ entries:
   jenkins:
   - apiVersion: v1
     appVersion: 2.67.0
-    created: "2026-01-14T21:08:37.204457608Z"
+    created: "2026-01-15T20:58:10.821942693Z"
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
-    digest: a5ef4761e064327680d5f026e658085daa0bd18e2d32fed0de27c5cb6b00f622
+    digest: 5d3804f447c34efa36fcdb177cd4a9679e866c4900d1fee247af5299c80b49c5
     home: https://jenkins.io/
     icon: https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png
     maintainers:
@@ -1578,7 +1578,7 @@ entries:
     version: 0.11.2
   - apiVersion: v1
     appVersion: 2.67.0
-    created: "2026-01-14T21:08:37.203353253Z"
+    created: "2026-01-15T20:58:10.820731776Z"
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -1599,7 +1599,7 @@ entries:
     version: 0.11.1
   - apiVersion: v1
     appVersion: 2.67.0
-    created: "2026-01-14T21:08:37.200121437Z"
+    created: "2026-01-15T20:58:10.818404946Z"
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -1620,7 +1620,7 @@ entries:
     version: 0.11.0
   - apiVersion: v1
     appVersion: "2.67"
-    created: "2026-01-14T21:08:37.199102621Z"
+    created: "2026-01-15T20:58:10.817241271Z"
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -1641,7 +1641,7 @@ entries:
     version: 0.10.0
   - apiVersion: v1
     appVersion: "2.67"
-    created: "2026-01-14T21:08:37.206843272Z"
+    created: "2026-01-15T20:58:10.823927374Z"
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -1662,7 +1662,7 @@ entries:
     version: 0.9.0
   - apiVersion: v1
     appVersion: "2.67"
-    created: "2026-01-14T21:08:37.205477637Z"
+    created: "2026-01-15T20:58:10.822933555Z"
     description: Open source continuous integration server. It supports multiple SCM
       tools including CVS, Subversion and Git. It can execute Apache Ant and Apache
       Maven-based projects as well as arbitrary scripts.
@@ -1683,9 +1683,9 @@ entries:
     version: 0.8.2
   kibana:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.208619534Z"
+    created: "2026-01-15T20:58:10.825030719Z"
     description: Elasticsearch visualization platform
-    digest: 2a06addcb23752633c61b0469420b3a789821d34582b1250754616fa0f3c13e4
+    digest: c045cdf9f31cf5232b2f741d0b1a3e879a8262af73395fc277be454d87851f7d
     icon: https://static-www.elastic.co/assets/bltf11265439e44d327/logo-elastic-kibana-lt.svg?q=890
     name: kibana
     sources:
@@ -1694,7 +1694,7 @@ entries:
     - kibana-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.208093024Z"
+    created: "2026-01-15T20:58:10.824613302Z"
     description: Elasticsearch visualization platform
     digest: 5ca87041a8fa301560b904a126a8e983845795ae12f9a510d66427447e855cf1
     icon: https://static-www.elastic.co/assets/bltf11265439e44d327/logo-elastic-kibana-lt.svg?q=890
@@ -1705,7 +1705,7 @@ entries:
     - kibana-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.207372308Z"
+    created: "2026-01-15T20:58:10.824283404Z"
     description: Elasticsearch visualization platform
     digest: ed64664097ba88ce57cd3cf35596c0f049517660d58932c2a05e6459ef764967
     icon: https://static-www.elastic.co/assets/bltf11265439e44d327/logo-elastic-kibana-lt.svg?q=890
@@ -1717,7 +1717,7 @@ entries:
     version: 0.1.0
   lookit:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.227494173Z"
+    created: "2026-01-15T20:58:10.837431108Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -1745,7 +1745,7 @@ entries:
     - lookit-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.223851241Z"
+    created: "2026-01-15T20:58:10.832687665Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -1771,7 +1771,7 @@ entries:
     - lookit-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.219118354Z"
+    created: "2026-01-15T20:58:10.830177028Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -1788,7 +1788,7 @@ entries:
     - lookit-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.214233614Z"
+    created: "2026-01-15T20:58:10.828079168Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -1805,7 +1805,7 @@ entries:
     - lookit-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.210634518Z"
+    created: "2026-01-15T20:58:10.826312989Z"
     dependencies:
     - name: postgresql
       repository: https://kubernetes-charts.storage.googleapis.com
@@ -1818,9 +1818,9 @@ entries:
     version: 0.1.0
   maintenance:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.229444137Z"
+    created: "2026-01-15T20:58:10.839922926Z"
     description: Center For Open Science Maintenance Pages
-    digest: b68b1bc031da1a7171eef3c9757324b13d41ddf8b6c25c1106029f61c4618d3a
+    digest: b2406a96d3570fdb159db25120acd7cd1a9281a1563d55dd6823341c5e8d5a58
     keywords:
     - maintenance
     maintainers:
@@ -1837,7 +1837,7 @@ entries:
     - maintenance-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.228503427Z"
+    created: "2026-01-15T20:58:10.838643823Z"
     description: Center For Open Science Maintenance Pages
     digest: 1f55e05bb32514337ea90d1b83c52ca7441d3a0dad23e18d69481ae554db4489
     keywords:
@@ -1857,7 +1857,7 @@ entries:
     version: 0.1.0
   mfr:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.265204961Z"
+    created: "2026-01-15T20:58:10.864093696Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -1868,7 +1868,7 @@ entries:
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 6.9.1
     description: A Helm chart for Kubernetes
-    digest: 00483bfa8ee26264683b460ab61b8d708f618b371d1a822020c71b2127d41cc7
+    digest: 73a7fb6b8e537c2e30aa38a9f7305330025ba45b64fba86c5486756fbce8281f
     keywords:
     - renderer
     maintainers:
@@ -1882,7 +1882,7 @@ entries:
     - mfr-0.9.3.tgz
     version: 0.9.3
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.258902799Z"
+    created: "2026-01-15T20:58:10.861005106Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -1903,7 +1903,7 @@ entries:
     - mfr-0.9.2.tgz
     version: 0.9.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.256580488Z"
+    created: "2026-01-15T20:58:10.859482163Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -1927,7 +1927,7 @@ entries:
     - mfr-0.9.1.tgz
     version: 0.9.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.25461306Z"
+    created: "2026-01-15T20:58:10.857842333Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -1951,7 +1951,7 @@ entries:
     - mfr-0.9.0.tgz
     version: 0.9.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.252304028Z"
+    created: "2026-01-15T20:58:10.856377922Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -1975,7 +1975,7 @@ entries:
     - mfr-0.8.1.tgz
     version: 0.8.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.250017324Z"
+    created: "2026-01-15T20:58:10.854939718Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -1999,7 +1999,7 @@ entries:
     - mfr-0.8.0.tgz
     version: 0.8.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.247655546Z"
+    created: "2026-01-15T20:58:10.852910309Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -2020,7 +2020,7 @@ entries:
     - mfr-0.7.2.tgz
     version: 0.7.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.246018658Z"
+    created: "2026-01-15T20:58:10.850572096Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -2042,7 +2042,7 @@ entries:
     - mfr-0.7.1.tgz
     version: 0.7.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.244041867Z"
+    created: "2026-01-15T20:58:10.849056302Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -2064,7 +2064,7 @@ entries:
     - mfr-0.7.0.tgz
     version: 0.7.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.240648317Z"
+    created: "2026-01-15T20:58:10.847489076Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -2086,7 +2086,7 @@ entries:
     - mfr-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.238224151Z"
+    created: "2026-01-15T20:58:10.846058838Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -2108,7 +2108,7 @@ entries:
     - mfr-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.235870472Z"
+    created: "2026-01-15T20:58:10.844648353Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -2130,7 +2130,7 @@ entries:
     - mfr-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.233685967Z"
+    created: "2026-01-15T20:58:10.843284744Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -2152,7 +2152,7 @@ entries:
     - mfr-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.231498745Z"
+    created: "2026-01-15T20:58:10.841888124Z"
     description: A Helm chart for Kubernetes
     digest: 20727d31b7ae64500481228bc8f62e4f8e70e84a923ed1b244ec7e45a600bc65
     name: mfr
@@ -2160,7 +2160,7 @@ entries:
     - mfr-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.230343956Z"
+    created: "2026-01-15T20:58:10.841041829Z"
     description: A Helm chart for Kubernetes
     digest: 7928f0cd93d08e898f8bb69021d58a922b5d1a9e2518495aa7948744c7fe9cf5
     name: mfr
@@ -2170,11 +2170,11 @@ entries:
   mongodb:
   - apiVersion: v1
     appVersion: 3.4.9
-    created: "2026-01-14T21:08:37.266266273Z"
+    created: "2026-01-15T20:58:10.865233972Z"
     description: NoSQL document-oriented database that stores JSON-like documents
       with dynamic schemas, simplifying the integration of data in content-driven
       applications.
-    digest: 550eb989c2eedec186cdb312f1e6bf837b8830bd6845c746e6e8544751121dff
+    digest: 6d94413ea9c51663e921091247d34e0fbfcb4bc2bf32dca35918b30a0a12c09a
     home: https://mongodb.org
     icon: https://bitnami.com/assets/stacks/mongodb/img/mongodb-stack-220x234.png
     keywords:
@@ -2192,7 +2192,7 @@ entries:
     version: 0.5.0
   - apiVersion: v1
     appVersion: 3.4.9
-    created: "2026-01-14T21:08:37.265709678Z"
+    created: "2026-01-15T20:58:10.864669682Z"
     description: NoSQL document-oriented database that stores JSON-like documents
       with dynamic schemas, simplifying the integration of data in content-driven
       applications.
@@ -2215,9 +2215,9 @@ entries:
   nessus:
   - apiVersion: v1
     appVersion: 7.1.2
-    created: "2026-01-14T21:08:37.270286989Z"
+    created: "2026-01-15T20:58:10.870345052Z"
     description: Nessus Vulnerability Scanner
-    digest: 7d1ebe4a0797dcc34ff7bcc8e1255ff5b5aa2f46ad91da1bfe099e036569dd9b
+    digest: dd9cba440b82f47b5bfafc37f2650b8c81e6df59da2067ecae86c35dc3250138
     home: https://www.tenable.com/products/nessus-vulnerability-scanner
     icon: https://static.tenable.com/press/logos/products/Nessus-FullColor-RGB-logo.png
     keywords:
@@ -2238,7 +2238,7 @@ entries:
     version: 0.4.2
   - apiVersion: v1
     appVersion: 7.1.2
-    created: "2026-01-14T21:08:37.269092854Z"
+    created: "2026-01-15T20:58:10.869678388Z"
     description: Nessus Vulnerability Scanner
     digest: a50c3823ba646a34b1332f4ac2a89c349dd963f0195dc5505106a74fbe46af47
     home: https://www.tenable.com/products/nessus-vulnerability-scanner
@@ -2261,7 +2261,7 @@ entries:
     version: 0.4.1
   - apiVersion: v1
     appVersion: 7.1.2
-    created: "2026-01-14T21:08:37.268450147Z"
+    created: "2026-01-15T20:58:10.869056256Z"
     description: Nessus Vulnerability Scanner
     digest: 78f8615a9bfe6b7ce63a4dda383623f3dc60c1cb268770ecba86105bcf254418
     home: https://www.tenable.com/products/nessus-vulnerability-scanner
@@ -2284,7 +2284,7 @@ entries:
     version: 0.4.0
   - apiVersion: v1
     appVersion: 7.1.2
-    created: "2026-01-14T21:08:37.267853164Z"
+    created: "2026-01-15T20:58:10.867700008Z"
     description: Nessus Vulnerability Scanner
     digest: 63e48e4c15abb30835f1828b43e522de12c72d92e02b2d0af328511836de9adf
     home: https://www.tenable.com/products/nessus-vulnerability-scanner
@@ -2304,7 +2304,7 @@ entries:
     version: 0.3.0
   - apiVersion: v1
     appVersion: 7.1.2
-    created: "2026-01-14T21:08:37.267259168Z"
+    created: "2026-01-15T20:58:10.866218664Z"
     description: Nessus Vulnerability Scanner
     digest: 47afde4ff763ede31f4bf90397da613fcaae9a1af5355577862bb0039d83c0fb
     home: https://www.tenable.com/products/nessus-vulnerability-scanner
@@ -2323,7 +2323,7 @@ entries:
     version: 0.2.0
   - apiVersion: v1
     appVersion: 6.11.2
-    created: "2026-01-14T21:08:37.266671057Z"
+    created: "2026-01-15T20:58:10.865644167Z"
     description: Nessus Vulnerability Scanner
     digest: 7274924414fdc63a087eb1d060dceaecd217566dd4157424369417f1314445a9
     home: https://www.tenable.com/products/nessus-vulnerability-scanner
@@ -2338,16 +2338,16 @@ entries:
   nginx:
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2026-01-14T21:08:37.272469439Z"
+    created: "2026-01-15T20:58:10.872327376Z"
     description: A Helm chart for Kubernetes
-    digest: 6001504151187b8c352b0cb876174b5eb52d92b47bc0bf4cd6bf99242c61557e
+    digest: 0fab7b470211e87d3890f270c38e318a314b2dffd20344bacb0653441ce1f17a
     name: nginx
     urls:
     - nginx-0.1.3.tgz
     version: 0.1.3
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2026-01-14T21:08:37.271829083Z"
+    created: "2026-01-15T20:58:10.871835807Z"
     description: A Helm chart for Kubernetes
     digest: 9feaf61bdf4f4255456a284e143e8ec59a40b7ba2f4f22013243b75ce67565a1
     name: nginx
@@ -2356,7 +2356,7 @@ entries:
     version: 0.1.2
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2026-01-14T21:08:37.271328178Z"
+    created: "2026-01-15T20:58:10.871338609Z"
     description: A Helm chart for Kubernetes
     digest: 6c688efe5368fcdd73f2c641de01a72a4b9031efb894b37fe950c94a1daa0525
     name: nginx
@@ -2365,7 +2365,7 @@ entries:
     version: 0.1.1
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2026-01-14T21:08:37.270759395Z"
+    created: "2026-01-15T20:58:10.870838379Z"
     description: A Helm chart for Kubernetes
     digest: 5bdda0005d43688e5ebfc97ccbc511de4a877d6e9b380bd99b619e221afbf0fc
     name: nginx
@@ -2375,10 +2375,10 @@ entries:
   nginx-ingress:
   - apiVersion: v1
     appVersion: 0.10.2
-    created: "2026-01-14T21:08:37.280008116Z"
+    created: "2026-01-15T20:58:10.876238801Z"
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
-    digest: 3d6165f21ae376c756dd9cb56cafcacd939b27c843111f24ac2876e2a6bb9120
+    digest: 3b7842a4e65c1e0fa2d630de2245125c15b64d8b276fcae29e3c6b651ace7ac7
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
     keywords:
     - ingress
@@ -2398,7 +2398,7 @@ entries:
     version: 0.11.1
   - apiVersion: v1
     appVersion: 0.10.2
-    created: "2026-01-14T21:08:37.277962449Z"
+    created: "2026-01-15T20:58:10.874927515Z"
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 95ec9d829d83c4700a868cfcd14a1ae154111808e643434563d79e6e1f818416
@@ -2421,7 +2421,7 @@ entries:
     version: 0.11.0
   - apiVersion: v1
     appVersion: 0.10.2
-    created: "2026-01-14T21:08:37.275852456Z"
+    created: "2026-01-15T20:58:10.873598674Z"
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: e5b5bc6fb1435d909aa7ec640058a19436802705ad6872607b172130a809eccb
@@ -2444,7 +2444,7 @@ entries:
     version: 0.10.0
   - apiVersion: v1
     appVersion: 0.10.2
-    created: "2026-01-14T21:08:37.287282942Z"
+    created: "2026-01-15T20:58:10.882016378Z"
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 148307909afa85ad299f1ad34cd4efe5c89402e64fbf6aecb582b96f79861a20
@@ -2467,7 +2467,7 @@ entries:
     version: 0.9.0
   - apiVersion: v1
     appVersion: 0.9.0-beta.15
-    created: "2026-01-14T21:08:37.283655349Z"
+    created: "2026-01-15T20:58:10.879090345Z"
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 603327ca4265c519ed4f0c42014027a0d5e1626ad9da1eb4d8986032ac0d0c82
@@ -2490,7 +2490,7 @@ entries:
     version: 0.8.26
   - apiVersion: v1
     appVersion: 0.9.0-beta.15
-    created: "2026-01-14T21:08:37.285437357Z"
+    created: "2026-01-15T20:58:10.880708918Z"
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 3fc8931182ff48696f7f18d91ae13cd458c62200c7ab43f7cf5c5390b6b4d5c4
@@ -2513,7 +2513,7 @@ entries:
     version: 0.8.8
   - apiVersion: v1
     appVersion: 0.9.0-beta.7
-    created: "2026-01-14T21:08:37.281633286Z"
+    created: "2026-01-15T20:58:10.877253774Z"
     description: An nginx Ingress controller that uses ConfigMap to store the nginx
       configuration.
     digest: 6f797a8d3080724108faa25ea8690ad7627bfcd35a8112bc34b655f05541c00b
@@ -2536,7 +2536,7 @@ entries:
     version: 0.6.0
   osf:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.608025212Z"
+    created: "2026-01-15T20:58:11.100189706Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2565,7 +2565,7 @@ entries:
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 1.1.3
     description: The Open Science Framework (OSF)
-    digest: 339300e06d950f71f402a5c078c0d352ece58d33e99f3f82ce468ba4b2f4a004
+    digest: 1c5fd3f77c8f553b92df2440a900ad66c074ecf5bb1ead5a8ab4599942e116b2
     keywords:
     - open
     - science
@@ -2580,7 +2580,7 @@ entries:
     - osf-0.21.0.tgz
     version: 0.21.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.595707103Z"
+    created: "2026-01-15T20:58:11.090329821Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2624,7 +2624,7 @@ entries:
     - osf-0.20.2.tgz
     version: 0.20.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.580891859Z"
+    created: "2026-01-15T20:58:11.082131636Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2668,7 +2668,7 @@ entries:
     - osf-0.20.1.tgz
     version: 0.20.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.562509764Z"
+    created: "2026-01-15T20:58:11.073968335Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2712,7 +2712,7 @@ entries:
     - osf-0.20.0.tgz
     version: 0.20.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.536958239Z"
+    created: "2026-01-15T20:58:11.061887625Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2756,7 +2756,7 @@ entries:
     - osf-0.19.0.tgz
     version: 0.19.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.523582295Z"
+    created: "2026-01-15T20:58:11.052575598Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2800,7 +2800,7 @@ entries:
     - osf-0.18.1.tgz
     version: 0.18.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.506166612Z"
+    created: "2026-01-15T20:58:11.043525499Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2844,7 +2844,7 @@ entries:
     - osf-0.18.0.tgz
     version: 0.18.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.493078488Z"
+    created: "2026-01-15T20:58:11.035317053Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2888,7 +2888,7 @@ entries:
     - osf-0.17.1.tgz
     version: 0.17.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.476467194Z"
+    created: "2026-01-15T20:58:11.029101454Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2932,7 +2932,7 @@ entries:
     - osf-0.17.0.tgz
     version: 0.17.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.465816366Z"
+    created: "2026-01-15T20:58:11.021325508Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -2976,7 +2976,7 @@ entries:
     - osf-0.16.6.tgz
     version: 0.16.6
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.454107277Z"
+    created: "2026-01-15T20:58:11.015024685Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3020,7 +3020,7 @@ entries:
     - osf-0.16.5.tgz
     version: 0.16.5
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.444934369Z"
+    created: "2026-01-15T20:58:11.007705501Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3063,7 +3063,7 @@ entries:
     - osf-0.16.4.tgz
     version: 0.16.4
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.435642341Z"
+    created: "2026-01-15T20:58:11.00190115Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3108,7 +3108,7 @@ entries:
     - osf-0.16.3.tgz
     version: 0.16.3
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.428729418Z"
+    created: "2026-01-15T20:58:10.995673149Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3153,7 +3153,7 @@ entries:
     - osf-0.16.2.tgz
     version: 0.16.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.421078026Z"
+    created: "2026-01-15T20:58:10.987885358Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3198,7 +3198,7 @@ entries:
     - osf-0.16.1.tgz
     version: 0.16.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.414773672Z"
+    created: "2026-01-15T20:58:10.97879251Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3243,7 +3243,7 @@ entries:
     - osf-0.16.0.tgz
     version: 0.16.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.407759932Z"
+    created: "2026-01-15T20:58:10.968353694Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3288,7 +3288,7 @@ entries:
     - osf-0.15.4.tgz
     version: 0.15.4
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.396330411Z"
+    created: "2026-01-15T20:58:10.962527655Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3333,7 +3333,7 @@ entries:
     - osf-0.15.3.tgz
     version: 0.15.3
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.385635329Z"
+    created: "2026-01-15T20:58:10.954110812Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3378,7 +3378,7 @@ entries:
     - osf-0.15.2.tgz
     version: 0.15.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.372398051Z"
+    created: "2026-01-15T20:58:10.947387534Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3423,7 +3423,7 @@ entries:
     - osf-0.15.1.tgz
     version: 0.15.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.359685121Z"
+    created: "2026-01-15T20:58:10.936465548Z"
     dependencies:
     - alias: elasticsearch
       condition: elasticsearch.enabled, global.elasticsearch.enabled
@@ -3468,7 +3468,7 @@ entries:
     - osf-0.15.0.tgz
     version: 0.15.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.345778042Z"
+    created: "2026-01-15T20:58:10.922902877Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3507,7 +3507,7 @@ entries:
     - osf-0.14.0.tgz
     version: 0.14.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.335320679Z"
+    created: "2026-01-15T20:58:10.915477702Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3546,7 +3546,7 @@ entries:
     - osf-0.13.0.tgz
     version: 0.13.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.327160199Z"
+    created: "2026-01-15T20:58:10.909498554Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3585,7 +3585,7 @@ entries:
     - osf-0.12.0.tgz
     version: 0.12.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.318950432Z"
+    created: "2026-01-15T20:58:10.902312697Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3624,7 +3624,7 @@ entries:
     - osf-0.11.0.tgz
     version: 0.11.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.307979066Z"
+    created: "2026-01-15T20:58:10.895783789Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3663,7 +3663,7 @@ entries:
     - osf-0.10.0.tgz
     version: 0.10.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.652201821Z"
+    created: "2026-01-15T20:58:11.135909452Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3692,7 +3692,7 @@ entries:
     - osf-0.9.0.tgz
     version: 0.9.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.644959023Z"
+    created: "2026-01-15T20:58:11.129217148Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3717,7 +3717,7 @@ entries:
     - osf-0.8.0.tgz
     version: 0.8.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.637612405Z"
+    created: "2026-01-15T20:58:11.124441345Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3742,7 +3742,7 @@ entries:
     - osf-0.7.0.tgz
     version: 0.7.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.630070119Z"
+    created: "2026-01-15T20:58:11.119943582Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3767,7 +3767,7 @@ entries:
     - osf-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.622130225Z"
+    created: "2026-01-15T20:58:11.113474328Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3788,7 +3788,7 @@ entries:
     - osf-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.61552829Z"
+    created: "2026-01-15T20:58:11.109118854Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3809,7 +3809,7 @@ entries:
     - osf-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.611777391Z"
+    created: "2026-01-15T20:58:11.105231901Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3830,7 +3830,7 @@ entries:
     - osf-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.546681994Z"
+    created: "2026-01-15T20:58:11.065051045Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -3851,7 +3851,7 @@ entries:
     - osf-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.298048318Z"
+    created: "2026-01-15T20:58:10.887673984Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -3936,7 +3936,7 @@ entries:
     version: 0.1.0
   osf-admin:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.652900401Z"
+    created: "2026-01-15T20:58:11.136515711Z"
     description: A Helm chart for Kubernetes
     digest: 3fb40630d5bc19834fae98252e4039a4a85de84b0349d0b2dcf12ff6b86ec63b
     name: osf-admin
@@ -3945,7 +3945,7 @@ entries:
     version: 0.1.0
   osf-api:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.653851854Z"
+    created: "2026-01-15T20:58:11.13726601Z"
     description: A Helm chart for Kubernetes
     digest: ad8578172b5212f1eb1d60efd6d5f92d3599767957381686132758ecab17cfc8
     name: osf-api
@@ -3954,7 +3954,7 @@ entries:
     version: 0.1.0
   osf-beat:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.654735822Z"
+    created: "2026-01-15T20:58:11.137681559Z"
     description: A Helm chart for Kubernetes
     digest: 21dcf194a6f0311f8edbc95fe0c8f1146b6b75c325f2b79aa2e88445dab7b304
     name: osf-beat
@@ -3963,7 +3963,7 @@ entries:
     version: 0.1.0
   osf-cas:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.674551942Z"
+    created: "2026-01-15T20:58:11.152727212Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -3974,7 +3974,7 @@ entries:
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.11.1
     description: Central Authentication Service
-    digest: a00786f601df78403d4c94021e7c7f0bfa496c7619370af45e126479d3b35a4a
+    digest: 8352e4c3ae338b3ec1614af00944ab57c449085e556c119567269c81e9144bc2
     keywords:
     - authentication
     maintainers:
@@ -3991,7 +3991,7 @@ entries:
     - osf-cas-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.669968278Z"
+    created: "2026-01-15T20:58:11.149456166Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -4019,7 +4019,7 @@ entries:
     - osf-cas-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.662697279Z"
+    created: "2026-01-15T20:58:11.145811238Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -4047,7 +4047,7 @@ entries:
     - osf-cas-0.0.2.tgz
     version: 0.0.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.659093575Z"
+    created: "2026-01-15T20:58:11.141269148Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -4076,7 +4076,7 @@ entries:
     version: 0.0.1
   osf-collections:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.675464658Z"
+    created: "2026-01-15T20:58:11.153522436Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4099,7 +4099,7 @@ entries:
     version: 0.1.0
   osf-ember-app:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.675977946Z"
+    created: "2026-01-15T20:58:11.153940674Z"
     description: A Helm chart for Kubernetes
     digest: b8c988066cdbf5e58dd0fac4a820781d513ce348740e9d3815dfb66eae6ec112
     name: osf-ember-app
@@ -4108,7 +4108,7 @@ entries:
     version: 0.1.0
   osf-flower:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.676327114Z"
+    created: "2026-01-15T20:58:11.154259856Z"
     description: A Helm chart for Kubernetes
     digest: 2024c5eac91551f69c08b4cc28b10e5adf447b364cfc7cfdd688f8b42ee2d89b
     name: osf-flower
@@ -4117,9 +4117,9 @@ entries:
     version: 0.1.0
   osf-gravyvalet:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.677492741Z"
+    created: "2026-01-15T20:58:11.155209365Z"
     description: A Helm chart for Kubernetes
-    digest: 75a9334703ea5f6e2d9fa8057f5332277db086b5fcc9d50f9c107095037c1eee
+    digest: 302c902dd543f65fe19d17f817ecf596ce2816c0ac3f6b7fac6b5ff928fa69ce
     maintainers:
     - email: matt@cos.io
       name: Matt Frazier
@@ -4135,9 +4135,9 @@ entries:
     version: 0.1.0
   osf-pigeon:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.679910206Z"
+    created: "2026-01-15T20:58:11.158590997Z"
     description: A Helm chart for Kubernetes
-    digest: 0fec362a8374d1458f750a148dd1f76b1e9550c7dc96a05aa8461e73377cefbf
+    digest: add20460cd668618c6a5f7e2f2830b593eb31b1f59e11b96d9daf89260f4f54e
     maintainers:
     - email: matt@cos.io
       name: Matt Frazier
@@ -4152,7 +4152,7 @@ entries:
     - osf-pigeon-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.679090687Z"
+    created: "2026-01-15T20:58:11.15652733Z"
     description: A Helm chart for Kubernetes
     digest: 9b26d7164a9283b409883c1a0007e6294e258eea97d7f32765c9e6567e7b418c
     maintainers:
@@ -4169,7 +4169,7 @@ entries:
     - osf-pigeon-0.0.2.tgz
     version: 0.0.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.678311444Z"
+    created: "2026-01-15T20:58:11.155879969Z"
     description: A Helm chart for Kubernetes
     digest: 3fa531ea88f1ea15119b26e9b5b5d4f3ec90fa481159e173b12bfeeecddd8904
     maintainers:
@@ -4187,13 +4187,13 @@ entries:
     version: 0.0.1
   osf-preprints:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.687677836Z"
+    created: "2026-01-15T20:58:11.163508811Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.7.0
     description: Open Science Framework Preprints Ember application
-    digest: 266d4fd686ab8f865351051ee507a0e331c3236846db324c37dcf5e10fe3054e
+    digest: bd8abc6ba12fd78565af0d6ae57c985dd05d1c240d79b13107a5dc8cc4dfe850
     keywords:
     - open
     - science
@@ -4212,7 +4212,7 @@ entries:
     - osf-preprints-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.686007424Z"
+    created: "2026-01-15T20:58:11.162647788Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4237,7 +4237,7 @@ entries:
     - osf-preprints-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.683098141Z"
+    created: "2026-01-15T20:58:11.161817552Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4260,7 +4260,7 @@ entries:
     - osf-preprints-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.682234038Z"
+    created: "2026-01-15T20:58:11.160843744Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4272,7 +4272,7 @@ entries:
     - osf-preprints-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.6814404Z"
+    created: "2026-01-15T20:58:11.16017568Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4284,7 +4284,7 @@ entries:
     - osf-preprints-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.680663051Z"
+    created: "2026-01-15T20:58:11.159494981Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4297,7 +4297,7 @@ entries:
     version: 0.1.0
   osf-registries:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.69247855Z"
+    created: "2026-01-15T20:58:11.167495381Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4320,7 +4320,7 @@ entries:
     - osf-registries-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.691375363Z"
+    created: "2026-01-15T20:58:11.166596508Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4343,7 +4343,7 @@ entries:
     - osf-registries-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.690410627Z"
+    created: "2026-01-15T20:58:11.165753306Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4355,7 +4355,7 @@ entries:
     - osf-registries-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.689629467Z"
+    created: "2026-01-15T20:58:11.164882801Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4367,7 +4367,7 @@ entries:
     - osf-registries-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.688502521Z"
+    created: "2026-01-15T20:58:11.164188962Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4380,13 +4380,13 @@ entries:
     version: 0.1.0
   osf-reviews:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.700071786Z"
+    created: "2026-01-15T20:58:11.174404644Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.7.0
     description: Open Science Framework Reviews/Moderation Ember application
-    digest: f33e1b64bcbe37c1b21e9fa7045058346ac741ca5869685bcadbfef71e081bd6
+    digest: 96a2a49c637b57f3b64a9809c2c2f3e7001f584b6761094a17a2bd75979c72b6
     keywords:
     - open
     - science
@@ -4407,7 +4407,7 @@ entries:
     - osf-reviews-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.698605945Z"
+    created: "2026-01-15T20:58:11.173401338Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4434,7 +4434,7 @@ entries:
     - osf-reviews-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.697061559Z"
+    created: "2026-01-15T20:58:11.17255414Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4459,7 +4459,7 @@ entries:
     - osf-reviews-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.695851364Z"
+    created: "2026-01-15T20:58:11.171599932Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4471,7 +4471,7 @@ entries:
     - osf-reviews-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.694931667Z"
+    created: "2026-01-15T20:58:11.169469241Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4483,7 +4483,7 @@ entries:
     - osf-reviews-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.693419821Z"
+    created: "2026-01-15T20:58:11.168467455Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4496,7 +4496,7 @@ entries:
     version: 0.1.0
   osf-sharejs:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.703081437Z"
+    created: "2026-01-15T20:58:11.176509775Z"
     dependencies:
     - condition: mongodb.enabled, global.mongodb.enabled
       name: mongodb
@@ -4509,7 +4509,7 @@ entries:
     - osf-sharejs-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.701618548Z"
+    created: "2026-01-15T20:58:11.175553644Z"
     dependencies:
     - name: mongodb
       repository: https://kubernetes-charts.storage.googleapis.com
@@ -4522,13 +4522,13 @@ entries:
     version: 0.1.0
   osf-web:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.717265855Z"
+    created: "2026-01-15T20:58:11.181264587Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.7.1
     description: Open Science Framework main Ember application
-    digest: 974a44e6778a368b761a4d77e9ca6a7b78115db884a9386942acc92d970131c4
+    digest: 2256471bb0c1aa602f28f61db43113c413a9cdc28ca8b8086a2e4b8e487ceab4
     keywords:
     - open
     - science
@@ -4546,7 +4546,7 @@ entries:
     - osf-web-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.715858516Z"
+    created: "2026-01-15T20:58:11.180454047Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4570,7 +4570,7 @@ entries:
     - osf-web-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.714081465Z"
+    created: "2026-01-15T20:58:11.1795714Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4592,7 +4592,7 @@ entries:
     - osf-web-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.712349316Z"
+    created: "2026-01-15T20:58:11.178661594Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4604,7 +4604,7 @@ entries:
     - osf-web-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.710098073Z"
+    created: "2026-01-15T20:58:11.17795423Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4616,7 +4616,7 @@ entries:
     - osf-web-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.707128564Z"
+    created: "2026-01-15T20:58:11.177262751Z"
     dependencies:
     - name: ember
       repository: file://../ember
@@ -4629,13 +4629,13 @@ entries:
     version: 0.1.0
   osf-web-mirage:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.71961323Z"
+    created: "2026-01-15T20:58:11.184113556Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.7.1
     description: Open Science Framework main Ember application
-    digest: a3e54ee6a1e8454e209c4db4074e5d99275c1411c80a011f45789dd9f9f9609b
+    digest: 19796918875befe537cd1641319b2e81ab2970bed9bb79bd49d5c17c86e31a7f
     keywords:
     - open
     - science
@@ -4653,7 +4653,7 @@ entries:
     - osf-web-mirage-0.6.1.tgz
     version: 0.6.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.71867086Z"
+    created: "2026-01-15T20:58:11.182075352Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
@@ -4678,7 +4678,7 @@ entries:
     version: 0.6.0
   osf-worker:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.719968058Z"
+    created: "2026-01-15T20:58:11.184432971Z"
     description: A Helm chart for Kubernetes
     digest: a31999bb2debf0d32f96b261cf67a0065de63b8d62530bde7e33ec6a2e952902
     name: osf-worker
@@ -4688,9 +4688,9 @@ entries:
   pgbouncer:
   - apiVersion: v1
     appVersion: 1.8.1
-    created: "2026-01-14T21:08:37.722573303Z"
+    created: "2026-01-15T20:58:11.186694536Z"
     description: PgBouncer - lightweight connection pooler for PostgreSQL
-    digest: bfc9651ad382383e813bbc63c379d29912ea77bd1abf7a8a8d933b648a2bb5fb
+    digest: 1c544a8c9a70784c39ae8c23e9eba36df4098ac9eb2b4fe34bbac33dc98ef51a
     home: https://pgbouncer.github.io/
     icon: https://www.postgresql.org/media/img/about/press/elephant.png
     keywords:
@@ -4709,7 +4709,7 @@ entries:
     version: 0.2.0
   - apiVersion: v1
     appVersion: 1.8.1
-    created: "2026-01-14T21:08:37.721690797Z"
+    created: "2026-01-15T20:58:11.185941961Z"
     description: PgBouncer - lightweight connection pooler for PostgreSQL
     digest: 49c2862e7da8ed9a82a885caf12dc655d7e8997bd488780a2d273d7f65dae27c
     home: https://pgbouncer.github.io/
@@ -4727,7 +4727,7 @@ entries:
     version: 0.1.1
   - apiVersion: v1
     appVersion: 1.8.1
-    created: "2026-01-14T21:08:37.720855326Z"
+    created: "2026-01-15T20:58:11.185180765Z"
     description: PgBouncer - lightweight connection pooler for PostgreSQL
     digest: ab6236b6573164565cf6cfad4a5ff920114c67362612fd0fd48f7728f66a4797
     home: https://pgbouncer.github.io/
@@ -4744,10 +4744,10 @@ entries:
     version: 0.1.0
   postgresql:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.730900733Z"
+    created: "2026-01-15T20:58:11.190201982Z"
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
-    digest: 078bbd857ad043c12f31207757da39d69306c16864761b16678b1ecdc42a43b0
+    digest: 21a951718994e1ebc4a438492ca086fa49994975a2ab8b20875d64e1e0733816
     home: https://www.postgresql.org/
     icon: https://www.postgresql.org/media/img/about/press/elephant.png
     keywords:
@@ -4770,7 +4770,7 @@ entries:
     - postgresql-0.11.1.tgz
     version: 0.11.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.729367789Z"
+    created: "2026-01-15T20:58:11.189298196Z"
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
     digest: 5255a31a195575535fbf02c8d5e25088dc88b0a7c78ceebe996c812d352a095d
@@ -4796,7 +4796,7 @@ entries:
     - postgresql-0.11.0.tgz
     version: 0.11.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.727707356Z"
+    created: "2026-01-15T20:58:11.188337963Z"
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
     digest: 8bb14acb52366b57790ee3249b3e07bffc81e68b409bddfeaf98edb8d1ed6d20
@@ -4818,7 +4818,7 @@ entries:
     - postgresql-0.10.1.tgz
     version: 0.10.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.725835528Z"
+    created: "2026-01-15T20:58:11.187511515Z"
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
     digest: c930fa917c9c0e6ae0d7e48015ec39a4e0f64c20b296a47247fa9e18e9d1fc28
@@ -4840,7 +4840,7 @@ entries:
     - postgresql-0.10.0.tgz
     version: 0.10.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.732882971Z"
+    created: "2026-01-15T20:58:11.192509811Z"
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
     digest: dfc257e2fef02392f8e09127f7c689704a97f65c44ab4c6aee20a3a9e14d0e86
@@ -4862,7 +4862,7 @@ entries:
     - postgresql-0.9.0.tgz
     version: 0.9.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.731887412Z"
+    created: "2026-01-15T20:58:11.191140071Z"
     description: Object-relational database management system (ORDBMS) with an emphasis
       on extensibility and on standards-compliance.
     digest: c4b0385124a4e447f34ca5f069a98b1646328b7dbec21b220682c9202624a7d9
@@ -4888,6 +4888,52 @@ entries:
       category: Database
       images: |
         - name: os-shell
+          image: docker.io/bitnamilegacy/os-shell:11-debian-11-r66
+        - name: pgpool
+          image: docker.io/bitnamilegacy/pgpool:4.4.4-debian-11-r24
+        - name: postgres-exporter
+          image: docker.io/bitnamilegacy/postgres-exporter:0.13.2-debian-11-r48
+        - name: postgresql-repmgr
+          image: docker.io/bitnamilegacy/postgresql-repmgr:15.4.0-debian-11-r31
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 15.4.0
+    created: "2026-01-15T20:58:11.214419592Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: This PostgreSQL cluster solution includes the PostgreSQL replication
+      manager, an open-source tool for managing replication and failover on PostgreSQL
+      clusters.
+    digest: 9cbcff9579153023e6cf6eaf9fdffd4dc29366a91b12ec712b4003500c94372b
+    home: https://bitnami.com
+    icon: https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-220x234.png
+    keywords:
+    - postgresql
+    - repmgr
+    - pgpool
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    - high availability
+    maintainers:
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
+    name: postgresql-ha
+    sources:
+    - https://github.com/bitnami/charts/tree/main/bitnami/postgresql-ha
+    urls:
+    - postgresql-ha-11.9.5.tgz
+    version: 11.9.5
+  - annotations:
+      category: Database
+      images: |
+        - name: os-shell
           image: docker.io/bitnami/os-shell:11-debian-11-r66
         - name: pgpool
           image: docker.io/bitnami/pgpool:4.4.4-debian-11-r24
@@ -4898,7 +4944,7 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 15.4.0
-    created: "2026-01-14T21:08:37.752415153Z"
+    created: "2026-01-15T20:58:11.207085259Z"
     dependencies:
     - name: common
       repository: oci://registry-1.docker.io/bitnamicharts
@@ -4935,7 +4981,7 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 15.3.0
-    created: "2026-01-14T21:08:37.745369729Z"
+    created: "2026-01-15T20:58:11.199230817Z"
     dependencies:
     - name: common
       repository: oci://registry-1.docker.io/bitnamicharts
@@ -4969,7 +5015,7 @@ entries:
     version: 11.7.9
   preprints:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.753252635Z"
+    created: "2026-01-15T20:58:11.215184539Z"
     dependencies:
     - condition: preprints.enabled, global.preprints.enabled
       name: ember
@@ -4983,14 +5029,14 @@ entries:
     version: 0.1.0
   prerender:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.767757962Z"
+    created: "2026-01-15T20:58:11.2250878Z"
     dependencies:
     - condition: redis.enabled, global.redis.enabled
       name: redis
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 1.1.3
     description: Prerender service
-    digest: c5104f9de4d71c08192c6aa76da8299f06d0a00c8aac937b9a84a3d2eaf06c7c
+    digest: 87e36fbc864f8df3056bff8afe4a438ae99d4dce9e5c7d3f880dac0c8976951e
     keywords:
     - prerender
     - chrome
@@ -5009,7 +5055,7 @@ entries:
     - prerender-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.76648209Z"
+    created: "2026-01-15T20:58:11.223865844Z"
     dependencies:
     - condition: redis.enabled, global.redis.enabled
       name: redis
@@ -5035,7 +5081,7 @@ entries:
     - prerender-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.764521209Z"
+    created: "2026-01-15T20:58:11.222654752Z"
     dependencies:
     - condition: redis.enabled, global.redis.enabled
       name: redis
@@ -5058,7 +5104,7 @@ entries:
     - prerender-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.761829402Z"
+    created: "2026-01-15T20:58:11.221157528Z"
     dependencies:
     - condition: redis.enabled, global.redis.enabled
       name: redis
@@ -5071,7 +5117,7 @@ entries:
     - prerender-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.758053918Z"
+    created: "2026-01-15T20:58:11.219945793Z"
     dependencies:
     - condition: redis.enabled, global.redis.enabled
       name: redis
@@ -5084,7 +5130,7 @@ entries:
     - prerender-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.756497337Z"
+    created: "2026-01-15T20:58:11.21734681Z"
     dependencies:
     - condition: redis.enabled, global.redis.enabled
       name: redis
@@ -5097,7 +5143,7 @@ entries:
     - prerender-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.754500614Z"
+    created: "2026-01-15T20:58:11.216236761Z"
     dependencies:
     - condition: redis.enabled, global.redis.enabled
       name: redis
@@ -5112,10 +5158,10 @@ entries:
   rabbitmq:
   - apiVersion: v1
     appVersion: 3.8.0
-    created: "2026-01-14T21:08:37.772654761Z"
+    created: "2026-01-15T20:58:11.228701502Z"
     description: Open source message broker software that implements the Advanced
       Message Queuing Protocol (AMQP)
-    digest: 13ca124869ce47d00235d9a116561e2babf74a100d15ee9d49290e6a59da3c46
+    digest: 3b35c9253d9df4a0e5b8ec5bb07edf0e7c30cf9336d4b06c69342cc3d2e15d87
     home: https://www.rabbitmq.com
     icon: https://bitnami.com/assets/stacks/rabbitmq/img/rabbitmq-stack-220x234.png
     keywords:
@@ -5135,7 +5181,7 @@ entries:
     version: 6.9.1
   - apiVersion: v1
     appVersion: 3.8.0
-    created: "2026-01-14T21:08:37.770252518Z"
+    created: "2026-01-15T20:58:11.227253166Z"
     description: Open source message broker software that implements the Advanced
       Message Queuing Protocol (AMQP)
     digest: c0b3ebc5e3c3ad1def74c40e036eb0c506517d7e3d573257376f51da6a524195
@@ -5158,7 +5204,7 @@ entries:
     version: 6.9.0
   - apiVersion: v1
     appVersion: 3.6.12
-    created: "2026-01-14T21:08:37.768490109Z"
+    created: "2026-01-15T20:58:11.225762138Z"
     description: Open source message broker software that implements the Advanced
       Message Queuing Protocol (AMQP)
     digest: d38985817367e839daddd58e1c0af6e743907ee223fcdc74219fd00f2cf0dcc8
@@ -5180,11 +5226,11 @@ entries:
   redis:
   - apiVersion: v1
     appVersion: 4.0.6
-    created: "2026-01-14T21:08:37.774561966Z"
+    created: "2026-01-15T20:58:11.229904976Z"
     description: Open source, advanced key-value store. It is often referred to as
       a data structure server since keys can contain strings, hashes, lists, sets
       and sorted sets.
-    digest: f5e1fe87b248f0070dd8534941f6380eda83a2651c5160613f8f023ef3c7b143
+    digest: 8902026d406996ff99bc7a8a5f7f9d55dba926d0ddf3cbb4b9959ff7863bd74e
     home: http://redis.io/
     icon: https://bitnami.com/assets/stacks/redis/img/redis-stack-220x234.png
     keywords:
@@ -5202,7 +5248,7 @@ entries:
     version: 1.1.3
   - apiVersion: v1
     appVersion: 4.0.6
-    created: "2026-01-14T21:08:37.773667635Z"
+    created: "2026-01-15T20:58:11.229306539Z"
     description: Open source, advanced key-value store. It is often referred to as
       a data structure server since keys can contain strings, hashes, lists, sets
       and sorted sets.
@@ -5224,7 +5270,7 @@ entries:
     version: 1.1.2
   registries:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.776088305Z"
+    created: "2026-01-15T20:58:11.231268061Z"
     dependencies:
     - condition: registries.enabled, global.registries.enabled
       name: ember
@@ -5239,7 +5285,7 @@ entries:
   sentry:
   - apiVersion: v1
     appVersion: 8.22.0
-    created: "2026-01-14T21:08:37.793423306Z"
+    created: "2026-01-15T20:58:11.244590613Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -5250,7 +5296,7 @@ entries:
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 1.1.3
     description: Sentry is a cross-platform crash reporting and aggregation platform.
-    digest: 862b658b420ddd0ddeea0eef69ed736e50e8477f6438682e160cf83ce37a5d74
+    digest: 9d92eb61a29cc86aa729dec12612c5b6057440e8531cd61a1959b6874186c7e6
     home: https://sentry.io/
     icon: https://sentry.io/_static/getsentry/images/branding/png/sentry-glyph-black.png
     keywords:
@@ -5267,7 +5313,7 @@ entries:
     version: 0.3.2
   - apiVersion: v1
     appVersion: 8.22.0
-    created: "2026-01-14T21:08:37.788718973Z"
+    created: "2026-01-15T20:58:11.241439029Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -5295,7 +5341,7 @@ entries:
     version: 0.3.1
   - apiVersion: v1
     appVersion: 8.22.0
-    created: "2026-01-14T21:08:37.786203328Z"
+    created: "2026-01-15T20:58:11.239172566Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -5323,7 +5369,7 @@ entries:
     version: 0.3.0
   - apiVersion: v1
     appVersion: "8.22"
-    created: "2026-01-14T21:08:37.783629339Z"
+    created: "2026-01-15T20:58:11.236732343Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -5351,7 +5397,7 @@ entries:
     version: 0.2.0
   - apiVersion: v1
     appVersion: "8.22"
-    created: "2026-01-14T21:08:37.780586162Z"
+    created: "2026-01-15T20:58:11.23431336Z"
     dependencies:
     - condition: postgresql.enabled, global.postgresql.enabled
       name: postgresql
@@ -5379,7 +5425,7 @@ entries:
     version: 0.1.7
   share:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.879160174Z"
+    created: "2026-01-15T20:58:11.292925589Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5394,7 +5440,7 @@ entries:
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 6.9.1
     description: SHARE
-    digest: 7932a9cb11cc142c7e6172268c33723a412bbe75197f6bc326cb93e623bd4df0
+    digest: 23d4a8d2ced451f8037bb2a3998a027a2bf7a2ee1687f9ad1da2172acada5ccc
     keywords:
     - open
     - science
@@ -5415,7 +5461,7 @@ entries:
     - share-0.6.3.tgz
     version: 0.6.3
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.870998052Z"
+    created: "2026-01-15T20:58:11.288295031Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5451,7 +5497,7 @@ entries:
     - share-0.6.2.tgz
     version: 0.6.2
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.859310367Z"
+    created: "2026-01-15T20:58:11.282913265Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5484,7 +5530,7 @@ entries:
     - share-0.6.1.tgz
     version: 0.6.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.850888521Z"
+    created: "2026-01-15T20:58:11.278546189Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5517,7 +5563,7 @@ entries:
     - share-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.84240981Z"
+    created: "2026-01-15T20:58:11.273856948Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5550,7 +5596,7 @@ entries:
     - share-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.832872577Z"
+    created: "2026-01-15T20:58:11.267370227Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5583,7 +5629,7 @@ entries:
     - share-0.4.1.tgz
     version: 0.4.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.821091227Z"
+    created: "2026-01-15T20:58:11.262812885Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5616,7 +5662,7 @@ entries:
     - share-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.814295945Z"
+    created: "2026-01-15T20:58:11.257986709Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5649,7 +5695,7 @@ entries:
     - share-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.8083628Z"
+    created: "2026-01-15T20:58:11.252552958Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5682,7 +5728,7 @@ entries:
     - share-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.80097155Z"
+    created: "2026-01-15T20:58:11.24879165Z"
     dependencies:
     - condition: elasticsearch.enabled, global.elasticsearch.enabled
       name: elasticsearch
@@ -5714,13 +5760,13 @@ entries:
     version: 0.1.0
   share-web:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.880712904Z"
+    created: "2026-01-15T20:58:11.293758128Z"
     dependencies:
     - name: ember
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.7.0
     description: SHARE Ember application
-    digest: 11f149b7a984acd1bae2a7472371246f3718e6207f8b46ca56cfa0f50c960c00
+    digest: 2d4f6169972554ae40b5afa8dd367f0df87db02401f03448a6d9c7a7130d655a
     keywords:
     - open
     - science
@@ -5740,14 +5786,14 @@ entries:
     version: 0.4.0
   sharejs:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.888610879Z"
+    created: "2026-01-15T20:58:11.297920028Z"
     dependencies:
     - condition: mongodb.enabled, global.mongodb.enabled
       name: mongodb
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.5.0
     description: ShareJS wiki application for the Open Science Framework
-    digest: 055bbe4aca5ddccb10a19a28e1f009faa1eb469d70b6496d5380c2149790b722
+    digest: 18d265a7fcd54a297edddd96e502b9beb2e08be018099ed84cc9b0f9d83646d8
     maintainers:
     - email: matt@cos.io
       name: Matt Frazier
@@ -5762,7 +5808,7 @@ entries:
     - sharejs-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.886471114Z"
+    created: "2026-01-15T20:58:11.296857203Z"
     dependencies:
     - condition: mongodb.enabled, global.mongodb.enabled
       name: mongodb
@@ -5784,7 +5830,7 @@ entries:
     - sharejs-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.884369364Z"
+    created: "2026-01-15T20:58:11.295734904Z"
     dependencies:
     - condition: mongodb.enabled, global.mongodb.enabled
       name: mongodb
@@ -5803,7 +5849,7 @@ entries:
     - sharejs-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.882389191Z"
+    created: "2026-01-15T20:58:11.294614768Z"
     dependencies:
     - condition: mongodb.enabled, global.mongodb.enabled
       name: mongodb
@@ -5817,9 +5863,9 @@ entries:
     version: 0.1.0
   tls-certificates:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.889132298Z"
+    created: "2026-01-15T20:58:11.298737991Z"
     description: Creates a list of TLS certificates to be used by nginx-ingress
-    digest: c48ec3432f79c39260ceb47ae8f7cde9a99be517a11dd59af1f2eeb7c0f2d5d4
+    digest: 2861cafd3bc6f9e96d4200f19b8708930f180597ab23eed392e983fc167b88c1
     keywords:
     - tls
     - certificates
@@ -5834,7 +5880,7 @@ entries:
   triton-share:
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2026-01-14T21:08:37.903467159Z"
+    created: "2026-01-15T20:58:11.305064589Z"
     dependencies:
     - alias: elasticsearch6
       condition: elasticsearch6.enabled, global.elasticsearch6.enabled
@@ -5842,14 +5888,14 @@ entries:
       repository: https://centerforopenscience.github.io/helm-charts/
       version: 0.5.3
     description: A Helm chart for Kubernetes
-    digest: d9dabe99c42c0d5e0c3711f78020edda87a36db1bf01ade0f6671eba0a1d2bc3
+    digest: 85853a8fbef98ca0bc853e098b756dcc59456672a44baa8fe1767e8ad02affd1
     name: triton-share
     urls:
     - triton-share-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2026-01-14T21:08:37.899315314Z"
+    created: "2026-01-15T20:58:11.303287603Z"
     dependencies:
     - alias: elasticsearch6
       condition: elasticsearch6.enabled, global.elasticsearch6.enabled
@@ -5864,7 +5910,7 @@ entries:
     version: 0.1.1
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2026-01-14T21:08:37.89586771Z"
+    created: "2026-01-15T20:58:11.301289501Z"
     dependencies:
     - alias: elasticsearch6
       condition: elasticsearch6.enabled, global.elasticsearch6.enabled
@@ -5879,7 +5925,7 @@ entries:
     version: 0.1.0
   wb:
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.944295722Z"
+    created: "2026-01-15T20:58:11.327396274Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -5891,7 +5937,7 @@ entries:
       version: 1.1.3
     description: WaterButler is a Python web application for interacting with various
       file storage services via a single RESTful API
-    digest: 19d991bd5940502c68bad9eba2700d904707e0b7d7d928be4a7c3bde67ea03e8
+    digest: 01c78dccfbf060ba9209e6c64f0bcf35094eee0606775aa2ebe8b7d8b3548daf
     keywords:
     - files
     - storage
@@ -5913,7 +5959,7 @@ entries:
     - wb-0.9.1.tgz
     version: 0.9.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.939856849Z"
+    created: "2026-01-15T20:58:11.323844114Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -5944,7 +5990,7 @@ entries:
     - wb-0.9.0.tgz
     version: 0.9.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.935902165Z"
+    created: "2026-01-15T20:58:11.321572088Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -5975,7 +6021,7 @@ entries:
     - wb-0.8.1.tgz
     version: 0.8.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.931671662Z"
+    created: "2026-01-15T20:58:11.319294111Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -6006,7 +6052,7 @@ entries:
     - wb-0.8.0.tgz
     version: 0.8.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.927855889Z"
+    created: "2026-01-15T20:58:11.317145216Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -6033,7 +6079,7 @@ entries:
     - wb-0.7.0.tgz
     version: 0.7.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.925331223Z"
+    created: "2026-01-15T20:58:11.315561331Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -6060,7 +6106,7 @@ entries:
     - wb-0.6.1.tgz
     version: 0.6.1
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.921894306Z"
+    created: "2026-01-15T20:58:11.313928418Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -6085,7 +6131,7 @@ entries:
     - wb-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.913682651Z"
+    created: "2026-01-15T20:58:11.312388831Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -6110,7 +6156,7 @@ entries:
     - wb-0.5.0.tgz
     version: 0.5.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.911075075Z"
+    created: "2026-01-15T20:58:11.309372963Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -6135,7 +6181,7 @@ entries:
     - wb-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.908349611Z"
+    created: "2026-01-15T20:58:11.307850318Z"
     dependencies:
     - condition: maintenance.enabled, global.maintenance.enabled
       name: maintenance
@@ -6160,7 +6206,7 @@ entries:
     - wb-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.905893726Z"
+    created: "2026-01-15T20:58:11.306432178Z"
     description: A Helm chart for Kubernetes
     digest: 2cbf55abbeebdb95d615c429d18f5c829519a5fc21898168ce3301b61ee8cb82
     name: wb
@@ -6168,7 +6214,7 @@ entries:
     - wb-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v1
-    created: "2026-01-14T21:08:37.904557548Z"
+    created: "2026-01-15T20:58:11.305716838Z"
     description: A Helm chart for Kubernetes
     digest: 6f0947ce4af8b49c598cce61358cf1ef57122251f80c7835de72fa98643ff6bb
     name: wb
@@ -6178,7 +6224,7 @@ entries:
   webhook:
   - apiVersion: v1
     appVersion: v0.8.1
-    created: "2026-01-14T21:08:37.946662862Z"
+    created: "2026-01-15T20:58:11.328382426Z"
     description: A Helm chart for deploying the cert-manager webhook component
     digest: 32f03a09dc43c07f2f1651a346639ea6b1a2569efa65f40e69ccb512401f5c96
     home: https://github.com/jetstack/cert-manager
@@ -6198,7 +6244,7 @@ entries:
     version: v0.9.0
   - apiVersion: v1
     appVersion: v0.8.1
-    created: "2026-01-14T21:08:37.945123933Z"
+    created: "2026-01-15T20:58:11.327911015Z"
     description: A Helm chart for deploying the cert-manager webhook component
     digest: 50764b90bfe38c9865f8b5d9839e17afe27a3a2802d4ad82e0104fec6adddcf9
     home: https://github.com/jetstack/cert-manager
@@ -6216,4 +6262,4 @@ entries:
     urls:
     - webhook-v0.8.1.tgz
     version: v0.8.1
-generated: "2026-01-14T21:08:37.050271914Z"
+generated: "2026-01-15T20:58:10.695359661Z"
