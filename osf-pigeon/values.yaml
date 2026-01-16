@@ -1,3 +1,9 @@
+### ---------- Global or Reusable parts across values.yaml ----------
+image:
+  repository: quay.io/centerforopenscience/osf-pigeon
+  tag: develop
+  pullPolicy: Always
+
 ## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
 ## or in other form current naming is Release.Name-Chart.Name
 
@@ -68,10 +74,6 @@ main:
 
 # ------- Additional containers -------
   sanic:
-    image:
-      repository: quay.io/centerforopenscience/osf-pigeon
-      tag: develop
-      pullPolicy: Always
     resources:
       limits:
         cpu: 1
@@ -93,8 +95,8 @@ main:
     - name: sanic
       inheritVolumeMountsFrom: sanic # <----- gets volume mounts from sanic set of vars above
       inheritResourcesFrom: sanic # <----- gets resources from sanic set of vars above
-      image: "{{ .Values.main.sanic.image.repository }}:{{ .Values.main.sanic.image.tag }}"
-      imagePullPolicy: "{{ .Values.main.sanic.image.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - /bin/sh
         - -c
