@@ -1,3 +1,10 @@
+### ---------- Global or Reusable parts across values.yaml ----------
+image:
+  repository: quay.io/centerforopenscience/cerebro
+  tag: master
+  pullPolicy: Always
+
+
 ## =============== MAIN Component ===============
 main:
   enabled: true
@@ -8,9 +15,9 @@ main:
 
 # ------- Configuration follows for containerName: cerebro -------
   image:
-    repository: quay.io/centerforopenscience/cerebro
-    tag: master
-    pullPolicy: Always
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: cerebro
 
