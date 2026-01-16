@@ -1,9 +1,8 @@
 ### ------- Global or Reusable parts across values.yaml -------
-scanner:
-  image:
-    repository: us.gcr.io/cos-containers/nessus
-    tag: 7.1.2
-    pullPolicy: IfNotPresent
+image:
+  repository: us.gcr.io/cos-containers/nessus
+  tag: 7.1.2
+  pullPolicy: IfNotPresent
 
 docker:
   imageCredentials:
@@ -55,7 +54,7 @@ main:
     - /opt/nessus:/opt/nessus
     - --name
     - nessus
-    - "{{ .Values.scanner.image.repository }}:{{ .Values.scanner.image.tag }}"
+    - "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
 
   env:
     - name: DOCKER_HOST
