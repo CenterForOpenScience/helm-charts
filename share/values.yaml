@@ -1,7 +1,7 @@
 ### ------- Global or Reusable parts across values.yaml -------
 
 ## ------- Global images
-appImage:
+image:
   repository: quay.io/centerforopenscience/share
   tag: develop
   pullPolicy: Always
@@ -255,8 +255,8 @@ web:
 # ------- Init containers -------
   initContainers:
     - name: collectstatic
-      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
-      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - python
         - manage.py
@@ -280,8 +280,8 @@ web:
     - name: uwsgi
       inheritVolumeMountsFrom: uwsgi # <----- gets volume mounts from uwsgi set of vars above
       inheritResourcesFrom: uwsgi # <----- gets resources from uwsgi set of vars above
-      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
-      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - /bin/sh
         - -c
@@ -438,9 +438,9 @@ worker:
 
 # ------- Configuration follows for containerName: "{{ .Values.worker.component }}" -------
   image:
-    repository: "{{ .Values.appImage.repository }}"
-    tag: "{{ .Values.appImage.tag }}"
-    pullPolicy: "{{ .Values.appImage.pullPolicy }}"
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: "{{ .Values.worker.component }}"
 
@@ -568,9 +568,9 @@ indexer:
 
   # ------- Configuration follows for containerName: "{{ .Values.indexer.component }}" -------
   image:
-    repository: "{{ .Values.appImage.repository }}"
-    tag: "{{ .Values.appImage.tag }}"
-    pullPolicy: "{{ .Values.appImage.pullPolicy }}"
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: "{{ .Values.indexer.component }}"
 
@@ -686,9 +686,9 @@ beat:
 
 # ------- Configuration follows for containerName: "{{ .Values.beat.component }}" -------
   image:
-    repository: "{{ .Values.appImage.repository }}"
-    tag: "{{ .Values.appImage.tag }}"
-    pullPolicy: "{{ .Values.appImage.pullPolicy }}"
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: "{{ .Values.beat.component }}"
 
@@ -772,9 +772,9 @@ migration:
 # ------- Configuration follows for containerName: "{{ .Values.migration.component }}" -------
 
   image:
-    repository: "{{ .Values.appImage.repository }}"
-    tag: "{{ .Values.appImage.tag }}"
-    pullPolicy: "{{ .Values.appImage.pullPolicy }}"
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: "{{ .Values.migration.component }}"
 
