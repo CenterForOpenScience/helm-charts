@@ -1,9 +1,13 @@
 ### ---------- Global or Reusable parts across values.yaml ----------
+image:
+  repository: quay.io/centerforopenscience/cas
+  tag: develop
+  pullPolicy: Always
 
 maintenance:
   enabled: false
   service:
-    name: <release-name>-maintenance # default service name would be Release.name-Chart.name-maintenance
+    name: <release-name>-maintenance # default service name for ingress will be Release.name-Chart.name-maintenance but maintaince chart creates service with Release.name-maintenance
     externalPort: 8080 # default port 80
 
 postgresql:
@@ -132,9 +136,9 @@ main:
 
 # ------- Configuration follows for containerName: jetty -------
   image:
-    repository: quay.io/centerforopenscience/cas
-    tag: develop
-    pullPolicy: Always
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: jetty
 
@@ -204,6 +208,12 @@ main:
         cpu: 10m
         memory: 256Mi
         # ephemeral-storage: 10Gi
+    probes:
+      readiness:
+        path: /Shibboleth.sso/Status
+      liveness: 
+        path: /healthz
+
 
   additionalContainers:
     - name: apache
@@ -217,7 +227,7 @@ main:
           containerPort: "{{ .Values.main.http.containers.apache.internalPort }}"
       readinessProbe:
         httpGet:
-          path: /Shibboleth.sso/Status
+          path: "{{ .Values.main.apache.probes.readiness.path }}"
           port: "{{ .Values.main.http.containers.apache.internalPort }}"
           httpHeaders:
             - name: Host
@@ -229,7 +239,7 @@ main:
         failureThreshold: 3
       livenessProbe:
         httpGet:
-          path: /healthz
+          path: "{{ .Values.main.apache.probes.liveness.path }}"
           port: "{{ .Values.main.http.containers.apache.internalPort }}"
           httpHeaders:
             - name: Host
