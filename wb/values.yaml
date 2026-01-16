@@ -1,5 +1,5 @@
 ### ------- Global or reusable parts across values.yaml -------
-appImage:
+image:
   repository: quay.io/centerforopenscience/waterbutler
   tag: develop
   pullPolicy: Always
@@ -116,8 +116,8 @@ main:
 # ------- Init containers -------
   initContainers:
     - name: chown
-      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
-      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - /bin/sh
         - -c
@@ -172,8 +172,8 @@ main:
     - name: tornado
       inheritVolumeMountsFrom: tornado
       inheritResourcesFrom: tornado
-      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
-      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - /bin/sh
         - -c
@@ -200,8 +200,8 @@ main:
     - name: worker
       inheritVolumeMountsFrom: worker
       inheritResourcesFrom: worker
-      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
-      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - /bin/sh
         - -c
