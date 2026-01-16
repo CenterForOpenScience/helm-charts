@@ -1,3 +1,10 @@
+### ------- Global or Reusable parts across values.yaml -------
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+
+
 ## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
 ## or in other form current naming is Release.Name-Chart.Name
 
@@ -16,9 +23,9 @@ main:
 
 # ------- Configuration follows for containerName: nginx -------
   image:
-    repository: nginx
-    tag: stable
-    pullPolicy: IfNotPresent
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: nginx
 
