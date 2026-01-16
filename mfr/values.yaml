@@ -1,5 +1,5 @@
 ### ------- Global or Reusable parts across values.yaml -------
-appImage:
+image:
   repository: quay.io/centerforopenscience/mfr
   tag: develop
   pullPolicy: Always
@@ -27,6 +27,9 @@ autoroll:
 
 maintenance:
   enabled: false
+  service:
+    name: <release-name>-maintenance # default service name for ingress will be Release.name-Chart.name-maintenance but maintaince chart creates service with Release.name-maintenance
+    externalPort: 8080 # default port 80
 
 rabbitmq:
   enabled: true
@@ -99,8 +102,8 @@ main:
 # ------- Init containers -------
   initContainers:
     - name: exportdir
-      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
-      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - /bin/sh
         - -c
@@ -151,8 +154,8 @@ main:
     - name: tornado
       inheritVolumeMountsFrom: tornado # <----- gets volume mounts from tornado set of vars above
       inheritResourcesFrom: tornado # <----- gets resources from tornado set of vars above
-      image: "{{ .Values.appImage.repository }}:{{ .Values.appImage.tag }}"
-      imagePullPolicy: "{{ .Values.appImage.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - gosu
         - www-data
@@ -489,9 +492,9 @@ worker:
 
 # ------- Configuration follows for containerName: "{{ .Values.worker.component }}" -------
   image:
-    repository: "{{ .Values.appImage.repository }}"
-    tag: "{{ .Values.appImage.tag }}"
-    pullPolicy: "{{ .Values.appImage.pullPolicy }}"
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
   containerName: "{{ .Values.worker.component }}"
 
