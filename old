@@ -1,0 +1,2711 @@
+---
+# Source: share/charts/elasticsearch/templates/client-pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "share-elasticsearch-client"
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "client"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: "client"
+      release: share
+  maxUnavailable: 1
+---
+# Source: share/charts/elasticsearch/templates/data-pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "share-elasticsearch-data"
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "data"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: "data"
+      release: share
+  maxUnavailable: 1
+---
+# Source: share/charts/elasticsearch/templates/master-pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "share-elasticsearch-master"
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "master"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: "master"
+      release: share
+  maxUnavailable: 1
+---
+# Source: share/charts/elasticsearch/templates/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    heritage: Helm
+    release: share
+  name: share-elasticsearch
+---
+# Source: share/charts/rabbitmq/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: share-rabbitmq
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+---
+# Source: share/charts/postgresql/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: share-postgresql
+  labels:
+    app: postgresql
+    chart: postgresql-0.11.1
+    heritage: Helm
+    release: share
+type: Opaque
+data:
+  POSTGRES_DB: "c2hhcmU="
+  POSTGRES_INITDB_ARGS: "LS1kYXRhLWNoZWNrc3Vtcw=="
+  POSTGRES_PASSWORD: "c2hhcmU="
+  POSTGRES_USER: "c2hhcmU="
+  REPMGR_PASSWORD: "cmVwbWdy"
+  certs-root.crl: "Li4u"
+  certs-root.crt: "Li4u"
+  certs-server.crt: "Li4u"
+  certs-server.key: "Li4u"
+---
+# Source: share/charts/rabbitmq/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: share-rabbitmq
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+type: Opaque
+data:
+  
+  rabbitmq-password: "cUtydW9CU0NHdQ=="
+  
+  
+  rabbitmq-erlang-cookie: "S0daWmtWVm96bjBPM1RPZ0xHVkV2NFU1WFQzeTlhdUI="
+---
+# Source: share/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: share-share
+  labels:
+    app: share
+    chart: share-0.6.3
+    heritage: Helm
+    release: share
+type: Opaque
+data:
+---
+# Source: share/charts/elasticsearch/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: share-elasticsearch
+  labels:
+    app: share-elasticsearch
+    chart: "elasticsearch-0.5.3"
+    release: "share"
+    heritage: "Helm"
+data:
+  elasticsearch.yml: |-
+    cluster.name: elasticsearch
+
+    node.data: ${NODE_DATA:true}
+    node.master: ${NODE_MASTER:true}
+    node.ingest: ${NODE_INGEST:true}
+    node.name: ${HOSTNAME}
+
+    network.host: 0.0.0.0
+    # see https://github.com/kubernetes/kubernetes/issues/3595
+    bootstrap.memory_lock: ${BOOTSTRAP_MEMORY_LOCK:false}
+
+    discovery:
+      zen:
+        ping.unicast.hosts: ${DISCOVERY_SERVICE:}
+        minimum_master_nodes: ${MINIMUM_MASTER_NODES:2}
+
+    # see https://github.com/elastic/elasticsearch-definitive-guide/pull/679
+    processors: ${PROCESSORS:}
+
+    # avoid split-brain w/ a minimum consensus of two masters plus a data node
+    gateway.expected_master_nodes: ${EXPECTED_MASTER_NODES:2}
+    gateway.expected_data_nodes: ${EXPECTED_DATA_NODES:1}
+    gateway.recover_after_time: ${RECOVER_AFTER_TIME:5m}
+    gateway.recover_after_master_nodes: ${RECOVER_AFTER_MASTER_NODES:2}
+    gateway.recover_after_data_nodes: ${RECOVER_AFTER_DATA_NODES:1}
+
+    # Extra Configuration
+
+    # X-Pack
+
+    # Search Guard
+  log4j2.properties: |-
+    status = error
+
+    appender.console.type = Console
+    appender.console.name = console
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] %marker%m%n
+
+    rootLogger.level = info
+    rootLogger.appenderRef.console.ref = console
+  pre-stop-hook.sh: |-
+    #!/bin/bash
+    set -e
+
+    SERVICE_ACCOUNT_PATH=/var/run/secrets/kubernetes.io/serviceaccount
+    KUBE_TOKEN=$(<${SERVICE_ACCOUNT_PATH}/token)
+    KUBE_NAMESPACE=$(<${SERVICE_ACCOUNT_PATH}/namespace)
+
+    STATEFULSET_NAME=$(echo "${HOSTNAME}" | sed 's/-[0-9]*$//g')
+    INSTANCE_ID=$(echo "${HOSTNAME}" | grep -o '[0-9]*$')
+
+    echo "Prepare stopping of Pet ${KUBE_NAMESPACE}/${HOSTNAME} of StatefulSet ${KUBE_NAMESPACE}/${STATEFULSET_NAME} instance_id ${INSTANCE_ID}"
+
+    export STATEFULSET_STATUS=$(
+      curl -s \
+        --cacert ${SERVICE_ACCOUNT_PATH}/ca.crt \
+        -H "Authorization: Bearer $KUBE_TOKEN" \
+        "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_PORT_443_TCP_PORT}/apis/apps/v1/namespaces/${KUBE_NAMESPACE}/statefulsets/${STATEFULSET_NAME}/status"
+    )
+    INSTANCES_DESIRED=$(
+    	python - <<-EOF
+    		import json
+    		import os
+    
+    		obj = json.loads(os.environ.get('STATEFULSET_STATUS'))
+    		print(obj['spec']['replicas'])
+    	EOF
+    )
+
+    echo "Desired instance count is ${INSTANCES_DESIRED}"
+
+    if [ "${INSTANCE_ID}" -lt "${INSTANCES_DESIRED}" ]; then
+      echo "No data migration needed"
+      exit 0
+    fi
+
+    echo "Prepare to migrate data of the node"
+
+    export NODE_STATS=$(
+      curl -X GET -s \
+        http://127.0.0.1:9200/_nodes/stats
+    )
+    NODE_IP=$(
+    	python - <<-EOF
+    		import json
+    		import os
+    
+    		obj = json.loads(os.environ.get('NODE_STATS'))
+    		key = list(filter(lambda datum: obj['nodes'][datum]['name'] == os.environ.get('HOSTNAME'), obj['nodes'].keys()))[0]
+    		node = obj['nodes'][key]
+    		print(node['host'])
+    	EOF
+    )
+
+    echo "Move all data from node ${NODE_IP}"
+
+    curl -X PUT -H "Content-Type: application/json" -s \
+      http://127.0.0.1:9200/_cluster/settings \
+      --data "{
+          \"transient\" :{
+              \"cluster.routing.allocation.exclude._ip\" : \"${NODE_IP}\"
+          }
+        }"
+    echo
+
+    echo "Wait for node documents to become empty"
+    DOC_COUNT=$(
+    	python - <<-EOF
+    		import json
+    		import os
+    
+    		obj = json.loads(os.environ.get('NODE_STATS'))
+    		key = list(filter(lambda datum: obj['nodes'][datum]['name'] == os.environ.get('HOSTNAME'), obj['nodes'].keys()))[0]
+    		node = obj['nodes'][key]
+    		print(node['indices']['docs']['count'])
+    	EOF
+    )
+
+    while [ "${DOC_COUNT}" -gt 0 ]; do
+      export NODE_STATS=$(
+        curl -X GET -s \
+          http://127.0.0.1:9200/_nodes/stats
+      )
+      DOC_COUNT=$(
+    		python - <<-EOF
+    			import json
+    			import os
+    
+    			obj = json.loads(os.environ.get('NODE_STATS'))
+    			key = list(filter(lambda datum: obj['nodes'][datum]['name'] == os.environ.get('HOSTNAME'), obj['nodes'].keys()))[0]
+    			node = obj['nodes'][key]
+    			count = node['indices']['docs']['count']
+    			print(count)
+    		EOF
+      )
+      echo "Node contains ${DOC_COUNT} documents"
+      sleep 1
+    done
+
+    echo "Wait for node shards to become empty"
+    export SHARD_STATS=$(
+      curl -X GET -s \
+        http://127.0.0.1:9200/_cat/shards?format=json
+    )
+    SHARD_COUNT=$(
+    	python - <<-EOF
+    		import json
+    		import os
+    
+    		obj = json.loads(os.environ.get('SHARD_STATS'))
+    		count = len(filter(lambda datum: datum['node'] == os.environ.get('HOSTNAME'), obj))
+    		print(count)
+    	EOF
+    )
+    while [ "${SHARD_COUNT}" -gt 0 ]; do
+      export SHARD_STATS=$(
+        curl -X GET -s \
+          http://127.0.0.1:9200/_cat/shards?format=json
+      )
+      SHARD_COUNT=$(
+    		python - <<-EOF
+    			import json
+    			import os
+    
+    			obj = json.loads(os.environ.get('SHARD_STATS'))
+    			count = len(filter(lambda datum: datum['node'] == os.environ.get('HOSTNAME'), obj))
+    			print(count)
+    		EOF
+      )
+      echo "Node contains ${SHARD_COUNT} shards"
+      sleep 1
+    done
+
+    echo "Node clear to shutdown"
+---
+# Source: share/charts/postgresql/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: share-postgresql
+  labels:
+    app: postgresql
+    chart: postgresql-0.11.1
+    heritage: Helm
+    release: share
+data:
+  entrypoint.sh: |-
+    #!/usr/bin/env bash
+    set -e
+    
+    if [ "$1" = 'postgres' ]; then
+    	[[ ${POD_NAME} =~ -([0-9]+)$ ]] || exit 1
+    	ordinal=${BASH_REMATCH[1]}
+    	if [ $STATEFUL_TYPE == "master" ]; then
+    		node_id=$((${ordinal} + 1))
+    		service=${MASTER_SERVICE}
+    	else
+    		node_id=$((${ordinal} + 100))
+    		service=${POD_NAME}
+    	fi
+    
+    	# Remove postmaster.pid before booting
+    	if [ -f ${PGDATA}/postmaster.pid ]; then
+    		rm ${PGDATA}/postmaster.pid
+    	fi
+    
+    	sed \
+    		-e "s|^#cluster=.*$|cluster=default|" \
+    		-e "s|^#node=.*$|node=${node_id}|" \
+    		-e "s|^#node_name=.*$|node_name=${POD_NAME}|" \
+    		-e "s|^#conninfo=.*$|conninfo='host=${service} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD} application_name=repmgrd'|" \
+    		-e "s|^#use_replication_slots=.*$|use_replication_slots=1|" \
+    		/etc/repmgr.conf.tpl > /etc/repmgr.conf
+    
+    	if [ ! -s "${PGDATA}/PG_VERSION" ]; then
+    		if [ ${STATEFUL_TYPE} == "master" ]; then
+    			docker-entrypoint.sh "$@" --boot
+    
+    			sed -i \
+    				-e "s|^listen_addresses = .*|listen_addresses = '*'|" \
+    				-e "s|^#hot_standby = .*|hot_standby = on|" \
+    				-e "s|^#wal_level = .*|wal_level = hot_standby|" \
+    				-e "s|^#max_wal_senders = .*|max_wal_senders = 10|" \
+    				-e "s|^#max_replication_slots = .*|max_replication_slots = 10|" \
+    				-e "s|^#archive_mode = .*|archive_mode = on|" \
+    				-e "s|^#archive_command = .*|archive_command = '/bin/true'|" \
+    				-e "s|^#shared_preload_libraries = .*|shared_preload_libraries = 'repmgr_funcs'|" \
+    				${PGDATA}/postgresql.conf
+    
+    			host_type="host"
+    			options=""
+    
+    			if [ -f "/certs/server.key" ]; then
+    				host_type="hostssl"
+    
+    				if [ -f "/certs/postgresql.key" ]; then
+    					options="clientcert=1"
+    				fi
+    
+    				# Server Certificate
+    				cp -f /certs/{server,root}.* ${PGDATA}/
+    				chown postgres:postgres ${PGDATA}/{root,server}.*
+    				chmod -R 0600 ${PGDATA}/{root,server}.*
+    
+    				# Client Certificate
+    				mkdir -p /home/postgres/.postgresql/
+    				cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+    				chown -R postgres:postgres /home/postgres
+    				chmod -R 0600 /home/postgres/.postgresql/*
+    
+    				sed -i \
+    					-e "s|^#ssl = .*|ssl = on|" \
+    					-e "s|^#ssl_ciphers = .*|ssl_ciphers = 'HIGH'|" \
+    					-e "s|^#ssl_cert_file = .*|ssl_cert_file = 'server.crt'|" \
+    					-e "s|^#ssl_key_file = .*|ssl_key_file = 'server.key'|" \
+    					-e "s|^#ssl_ca_file = .*|ssl_ca_file = 'root.crt'|" \
+    					-e "s|^#ssl_crl_file = .*|ssl_crl_file = 'root.crl'|" \
+    					${PGDATA}/postgresql.conf
+    
+    				sed -i \
+    					-E "s|^host([ \\t]+all){3}.*|hostnossl   all   all   all   reject\n${host_type}   all   all   all   md5   ${options}|" \
+    					${PGDATA}/pg_hba.conf
+    			fi
+    
+    			cat >> ${PGDATA}/pg_hba.conf <<-EOF
+    
+    			# repmgr
+    			${host_type}   repmgr        repmgr   all   md5   ${options}
+    			${host_type}   replication   repmgr   all   md5   ${options}
+    			EOF
+    
+    			gosu postgres pg_ctl start -w
+    
+    			gosu postgres psql <<-EOF
+    			CREATE USER repmgr SUPERUSER LOGIN ENCRYPTED PASSWORD '${REPMGR_PASSWORD}';
+    			CREATE DATABASE repmgr OWNER repmgr;
+    			EOF
+    
+    			while ! gosu postgres pg_isready --host ${MASTER_SERVICE} --quiet
+    			do
+    				sleep 1
+    			done
+    
+    			gosu postgres repmgr master register
+    
+    			gosu postgres psql -U repmgr -d repmgr <<-EOF
+    			ALTER TABLE repmgr_default.repl_monitor SET UNLOGGED;
+    			EOF
+    		else
+    			while ! gosu postgres pg_isready --host ${MASTER_SERVICE} --quiet
+    			do
+    				sleep 1
+    			done
+    
+    			mkdir -p "$PGDATA"
+    			chown -R postgres "$PGDATA"
+    			chmod 700 "$PGDATA"
+    
+    			if [ -f "/certs/root.crt" ]; then
+    				# Client Certificate
+    				mkdir -p /home/postgres/.postgresql/
+    				cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+    				chown -R postgres:postgres /home/postgres
+    				chmod -R 0600 /home/postgres/.postgresql/*
+    			fi
+    
+    			gosu postgres repmgr \
+    				--dbname="host=${MASTER_SERVICE} dbname=repmgr user=repmgr password=${REPMGR_PASSWORD}" \
+    				standby clone
+    
+    			if [ -f "/certs/server.crt" ]; then
+    				# Server Certificate
+    				cp -f /certs/{server,root}.* ${PGDATA}/
+    				chown postgres:postgres ${PGDATA}/{root,server}.*
+    				chmod -R 0600 ${PGDATA}/{root,server}.*
+    			fi
+    
+    			gosu postgres pg_ctl -w start
+    
+    			while ! pg_isready --host 127.0.0.1 --quiet
+    			do
+    				sleep 1
+    			done
+    
+    			gosu postgres repmgr standby register
+    		fi
+    
+    		gosu postgres pg_ctl -w stop
+    		exit 0
+    	else
+    		if [ -f "/certs/server.key" ]; then
+    			# Server Certificate
+    			cp -f /certs/{server,root}.* ${PGDATA}/
+    			chown postgres:postgres ${PGDATA}/{root,server}.*
+    			chmod -R 0600 ${PGDATA}/{root,server}.*
+    		fi
+    
+    		if [ -f "/certs/root.crt" ]; then
+    			# Client Certificate
+    			mkdir -p /home/postgres/.postgresql/
+    			cp -f /certs/{postgresql,root}.* /home/postgres/.postgresql/
+    			chown -R postgres:postgres /home/postgres
+    			chmod -R 0600 /home/postgres/.postgresql/*
+    		fi
+    	fi
+    
+    	exec docker-entrypoint.sh "$@" & pid=$!
+    
+    	while ! gosu postgres pg_isready --host ${service} --quiet
+    	do
+    		sleep 1
+    	done
+    
+    	supervisorctl start repmgrd
+    
+    	wait ${pid}
+    	exit 0
+    fi
+    
+    if [ "$1" = 'repmgrd' ] && [ "$(id -u)" = '0' ]; then
+    	exec gosu postgres "$@"
+    fi
+    
+    if [ "$1" = 'cleanup' ]; then
+    	if [ ${STATEFUL_TYPE} == "master" ]; then
+    		while true
+    		do
+    			sleep 3600
+    
+    			if pg_isready --host 127.0.0.1 --quiet; then
+    				gosu postgres repmgr --keep-history=1 cluster cleanup || true
+    			fi
+    		done
+    	fi
+    
+    	exit 0
+    fi
+    
+    exec "$@"
+    
+  repmgr.conf: |-
+    ###################################################
+    # Replication Manager sample configuration file
+    ###################################################
+    
+    # Some configuration items will be set with a default value; this
+    # is noted for each item. Where no default value is shown, the
+    # parameter will be treated as empty or false.
+    
+    # Required configuration items
+    # ============================
+    #
+    # repmgr and repmgrd require these items to be configured:
+    
+    # Cluster name - this will be used by repmgr to generate its internal
+    # schema (pattern: "repmgr_{cluster}"); while this name will be quoted
+    # to preserve case, we recommend using lower case and avoiding whitespace
+    # to facilitate easier querying of the repmgr views and tables.
+    #cluster=example_cluster
+    
+    # Node ID and name
+    # (Note: we recommend to avoid naming nodes after their initial
+    #  replication function, as this will cause confusion when e.g.
+    #  "standby2" is promoted to primary)
+    #node=2           # a unique integer
+    #node_name=node2  # an arbitrary (but unique) string; we recommend using
+                     # the server's hostname or another identifier unambiguously
+                     # associated with the server to avoid confusion
+    
+    # Database connection information as a conninfo string
+    # This must be accessible to all servers in the cluster; for details see:
+    #
+    #   https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
+    #
+    #conninfo='host=192.168.204.104 dbname=repmgr user=repmgr'
+    #
+    # If repmgrd is in use, consider explicitly setting `connect_timeout` in the
+    # conninfo string to determine the length of time which elapses before
+    # a network connection attempt is abandoned; for details see:
+    #
+    #   https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNECT-CONNECT-TIMEOUT
+    
+    # Optional configuration items
+    # ============================
+    
+    # Replication settings
+    # ---------------------
+    
+    # When using cascading replication, a standby can connect to another
+    # upstream standby node which is specified by setting 'upstream_node'.
+    # In that case, the upstream node must exist before the new standby
+    # can be registered. If 'upstream_node' is not set, then the standby
+    # will connect directly to the primary node.
+    #upstream_node=1
+    
+    # use physical replication slots - PostgreSQL 9.4 and later only
+    # (default: 0)
+    #use_replication_slots=0
+    
+    # NOTE: 'max_replication_slots' should be configured for at least the
+    # number of standbys which will connect to the primary.
+    
+    # Logging and monitoring settings
+    # -------------------------------
+    
+    # Log level: possible values are DEBUG, INFO, NOTICE, WARNING, ERR, ALERT, CRIT or EMERG
+    # (default: NOTICE)
+    #loglevel=NOTICE
+    
+    # Note that logging facility settings will only apply to `repmgrd` by default;
+    # `repmgr` will always write to STDERR unless the switch `--log-to-file` is
+    # supplied, in which case it will log to the same destination as `repmgrd`.
+    # This is mainly intended for those cases when `repmgr` is executed directly
+    # by `repmgrd`.
+    
+    # Logging facility: possible values are STDERR or - for Syslog integration - one of LOCAL0, LOCAL1, ..., LOCAL7, USER
+    # (default: STDERR)
+    #logfacility=STDERR
+    
+    # stderr can be redirected to an arbitrary file:
+    #
+    #logfile='/var/log/repmgr/repmgr.log'
+    
+    # event notifications can be passed to an arbitrary external program
+    # together with the following parameters:
+    #
+    #   %n - node ID
+    #   %e - event type
+    #   %s - success (1 or 0)
+    #   %t - timestamp
+    #   %d - details
+    #
+    # the values provided for "%t" and "%d" will probably contain spaces,
+    # so should be quoted in the provided command configuration, e.g.:
+    #
+    #event_notification_command='/path/to/some/script %n %e %s "%t" "%d"'
+    
+    # By default, all notifications will be passed; the notification types
+    # can be filtered to explicitly named ones:
+    #
+    #event_notifications=master_register,standby_register,witness_create
+    
+    
+    # Environment/command settings
+    # ----------------------------
+    
+    # path to PostgreSQL binary directory (location of pg_ctl, pg_basebackup etc.)
+    # (if not provided, defaults to system $PATH)
+    #pg_bindir=/usr/bin/
+    #
+    # Debian/Ubuntu users: you will probably need to set this to the directory
+    # where `pg_ctl` is located, e.g. /usr/lib/postgresql/9.5/bin/
+    
+    # service control commands
+    #
+    # repmgr provides options to override the default pg_ctl commands
+    # used to stop, start, restart, reload and promote the PostgreSQL cluster
+    #
+    # NOTE: These commands must be runnable on remote nodes as well for switchover
+    # to function correctly.
+    #
+    # If you use sudo, the user repmgr runs as (usually 'postgres')  must have
+    # passwordless sudo access to execute the command
+    #
+    # For example, to use systemd, you may use the following configuration:
+    #
+    #    # this is required when running sudo over ssh without -t:
+    #    Defaults:postgres !requiretty
+    #    postgres ALL = NOPASSWD: /usr/bin/systemctl stop postgresql-9.5, \
+    #       /usr/bin/systemctl start postgresql-9.5, \
+    #       /usr/bin/systemctl restart postgresql-9.5
+    #
+    # service_start_command = systemctl start postgresql-9.5
+    # service_stop_command = systemctl stop postgresql-9.5
+    # service_restart_command = systemctl restart postgresql-9.5
+    # service_reload_command = pg_ctlcluster 9.5 main reload
+    # service_promote_command = pg_ctlcluster 9.5 main promote
+    
+    # external command options
+    
+    #rsync_options=--archive --checksum --compress --progress --rsh="ssh -o \"StrictHostKeyChecking no\""
+    #ssh_options=-o "StrictHostKeyChecking no"
+    
+    # external command arguments. Values shown are examples.
+    
+    #pg_ctl_options='-s'
+    #pg_basebackup_options='--label=repmgr_backup'
+    
+    # This is the host name of the barman server, which is used for connecting over
+    # to the barman server (passwordless ssh keys should be in place)
+    #barman_server='backup_server'
+    # If you are placing the barman.conf file in a non-standard path, or using
+    # a name other than barman.conf, use this parameter to specify the path and
+    # name of the barman configuration file.
+    #barman_config='/path/to/barman.conf'
+    
+    # Standby clone settings
+    # ----------------------
+    #
+    # These settings apply when cloning a standby (`repmgr standby clone`).
+    
+    # Tablespaces can be remapped from one file system location to another:
+    #
+    # tablespace_mapping=/path/to/original/tablespace=/path/to/new/tablespace
+    
+    # You can specify a restore_command to be used in the recovery.conf that
+    # will be placed in the cloned standby
+    #
+    # restore_command = cp /path/to/archived/wals/%f %p
+    
+    # Failover settings (repmgrd)
+    # ---------------------------
+    #
+    # These settings are only applied when repmgrd is running. Values shown
+    # are defaults.
+    
+    # monitoring interval in seconds; default is 2
+    #monitor_interval_secs=2
+    
+    # Maximum number of seconds to wait for a response from the primary server
+    # before deciding it has failed.
+    #master_response_timeout=60
+    
+    # Number of attempts at what interval (in seconds) to try and
+    # connect to  a server to establish its status (e.g. master
+    # during failover)
+    #reconnect_attempts=6
+    #reconnect_interval=10
+    
+    # Autofailover options
+    #failover=manual    # one of 'automatic', 'manual' (default: manual)
+                        # defines the action to take in the event of upstream failure
+                        #
+                        # 'automatic': repmgrd will automatically attempt to promote the
+                        #    node or follow the new upstream node
+                        # 'manual': repmgrd will take no action and the mode will require
+                        #    manual attention to reattach it to replication
+    
+    #priority=100       # indicate a preferred priorty for promoting nodes
+                        # a value of zero or less prevents the node being promoted to primary
+                        # (default: 100)
+    
+    #promote_command='repmgr standby promote -f /path/to/repmgr.conf'
+    #follow_command='repmgr standby follow -f /path/to/repmgr.conf -W'
+    
+    # change wait time for primary; before we bail out and exit when the primary
+    # disappears, we wait 'reconnect_attempts' * 'retry_promote_interval_secs'
+    # seconds; by default this would be half an hour, as 'retry_promote_interval_secs'
+    # default value is 300)
+    #retry_promote_interval_secs=300
+    
+    # Number of seconds after which the witness server resyncs the repl_nodes table
+    #witness_repl_nodes_sync_interval_secs=15
+    
+  supervisord.conf: |-
+    [supervisord]
+    nodaemon=true
+    
+    [program:postgres]
+    autorestart=true
+    command=bash entrypoint.sh postgres
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+    
+    [program:repmgrd]
+    autostart=false
+    autorestart=true
+    startretries=999
+    command=bash entrypoint.sh repmgrd --monitoring-history
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+    
+    [program:cleanup]
+    autorestart=false
+    startsecs=0
+    command=bash entrypoint.sh cleanup
+    stderr_logfile=/dev/stderr
+    stderr_logfile_maxbytes=0
+    stdout_logfile=/dev/stdout
+    stdout_logfile_maxbytes=0
+---
+# Source: share/charts/rabbitmq/templates/configuration.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: share-rabbitmq-config
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+data:
+  enabled_plugins: |-
+    [rabbitmq_management, rabbitmq_peer_discovery_k8s].
+  rabbitmq.conf: |-
+    ##username and password
+    default_user=user
+    default_pass=CHANGEME
+    ## Clustering
+    cluster_formation.peer_discovery_backend  = rabbit_peer_discovery_k8s
+    cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+    cluster_formation.node_cleanup.interval = 10
+    cluster_formation.node_cleanup.only_log_warning = true
+    cluster_partition_handling = autoheal
+    # queue master locator
+    queue_master_locator=min-masters
+    # enable guest user
+    loopback_users.guest = false
+    #disk_free_limit.absolute = 50MB
+    #management.load_definitions = /app/load_definition.json
+---
+# Source: share/charts/rabbitmq/templates/healthchecks.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: share-rabbitmq-healthchecks
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+data:
+  rabbitmq-health-check: |-
+    #!/bin/sh
+    START_FLAG=/opt/bitnami/rabbitmq/var/lib/rabbitmq/.start
+    if [ -f ${START_FLAG} ]; then
+        rabbitmqctl node_health_check
+        RESULT=$?
+        if [ $RESULT -ne 0 ]; then
+          rabbitmqctl status
+          exit $?
+        fi
+        rm -f ${START_FLAG}
+        exit ${RESULT}
+    fi
+    rabbitmq-api-check $1 $2
+  rabbitmq-api-check: |-
+    #!/bin/sh
+    set -e
+    URL=$1
+    EXPECTED=$2
+    ACTUAL=$(curl --silent --show-error --fail "${URL}")
+    echo "${ACTUAL}"
+    test "${EXPECTED}" = "${ACTUAL}"
+---
+# Source: share/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: share-share
+  labels:
+    app: share
+    chart: share-0.6.3
+    heritage: Helm
+    release: share
+data:
+  ALLOWED_HOSTS: "*"
+  DEBUG: ""
+  DJANGO_SETTINGS_MODULE: "project.settings"
+  nginx.conf: |-
+    user nginx;
+    worker_processes 1;
+    
+    pid /var/run/nginx.pid;
+    
+    error_log /var/log/nginx/error.log warn;
+    
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+    
+        log_format main '$remote_addr - $upstream_cache_status $remote_user [$time_local] '
+                        '"$request" $status $body_bytes_sent '
+                        '"$http_referer" "$http_user_agent" "$http_x_forwarded_for" '
+                        'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
+        access_log /var/log/nginx/access.log main;
+    
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 620s;
+        keepalive_requests 10000;
+        types_hash_max_size 2048;
+        server_tokens off;
+    
+        gzip on;
+        gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+        gzip_comp_level 2;
+        gzip_min_length 512;
+        gzip_proxied any;
+        gzip_vary on;
+        gzip_types text/plain
+                   text/css
+                   image/svg+xml 
+                   application/javascript
+                   application/x-javascript
+                   text/xml
+                   application/xml
+                   text/javascript
+                   application/json
+                   application/xml+rss
+                   application/vnd.api+json;
+    
+        server {
+            listen 80;
+            keepalive_timeout 620s;
+            root /static/code;
+            client_max_body_size 25M;
+            server_name _;
+    
+            if ($http_x_forwarded_proto = "http") {
+                return 301 https://$host$request_uri;
+            }
+    
+            location = /healthz {
+                access_log off;
+                return 200;
+            }
+    
+            location = /robots.txt {
+                alias /usr/share/nginx/html/robots.txt;
+            }
+            # location /media/ {
+            #     alias /media/;
+            # }
+    
+            location = /favicon.ico {
+                rewrite ^/(.*)$ /static/$1;
+            }
+            location /static/ {
+                alias /static/;
+            }
+    
+            location / {
+                # Disable caching of application requests
+                add_header Cache-Control "no-cache, no-store, max-age=0, must-revalidate";
+                add_header Expires "-1";
+                add_header Pragma "no-cache";
+                add_header Strict-Transport-Security "max-age=31536000";
+    
+                # Pass requests to uwsgi application
+                include /etc/nginx/uwsgi_params;
+                uwsgi_buffering off;
+                uwsgi_request_buffering off;
+                uwsgi_pass uwsgi://127.0.0.1:8000;
+            }
+    
+        }
+    }
+  robots.txt: |-
+    User-agent: *
+    Disallow: /
+    
+  uwsgi.ini: |-
+    [uwsgi]
+    uid = www-data
+    gid = www-data
+    # add user-agent, http://uwsgi.unbit.narkive.com/jEtphIzE/default-log-format-explained#post5
+    log-format = [pid: %(pid)|app: ?|req: ?/?] %(addr) (%(user)) {%(vars) vars in %(pktsize) bytes} [%(ctime)] %(method) %(uri) => generated %(rsize) bytes in %(msecs) msecs (%(proto) %(status)) %(headers) headers in %(hsize) bytes (%(switches) switches on core %(core)) "%(uagent)"
+    
+    ## Django-related settings
+    # chdir = /code
+    module = project.wsgi_green:application
+    
+    # process-related settings
+    master = true
+    workers = 1
+    threads = 1
+    harakiri = 120
+    buffer-size = 8192
+    stats = :1717
+    vacuum = true
+    need-app = true
+    show-config = true
+    
+    # greenlet settings
+    gevent = 500
+    gevent-early-monkey-patch = true
+    
+    # Workaround: django.http.FileResponse streaming file response does not work w/ uWSGI.
+    # see: https://github.com/unbit/uwsgi/issues/1126#issuecomment-166687767
+    wsgi-disable-file-wrapper = true
+---
+# Source: share/charts/rabbitmq/templates/role.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: share-rabbitmq-endpoint-reader
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+rules:
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get"]
+---
+# Source: share/charts/rabbitmq/templates/rolebinding.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: share-rabbitmq-endpoint-reader
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+subjects:
+- kind: ServiceAccount
+  name: share-rabbitmq
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: share-rabbitmq-endpoint-reader
+---
+# Source: share/charts/elasticsearch/templates/client-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "client"
+    heritage: Helm
+    release: share
+  name: share-elasticsearch-client
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9200
+      targetPort: http
+  selector:
+    app: elasticsearch
+    component: "client"
+    release: share
+---
+# Source: share/charts/elasticsearch/templates/master-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "master"
+    heritage: Helm
+    release: share
+  name: share-elasticsearch-master
+spec:
+  clusterIP: None
+  ports:
+    - port: 9300
+      targetPort: 9300
+  selector:
+    app: elasticsearch
+    component: "master"
+    release: share
+---
+# Source: share/charts/postgresql/templates/master-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: share-postgresql-master
+  labels:
+    app: postgresql
+    chart: postgresql-0.11.1
+    component: "master"
+    heritage: Helm
+    release: share
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: postgresql
+  selector:
+    app: postgresql
+    component: "master"
+    release: share
+---
+# Source: share/charts/postgresql/templates/standby-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: share-postgresql-standby
+  labels:
+    app: postgresql
+    chart: postgresql-0.11.1
+    component: "standby"
+    heritage: Helm
+    release: share
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: postgresql
+  selector:
+    app: postgresql
+    component: "standby"
+    release: share
+---
+# Source: share/charts/rabbitmq/templates/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: share-rabbitmq-headless
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+spec:
+  clusterIP: None
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: epmd
+  - name: amqp
+    port: 5672
+    targetPort: amqp
+  - name: dist
+    port: 25672
+    targetPort: dist
+  - name: stats
+    port: 15672
+    targetPort: stats
+  selector:
+    app: rabbitmq
+    release: "share"
+---
+# Source: share/charts/rabbitmq/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: share-rabbitmq
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: epmd
+    nodePort: null
+  - name: amqp
+    port: 5672
+    targetPort: amqp
+    nodePort: null
+  - name: dist
+    port: 25672
+    targetPort: dist
+    nodePort: null
+  - name: stats
+    port: 15672
+    targetPort: stats
+    nodePort: null
+  selector:
+    app: rabbitmq
+    release: "share"
+---
+# Source: share/templates/web-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: share-share-web
+  labels:
+    app: share
+    chart: share-0.6.3
+    component: "web"
+    heritage: Helm
+    release: share
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: share
+    component: "web"
+    release: share
+---
+# Source: share/charts/elasticsearch/templates/client-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "client"
+    heritage: Helm
+    release: share
+  name: share-elasticsearch-client
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: "client"
+      release: share
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        component: "client"
+        release: share
+      annotations:
+        
+        checksum/config: a82a2336466d9c0beb3e3c0ef1cca1b83db862bb19e5e4ff2635bc077285b408
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:
+      serviceAccountName: share-elasticsearch
+      securityContext:
+        fsGroup: 1000  # elasticsearch
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: "elasticsearch"
+                    release: "share"
+                    component: "client"
+      initContainers:
+        
+        - name: increase-memory-limits
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |-
+              # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
+              # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
+              # and https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode
+              sysctl -w vm.max_map_count=262144
+              # To increase the ulimit
+              # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
+              ulimit -l unlimited
+          securityContext:
+            privileged: true
+        - name: plugins
+          image: "docker.elastic.co/elasticsearch/elasticsearch:5.6.7"
+          imagePullPolicy: "Always"
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              bin/elasticsearch-plugin remove x-pack
+              
+              cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
+          volumeMounts:
+            - mountPath: /plugins
+              name: plugins
+      containers:
+      - name: elasticsearch
+        env:
+        - name: DISCOVERY_SERVICE
+          value: share-elasticsearch-master.default.svc.cluster.local
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_INGEST
+          value: "false"
+        - name: ES_HEAP_SIZE
+          value: "128m"
+        - name: NODE_MASTER
+          value: "false"
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: ES_JAVA_OPTS
+          value: >-
+            -Djava.net.preferIPv4Stack=true
+        - name: EXPECTED_MASTER_NODES
+          value: "1"
+        - name: MINIMUM_MASTER_NODES
+          value: "1"
+        - name: RECOVER_AFTER_MASTER_NODES
+          value: "1"
+        resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: 25m
+              memory: 512Mi
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
+                http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
+          initialDelaySeconds: 5
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
+                http://127.0.0.1:9200/_cluster/health?wait_for_status=yellow
+          initialDelaySeconds: 90
+        image: "docker.elastic.co/elasticsearch/elasticsearch:5.6.7"
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          name: config
+          subPath: elasticsearch.yml
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: plugins
+      volumes:
+      - name: config
+        configMap:
+          name: share-elasticsearch
+      - name: plugins
+        emptyDir: {}
+---
+# Source: share/templates/beat-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: share-share-beat
+  labels:
+    app: share
+    chart: share-0.6.3
+    component: "beat"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: share
+      component: "beat"
+      release: share
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: share
+        component: "beat"
+        release: share
+      annotations:
+        
+        checksum/config: 6c263bad664c8b4995bcf293336ac9434bb6fdba23009c33588b47ffae302f14
+        checksum/secret: 23a042b6290a3eb9a21c46c29d6e0faf1050a438abe84833b71baf1d6e65016d
+    spec:
+      affinity:
+      containers:
+        - name: beat
+          image: "quay.io/centerforopenscience/share:develop"
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data celery --app project beat \
+                --loglevel "DEBUG" --pidfile=
+          env:
+            
+            - name: DATABASE_HOST
+              value: share-postgresql-master
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_DB
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: RABBITMQ_HOST
+              value: share-rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_VHOST
+            - name: username
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_USER
+              value: 
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: ALLOWED_HOSTS
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DEBUG
+            - name: DJANGO_SETTINGS_MODULE
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DJANGO_SETTINGS_MODULE
+          volumeMounts:
+      volumes:
+        - name: config
+          configMap:
+            name: share-share
+        - name: secret
+          secret:
+            secretName: share-share
+---
+# Source: share/templates/indexer-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: share-share-indexer
+  labels:
+    app: share
+    chart: share-0.6.3
+    component: "indexer"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: share
+      component: "indexer"
+      release: share
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: share
+        component: "indexer"
+        release: share
+      annotations:
+        
+        checksum/config: 6c263bad664c8b4995bcf293336ac9434bb6fdba23009c33588b47ffae302f14
+        checksum/secret: 23a042b6290a3eb9a21c46c29d6e0faf1050a438abe84833b71baf1d6e65016d
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: share
+                    release: "share"
+                    component: "indexer"
+      containers:
+        - name: indexer
+          image: "quay.io/centerforopenscience/share:develop"
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data python manage.py shtrove_indexer_run
+          env:
+            
+            - name: DATABASE_HOST
+              value: share-postgresql-master
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_DB
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: RABBITMQ_HOST
+              value: share-rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_VHOST
+            - name: username
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_USER
+              value: 
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: ALLOWED_HOSTS
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DEBUG
+            - name: DJANGO_SETTINGS_MODULE
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DJANGO_SETTINGS_MODULE
+          volumeMounts:
+      volumes:
+        - name: config
+          configMap:
+            name: share-share
+        - name: secret
+          secret:
+            secretName: share-share
+        - name: elasticsearch-certs
+          secret:
+            secretName:
+---
+# Source: share/templates/web-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: share-share-web
+  labels:
+    app: share
+    chart: share-0.6.3
+    component: "web"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: share
+      component: "web"
+      release: share
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: share
+        component: "web"
+        release: share
+      annotations:        
+        checksum/config: 6c263bad664c8b4995bcf293336ac9434bb6fdba23009c33588b47ffae302f14
+        checksum/secret: 23a042b6290a3eb9a21c46c29d6e0faf1050a438abe84833b71baf1d6e65016d
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: share
+                    release: "share"
+                    component: "web"
+      initContainers:
+        - name: collectstatic
+          image: "quay.io/centerforopenscience/share:develop"
+          imagePullPolicy: Always
+          command:
+            - python
+            - manage.py
+            - collectstatic
+            - --noinput
+          volumeMounts:
+            - mountPath: /code/static
+              name: static
+      containers:
+        - name: nginx
+          image: "nginx:alpine"
+          imagePullPolicy: Always
+          command:
+            - nginx
+            - -c
+            - /etc/nginx/nginx.conf
+            - -g
+            - daemon off;
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            initialDelaySeconds: 10
+          volumeMounts:
+            - mountPath: /static
+              name: static
+            - mountPath: /etc/nginx/nginx.conf
+              name: config
+              subPath: nginx.conf
+              readOnly: true
+            - mountPath: /usr/share/nginx/html/robots.txt
+              name: config
+              subPath: robots.txt
+              readOnly: true
+          resources:
+            {}
+        - name: uwsgi
+          image: "quay.io/centerforopenscience/share:develop"
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :8000
+          env:
+            
+            - name: DATABASE_HOST
+              value: share-postgresql-master
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_DB
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: RABBITMQ_HOST
+              value: share-rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_VHOST
+            - name: username
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_USER
+              value: 
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: ALLOWED_HOSTS
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DEBUG
+            - name: DJANGO_SETTINGS_MODULE
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DJANGO_SETTINGS_MODULE
+          ports:
+            - name: wsgi
+              containerPort: 8000
+            - name: stats
+              containerPort: 1717
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+          volumeMounts:
+            - mountPath: /etc/uwsgi/uwsgi.ini
+              name: config
+              subPath: uwsgi.ini
+              readOnly: true
+      volumes:
+        - name: static
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: share-share
+        - name: secret
+          secret:
+            secretName: share-share
+        - name: elasticsearch-certs
+          secret:
+            secretName:
+---
+# Source: share/templates/worker-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: share-share-worker
+  labels:
+    app: share
+    chart: share-0.6.3
+    component: "worker"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: share
+      component: "worker"
+      release: share
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: share
+        component: "worker"
+        release: share
+      annotations:
+        
+        checksum/config: 6c263bad664c8b4995bcf293336ac9434bb6fdba23009c33588b47ffae302f14
+        checksum/secret: 23a042b6290a3eb9a21c46c29d6e0faf1050a438abe84833b71baf1d6e65016d
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: share
+                    release: "share"
+                    component: "worker"
+      containers:
+        - name: worker
+          image: "quay.io/centerforopenscience/share:develop"
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data celery --app project worker \
+                --concurrency "5" --loglevel "INFO" \
+                --hostname $POD_NAME --without-gossip -Ofair --max-tasks-per-child "5"
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            
+            - name: DATABASE_HOST
+              value: share-postgresql-master
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_DB
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: RABBITMQ_HOST
+              value: share-rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_VHOST
+            - name: username
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_USER
+              value: 
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: ALLOWED_HOSTS
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DEBUG
+            - name: DJANGO_SETTINGS_MODULE
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DJANGO_SETTINGS_MODULE
+          volumeMounts:
+      volumes:
+        - name: config
+          configMap:
+            name: share-share
+        - name: secret
+          secret:
+            secretName: share-share
+        - name: elasticsearch-certs
+          secret:
+            secretName:
+---
+# Source: share/charts/elasticsearch/templates/data-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "data"
+    heritage: Helm
+    release: share
+  name: share-elasticsearch-data
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: "data"
+      release: share
+  serviceName: share-elasticsearch-data
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        component: "data"
+        release: share
+      annotations:
+        
+        checksum/config: a82a2336466d9c0beb3e3c0ef1cca1b83db862bb19e5e4ff2635bc077285b408
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:
+      serviceAccountName: share-elasticsearch
+      securityContext:
+        fsGroup: 1000  # elasticsearch
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: "elasticsearch"
+                    release: "share"
+                    component: "data"
+      initContainers:
+        
+        - name: increase-memory-limits
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |-
+              # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
+              # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
+              # and https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode
+              sysctl -w vm.max_map_count=262144
+              # To increase the ulimit
+              # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
+              ulimit -l unlimited
+          securityContext:
+            privileged: true
+        - name: plugins
+          image: "docker.elastic.co/elasticsearch/elasticsearch:5.6.7"
+          imagePullPolicy: "Always"
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              bin/elasticsearch-plugin remove x-pack
+              
+              cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
+          volumeMounts:
+            - mountPath: /plugins
+              name: plugins
+      containers:
+      - name: elasticsearch
+        env:
+        - name: DISCOVERY_SERVICE
+          value: share-elasticsearch-master.default.svc.cluster.local
+        - name: NODE_MASTER
+          value: "false"
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: ES_HEAP_SIZE
+          value: "1536m"
+        - name: ES_JAVA_OPTS
+          value: >-
+            -Djava.net.preferIPv4Stack=true
+        - name: EXPECTED_MASTER_NODES
+          value: "1"
+        - name: MINIMUM_MASTER_NODES
+          value: "1"
+        - name: RECOVER_AFTER_MASTER_NODES
+          value: "1"
+        image: "docker.elastic.co/elasticsearch/elasticsearch:5.6.7"
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 9300
+          name: transport
+        resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: 25m
+              memory: 1536Mi
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
+                http://127.0.0.1:9200/_cluster/health?local=true
+          initialDelaySeconds: 5
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: data
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          name: config
+          subPath: elasticsearch.yml
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+          readOnly: true
+        - name: config
+          mountPath: /pre-stop-hook.sh
+          subPath: pre-stop-hook.sh
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: plugins
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/bash","/pre-stop-hook.sh"]
+      terminationGracePeriodSeconds: 3600
+      volumes:
+      - name: config
+        configMap:
+          name: share-elasticsearch
+      - name: plugins
+        emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "4Gi"
+---
+# Source: share/charts/elasticsearch/templates/master-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: elasticsearch
+    chart: elasticsearch-0.5.3
+    component: "master"
+    heritage: Helm
+    release: share
+  name: share-elasticsearch-master
+spec:
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: "master"
+      release: share
+  serviceName: share-elasticsearch-master
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        component: "master"
+        release: share
+      annotations:
+        
+        checksum/config: a82a2336466d9c0beb3e3c0ef1cca1b83db862bb19e5e4ff2635bc077285b408
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:
+      serviceAccountName: share-elasticsearch
+      securityContext:
+        fsGroup: 1000  # elasticsearch
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: "elasticsearch"
+                    release: "share"
+                    component: "master"
+      initContainers:
+        
+        - name: increase-memory-limits
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |-
+              # see https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
+              # and https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html#mlockall
+              # and https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode
+              sysctl -w vm.max_map_count=262144
+              # To increase the ulimit
+              # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_notes_for_production_use_and_defaults
+              ulimit -l unlimited
+          securityContext:
+            privileged: true
+        - name: plugins
+          image: "docker.elastic.co/elasticsearch/elasticsearch:5.6.7"
+          imagePullPolicy: "Always"
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              bin/elasticsearch-plugin remove x-pack
+              
+              cp -Rf /usr/share/elasticsearch/plugins/. /plugins/
+          volumeMounts:
+            - mountPath: /plugins
+              name: plugins
+      containers:
+      - name: elasticsearch
+        env:
+        - name: DISCOVERY_SERVICE
+          value: share-elasticsearch-master.default.svc.cluster.local
+        - name: NODE_DATA
+          value: "false"
+        - name: NODE_INGEST
+          value: "false"
+        - name: ES_HEAP_SIZE
+          value: "128m"
+        - name: PROCESSORS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: ES_JAVA_OPTS
+          value: >-
+            -Djava.net.preferIPv4Stack=true
+        - name: EXPECTED_MASTER_NODES
+          value: "1"
+        - name: MINIMUM_MASTER_NODES
+          value: "1"
+        - name: RECOVER_AFTER_MASTER_NODES
+          value: "1"
+        resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: 25m
+              memory: 512Mi
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - curl
+                --request GET
+                --silent
+                --output /dev/null
+                http://127.0.0.1:9200/_cluster/health?local=true
+          initialDelaySeconds: 5
+        image: "docker.elastic.co/elasticsearch/elasticsearch:5.6.7"
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 9300
+          name: transport
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: data
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+          name: config
+          subPath: elasticsearch.yml
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+          readOnly: true
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: plugins
+      volumes:
+      - name: config
+        configMap:
+          name: share-elasticsearch
+      - name: plugins
+        emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "4Gi"
+---
+# Source: share/charts/postgresql/templates/master-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: share-postgresql-master
+  labels:
+    app: postgresql
+    chart: postgresql-0.11.1
+    component: "master"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: postgresql
+      component: "master"
+      release: share
+  serviceName: share-postgresql-master
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  template:
+    metadata:
+      labels:
+        app: postgresql
+        component: "master"
+        release: share
+      annotations:        
+        checksum/config: 24c859376cb19d8147f6b358827a00a9a530cea1fca588de04ccc5bb13acd314
+        checksum/secret: 129485a9cf50ec8ba8d599cc361333af9ca78deaa8cfa5ee661d4657b79b0ce2
+    spec:
+      containers:
+        - name: postgresql
+          image: "centerforopenscience/postgres:9.6-repmgr"
+          imagePullPolicy: Always
+          env:
+            - name: STATEFUL_TYPE
+              value: master            
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: MASTER_SERVICE
+              value: share-postgresql-master
+            # - name: STANDBY_SERVICE
+            #   value: share-postgresql-standby
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_INITDB_ARGS
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_INITDB_ARGS
+            - name: REPMGR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: REPMGR_PASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - su
+          #       - postgres
+          #       - -c
+          #       - pg_isready --host $POD_IP 
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5
+          #   failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - su
+                - postgres
+                - -c
+                - pg_isready --host $POD_IP 
+            timeoutSeconds: 3
+            periodSeconds: 5
+          volumeMounts:            
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
+            - name: config-volume
+              mountPath: /etc/repmgr.conf.tpl
+              subPath: repmgr.conf
+            - name: config-volume
+              mountPath: /etc/supervisor/conf.d/supervisord.conf
+              subPath: supervisord.conf
+              readOnly: true
+            - name: config-volume
+              mountPath: /usr/local/bin/entrypoint.sh
+              subPath: entrypoint.sh
+      terminationGracePeriodSeconds: 3600
+      volumes:        
+        - name: config-volume
+          configMap:
+            name: share-postgresql
+        - name: secret-volume
+          secret:
+            secretName: share-postgresql
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: share/charts/postgresql/templates/standby-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: share-postgresql-standby
+  labels:
+    app: postgresql
+    chart: postgresql-0.11.1
+    component: "standby"
+    heritage: Helm
+    release: share
+spec:
+  selector:
+    matchLabels:
+      app: postgresql
+      component: "standby"
+      release: share
+  serviceName: share-postgresql-standby
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  template:
+    metadata:
+      labels:
+        app: postgresql
+        component: "standby"
+        release: share
+      annotations:        
+        checksum/config: 24c859376cb19d8147f6b358827a00a9a530cea1fca588de04ccc5bb13acd314
+        checksum/secret: 129485a9cf50ec8ba8d599cc361333af9ca78deaa8cfa5ee661d4657b79b0ce2
+    spec:
+      containers:
+        - name: postgresql
+          image: "centerforopenscience/postgres:9.6-repmgr"
+          imagePullPolicy: Always
+          env:
+            - name: STATEFUL_TYPE
+              value: standby            
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: MASTER_SERVICE
+              value: share-postgresql-master
+            # - name: STANDBY_SERVICE
+            #   value: share-postgresql-standby
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_INITDB_ARGS
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_INITDB_ARGS
+            - name: REPMGR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: REPMGR_PASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - su
+          #       - postgres
+          #       - -c
+          #       - pg_isready --host $POD_IP 
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5
+          #   failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - su
+                - postgres
+                - -c
+                - pg_isready --host $POD_IP 
+            timeoutSeconds: 3
+            periodSeconds: 5
+          volumeMounts:            
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
+            - name: config-volume
+              mountPath: /etc/repmgr.conf.tpl
+              subPath: repmgr.conf
+            - name: config-volume
+              mountPath: /etc/supervisor/conf.d/supervisord.conf
+              subPath: supervisord.conf
+              readOnly: true
+            - name: config-volume
+              mountPath: /usr/local/bin/entrypoint.sh
+              subPath: entrypoint.sh
+      terminationGracePeriodSeconds: 3600
+      volumes:        
+        - name: config-volume
+          configMap:
+            name: share-postgresql
+        - name: secret-volume
+          secret:
+            secretName: share-postgresql
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: share/charts/rabbitmq/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: share-rabbitmq
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.9.1
+    release: "share"
+    heritage: "Helm"
+spec:
+  serviceName: share-rabbitmq-headless
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: rabbitmq
+      release: "share"
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+        release: "share"
+        chart: rabbitmq-6.9.1
+    spec:      
+      serviceAccountName: share-rabbitmq
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: rabbitmq
+        image: docker.io/bitnamilegacy/rabbitmq:3.8.0-r18
+        imagePullPolicy: "IfNotPresent"
+        command:
+         - bash
+         - -ec
+         - |
+            mkdir -p /opt/bitnami/rabbitmq/.rabbitmq/
+            mkdir -p /opt/bitnami/rabbitmq/etc/rabbitmq/
+            touch /opt/bitnami/rabbitmq/var/lib/rabbitmq/.start
+            #persist the erlang cookie in both places for server and cli tools
+            echo $RABBITMQ_ERL_COOKIE > /opt/bitnami/rabbitmq/var/lib/rabbitmq/.erlang.cookie
+            cp /opt/bitnami/rabbitmq/var/lib/rabbitmq/.erlang.cookie /opt/bitnami/rabbitmq/.rabbitmq/
+            #change permission so only the user has access to the cookie file
+            chmod 600 /opt/bitnami/rabbitmq/.rabbitmq/.erlang.cookie /opt/bitnami/rabbitmq/var/lib/rabbitmq/.erlang.cookie
+            #copy the mounted configuration to both places
+            cp  /opt/bitnami/rabbitmq/conf/* /opt/bitnami/rabbitmq/etc/rabbitmq
+            # Apply resources limits
+            ulimit -n "${RABBITMQ_ULIMIT_NOFILES}"
+            #replace the default password that is generated
+            sed -i "/CHANGEME/cdefault_pass=${RABBITMQ_PASSWORD//\\/\\\\}" /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.conf
+            exec rabbitmq-server
+        volumeMounts:
+          - name: config-volume
+            mountPath: /opt/bitnami/rabbitmq/conf
+          - name: healthchecks
+            mountPath: /usr/local/sbin/rabbitmq-api-check
+            subPath: rabbitmq-api-check
+          - name: healthchecks
+            mountPath: /usr/local/sbin/rabbitmq-health-check
+            subPath: rabbitmq-health-check
+          - name: data
+            mountPath: "/opt/bitnami/rabbitmq/var/lib/rabbitmq"
+        ports:
+        - name: epmd
+          containerPort: 4369
+        - name: amqp
+          containerPort: 5672
+        - name: dist
+          containerPort: 25672
+        - name: stats
+          containerPort: 15672
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - rabbitmq-api-check "http://user:$RABBITMQ_PASSWORD@127.0.0.1:15672/api/healthchecks/node" '{"status":"ok"}'
+          initialDelaySeconds: 120
+          timeoutSeconds: 20
+          periodSeconds: 30
+          failureThreshold: 6
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - rabbitmq-health-check "http://user:$RABBITMQ_PASSWORD@127.0.0.1:15672/api/healthchecks/node" '{"status":"ok"}'
+          initialDelaySeconds: 10
+          timeoutSeconds: 20
+          periodSeconds: 30
+          failureThreshold: 3
+          successThreshold: 1
+        env:
+          - name: BITNAMI_DEBUG
+            value: "false"
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: K8S_SERVICE_NAME
+            value: "share-rabbitmq-headless"
+          - name: K8S_ADDRESS_TYPE
+            value: hostname
+          - name: RABBITMQ_NODENAME
+            value: "rabbit@$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local"
+          - name: K8S_HOSTNAME_SUFFIX
+            value: ".$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local"
+          - name: RABBITMQ_LOGS
+            value: "-"
+          - name: RABBITMQ_ULIMIT_NOFILES
+            value: "65536"
+          - name: RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS
+            value: +S 2:1
+          - name: RABBITMQ_USE_LONGNAME
+            value: "true"
+          - name: RABBITMQ_ERL_COOKIE
+            valueFrom:
+              secretKeyRef:
+                name: share-rabbitmq
+                key: rabbitmq-erlang-cookie
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: share-rabbitmq
+                key: rabbitmq-password
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      volumes:
+        - name: config-volume
+          configMap:
+            name: share-rabbitmq-config
+            items:
+            - key: rabbitmq.conf
+              path: rabbitmq.conf
+            - key: enabled_plugins
+              path: enabled_plugins
+        - name: healthchecks
+          configMap:
+            name: share-rabbitmq-healthchecks
+            items:
+            - key: rabbitmq-health-check
+              path: rabbitmq-health-check
+              mode: 111
+            - key: rabbitmq-api-check
+              path: rabbitmq-api-check
+              mode: 111
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app: rabbitmq
+          release: "share"
+          heritage: "Helm"
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+            requests:
+              storage: "8Gi"
+---
+# Source: share/templates/migration-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: share-share-migration-1
+  labels:
+    app: share
+    chart: share-0.6.3
+    component: "migration"
+    heritage: Helm
+    release: share
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  activeDeadlineSeconds: 900
+  template:
+    metadata:
+      name: "share"
+      labels:
+        app: share
+        component: "migration"
+        release: share
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migration
+          image: "quay.io/centerforopenscience/share:develop"
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+            - |-
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX python manage.py migrate
+          env:
+            
+            - name: DATABASE_HOST
+              value: share-postgresql-master
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_DB
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: share-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: RABBITMQ_HOST
+              value: share-rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_VHOST
+            - name: username
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_USER
+              value: 
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: share-rabbitmq
+                  key: RABBITMQ_DEFAULT_PASS
+            - name: ALLOWED_HOSTS
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: ALLOWED_HOSTS
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DEBUG
+            - name: DJANGO_SETTINGS_MODULE
+              valueFrom:
+                configMapKeyRef:
+                  name: share-share
+                  key: DJANGO_SETTINGS_MODULE
+          volumeMounts:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: share-share
+        - name: secret-volume
+          secret:
+            secretName: share-share
