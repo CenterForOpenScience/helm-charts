@@ -1,3 +1,9 @@
+### ---------- Global or Reusable parts across values.yaml ----------
+image:
+  repository: quay.io/centerforopenscience/angular-osf
+  tag: develop
+  pullPolicy: Always
+
 ## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
 ## or in other form current naming is Release.Name-Chart.Name
 
@@ -61,10 +67,6 @@ main:
 
 # ------- Init containers -------
   angular:
-    image:
-      repository: quay.io/centerforopenscience/angular-osf
-      tag: develop
-      pullPolicy: Always
     resources:
         limits:
           cpu: 1
@@ -75,8 +77,8 @@ main:
 
   initContainers:
     - name: angular
-      image: "{{ .Values.main.angular.image.repository }}:{{ .Values.main.angular.image.tag }}"
-      imagePullPolicy: "{{ .Values.main.angular.image.pullPolicy }}"
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
         - /bin/sh
         - -c
