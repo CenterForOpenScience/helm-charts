@@ -1,89 +1,171 @@
-# Default values for nginx.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-replicaCount: 1
-
+### ------- Global or Reusable parts across values.yaml -------
 image:
   repository: nginx
   tag: stable
   pullPolicy: IfNotPresent
 
-nodeSelector: {}
 
-tolerations: []
+## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+## or in other form current naming is Release.Name-Chart.Name
 
-affinity: {}
+## =============== MAIN Component ===============
+main:
+  enabled: true
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  # requests:
-  #  cpu: 100m
-  #  memory: 128Mi
+  replicas: 1
 
-configFiles:
-  conf.d/default.conf: |-
-    # Insert nginx config here
+  http:
+    containers:
+      nginx:
+        internalPort: 80
+        externalPort: 80
+        serviceType: ClusterIP
 
-nameOverride: ""
-fullnameOverride: ""
+# ------- Configuration follows for containerName: nginx -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
 
-service:
-  type: ClusterIP
-  port: 80
+  containerName: nginx
 
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  paths: []
-  hosts:
-    - chart-example.local
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
 
-certificate:
-  enabled: false
-  name: cert
-  # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-  # - Issue: https://github.com/jetstack/cert-manager/issues/606
-  # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-  tls: true
-  # issuerRef:
-  #   name: letsencrypt-prod
-  #   kind: ClusterIssuer
-  # commonName: example.org
-  # dnsNames:
-  #   - example.org
-  #   - subdomain.example.org
-  # acmeConfig:
-  #   http01:
-  #     ingress: example-ingress
-  #   domains:
-  #     - example.org
-  #     - subdomain.example.org
+  env: []
 
-# additionalCertificates:
-#   - name: cert-2
-#     commonName: example2.org
-#     dnsNames:
-#       - example2.org
-#       - www.example2.org
-#     issuerRef:
-#       name: letsencrypt-prod
-#       kind: ClusterIssuer
-#     acmeConfig:
-#       http01:
-#         ingress: example-ingress
-#       domains:
-#         - example2.org
-#         - www.example2.org
+  envFrom: []
+
+  probes:
+    liveness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+    readiness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.main.http.containers.nginx.internalPort }}"
+
+  ports:
+    - name: http
+      containerPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+      readOnly: true
+    - name: config
+      mountPath: /etc/nginx/conf.d/default.conf
+      subPath: conf.d-default.conf
+      readOnly: true
+
+  resources: {}
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) | trim }}'
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+
+
+# ------- Service configuration -------
+  service:
+    enabled: true
+    type: "{{ .Values.main.http.containers.nginx.serviceType }}"
+    ports:
+      - name: http
+        port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        targetPort: "{{ .Values.main.http.containers.nginx.internalPort }}"
+
+
+# ------- Ingress configuration -------
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+    rules:
+      - name: main
+        includeForPrimaryHost: true
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+          port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        paths:
+          - /
+    tls: []
+      # - secretName: secret_name
+      #   hosts: 
+      #     - chart-example.local
+
+
+# ------- Certificate configuration -------
+  certificate:
+    enabled: false
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    commonName: example.org
+    dnsNames:
+      - example.org
+    acmeConfig:
+      http01: {}
+      domains:
+        - example.org
+
+  # additionalCertificates:
+  # # cert name: '{{ include "cos-common.fullname" (dict "root" . "name" "certificate") | trim }}' + name
+  #   - name: example-org-cert
+  #     enabled: true
+  #     secretName: secret-with-cert # default secret name is certificate name
+  #     commonName: example.org
+  #     dnsNames:
+  #       - example.org
+  #       - submdomain.example.org
+  #     issuerRef:
+  #       name: letsencrypt-prod
+  #       kind: ClusterIssuer
+  #     acmeConfig:
+  #       http01: {}
+  #         # ingress: ''
+  #       domains:
+  #         - example.org
+  #         - subdomain.example.org
+
+
+# ------- ConfigMap configuration -------
+  configMap:
+    enabled: true
+    tpl: true
+    data:
+      nginx.conf: |
+        {{ tpl (.Files.Get "files/nginx.conf") (dict "Values" .Values "root" .) }}
+
+      conf.d-default.conf: |
+        # Insert nginx config here
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []

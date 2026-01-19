@@ -1,0 +1,16 @@
+{{- $svcPort := tpl (toString (index .Values.main.service.ports 0).port) . -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) }}-test-connection
+  labels:
+    {{- include "cos-common.selectorLabels" (dict "root" . "name" "" "values" .Values.main) | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) }}:{{ $svcPort }}']
+  restartPolicy: Never
