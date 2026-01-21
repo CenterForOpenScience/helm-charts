@@ -948,7 +948,7 @@ services/preprints-203948234207240.json: |-
 {{- $domainPrefix := .Values.preprintProviderDomains.prefix -}}
 {{- $domainSuffix := .Values.preprintProviderDomains.suffix -}}
 {{- range $key, $val := (include "cas.jetty.preprint-services" . | fromYaml) }}
-services/preprints-{{ $key }}-{{ $val.id }}.json: |-
+services/preprints{{ $key }}-{{ $val.id }}.json: |-
   {
     "@class": "org.apereo.cas.services.RegexRegisteredService",
     "serviceId": "^https://{{ $osfDomainRegex }}/(login|logout)/?\\?next=https(%3A|:)(%2F|/)(%2F|/)
