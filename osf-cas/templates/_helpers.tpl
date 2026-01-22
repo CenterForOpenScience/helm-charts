@@ -60,17 +60,6 @@ Jetty environment variables
 {{- define "cas.jetty.environment" -}}
 - name: SESSION_SECURE_COOKIES
   value: "true"
-{{- if .Values.postgresql.enabled }}
-- name: DATABASE_URL
-  value: jdbc:postgresql://{{ template "postgresql.fullname" . }}/{{ .Values.postgresql.postgresDatabase }}?targetServerType=master
-- name: DATABASE_USER
-  value: {{ .Values.postgresql.postgresUser }}
-- name: DATABASE_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: {{ template "postgresql.fullname" . }}
-      key: postgres-password
-{{- end }}
 {{- $fullname := include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.main) -}}
 {{- range $key := keys (default dict .Values.jetty.configEnvs) }}
 - name: {{ $key }}
