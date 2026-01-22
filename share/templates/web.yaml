@@ -1,0 +1,8 @@
+{{- include "cos-common.configmap"   (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.secret"      (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.certificate" (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.deployment"  (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.service"     (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.ingress"     (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.hpa"         (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.pdb"         (dict "root" . "name" "web" "values" .Values.web) }}

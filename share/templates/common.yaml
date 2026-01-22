@@ -1,0 +1,2 @@
+{{- include "cos-common.configmap" (dict "root" . "name" "" "values" .Values.common) }}
+{{- include "cos-common.secret" (dict "root" . "name" "" "values" .Values.common) }}
