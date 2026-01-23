@@ -3,7 +3,7 @@ cos-common
 
 Reusable Helm **library** chart that bundles the common building blocks used by Center for Open Science application charts. You do **not** install it on its own; instead, your application chart imports it and renders the pieces you need (workloads, traffic, config, secrets, network policy, certs, etc.).
 
-Helm: v3 (library chart). Kubernetes: `>=1.26` (see `Chart.yaml`).
+Helm: v3 (library chart). Kubernetes: `>=1.32` (see `Chart.yaml`).
 
 ## Contents
 - Workloads: `deployment`, `statefulset`, `job`, `cronjob`
@@ -142,6 +142,7 @@ app:
 - **PDB**: when `enabled`, set either `minAvailable` or `maxUnavailable` (not both).
 - **NetworkPolicy**: defaults to namespace-local ingress allow; egress only if `allowEgress: true` or `extraEgressRules` present. Use `componentScoped: false` to drop the component label when you want one policy to cover multiple components. `additionalNetworkPolicies[]` supported.
 - **Certificates**: renders cert-manager `Certificate`; `issuerRef` required when enabled. `certificate.acmeConfig` maps to `spec.acme.config[]` (defaults `http01.ingress` to the chart fullname when not set). `additionalCertificates[]` available.
+- **TLS init container image**: override the cert-copy init container image via `enabledInitContainersCertificate.image` (repository/tag/digest/pullPolicy); any fields not set fall back to the component `image`.
 - **Persistence**: component-level `persistence` or `volumes[].persistence` can auto-create PVCs (unless `existingClaim`); per-volume persistence forbids `emptyDir` and wires the volume to the claim automatically.
 - **Additional containers**: `sidecars`/`additionalContainers` can inherit mounts or resources from another container in the same component via `inheritVolumeMountsFrom` / `inheritResourcesFrom` (explicit fields on the child override inherited ones).
 - **CronJob**: `schedule` is required; job-spec knobs (`parallelism`, `backoffLimit`, `podFailurePolicy`, etc.) live directly under the component block.
