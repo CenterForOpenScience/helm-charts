@@ -1,221 +1,60 @@
-# Default values for lookit.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+### ------- Global or Reusable parts across values.yaml -------
+
+## ------- Global images
 image:
   repository: quay.io/centerforopenscience/share
   tag: develop
   pullPolicy: Always
 
-elasticsearchCertificateSecret:
-postgresqlCertificateSecret:
+## ------- Global Secret names
+elasticsearchCertificateSecret: "es-certs" # !!! Be aware that it will use existing secret! if you do not set name here then do not forget to comment out volumes attachment for "elasticsearchCertificateSecret"
 
-beat:
-  enabled: true
-  name: beat
+## ------- Global shared envs
+sharedEnv: &sharedEnv
+  ## If Postgres enabled <-------
+  #
+  - name: DATABASE_HOST
+    value: "{{ .Release.Name }}-postgresql-master"
+  - name: DATABASE_NAME
+    valueFrom:
+      secretKeyRef:
+        name: "{{ .Release.Name }}-postgresql"
+        key: POSTGRES_DB
+  - name: DATABASE_USER
+    valueFrom:
+      secretKeyRef:
+        name: "{{ .Release.Name }}-postgresql"
+        key: POSTGRES_USER
+  - name: DATABASE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: "{{ .Release.Name }}-postgresql"
+        key: POSTGRES_PASSWORD
+  ## If RabbitMq enabled <-------
+  #
+  - name: RABBITMQ_HOST
+    value: "{{ .Release.Name }}-rabbitmq"
+  - name: RABBITMQ_PORT
+    value: "{{ .Values.rabbitmq.service.port }}"
+  - name: RABBITMQ_VHOST
+    valueFrom:
+      configMapKeyRef:
+        name: "{{ .Release.Name }}-rabbitmq-config"
+        key: RABBITMQ_VHOST
+  - name: username
+    valueFrom:
+      secretKeyRef:
+        name: "{{ .Release.Name }}-rabbitmq"
+        key: RABBITMQ_DEFAULT_USER
+  - name: password
+    valueFrom:
+      secretKeyRef:
+        name: "{{ .Release.Name }}-rabbitmq"
+        key: RABBITMQ_DEFAULT_PASS
 
-  logLevel: DEBUG
-
-  resources: {}
-    #limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-web:
-  enabled: true
-  name: web
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  nginx:
-    image:
-      repository: nginx
-      tag: alpine
-      pullPolicy: Always
-    resources: {}
-      #limits:
-      #  cpu: "1"
-      #  memory: 128Mi
-      #requests:
-      #  cpu: 100m
-      #  memory: 128Mi
-
-  resources: {}
-    #limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  service:
-    name: http
-    type: ClusterIP
-    externalPort: 8000
-    internalPort: 80
-
-  ingress:
-    enabled: false
-    # Used to create Ingress record (should used with service.type: ClusterIP).
-    hosts:
-      - chart-example.local
-    paths:
-      - /
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: 'true'
-    tls:
-      # Secrets must be manually created in the namespace.
-      # - secretName: chart-example-tls
-      #   hosts:
-      #     - chart-example.local
-
-  certificate:
-    enabled: false
-    name: cert
-    # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-    # - Issue: https://github.com/jetstack/cert-manager/issues/606
-    # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-    tls: true
-    # issuerRef:
-    #   name: letsencrypt-prod
-    #   kind: ClusterIssuer
-    # commonName: example.org
-    # dnsNames:
-    #   - example.org
-    #   - subdomain.example.org
-    # acmeConfig:
-    #   http01: {}
-    #     # ingress: ''
-    #   domains:
-    #     - example.org
-    #     - subdomain.example.org
-
-  env: {}
-
-  volumeMounts: []
-
-indexer:
-  enabled: true
-  name: indexer
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  resources: {}
-    #limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  env: {}
-
-  volumeMounts: []
-
-worker:
-  enabled: true
-  name: worker
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  concurrency: 5
-  logLevel: INFO
-  maxTasksPerChild: 5
-  # queues: ...
-
-  resources: {}
-    #limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  env: {}
-
-  volumeMounts: []
-
-migration:
-  enabled: true
-  name: migration
-
-  resources: {}
-    #limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-  env: {}
-
-  volumeMounts: []
-
-configEnvs:
-  DEBUG: ""
-  DJANGO_SETTINGS_MODULE: project.settings
-  ALLOWED_HOSTS: "*"
-
-configFiles: {}
-  # Override configmap files here (and delete the {} above), e.g.:
-  #robots.txt: |-
-  #  User-agent: *
-  #  Disallow: /
-
-secretEnvs: {}
-  # BYPASS_THROTTLE_TOKEN: abc123
-
-secretFiles: {}
-  # googleAppCreds.json: |-
-  #   ...
-
-# volumeMounts:
-#   - mountPath: /code/project/settings/local.py
-#     name: secret-volume
-#     subPath: local.py
-#     readOnly: true
-#   - mountPath: /etc/googleAppCreds.json
-#     name: secret-volume
-#     subPath: googleAppCreds.json
-#     readOnly: true
-
-tls:
-  enabled: false
-  postgresql:
-    enabled: false
-
+## ------- Postgresql
 postgresql:
-  enabled: true
+  enabled: true # if you enable, please remember to look up in the values file other components: "If Postgres enabled"
   standby:
     enabled: false
   secrets:
@@ -223,37 +62,33 @@ postgresql:
     POSTGRES_USER: share
     POSTGRES_PASSWORD: share
 
+## ------- Rabbitmq
 rabbitmq:
-  enabled: true
+  enabled: true # if you enable, please remember to look up in the values file other components: "If RabbitMq enabled"
   secretEnvs:
     RABBITMQ_DEFAULT_USER: guest
     RABBITMQ_DEFAULT_PASS: guest
 
+## ------- Elasticsearch
 elasticsearch:
   enabled: true
-
   image:
     repository: docker.elastic.co/elasticsearch/elasticsearch
     tag: "5.6.7"
     pullPolicy: "Always"
-
   rbac:
     enabled: true
-
   plugins:
     enabled: true
     remove:
       - x-pack
-
   cluster:
     env:
       MINIMUM_MASTER_NODES: "1"
       EXPECTED_MASTER_NODES: "1"
       RECOVER_AFTER_MASTER_NODES: "1"
-
   tls:
     enabled: false
-
   client:
     name: client
     replicas: 1
@@ -266,7 +101,6 @@ elasticsearch:
       # requests:
       #   cpu: "25m"
       #   memory: "256Mi"
-
   master:
     name: master
     replicas: 1
@@ -278,7 +112,6 @@ elasticsearch:
       # requests:
       #   cpu: "25m"
       #   memory: "256Mi"
-
   data:
     name: data
     replicas: 1
@@ -291,3 +124,704 @@ elasticsearch:
       # requests:
       #   cpu: "25m"
       #   memory: "256Mi"
+
+
+# =============== COMMON Component ===============
+# No workload in this component, only configs and secrets.
+common:
+  enabled: true
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  configMap:
+    enabled: true
+    tpl: true
+    data:
+      nginx.conf: |-
+        {{ tpl (.Files.Get "files/nginx.conf") (dict "Values" .Values "root" .) }}
+      uwsgi.ini: |-
+        {{ .Files.Get "files/uwsgi.ini" }}
+      robots.txt: |-
+        {{ .Files.Get "files/robots.txt" }}
+
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalConfigMaps:
+    - name: common-env
+      enabled: true
+      tpl: false
+      data:
+        DEBUG: ""
+        DJANGO_SETTINGS_MODULE: project.settings
+        ALLOWED_HOSTS: "*"
+
+
+# ------- Secrets configuration -------
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  secret:
+    enabled: true
+    includeTls: false
+    data: {}
+      # googleAppCreds.json: |-
+      #   ...
+
+
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name  
+  additionalSecrets:
+    - name: common-env
+      enabled: true
+      includeTls: false
+      data: {}
+        # BYPASS_THROTTLE_TOKEN: abc123
+
+    # Create secret with TLS certs for Postgres
+    # If you want to use existing secret with certs then set enabled to false.
+    # Secret name will be Release.Name-Chart.Name-name
+    - name: postgresql-certs
+      enabled: true
+      includeTls: false
+      data:
+        root.crt: |-
+          crt
+        root.crl: |-
+          crl
+        postgresql.key: |-
+          key
+        postgresql.crt: |-
+          crt
+
+# =============== WEB Component ===============
+web:
+  enabled: true
+
+  replicas: 1
+
+  http:
+    internalPort: 80
+    externalPort: 8000
+    serviceType: ClusterIP
+
+  mediaUrl: ""
+  staticUrl: ""
+
+# ------- Configuration follows for containerName: nginx -------
+  image:
+    repository: nginx
+    tag: alpine
+    pullPolicy: Always
+
+  containerName: nginx
+
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
+
+  ports:
+    - name: http-internal
+      containerPort: "{{ .Values.web.http.internalPort }}"
+
+  probes:
+    readiness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.web.http.internalPort }}"
+      initialDelaySeconds: 10
+
+  volumeMounts:
+    - name: static
+      mountPath: /static
+      readOnly: true
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: nginx.conf
+      readOnly: true
+    - name: config
+      mountPath: /usr/share/nginx/html/robots.txt
+      subPath: robots.txt
+      readOnly: true
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: collectstatic
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - python
+        - manage.py
+        - collectstatic
+        - --noinput
+      volumeMounts:
+        - mountPath: /code/static
+          name: static
+
+
+# ------- Additional containers -------
+  uwsgi:
+    resources: {}
+    volumeMounts:
+      - name: config
+        mountPath: /etc/uwsgi/uwsgi.ini
+        subPath: uwsgi.ini
+        readOnly: true
+
+  additionalContainers:
+    - name: uwsgi
+      inheritVolumeMountsFrom: uwsgi # <----- gets volume mounts from uwsgi set of vars above
+      inheritResourcesFrom: uwsgi # <----- gets resources from uwsgi set of vars above
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          PREFIX=''
+          if [ -f /code/newrelic.ini ]; then
+            PREFIX='newrelic-admin run-program'
+          fi
+          $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.web.http.externalPort }}
+      env: *sharedEnv
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+        - secretRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+      ports:
+        - name: wsgi
+          containerPort: "{{ .Values.web.http.externalPort }}"
+        - name: stats
+          containerPort: 1717
+      readinessProbe:
+        tcpSocket:
+          port: "{{ .Values.web.http.externalPort }}"
+        initialDelaySeconds: 10
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: static
+      emptyDir: {}
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+
+  additionalVolumes:  
+    # If Postgres enabled <-------
+    - name: postgresql-certs
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+    ## If pass ElasticSearch certs  <-------
+    - name: elasticsearch-certs
+      secret:
+        secretName: "{{ .Values.elasticsearchCertificateSecret }}"
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.web.component }}"
+
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: true
+    type: "{{ .Values.web.http.serviceType }}"
+    ports:
+      - name: http
+        port: "{{ .Values.web.http.externalPort }}"
+        targetPort: "{{ .Values.web.http.internalPort }}"
+
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  ingress:
+    enabled: false
+    annotations: {}
+    hosts:
+      primary:
+        - chart-example.local
+    rules:
+      - name: web
+        includeForPrimaryHost: true
+        includeForAdditionalHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "web" "values" .Values.web) | trim }}'
+          port: "{{ .Values.web.http.externalPort }}"
+        paths:
+          - /
+    tls: []
+
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "cert") | trim }}'
+  certificate:
+    enabled: false
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer
+    commonName: example.org
+    dnsNames:
+      - example.org
+    acmeConfig:
+      http01: {}
+      domains:
+        - example.org
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.web.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- Selectors and etc. -------
+
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== WORKER Component ===============
+worker:
+  enabled: true
+
+  replicas: 1
+
+  component: worker
+
+# ------- Configuration follows for containerName: "{{ .Values.worker.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.worker.component }}"
+
+  concurrency: 5
+  logLevel: INFO
+  maxTasksPerChild: 5
+  queues: ""
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      PREFIX=''
+      if [ -f /code/newrelic.ini ]; then
+        PREFIX='newrelic-admin run-program'
+      fi
+      $PREFIX gosu www-data celery --app project worker \
+        --concurrency "{{ .Values.worker.concurrency }}" --loglevel "{{ .Values.worker.logLevel }}" \
+        --hostname $POD_NAME --without-gossip -Ofair
+        {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
+        {{- if .Values.worker.queues }} --queues "{{ .Values.worker.queues }}"{{- end }}
+
+  env: *sharedEnv
+  
+  extraEnv:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+
+  volumeMounts: []
+
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+
+  additionalVolumes:  
+    # If Postgres enabled <-------
+    - name: postgresql-certs
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+    ## If pass ElasticSearch certs <-------
+    - name: elasticsearch-certs
+      secret:
+        secretName: "{{ .Values.elasticsearchCertificateSecret }}"
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.worker.component }}"
+
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.worker.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- Selectors and etc. -------
+
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== INDEXER Component ===============
+indexer:
+  enabled: true
+
+  replicas: 1
+
+  component: indexer
+
+  # ------- Configuration follows for containerName: "{{ .Values.indexer.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.indexer.component }}"
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      PREFIX=''
+      if [ -f /code/newrelic.ini ]; then
+        PREFIX='newrelic-admin run-program'
+      fi
+      $PREFIX gosu www-data python manage.py shtrove_indexer_run
+
+  env: *sharedEnv
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+
+  volumeMounts: []
+
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+
+  additionalVolumes:  
+    # If Postgres enabled <-------
+    - name: postgresql-certs
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+    ## If pass ElasticSearch certs  <-------
+    - name: elasticsearch-certs
+      secret:
+        secretName: "{{ .Values.elasticsearchCertificateSecret }}"
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.indexer.component }}"
+
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.indexer.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- Selectors and etc. -------
+
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== BEAT Component ===============
+beat:
+  enabled: true
+
+  replicas: 1
+
+  component: beat
+
+  strategy:
+    type: Recreate
+
+# ------- Configuration follows for containerName: "{{ .Values.beat.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.beat.component }}"
+
+  logLevel: DEBUG
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      PREFIX=''
+      if [ -f /code/newrelic.ini ]; then
+        PREFIX='newrelic-admin run-program'
+      fi
+      $PREFIX gosu www-data celery --app project beat \
+        --loglevel "{{ .Values.beat.logLevel }}" --pidfile=
+
+  env: *sharedEnv
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+
+  volumeMounts: []
+
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+  
+  additionalVolumes:  
+    # If Postgres enabled <-------
+    - name: postgresql-certs
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.beat.component }}"
+
+  additionalAffinities: []
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "secret") }}'
+
+
+# =============== MIGRATION Component ===============
+migration:
+  enabled: true
+
+  fullnameOverride: "{{ .Release.Name }}-{{ .Chart.Name }}-migration-{{ .Release.Revision }}"
+
+  component: migration
+
+# ------- Configuration follows for containerName: "{{ .Values.migration.component }}" -------
+
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.migration.component }}"
+
+  activeDeadlineSeconds: 900
+
+  workloadAnnotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+
+  restartPolicy: Never
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      PREFIX=''
+      if [ -f /code/newrelic.ini ]; then
+        PREFIX='newrelic-admin run-program'
+      fi
+      $PREFIX python manage.py migrate
+
+  env: *sharedEnv
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
+    
+  additionalVolumes:  
+    # If Postgres enabled <-------
+    - name: postgresql-certs
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.common "resource" "secret") }}'
