@@ -1,9 +1,12 @@
 {{- if .Values.autoroll.enabled -}}
+{{- $base := include "cos-common.fullname" (dict "root" . "name" .Values.autoroll.name) | trim -}}
+{{- $serviceAccount := printf "%s-deleter" $base -}}
+{{- $role := printf "%s-role" $base -}}
+{{- $roleBinding := printf "%s-rolebinding" $base -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: role-pod-list-delete
-  namespace: {{ .Release.Namespace }}
+  name: {{ $role }}
 rules:
   - apiGroups: [""]
     resources: ["pods"]
@@ -12,33 +15,28 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: deleter-rolebinding
-  namespace: {{ .Release.Namespace }}
+  name: {{ $roleBinding }}
 subjects:
   - kind: ServiceAccount
-    name: deleter
+    name: {{ $serviceAccount }}
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
-  name: role-pod-list-delete
+  name: {{ $role }}
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: deleter
+  name: {{ $serviceAccount }}
   namespace: {{ .Release.Namespace }}
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ template "mfr.autoroll.fullname" . }}
+  name: {{ $base }}
   labels:
-    app: {{ template "mfr.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    component: "{{ .Values.autoroll.name }}"
-    heritage: {{ .Release.Service }}
-    release: {{ .Release.Name }}
+    {{- include "cos-common.labels" (dict "root" . "name" .Values.autoroll.name "values" dict) | nindent 4 }}
 spec:
   schedule: {{ default "0 4 * * *" .Values.autoroll.schedule | quote }}
   startingDeadlineSeconds: {{ default 900 .Values.autoroll.startingDeadlineSeconds }}
@@ -48,24 +46,22 @@ spec:
       activeDeadlineSeconds: {{ default 14400 .Values.autoroll.activeDeadlineSeconds }}
       template:
         metadata:
-          name: "{{ .Release.Name }}"
           labels:
-            app: {{ template "mfr.name" . }}
-            component: "{{ .Values.autoroll.name }}"
-            release: {{ .Release.Name }}
+            {{- include "cos-common.podLabels" (dict "root" . "name" .Values.autoroll.name) | nindent 12 }}
         spec:
-          serviceAccountName: deleter
+          serviceAccountName: {{ $serviceAccount }}
           restartPolicy: Never
           containers:
             - name: {{ .Values.autoroll.name }}
               image: {{ default "bitnami/kubectl:latest" .Values.autoroll.image | quote }}
-              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              imagePullPolicy: {{ .Values.appImage.pullPolicy }}
               command:
                 - kubectl
               args:
                 - delete
                 - pod
-                - -l app=mfr,component=mfr
+                - -l
+                - app.kubernetes.io/name={{ include "cos-common.chartName" (dict "root" .) }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component={{ include "cos-common.componentName" (dict "root" . "name" "") }}
           nodeSelector:
             {{- toYaml .Values.autoroll.nodeSelector | nindent 12 }}
 {{- end -}}
