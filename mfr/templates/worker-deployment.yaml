@@ -58,7 +58,12 @@ spec:
             - /bin/sh
             - -c
             - |-
-              gosu www-data celery --app mfr.tasks.app worker \
+              set -e
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data celery --app mfr.tasks.app worker \
                 --concurrency "{{ .Values.worker.concurrency }}" --loglevel "{{ .Values.worker.logLevel }}" \
                 --hostname $POD_NAME --without-gossip -Ofair
                 {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
