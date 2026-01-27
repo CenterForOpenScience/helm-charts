@@ -97,10 +97,16 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - gosu
-            - www-data
-            - invoke
-            - server
+            - /bin/sh
+            - -c
+            - |-
+              set -e
+              PREFIX=''
+              if [ -f /code/newrelic.ini ]; then
+                PREFIX='newrelic-admin run-program'
+              fi
+              $PREFIX gosu www-data invoke server
+            
           env:
             {{- include "mfr.environment" . | nindent 12 }}
             - name: ENV
