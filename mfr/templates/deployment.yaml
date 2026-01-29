@@ -111,6 +111,10 @@ spec:
             {{- include "mfr.environment" . | nindent 12 }}
             - name: ENV
               value: kube
+            {{- range $key, $value := .Values.tornado.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
             - name: http-external
               containerPort: {{ .Values.service.externalPort }}
