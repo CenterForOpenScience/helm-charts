@@ -96,9 +96,6 @@ spec:
         - name: secret
           secret:
             secretName: {{ template "mfr.fullname" . }}
-        {{- if .Values.worker.volumeMounts }}
-        {{- toYaml .Values.worker.volumeMounts | nindent 12 }}
-        {{- end }}
       {{- if .Values.worker.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.worker.nodeSelector | nindent 8 }}
