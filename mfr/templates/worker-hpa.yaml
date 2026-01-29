@@ -13,7 +13,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ template "osf.worker.fullname" . }}
+    name: {{ template "mfr.worker.fullname" . }}
   minReplicas: {{ .Values.worker.replicaCount }}
   maxReplicas: {{ .Values.worker.horizontalPodAutoscaler.maxReplicas }}
   targetCPUUtilizationPercentage: {{ .Values.worker.horizontalPodAutoscaler.targetCPUUtilizationPercentage }}
