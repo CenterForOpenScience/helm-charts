@@ -47,12 +47,6 @@ redis:
     enabled: false
     allowExternal: true
 
-maintenance:
-  enabled: false
-  service: 
-    name: <release-name>-maintenance # default service name would be Release.name-Chart.name-maintenance
-
-
 ## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
 ## or in other form current naming is Release.Name-Chart.Name
 
