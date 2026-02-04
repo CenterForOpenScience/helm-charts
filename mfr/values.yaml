@@ -25,12 +25,6 @@ autoroll:
   nodeSelector: {}
   image: bitnami/kubectl:latest
 
-maintenance:
-  enabled: false
-  service:
-    name: <release-name>-maintenance # default service name for ingress will be Release.name-Chart.name-maintenance but maintaince chart creates service with Release.name-maintenance
-    externalPort: 8080 # default port 80
-
 rabbitmq:
   enabled: true
   secretEnvs:
