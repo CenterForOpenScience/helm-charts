@@ -1,8 +1,9 @@
+apiVersion: v2
 name: nessus
-apiVersion: v1
-version: 0.4.2
-appVersion: 7.1.2
 description: Nessus Vulnerability Scanner
+type: application
+version: 1.0.0
+kubeVersion: ">=1.33.0-0"
 keywords:
   - nessus
   - security
@@ -10,6 +11,13 @@ home: https://www.tenable.com/products/nessus-vulnerability-scanner
 icon: https://static.tenable.com/press/logos/products/Nessus-FullColor-RGB-logo.png
 sources:
   - https://github.com/CenterForOpenScience/docker-library/tree/master/nessus
+dependencies:
+  - name: cos-common
+    version: 1.0.0
+    repository: https://centerforopenscience.github.io/helm-charts/
+  # - name: cos-common
+  #   version: 1.0.0
+  #   repository: file://../cos-common
 maintainers:
   - name: Matt Frazier
     email: matt@cos.io
@@ -17,4 +25,3 @@ maintainers:
   - name: Matt Clark
     email: mattclark@cos.io
     url: https://github.com/mattclark
-engine: gotpl

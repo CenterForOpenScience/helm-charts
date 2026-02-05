@@ -1,0 +1,5 @@
+{{- include "cos-common.secret"       (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.statefulset"  (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.service"      (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.ingress"      (dict "root" . "name" "" "values" .Values.main) }}
+{{- include "cos-common.certificate"  (dict "root" . "name" "" "values" .Values.main) }}
