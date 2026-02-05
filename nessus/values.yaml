@@ -36,7 +36,7 @@ main:
 # ------- Configuration follows for containerName: docker -------
   image:
     repository: docker
-    tag: "17.06"
+    tag: "25.0.5"
     pullPolicy: IfNotPresent
 
   containerName: docker
@@ -124,7 +124,7 @@ main:
   dind:
     image:
       repository: docker
-      tag: 17.06-dind
+      tag: 25.0.5-dind
       pullPolicy: Always
     volumeMounts:
       - name: data
@@ -139,7 +139,15 @@ main:
       image: "{{ .Values.main.dind.image.repository }}:{{ .Values.main.dind.image.tag }}"
       imagePullPolicy: "{{ .Values.main.dind.image.pullPolicy }}"
       args:
-        - --storage-driver=overlay
+        - --storage-driver=overlay2
+        - --tls=false
+      command:
+        - docker-init
+        - --
+        - dockerd
+        - --host=unix:///var/run/docker.sock
+        - --host=tcp://0.0.0.0:2375
+        - --storage-driver=overlay2
       ports:
         - name: dind
           containerPort: 2375
