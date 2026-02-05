@@ -7,53 +7,7 @@ image:
   pullPolicy: Always
 
 ## ------- Global Secret names
-elasticsearchCertificateSecret: "es-certs" # !!! Be aware that it will use existing secret! if you do not set name here then do not forget to comment out volumes attachment for "elasticsearchCertificateSecret"
-
-## ------- Global shared envs
-# TO DO for COS: consider migrating to common confgimap and use envFrom.
-sharedEnv: &sharedEnv
-  ## If Postgres enabled <-------
-  #
-  - name: DATABASE_HOST
-    value: "{{ .Release.Name }}-postgresql-master"
-  - name: DATABASE_NAME
-    valueFrom:
-      secretKeyRef:
-        name: "{{ .Release.Name }}-postgresql"
-        key: POSTGRES_DB
-  - name: DATABASE_USER
-    valueFrom:
-      secretKeyRef:
-        name: "{{ .Release.Name }}-postgresql"
-        key: POSTGRES_USER
-  - name: DATABASE_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: "{{ .Release.Name }}-postgresql"
-        key: POSTGRES_PASSWORD
-  #
-  ## If RabbitMq enabled <-------
-  #
-  - name: RABBITMQ_HOST
-    value: "{{ .Release.Name }}-rabbitmq"
-  - name: RABBITMQ_PORT
-    value: 5672
-  - name: RABBITMQ_VHOST
-    valueFrom:
-      configMapKeyRef:
-        name: "{{ .Release.Name }}-rabbitmq-config"
-        key: RABBITMQ_VHOST
-  - name: username
-    valueFrom:
-      secretKeyRef:
-        name: "{{ .Release.Name }}-rabbitmq"
-        key: RABBITMQ_DEFAULT_USER
-  - name: password
-    valueFrom:
-      secretKeyRef:
-        name: "{{ .Release.Name }}-rabbitmq"
-        key: RABBITMQ_DEFAULT_PASS
-
+elasticsearchCertificateSecret: "" # Be aware that it will use existing secret! if you do set name here then do not forget to uncomment/add volumes attachment for "elasticsearch-certs" volume and add volumeMounts.
 
 # =============== COMMON Component ===============
 # No workload in this component, only configs and secrets.
@@ -104,10 +58,10 @@ common:
         # BYPASS_THROTTLE_TOKEN: abc123
 
     # Create secret with TLS certs for Postgres
-    # If you want to use existing secret with certs then set enabled to false.
+    # If enable this secret then do not forget to uncomment/add volumes attachment for "postgresql-certs" volume and add volumeMounts.
     # Secret name will be Release.Name-Chart.Name-name
     - name: postgresql-certs
-      enabled: true
+      enabled: false
       includeTls: false
       data:
         root.crt: |-
@@ -220,7 +174,6 @@ web:
             PREFIX='newrelic-admin run-program'
           fi
           $PREFIX uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.web.http.externalPort }}
-      env: *sharedEnv
       envFrom:
         - configMapRef:
             name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
@@ -248,15 +201,15 @@ web:
       secret:
         secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
 
-  additionalVolumes:  
-    # If Postgres enabled <-------
-    - name: postgresql-certs
-      secret:
-        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
-    ## If pass ElasticSearch certs  <-------
-    - name: elasticsearch-certs
-      secret:
-        secretName: "{{ .Values.elasticsearchCertificateSecret }}"
+  additionalVolumes: []
+    # # If Postgres certs enabled <-------
+    # - name: postgresql-certs
+    #   secret:
+    #     secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+    # # If pass ElasticSearch certs  <-------
+    # - name: elasticsearch-certs
+    #   secret:
+    #     secretName: "{{ .Values.elasticsearchCertificateSecret }}"
 
 
 # ------- Affitnity configuration -------
@@ -392,9 +345,7 @@ worker:
         {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
         {{- if .Values.worker.queues }} --queues "{{ .Values.worker.queues }}"{{- end }}
 
-  env: *sharedEnv
-  
-  extraEnv:
+  env:
     - name: POD_NAME
       valueFrom:
         fieldRef:
@@ -426,15 +377,15 @@ worker:
       secret:
         secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
 
-  additionalVolumes:  
-    # If Postgres enabled <-------
-    - name: postgresql-certs
-      secret:
-        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
-    ## If pass ElasticSearch certs <-------
-    - name: elasticsearch-certs
-      secret:
-        secretName: "{{ .Values.elasticsearchCertificateSecret }}"
+  additionalVolumes: []
+    # # If Postgres certs enabled <-------
+    # - name: postgresql-certs
+    #   secret:
+    #     secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+    # # If pass ElasticSearch certs <-------
+    # - name: elasticsearch-certs
+    #   secret:
+    #     secretName: "{{ .Values.elasticsearchCertificateSecret }}"
 
 
 # ------- Affitnity configuration -------
@@ -513,8 +464,6 @@ indexer:
       fi
       $PREFIX gosu www-data python manage.py shtrove_indexer_run
 
-  env: *sharedEnv
-
   envFrom:
     - configMapRef:
         name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
@@ -541,15 +490,15 @@ indexer:
       secret:
         secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
 
-  additionalVolumes:  
-    # If Postgres enabled <-------
-    - name: postgresql-certs
-      secret:
-        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
-    ## If pass ElasticSearch certs  <-------
-    - name: elasticsearch-certs
-      secret:
-        secretName: "{{ .Values.elasticsearchCertificateSecret }}"
+  additionalVolumes: []
+    # # If Postgres certs enabled <-------
+    # - name: postgresql-certs
+    #   secret:
+    #     secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+    # # If pass ElasticSearch certs  <-------
+    # - name: elasticsearch-certs
+    #   secret:
+    #     secretName: "{{ .Values.elasticsearchCertificateSecret }}"
 
 
 # ------- Affitnity configuration -------
@@ -634,8 +583,6 @@ beat:
       $PREFIX gosu www-data celery --app project beat \
         --loglevel "{{ .Values.beat.logLevel }}" --pidfile=
 
-  env: *sharedEnv
-
   envFrom:
     - configMapRef:
         name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
@@ -662,11 +609,11 @@ beat:
       secret:
         secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
   
-  additionalVolumes:  
-    # If Postgres enabled <-------
-    - name: postgresql-certs
-      secret:
-        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+  additionalVolumes: []
+    # # If Postgres certs enabled <-------
+    # - name: postgresql-certs
+    #   secret:
+    #     secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
 
 # ------- Affitnity configuration -------
   affinity: {}
@@ -725,8 +672,6 @@ migration:
       fi
       $PREFIX python manage.py migrate
 
-  env: *sharedEnv
-
   envFrom:
     - configMapRef:
         name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
@@ -743,11 +688,11 @@ migration:
       secret:
         secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "" "values" .Values.common) | trim }}'
     
-  additionalVolumes:  
-    # If Postgres enabled <-------
-    - name: postgresql-certs
-      secret:
-        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
+  additionalVolumes: []
+    # # If Postgres certs enabled <-------
+    # - name: postgresql-certs
+    #   secret:
+    #     secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "postgresql-certs") | trim }}'
 
 
 # ------- Pod Annotations -------
