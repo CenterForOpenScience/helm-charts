@@ -25,15 +25,3 @@ dependencies:
   - name: cos-common
     version: 1.0.1
     repository: https://centerforopenscience.github.io/helm-charts/
-  - name: elasticsearch
-    version: 0.5.3
-    repository: https://centerforopenscience.github.io/helm-charts/
-    condition: elasticsearch.enabled, global.elasticsearch.enabled
-  - name: postgresql
-    version: 0.11.1
-    repository: https://centerforopenscience.github.io/helm-charts/
-    condition: postgresql.enabled, global.postgresql.enabled
-  - name: rabbitmq
-    version: 6.9.1
-    repository: https://centerforopenscience.github.io/helm-charts/
-    condition: rabbitmq.enabled, global.rabbitmq.enabled

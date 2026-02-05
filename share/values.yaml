@@ -10,6 +10,7 @@ image:
 elasticsearchCertificateSecret: "es-certs" # !!! Be aware that it will use existing secret! if you do not set name here then do not forget to comment out volumes attachment for "elasticsearchCertificateSecret"
 
 ## ------- Global shared envs
+# TO DO for COS: consider migrating to common confgimap and use envFrom.
 sharedEnv: &sharedEnv
   ## If Postgres enabled <-------
   #
@@ -30,12 +31,13 @@ sharedEnv: &sharedEnv
       secretKeyRef:
         name: "{{ .Release.Name }}-postgresql"
         key: POSTGRES_PASSWORD
+  #
   ## If RabbitMq enabled <-------
   #
   - name: RABBITMQ_HOST
     value: "{{ .Release.Name }}-rabbitmq"
   - name: RABBITMQ_PORT
-    value: "{{ .Values.rabbitmq.service.port }}"
+    value: 5672
   - name: RABBITMQ_VHOST
     valueFrom:
       configMapKeyRef:
@@ -51,79 +53,6 @@ sharedEnv: &sharedEnv
       secretKeyRef:
         name: "{{ .Release.Name }}-rabbitmq"
         key: RABBITMQ_DEFAULT_PASS
-
-## ------- Postgresql
-postgresql:
-  enabled: true # if you enable, please remember to look up in the values file other components: "If Postgres enabled"
-  standby:
-    enabled: false
-  secrets:
-    POSTGRES_DB: share
-    POSTGRES_USER: share
-    POSTGRES_PASSWORD: share
-
-## ------- Rabbitmq
-rabbitmq:
-  enabled: true # if you enable, please remember to look up in the values file other components: "If RabbitMq enabled"
-  secretEnvs:
-    RABBITMQ_DEFAULT_USER: guest
-    RABBITMQ_DEFAULT_PASS: guest
-
-## ------- Elasticsearch
-elasticsearch:
-  enabled: true
-  image:
-    repository: docker.elastic.co/elasticsearch/elasticsearch
-    tag: "5.6.7"
-    pullPolicy: "Always"
-  rbac:
-    enabled: true
-  plugins:
-    enabled: true
-    remove:
-      - x-pack
-  cluster:
-    env:
-      MINIMUM_MASTER_NODES: "1"
-      EXPECTED_MASTER_NODES: "1"
-      RECOVER_AFTER_MASTER_NODES: "1"
-  tls:
-    enabled: false
-  client:
-    name: client
-    replicas: 1
-    serviceType: ClusterIP
-    heapSize: "128m"
-    resources: {}
-      # limits:
-      #   cpu: "1"
-      #   memory: "512Mi"
-      # requests:
-      #   cpu: "25m"
-      #   memory: "256Mi"
-  master:
-    name: master
-    replicas: 1
-    heapSize: "128m"
-    resources: {}
-      # limits:
-      #   cpu: "1"
-      #   memory: "512Mi"
-      # requests:
-      #   cpu: "25m"
-      #   memory: "256Mi"
-  data:
-    name: data
-    replicas: 1
-    heapSize: "1536m"
-    terminationGracePeriodSeconds: 3600
-    resources: {}
-      # limits:
-      #   cpu: "1"
-      #   memory: "512Mi"
-      # requests:
-      #   cpu: "25m"
-      #   memory: "256Mi"
 
 
 # =============== COMMON Component ===============
