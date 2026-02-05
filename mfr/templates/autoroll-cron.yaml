@@ -53,8 +53,8 @@ spec:
           restartPolicy: Never
           containers:
             - name: {{ .Values.autoroll.name }}
-              image: {{ default "bitnami/kubectl:latest" .Values.autoroll.image | quote }}
-              imagePullPolicy: {{ .Values.appImage.pullPolicy }}
+              image: "{{ .Values.autoroll.image.repo }}:{{ .Values.autoroll.image.tag }}"
+              imagePullPolicy: {{ .Values.autoroll.image.pullPolicy }}
               command:
                 - kubectl
               args:

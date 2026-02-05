@@ -18,12 +18,15 @@ nginx:
 
 autoroll:
   enabled: false
+  image:
+    repo: bitnami/kubectl
+    tag: latest
+    pullPolicy: IfNotPresent
   name: autoroll
   schedule: "0 4 * * *"
   startingDeadlineSeconds: 900
   activeDeadlineSeconds: 14400
   nodeSelector: {}
-  image: bitnami/kubectl:latest
 
 rabbitmq:
   enabled: true
