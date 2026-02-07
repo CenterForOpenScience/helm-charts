@@ -309,6 +309,10 @@ common:
 # configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "common") | trim }}'
   configMap:
     enabled: true
+    annotations:
+      "helm.sh/hook": pre-install,pre-upgrade
+      "helm.sh/hook-weight": "-5"
+      "helm.sh/hook-delete-policy": "before-hook-creation"
     tpl: true
     data:
       default.conf: |-
@@ -350,6 +354,10 @@ common:
   additionalConfigMaps:
     - name: env
       enabled: true
+      annotations:
+        "helm.sh/hook": pre-install,pre-upgrade
+        "helm.sh/hook-weight": "-5"
+        "helm.sh/hook-delete-policy": "before-hook-creation"
       tpl: true
       data:
         DEBUG: ""
@@ -363,6 +371,10 @@ common:
 # secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "common") | trim }}'
   secret:
     enabled: true
+    annotations:
+      "helm.sh/hook": pre-install,pre-upgrade
+      "helm.sh/hook-weight": "-5"
+      "helm.sh/hook-delete-policy": "before-hook-creation"
     includeTls: "{{ .Values.tls.enabled }}"
     data: {}
       # admin-local.py: |-
@@ -406,6 +418,10 @@ common:
   additionalSecrets:
     - name: env
       enabled: true
+      annotations:
+        "helm.sh/hook": pre-install,pre-upgrade
+        "helm.sh/hook-weight": "-5"
+        "helm.sh/hook-delete-policy": "before-hook-creation"
       data: {}
         # SENDGRID_API_KEY: ""
         # RAVEN_DSN: ""
@@ -2032,7 +2048,7 @@ migration:
   podAnnotations:
     checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
     checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
-    checksum/migration-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "migration" "values" .Values.migration "resource" "configmap") }}'
+    checksum/migration-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "migration-env" "values" .Values.migration "resource" "configmap") }}'
     checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
     checksum/migration-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "migration" "values" .Values.migration "resource" "secret") }}'
 
@@ -2042,6 +2058,10 @@ migration:
   additionalConfigMaps:
     - name: env
       enabled: true
+      annotations:
+        "helm.sh/hook": pre-install,pre-upgrade
+        "helm.sh/hook-weight": "-5"
+        "helm.sh/hook-delete-policy": "before-hook-creation"
       tpl: false
       data: {}
 
@@ -2174,7 +2194,7 @@ purge:
   podAnnotations:
     checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
     checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
-    checksum/purge-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "purge" "values" .Values.purge "resource" "configmap") }}'
+    checksum/purge-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "purge-env" "values" .Values.purge "resource" "configmap") }}'
     checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
     checksum/purge-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "purge" "values" .Values.purge "resource" "secret") }}'
 
