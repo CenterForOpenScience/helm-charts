@@ -13,7 +13,7 @@ This template supports:
 {{- $vals := default dict .values -}}
 
 {{- /* Component must exist and not be explicitly disabled. */ -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 
 {{- if and $componentEnabled $vals }}
 
@@ -166,7 +166,7 @@ This template supports:
       {{- end -}}
     {{- end -}}
 
----
+{{- printf "\n---\n" -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -229,6 +229,9 @@ spec:
   {{- with $pvc.volumeAttributesClassName }}
   volumeAttributesClassName: {{ . | quote }}
   {{- end }}
+
+{{- /* Ensure a trailing newline so concatenated includes remain valid YAML. */ -}}
+{{- printf "\n" -}}
 
 {{- end }}
 {{- end }}

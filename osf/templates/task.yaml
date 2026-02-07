@@ -1,0 +1,5 @@
+{{- include "cos-common.statefulset" (dict "root" . "name" "task" "values" .Values.task) }}
+{{- include "cos-common.configmap"   (dict "root" . "name" "task" "values" .Values.task) }}
+{{- include "cos-common.hpa"         (dict "root" . "name" "task" "values" .Values.task) }}
+{{- include "cos-common.pdb"         (dict "root" . "name" "task" "values" .Values.task) }}
+{{- include "cos-common.pvc"         (dict "root" . "name" "task" "values" .Values.task) }}
