@@ -1,7 +1,7 @@
 {{/* Render a CronJob for the component, reusing podSpec helpers and component enablement. */}}
 {{- define "cos-common.cronjob" -}}
 {{- $vals := default dict .values -}}
-{{- $enabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $enabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- if $enabled }}
 {{- if not $vals.schedule }}
 {{- fail (printf "component %s.schedule is required for cronjob" .name) }}
@@ -51,5 +51,7 @@ spec:
     spec:
       {{- /* Reuse the same jobSpec helper so one-off Job and CronJob pods stay aligned. */}}
       {{- include "cos-common.jobSpec" (dict "root" .root "name" .name "values" $vals "suspend" $vals.jobSuspend) | nindent 6 }}
+{{- /* Ensure a trailing newline so concatenated includes remain valid YAML. */ -}}
+{{- printf "\n" -}}
 {{ end }}
 {{ end }}

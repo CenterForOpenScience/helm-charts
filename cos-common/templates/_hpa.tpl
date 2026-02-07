@@ -2,7 +2,7 @@
 {{- define "cos-common.hpa" -}}
 {{- $vals := default dict .values -}}
 {{- $hpa := default dict $vals.hpa -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- $render := and $componentEnabled (default false $hpa.enabled) -}}
 {{- if $render }}
 {{- $labels := merge (dict) (default (dict) $vals.labels) (default (dict) $hpa.labels) -}}

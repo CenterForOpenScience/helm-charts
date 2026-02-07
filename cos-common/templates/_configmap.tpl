@@ -17,8 +17,9 @@
 {{- $root := .root -}}
 
 {{- /* Component-level enable switch. */ -}}
-{{- $componentEnabled := include "cos-common.componentEnabled"
-      (dict "values" $vals) | fromYaml
+{{- $componentEnabled := eq
+      (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower)
+      "true"
 -}}
 
 {{- /* Render main ConfigMap only when both component and feature are enabled. */ -}}
@@ -104,6 +105,9 @@ binaryData:
 {{- with $cfg.immutable }}
 immutable: {{ . }}
 {{- end }}
+
+{{- /* Ensure a trailing newline so concatenated includes remain valid YAML. */ -}}
+{{- printf "\n" -}}
 
 {{- end }}{{/* end MAIN CONFIGMAP */}}
 

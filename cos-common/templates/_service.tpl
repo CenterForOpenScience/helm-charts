@@ -2,7 +2,7 @@
 {{- define "cos-common.service" -}}
 {{- $vals := default dict .values -}}
 {{- $svc := default dict $vals.service -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- $svcEnabled := and $componentEnabled (default true $svc.enabled) -}}
 {{- if $svcEnabled }}
 {{- $labels := merge (dict) (default (dict) $vals.labels) (default (dict) $svc.labels) -}}

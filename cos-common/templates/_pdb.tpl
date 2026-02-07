@@ -2,7 +2,7 @@
 {{- define "cos-common.pdb" -}}
 {{- $vals := default dict .values -}}
 {{- $pdb := default dict $vals.pdb -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- $render := and $componentEnabled (default false $pdb.enabled) -}}
 {{- if $render }}
 {{- $labels := merge (dict) (default (dict) $vals.labels) (default (dict) $pdb.labels) -}}

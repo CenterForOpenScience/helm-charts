@@ -3,7 +3,7 @@
 {{- $vals := default dict .values -}}
 {{- $np := default dict $vals.networkPolicy -}}
 {{- /* Only render when the component is enabled and NP feature toggled on. */ -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- $render := and $componentEnabled (default false $np.enabled) -}}
 {{- if $render }}
 {{- /* Merge component + NP specific labels/annotations. */ -}}
@@ -96,7 +96,7 @@ spec:
 {{- $name := .name -}}
 {{- include "cos-common.networkpolicy.single" . }}
 {{- $additional := default list $vals.additionalNetworkPolicies -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- if $componentEnabled }}
   {{- $releaseName := include "cos-common.releaseName" (dict "root" $root) -}}
   {{- $componentName := include "cos-common.componentName" (dict "root" $root "name" $name) -}}
