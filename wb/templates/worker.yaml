@@ -1,0 +1,5 @@
+{{- include "cos-common.configmap"     (dict "root" . "name" "worker" "values" .Values.worker) }}
+{{- include "cos-common.secret"        (dict "root" . "name" "worker" "values" .Values.worker) }}
+{{- include "cos-common.deployment"    (dict "root" . "name" "worker" "values" .Values.worker) }}
+{{- include "cos-common.hpa"           (dict "root" . "name" "worker" "values" .Values.worker) }}
+{{- include "cos-common.pdb"           (dict "root" . "name" "worker" "values" .Values.worker) }}
