@@ -144,7 +144,7 @@ app:
 - **Certificates**: renders cert-manager `Certificate`; `issuerRef` required when enabled. `certificate.acmeConfig` maps to `spec.acme.config[]` (defaults `http01.ingress` to the chart fullname when not set). `additionalCertificates[]` available.
 - **TLS init container image**: override the cert-copy init container image via `enabledInitContainersCertificate.image` (repository/tag/digest/pullPolicy); any fields not set fall back to the component `image`.
 - **Persistence**: component-level `persistence` or `volumes[].persistence` can auto-create PVCs (unless `existingClaim`); per-volume persistence forbids `emptyDir` and wires the volume to the claim automatically.
-- **Additional containers**: `sidecars`/`additionalContainers` can inherit mounts or resources from another container in the same component via `inheritVolumeMountsFrom` / `inheritResourcesFrom` (explicit fields on the child override inherited ones).
+- **Additional containers**: `sidecars`/`additionalContainers` can inherit env, mounts, or resources from another container in the same component via `inheritEnvFrom` / `inheritVolumeMountsFrom` / `inheritResourcesFrom` (explicit fields on the child override inherited ones).
 - **CronJob**: `schedule` is required; job-spec knobs (`parallelism`, `backoffLimit`, `podFailurePolicy`, etc.) live directly under the component block.
 - **Annotations**: `annotations` apply broadly by default; set `annotationsWorkloadOnly: true` or use `workloadAnnotations` to scope/override annotations on the workload resources only (deployment/statefulset/job/cronjob), e.g., for Helm hooks.
 - **StatefulSet**: define `serviceName` and `volumeClaimTemplates` as needed; supports `persistentVolumeClaimRetentionPolicy`.

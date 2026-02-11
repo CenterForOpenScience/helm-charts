@@ -12,7 +12,7 @@ and backward-compatible across services.
 {{- /* Render ingress only if:
       1) the component itself is enabled
       2) ingress feature is explicitly enabled */ -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- $render := and $componentEnabled (default false $ing.enabled) -}}
 {{- if $render }}
 

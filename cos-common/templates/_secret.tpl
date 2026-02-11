@@ -122,8 +122,9 @@ stringData:
 {{- $sec := default dict $vals.secret -}}
 
 {{- /* Component enablement gate. */ -}}
-{{- $componentEnabled := include "cos-common.componentEnabled"
-      (dict "values" $vals) | fromYaml
+{{- $componentEnabled := eq
+      (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower)
+      "true"
 -}}
 
 {{- /* Init-certs backward compatibility support. */ -}}
@@ -213,6 +214,9 @@ type: {{ default "Opaque" $sec.type }}
 {{- with $sec.immutable }}
 immutable: {{ . }}
 {{- end }}
+
+{{- /* Ensure a trailing newline so concatenated includes remain valid YAML. */ -}}
+{{- printf "\n" -}}
 
 {{- end }}
 

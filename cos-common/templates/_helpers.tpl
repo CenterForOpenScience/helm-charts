@@ -7,10 +7,20 @@ Return true when the component values exist and are enabled.
 */}}
 {{- define "cos-common.componentEnabled" -}}
 {{- $vals := .values -}}
-{{- if and $vals (ne (default true $vals.enabled) false) -}}
-true
-{{- else -}}
+{{- if not $vals -}}
 false
+{{- else -}}
+  {{- /* default treats false as empty, so avoid it here */ -}}
+  {{- $enabled := true -}}
+  {{- if hasKey $vals "enabled" -}}
+    {{- $enabled = $vals.enabled -}}
+  {{- end -}}
+  {{- $s := lower (trim (toString $enabled)) -}}
+  {{- if or (eq $s "false") (eq $s "0") (eq $s "no") (eq $s "off") -}}
+false
+  {{- else -}}
+true
+  {{- end -}}
 {{- end }}
 {{- end }}
 
@@ -38,7 +48,7 @@ Return TLS configs when global TLS is enabled and the component secret opts in.
 {{- $vals := default dict .values -}}
 {{- $sec := default dict $vals.secret -}}
 {{- $tls := default dict .root.Values.tls -}}
-{{- $componentEnabled := and $vals (ne (default true $vals.enabled) false) -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- $initCfg := include "cos-common.initCertConfig" (dict "values" $vals) | fromYaml -}}
 {{- $includeTls := or (default false $sec.includeTls) (default false $initCfg.enabled) -}}
 {{- /* Allow TLS init/volumes even when main.secret.enabled=false (for externally-managed secrets). */ -}}
@@ -48,7 +58,11 @@ Return TLS configs when global TLS is enabled and the component secret opts in.
   {{- range $app, $cfg := omit $tls "enabled" }}
     {{- $isMap := kindIs "map" $cfg }}
     {{- if and $cfg $isMap (default false (index $cfg "enabled")) }}
-      {{- $_ := set $enabled $app (merge $cfg (dict "mountToContainer" $initCfg.mountToContainer "userCertsOwner" $initCfg.userCertsOwner)) }}
+      {{- $merged := merge (deepCopy $cfg) (dict "userCertsOwner" $initCfg.userCertsOwner) -}}
+      {{- if $initCfg.mountToContainer }}
+        {{- $_ := set $merged "mountToContainer" $initCfg.mountToContainer -}}
+      {{- end }}
+      {{- $_ := set $enabled $app $merged }}
     {{- end }}
   {{- end }}
   {{- if gt (len $enabled) 0 }}
@@ -460,6 +474,7 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
   {{- $c := deepCopy . -}}
   {{- $name := default "" $c.name -}}
   {{- $volumeMounts := list -}}
+  {{- $inheritedEnv := list -}}
   {{- $inheritedResources := dict -}}
   {{- if $c.inheritVolumeMountsFrom }}
     {{- /* copy mounts from another named container section (e.g., main.daphne) */ -}}
@@ -483,11 +498,24 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
       {{- end }}
     {{- end }}
   {{- end }}
+  {{- if $c.inheritEnvFrom }}
+    {{- $inheritEnvFrom := tpl (toString $c.inheritEnvFrom) $.root -}}
+    {{- $src := index $vals $inheritEnvFrom -}}
+    {{- if kindIs "map" $src }}
+      {{- with (default (list) $src.env) }}
+        {{- $inheritedEnv = concat $inheritedEnv . -}}
+      {{- end }}
+      {{- with (default (list) $src.extraEnv) }}
+        {{- $inheritedEnv = concat $inheritedEnv . -}}
+      {{- end }}
+    {{- end }}
+  {{- end }}
   {{- /* remove helper-only key so it doesn't reach k8s */ -}}
   {{- $_ := unset $c "inheritVolumeMountsFrom" -}}
   {{- $_ := unset $c "inheritResourcesFrom" -}}
+  {{- $_ := unset $c "inheritEnvFrom" -}}
   {{- /* merge env + extraEnv for additional containers */ -}}
-  {{- $env := default (list) $c.env -}}
+  {{- $env := concat $inheritedEnv (default (list) $c.env) -}}
   {{- $extraEnv := default (list) $c.extraEnv -}}
   {{- if gt (len $extraEnv) 0 }}
     {{- $env = concat $env $extraEnv -}}
