@@ -1,0 +1,4 @@
+{{- include "cos-common.secret"     (dict "root" . "name" "migration" "values" .Values.migration) }}
+{{- include "cos-common.configmap"  (dict "root" . "name" "migration" "values" .Values.migration) }}
+{{- include "cos-common.pvc"        (dict "root" . "name" "migration" "values" .Values.migration) }}
+{{- include "cos-common.job"        (dict "root" . "name" "migration" "values" .Values.migration) }}

@@ -1,0 +1,8 @@
+{{- include "cos-common.deployment"  (dict "root" . "name" "admin" "values" .Values.admin) }}
+{{- include "cos-common.configmap"   (dict "root" . "name" "admin" "values" .Values.admin) }}
+{{- include "cos-common.service"     (dict "root" . "name" "admin" "values" .Values.admin) }}
+{{- include "cos-common.ingress"     (dict "root" . "name" "admin" "values" .Values.admin) }}
+{{- include "cos-common.hpa"         (dict "root" . "name" "admin" "values" .Values.admin) }}
+{{- include "cos-common.pdb"         (dict "root" . "name" "admin" "values" .Values.admin) }}
+{{- include "cos-common.pvc"         (dict "root" . "name" "admin" "values" .Values.admin) }}
+{{- include "cos-common.certificate" (dict "root" . "name" "admin-cert" "values" .Values.admin) }}
