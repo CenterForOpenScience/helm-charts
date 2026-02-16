@@ -21,4 +21,6 @@ spec:
       {{- end }}
       from:
 {{ toYaml .Values.networkPolicy.ingress.from | indent 10 }}
+  egress:
+    {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
 {{- end }}
