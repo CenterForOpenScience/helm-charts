@@ -377,6 +377,9 @@ main:
     #   - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
     #   - rewrite "^/legacy-path/(.*)" https://$host/new/$1 permanent;
     #   - rewrite "^/old-section$" /index.html break;
+    mirror:
+      enabled: false
+      domain: mirror.example.local
     redirects:
       enabled: false
       domains: []
