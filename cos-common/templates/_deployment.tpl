@@ -1,7 +1,7 @@
 {{/* Render a Deployment for the component, wiring in the shared pod spec pieces. */}}
 {{- define "cos-common.deployment" -}}
 {{- $vals := default dict .values -}}
-{{- $enabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $enabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- if $enabled }}
 {{- $annotations := include "cos-common.annotations" (dict "values" $vals "isWorkload" true) | fromJson -}}
 ---

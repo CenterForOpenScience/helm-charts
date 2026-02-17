@@ -1,7 +1,7 @@
 {{/* Render a StatefulSet for the component, reusing the shared pod spec helpers. */}}
 {{- define "cos-common.statefulset" -}}
 {{- $vals := default dict .values -}}
-{{- $enabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $enabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 {{- if $enabled }}
 {{- $annotations := include "cos-common.annotations" (dict "values" $vals "isWorkload" true) | fromJson -}}
 ---
@@ -12,8 +12,8 @@ metadata:
   {{- $metadataVals := merge (dict) $vals (dict "annotations" $annotations) -}}
   {{- include "cos-common.metadata" (dict "root" .root "name" .name "values" $metadataVals) | nindent 2 }}
 spec:
-  {{- /* StatefulSet needs a headless service name; default to the component fullname. */}}
-  serviceName: {{ default (include "cos-common.fullname" .) $vals.serviceName }}
+  {{- /* StatefulSet needs a headless service name; default to <fullname>-headless. */}}
+  serviceName: {{ default (printf "%s-headless" (include "cos-common.fullname" .)) $vals.serviceName }}
   replicas: {{ default 1 $vals.replicas }}
   {{- with $vals.revisionHistoryLimit }}
   revisionHistoryLimit: {{ . }}

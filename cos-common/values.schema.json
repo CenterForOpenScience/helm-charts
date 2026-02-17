@@ -273,6 +273,10 @@
           "type": "string",
           "description": "Name of another container entry in this component whose resources should be merged into this container."
         },
+        "inheritEnvFrom": {
+          "type": "string",
+          "description": "Name of another container entry in this component whose env/extraEnv should be copied into this container."
+        },
         "securityContext": {
           "type": "object",
           "additionalProperties": true
@@ -443,6 +447,10 @@
         },
         "publishNotReadyAddresses": {
           "type": "boolean"
+        },
+        "selector": {
+          "type": "object",
+          "additionalProperties": true
         },
         "ports": {
           "type": "array",
@@ -1534,6 +1542,12 @@
         "service": {
           "$ref": "#/definitions/service"
         },
+        "additionalServices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/service"
+          }
+        },
         "ingress": {
           "$ref": "#/definitions/ingress"
         },
@@ -1652,6 +1666,10 @@
         },
         "manualSelector": {
           "type": "boolean"
+        },
+        "appendReleaseRevisionToName": {
+          "type": "boolean",
+          "description": "If true, append -<Release.Revision> to Job resource names."
         },
         "podFailurePolicy": {
           "type": "object",
