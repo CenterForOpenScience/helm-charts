@@ -4,10 +4,16 @@ image:
   tag: develop
   pullPolicy: Always
 
+nginx:
+  image:
+    repository: nginx
+    tag: alpine
+    pullPolicy: Always
+
 ## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
 ## or in other form current naming is Release.Name-Chart.Name
 
-## =============== MAIN Component ===============
+# =============== MAIN Component ===============
 main:
   enabled: true
 
@@ -22,11 +28,42 @@ main:
 
 # ------- Configuration follows for containerName: nginx -------
   image:
-    repository: nginx
-    tag: alpine
-    pullPolicy: Always
+    repository: "{{ .Values.nginx.image.repository }}"
+    tag: "{{ .Values.nginx.image.tag }}"
+    pullPolicy: "{{ .Values.nginx.image.pullPolicy }}"
 
   containerName: nginx
+
+  nginx:
+    modules: []
+    proxySourceRanges: []
+    realIpHeader: X-Real-IP
+    realIpRecursive: "off"
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
+    brandedSubdomains: []
+    primaryDomain: ""
+    preprintDomainMap: {}
+    institutionDomainMap: {}
+    additionalRewrites: []
+    additionalConfig: ""
+    # Example additional rewrites (uncomment to use):
+    # additionalRewrites:
+    #   - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
+    #   - rewrite "^/legacy-path/(.*)" https://$host/new/$1 permanent;
+    #   - rewrite "^/old-section$" /index.html break;
+    mirror:
+      enabled: false
+      domain: mirror.example.local
+    redirects:
+      enabled: false
+      domains: []
+
+  share:
+    url: "share.osf.io"
 
   command:
     - nginx
@@ -186,8 +223,8 @@ main:
     hosts:
       primary:
         - chart-example.local
-      additional:
-        - chart-example-2.local
+      # additional:
+      #   - chart-example-2.local
     rules:
       - name: main
         includeForPrimaryHost: true
@@ -208,16 +245,6 @@ main:
           externalPort: 5000
         paths:
           - /api/v1
-
-      - name: s1sharejs
-        includeForPrimaryHost: true 
-        includeForAdditionalost: true
-        pathType: ImplementationSpecific
-        service:
-          name: sharejs
-          externalPort: 7007
-        paths:
-          - /sharejs
     tls: []
       # - secretName: secret_name
       #   hosts: 
@@ -355,40 +382,260 @@ main:
   nodeSelector: {}
 
 
-# ------- Other variables which are used accross files or values.yaml -------
-  nginx:
-    modules: []
-    proxySourceRanges: []
-    realIpHeader: X-Real-IP
-    realIpRecursive: "off"
-    vts:
-      enabled: false
-      internalPort: 18080
-      statusZoneSize: 10m
-      defaultFilterKey: "$geoip_country_code country::*"
-    brandedSubdomains: []
-    primaryDomain: ""
-    preprintDomainMap: {}
-    institutionDomainMap: {}
-    additionalRewrites: []
-    additionalConfig: ""
-    # Example additional rewrites (uncomment to use):
-    # additionalRewrites:
-    #   - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
-    #   - rewrite "^/legacy-path/(.*)" https://$host/new/$1 permanent;
-    #   - rewrite "^/old-section$" /index.html break;
-    mirror:
-      enabled: false
-      domain: mirror.example.local
-    redirects:
-      enabled: false
-      domains: []
+# =============== SSR Component ===============
+ssr:
+  enabled: true
 
-  share:
-    url: "share.osf.io"
+  replicas: 1
 
-  prerender:
-    enabled: false
+  component: ssr
+
+  # shmSizeLimit: 256Mi
+
+  http:
+    containers:
+      nginx:
+        internalPort: 80
+      angular:
+        internalPort: 4000
     service:
-      name: prerender
-      externalPort: 3000
+      externalPort: 4000
+      type: ClusterIP
+
+# ------- Configuration follows for containerName: angular -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}-ssr"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.ssr.component }}"
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      set -e
+      {{- if hasKey .Values.main.configMap.data "config.json" }}
+      cp -Rf /config/config.json /static/assets/config/config.json
+      {{- end }}
+      node dist/osf/server/server.mjs
+
+  env: []
+  
+  extraEnv: []
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr-env") | trim }}'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr-env") | trim }}'
+
+  probes:
+    liveness:
+      httpGet:
+        path: "/http://127.0.0.1:{{ .Values.ssr.http.containers.nginx.internalPort }}/healthz"
+        port: "{{ .Values.ssr.http.containers.angular.internalPort }}"
+      timeoutSeconds: 5
+      initialDelaySeconds: 30
+      periodSeconds: 30
+    readiness:
+      tcpSocket:
+        port: "{{ .Values.ssr.http.containers.angular.internalPort }}"
+      initialDelaySeconds: 10
+      periodSeconds: 10
+
+  ports:
+    - name: angular
+      containerPort: "{{ .Values.ssr.http.containers.angular.internalPort }}"
+
+  volumeMounts:
+    - name: config-main
+      mountPath: /config/config.json
+      subPath: config.json
+      readOnly: true
+
+  additionalVolumeMounts: []
+
+  resources: {}
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+
+# ------- Additional containers -------
+  nginx:
+    resources: {}
+      #limits:
+      #  cpu: 100m
+      #  memory: 128Mi
+      #requests:
+      #  cpu: 100m
+      #  memory: 128Mi
+    volumeMounts:
+      - mountPath: /etc/nginx/nginx.conf
+        name: config
+        subPath: nginx.conf
+        readOnly: true
+
+  additionalContainers:
+    - name: nginx
+      inheritVolumeMountsFrom: nginx # <----- gets volume mounts from nginx set of vars above
+      inheritResourcesFrom: nginx # <----- gets resources from nginx set of vars above
+      image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+      imagePullPolicy: "{{ .Values.nginx.image.pullPolicy }}"
+      command:
+        - nginx
+        - -c
+        - /etc/nginx/nginx.conf
+        - -g
+        - daemon off;
+      ports:
+        - name: http
+          containerPort: "{{ .Values.ssr.http.containers.nginx.internalPort }}"
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: "{{ .Values.ssr.http.containers.nginx.internalPort }}"
+        initialDelaySeconds: 10
+      readinessProbe:
+        httpGet:
+          path: /healthz
+          port: "{{ .Values.ssr.http.containers.nginx.internalPort }}"
+        initialDelaySeconds: 10
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}'
+    - name: config-main
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}'
+    # - name: dshm
+    #   emptyDir:
+    #     medium: Memory
+    #     sizeLimit: "{{ .Values.ssr.shmSizeLimit }}"
+
+  additionalVolumes: []
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.ssr.component }}"
+
+  additionalAffinities: []
+    # - nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #         - matchExpressions:
+    #             - key: cloud.google.com/gke-preemptible
+    #               operator: In
+    #               values:
+    #                 - "true"
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/ssr-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "ssr" "values" .Values.ssr "resource" "configmap") }}'
+    checksum/ssr-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "ssr" "values" .Values.ssr "resource" "secret") }}'
+    checksum/ssr-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "ssr-env" "values" .Values.ssr "resource" "configmap") }}'
+    checksum/ssr-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "ssr-env" "values" .Values.ssr "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}'
+  service:
+    enabled: true
+    type: "{{ .Values.ssr.http.service.type }}"
+    ports:
+      - name: http
+        port: "{{ .Values.ssr.http.service.externalPort }}"
+        targetPort: "{{ .Values.ssr.http.containers.nginx.internalPort }}"
+
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}'
+  ingress:
+    enabled: false
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.ssr.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 1
+
+
+# ------- ConfigMap configuration -------
+# ConfigMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}'
+  configMap:
+    enabled: true
+    tpl: true
+    data:
+      nginx.conf: |
+        {{ tpl (.Files.Get "files/nginx-ssr.conf") (dict "Values" .Values "root" .) }}
+
+      # Additional config files can be added here:
+      # some.conf: |-
+      #   ...
+
+
+# Additional configMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+        # EXAMPLE_ENV: some_value
+
+
+# ------- Secrets configuration -------
+# Secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}'
+  secret:
+    enabled: true
+    data: {}
+      # Additional secret files can be added here:
+      # some.key: |-
+      #   ...
+
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "ssr") | trim }}' + name
+  additionalSecrets:
+    - name: env
+      enabled: true
+      includeTls: false
+      data: {}
+        # EXAMPLE_SECRET: some_value
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
