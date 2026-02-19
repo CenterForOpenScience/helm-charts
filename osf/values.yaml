@@ -1,3 +1,7 @@
+### ------- Global or Reusable parts across values.yaml -------
+
+## ------- Global images
+
 image:
   repository: quay.io/centerforopenscience/osf
   tag: develop
@@ -9,617 +13,9 @@ nginx:
     tag: latest
     pullPolicy: Always
 
-networkPolicy:
-  enabled: false
+## ------- Global shared volume mounts
 
-admin:
-  enabled: true
-  name: admin
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  nginx:
-    workerCount: 1
-    modules: []
-      # - modules/path/to/dynamic_module.so
-    resources: {}
-      # limits:
-      #   cpu: "1"
-      #   memory: 256Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-    volumeMounts: []
-    proxySourceRanges: []
-      # - 130.211.0.0/22
-      # - 35.191.0.0/16
-    realIpHeader: X-Real-IP
-    realIpRecursive: "off"
-    vts:
-      enabled: false
-      internalPort: 18080
-      statusZoneSize: 10m
-      defaultFilterKey: "$geoip_country_code country::*"
-
-  resources: {}
-    # limits:
-    #   cpu: "1"
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
-
-  uwsgi:
-    workerCount: 1
-    # maxRequests: 50000
-    # maxRequestsDelta: 50
-    cheaper:
-      enabled: false
-      algo: spare
-      maxWorkerCount: 2
-      step: 1
-
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  service:
-    name: http
-    type: ClusterIP
-    externalPort: 8000
-    internalPort: 80
-
-  ingress:
-    enabled: false
-    annotations: {}
-    #   kubernetes.io/ingress.class: nginx
-    #   kubernetes.io/tls-acme: 'true'
-    paths:
-      - /
-    hosts: []
-    #   - example.domain.com
-    tls: []
-      # - secretName: example-tls
-      #   hosts:
-      #     - example.domain.com
-
-  certificate:
-    enabled: false
-    name: cert
-    # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-    # - Issue: https://github.com/jetstack/cert-manager/issues/606
-    # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-    tls: true
-    # issuerRef:
-    #   name: letsencrypt-prod
-    #   kind: ClusterIssuer
-    # commonName: example.org
-    # dnsNames:
-    #   - example.org
-    #   - subdomain.example.org
-    # acmeConfig:
-    #   http01: {}
-    #     # ingress: ''
-    #   domains:
-    #     - example.org
-    #     - subdomain.example.org
-
-  persistence:
-    enabled: false
-    ## A manually managed Persistent Volume and Claim
-    ## Requires persistence.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    # existingClaim:
-    # storageClass: ssd
-    accessMode: ReadWriteOnce
-    size: 4Gi
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env:
-    ALLOWED_HOSTS: "*"
-
-  volumeMounts: []
-
-api:
-  enabled: true
-  name: api
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  nginx:
-    workerCount: 1
-    modules: []
-      # - modules/path/to/dynamic_module.so
-    resources: {}
-      # limits:
-      #   cpu: "1"
-      #   memory: 256Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-    volumeMounts: []
-    proxySourceRanges: []
-      # - 130.211.0.0/22
-      # - 35.191.0.0/16
-    realIpHeader: X-Real-IP
-    realIpRecursive: "off"
-    vts:
-      enabled: false
-      internalPort: 18080
-      statusZoneSize: 10m
-      defaultFilterKey: "$geoip_country_code country::*"
-
-  resources: {}
-    # limits:
-    #   cpu: "1"
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
-
-  uwsgi:
-    workerCount: 1
-    # maxRequests: 50000
-    # maxRequestsDelta: 50
-    cheaper:
-      enabled: false
-      algo: spare
-      maxWorkerCount: 2
-      step: 1
-
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  service:
-    name: http
-    type: ClusterIP
-    externalPort: 8000
-    internalPort: 80
-
-  ingress:
-    enabled: false
-    annotations: {}
-    #   kubernetes.io/ingress.class: nginx
-    #   kubernetes.io/tls-acme: 'true'
-    paths:
-      - /
-    hosts: []
-    #   - example.domain.com
-    tls: []
-      # - secretName: example-tls
-      #   hosts:
-      #     - example.domain.com
-
-  certificate:
-    enabled: false
-    name: cert
-    # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-    # - Issue: https://github.com/jetstack/cert-manager/issues/606
-    # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-    tls: true
-    # issuerRef:
-    #   name: letsencrypt-prod
-    #   kind: ClusterIssuer
-    # commonName: example.org
-    # dnsNames:
-    #   - example.org
-    #   - subdomain.example.org
-    # acmeConfig:
-    #   http01: {}
-    #     # ingress: ''
-    #   domains:
-    #     - example.org
-    #     - subdomain.example.org
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env:
-    ALLOWED_HOSTS: "*"
-
-  volumeMounts: []
-
-beat:
-  enabled: true
-  name: beat
-
-  antiAffinity: soft
-
-  resources: {}
-    # limits:
-    #   cpu: "1"
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env: {}
-
-  volumeMounts: []
-
-  persistence:
-    enabled: true
-    ## A manually managed Persistent Volume and Claim
-    ## Requires persistence.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    # existingClaim:
-    # storageClass: ssd
-    accessMode: ReadWriteOnce
-    size: 4Gi
-
-collectstatic:
-  enabled: false
-  name: collectstatic
-
-  resources: {}
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env: {}
-
-  volumeMounts: []
-
-migration:
-  enabled: true
-  name: migration
-
-  resources: {}
-    # limits:
-    #  cpu: 100m
-    #  memory: 128Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 128Mi
-
-  persistence:
-    enabled: false
-    ## A manually managed Persistent Volume and Claim
-    ## Requires persistence.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    # existingClaim:
-    # storageClass: ssd
-    accessMode: ReadWriteOnce
-    size: 4Gi
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env: {}
-
-  volumeMounts: []
-
-purge:
-  enabled: false
-  name: purge
-  volumeMounts: []
-  secretFiles: {}
-  persistence: {}
-
-
-web:
-  enabled: true
-  name: web
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  nginx:
-    workerCount: 1
-    cache:
-      enabled: false
-      guids: []
-        # - di8cg
-      cookieName: <change_me>
-    institutionDomainMap: {}
-      # institution.edu: institutionId
-    brandedSubdomains: []
-    preprintDomainMap: {}
-      # domain.org: providerId
-    modules: []
-      # - modules/path/to/dynamic_module.so
-    additionalRewrites: []
-      # - rewrite "^/di8cg/{0,1}" https://$host/s9tya permanent;
-    # additionalConfig: |-
-    #   ...
-    preprintRewrites: []
-      # - rewrite (?i)^/preprints/oldarxiv/(.*)? /preprints/newarxiv/$1 permanent;
-    resources: {}
-      # limits:
-      #   cpu: "1"
-      #   memory: 256Mi
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-    volumeMounts: []
-    proxySourceRanges: []
-      # - 130.211.0.0/22
-      # - 35.191.0.0/16
-    realIpHeader: X-Real-IP
-    realIpRecursive: "off"
-    vts:
-      enabled: false
-      internalPort: 18080
-      statusZoneSize: 10m
-      defaultFilterKey: "$geoip_country_code country::*"
-    readTimeout: 60 # http://nginx.org/en/docs/http/ngx_http_uwsgi_module.html#uwsgi_read_timeout
-    redirects:
-      enabled: false
-      domains: []
-        # - to: example.com
-        #   from:
-        #     - www.example.com
-        #     - another.domain.com
-
-  resources: {}
-    # limits:
-    #   cpu: "1"
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
-
-  uwsgi:
-    workerCount: 1
-    # maxRequests: 50000
-    # maxRequestsDelta: 50
-    cheaper:
-      enabled: false
-      algo: spare
-      maxWorkerCount: 2
-      step: 1
-
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  service:
-    name: http
-    type: ClusterIP
-    externalPort: 5000
-    internalPort: 80
-
-  ingress:
-    enabled: false
-    annotations: {}
-    #   kubernetes.io/ingress.class: nginx
-    #   kubernetes.io/tls-acme: 'true'
-    paths:
-      - /
-    hosts: []
-    #   - example.domain.com
-    tls: []
-      # - secretName: example-tls
-      #   hosts:
-      #     - example.domain.com
-
-  certificate:
-    enabled: false
-    name: cert
-    # WORKAROUND: Ingress deploy blocked to GLBC due to race condition w/ missing TLS certificate
-    # - Issue: https://github.com/jetstack/cert-manager/issues/606
-    # - PR: https://github.com/kubernetes/ingress-gce/pull/388
-    tls: true
-    # issuerRef:
-    #   name: letsencrypt-prod
-    #   kind: ClusterIssuer
-    # commonName: example.org
-    # dnsNames:
-    #   - example.org
-    #   - subdomain.example.org
-    acmeConfig:
-      http01: {}
-        # ingress: ''
-      domains:
-        - example.org
-        - subdomain.example.org
-
-  additionalCertificates: []
-    # - name: example-org-cert
-    #   commonName: example.org
-    #   dnsNames:
-    #     - example.org
-    #     - submdomain.example.org
-    #   issuerRef:
-    #     name: letsencrypt-prod
-    #     kind: ClusterIssuer
-    #   acmeConfig:
-    #     http01: {}
-    #       # ingress: ''
-    #     domains:
-    #       - example.org
-    #       - subdomain.example.org
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env: {}
-
-  volumeMounts: []
-    # - mountPath: /etc/ssl/certs/ca-chain.cert.pem
-    #   name: secret
-    #   subPath: worker-ca.cert.pem
-    #   readOnly: true
-    # - mountPath: /etc/ssl/certs/worker.pem
-    #   name: secret
-    #   subPath: worker.pem
-    #   readOnly: true
-    # - mountPath: /etc/ssl/private/worker.key
-    #   name: secret
-    #   subPath: worker.key
-    #   readOnly: true
-
-task:
-  enabled: false
-  name: task
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  concurrency: 2
-  logLevel: INFO
-  # maxTasksPerChild: 5
-  # queues: logged-tasks
-
-  resources: {}
-    # limits:
-    #   cpu: "2"
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
-  
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env: {}
-
-  volumeMounts: []
-
-  persistence:
-    enabled: true
-    # storageClass:
-    accessMode: ReadWriteOnce
-    size: 10Gi
-
-worker:
-  enabled: true
-  name: worker
-  replicaCount: 1
-
-  antiAffinity: soft
-
-  budget:
-    minAvailable: 0
-
-  concurrency: 1
-  logLevel: INFO
-  # maxTasksPerChild: 5
-  # queues: non-logged-tasks
-
-  resources: {}
-    # limits:
-    #   cpu: "1"
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 256Mi
-
-  horizontalPodAutoscaler:
-    enabled: false
-    maxReplicas: 3
-    targetCPUUtilizationPercentage: 90
-
-  ## Node labels for component pod assignment
-  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
-  ##
-  nodeSelector: {}
-
-  env: {}
-
-  volumeMounts: []
-
-configEnvs:
-  DEBUG: ""
-  # GEVENT: "1"
-
-configFiles: {}
-  # Override configmap files here (and delete the {} above), e.g.:
-  #robots.txt: |-
-  #  User-agent: *
-  #  Disallow: /
-
-secretEnvs: {}
-  # SENDGRID_API_KEY: ""
-  # RAVEN_DSN: ""
-
-secretFiles: {}
-  # admin-local.py: |-
-  #   ...
-  # api-local.py: |-
-  #   ...
-  # web-local.py: |-
-  #   ...
-  # addons-bitbucket-local.py: |-
-  #   ...
-  # addons-box-local.py: |-
-  #   ...
-  # addons-dataverse-local.py: |-
-  #   ...
-  # addons-dropbox-local.py: |-
-  #   ...
-  # addons-figshare-local.py: |-
-  #   ...
-  # addons-github-local.py: |-
-  #   ...
-  # addons-gitlab-local.py: |-
-  #   ...
-  # addons-googledrive-local.py: |-
-  #   ...
-  # addons-mendeley-local.py: |-
-  #   ...
-  # addons-onedrive-local.py: |-
-  #   ...
-  # addons-osfstorage-local.py: |-
-  #   ...
-  # addons-s3-local.py: |-
-  #   ...
-  # addons-wiki-local.py: |-
-  #   ...
-  # addons-zotero-local.py: |-
-  #   ...
-  # googleAppCreds.json: |-
-  #   ...
-
-volumeMounts:
+commonSecretMounts: &commonSecretMounts
   - mountPath: /code/admin/base/settings/local.py
     name: secret
     subPath: admin-local.py
@@ -693,6 +89,12 @@ volumeMounts:
     subPath: googleAppCreds.json
     readOnly: true
 
+# ------- Collectstatic enable/disable
+
+collectstatic:
+  enabled: false
+
+# ----- Other servcies enable/disable
 osf-preprints:
   enabled: false
   service:
@@ -717,21 +119,12 @@ prerender:
     name: prerender
     externalPort: 3000
 
-sharejs:
-  enabled: false
-  service:
-    name: sharejs
-    externalPort: 7007
-  ingress:
-    path: /sharejs
-
 share:
   url: https://staging-share.osf.io
 
-# Client-side TLS
+# ------- TLS
 tls:
   enabled: false
-
   elasticsearch:
     enabled: false
     mountPath: /var/www/.elasticsearch
@@ -741,10 +134,10 @@ tls:
       client_cert.pem: |-
         
       client_key.pem: |-
-        
+        test
 
   elasticsearch6:
-    enabled: false
+    enabled: false 
     mountPath: /var/www/.elasticsearch6
     files:
       cacert.pem: |-
@@ -758,18 +151,15 @@ tls:
     enabled: false
     mountPath: /var/www/.postgresql
     files:
-      # Root Certificate
       root.crt: |-
-
-      # Root Certificate Revocation List
+        
       root.crl: |-
         
-      # Database key
       postgresql.key: |-
         
-      # Database certificate
       postgresql.crt: |-
-  
+        
+
   rabbitmq:
     enabled: false
     mountPath: /var/www/.rabbitmq
@@ -793,110 +183,17 @@ tls:
         
       key.pem: |-
 
-maintenance:
-  enabled: false
-
-postgresql:
-  enabled: false
-
-  image: "postgres"
-  imageTag: "9.6"
-
-  ## Specify a imagePullPolicy
-  ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
-  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
-  ##
-  # imagePullPolicy:
-
-  ## Create a database user
-  ## Default: postgres
-  postgresUser: postgres
-
-  # Default: random 10 character string
-  postgresPassword: osf
-
-  ## Create a database
-  ## Default: the postgres user
-  postgresDatabase: osf
-
-  # Specify initdb arguments, e.g. --data-checksums
-  # ref: https://github.com/docker-library/docs/blob/master/postgres/content.md#postgres_initdb_args
-  # ref: https://www.postgresql.org/docs/current/static/app-initdb.html
-  postgresInitdbArgs: --data-checksums
-
-  ## Persist data to a persitent volume
-  persistence:
-    enabled: true
-
-    ## A manually managed Persistent Volume and Claim
-    ## Requires persistence.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
-    # existingClaim:
-
-    ## If defined, volume.beta.kubernetes.io/storage-class: <storageClass>
-    ## Default: volume.alpha.kubernetes.io/storage-class: default
-    ##
-    # storageClass: ssd
-    accessMode: ReadWriteOnce
-    size: 25Gi
-    subPath: "postgresql-db"
-
-  metrics:
-    enabled: false
-
-  resources: {}
-    # limits:
-    #  cpu: "1"
-    #  memory: 256Mi
-    # requests:
-    #  cpu: 100m
-    #  memory: 256Mi
-
-rabbitmq:
-  enabled: false
-
-  image:
-    repository: rabbitmq
-    tag: 3-management
-    pullPolicy: IfNotPresent
-
-  configEnvs:
-    #RABBITMQ_NODENAME: rabbit@localhost
-    RABBITMQ_NODE_TYPE: stats
-    RABBITMQ_CLUSTER_NODE_NAME: ''
-    RABBITMQ_VHOST: /
-
-  secretEnvs:
-    ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
-    RABBITMQ_USERNAME: 'osf'
-    ## ref: https://github.com/bitnami/bitnami-docker-rabbitmq/blob/master/README.md#creating-a-database-user-on-first-run
-    RABBITMQ_PASSWORD: 'osf'
-    ## Erlang cookie to determine whether different nodes are allowed to communicate with each other
-    RABBITMQ_ERLANG_COOKIE: cookie
-
-  service:
-    type: ClusterIP
-
-  persistence:
-    enabled: true
-    storageClass: ''
-    accessMode: ReadWriteOnce
-    size: 8Gi
-
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 100m
+# ------- Dependencies
 
 elasticsearch:
-  enabled: false
+  enabled: false # if enabled, please do not forget to uncomment  ELASTIC_URI var in common env configmap
 
   image:
     repository: "quay.io/centerforopenscience/elasticsearch"
     tag: "2.4"
     pullPolicy: "Always"
 
-  rbac:
+  # rbac:
 
   cluster:
     env:
@@ -944,7 +241,7 @@ elasticsearch:
       #   memory: "256Mi"
 
 elasticsearch6:
-  enabled: false
+  enabled: false # if enabled, please do not forget to uncomment  ELASTIC6_URI var in common env configmap
 
   image:
     repository: "quay.io/centerforopenscience/elasticsearch"
@@ -1000,89 +297,1930 @@ elasticsearch6:
 
 redis:
   enabled: false
-  
+  service:
+    port: 6379
+
+
+# =============== COMMON Component ===============
+common:
+  enabled: true
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "common") | trim }}'
+  configMap:
+    enabled: true
+    annotations:
+      "helm.sh/hook": pre-install,pre-upgrade
+      "helm.sh/hook-weight": "-5"
+      "helm.sh/hook-delete-policy": "before-hook-creation"
+    tpl: true
+    data:
+      default.conf: |-
+        {{ .Files.Get "files/default.conf" }}
+      admin-nginx.conf: |-
+        {{ tpl (.Files.Get "files/admin-nginx.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      admin-uwsgi.ini: |-
+        {{ tpl (.Files.Get "files/admin-uwsgi.ini") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      api-nginx.conf: |-
+        {{ tpl (.Files.Get "files/api-nginx.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      api-uwsgi.ini: |-
+        {{ tpl (.Files.Get "files/api-uwsgi.ini") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-nginx-osf-preprints.conf: |-
+        {{ tpl (.Files.Get "files/web-nginx-osf-preprints.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-nginx-osf-reviews.conf: |-
+        {{ tpl (.Files.Get "files/web-nginx-osf-reviews.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-nginx-osf-web.conf: |-
+        {{ tpl (.Files.Get "files/web-nginx-osf-web.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-nginx-prerender.conf: |-
+        {{ tpl (.Files.Get "files/web-nginx-prerender.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-nginx-redis.conf: |-
+        {{ tpl (.Files.Get "files/web-nginx-redis.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-nginx-redis-cache.conf: |-
+        {{ .Files.Get "files/web-nginx-redis-cache.conf" }}
+      web-nginx-uwsgi-cache.conf: |-
+        {{ tpl (.Files.Get "files/web-nginx-uwsgi-cache.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-nginx.conf: |-
+        {{ tpl (.Files.Get "files/web-nginx.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      web-uwsgi.ini: |-
+        {{ tpl (.Files.Get "files/web-uwsgi.ini") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
+      admin-robots.txt: |-
+        {{ .Files.Get "files/admin-robots.txt" }}
+      api-robots.txt: |-
+        {{ .Files.Get "files/api-robots.txt" }}
+      web-robots.txt: |-
+        {{ .Files.Get "files/web-robots.txt" }}
+
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "common") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      annotations:
+        "helm.sh/hook": pre-install,pre-upgrade
+        "helm.sh/hook-weight": "-5"
+        "helm.sh/hook-delete-policy": "before-hook-creation"
+      tpl: true
+      data:
+        DEBUG: ""
+        ## If elasticsearch.enabled set to true
+        # ELASTIC_URI: "http://{{ .Release.Name }}-elasticsearch-client:9200"
+        ## If elasticsearch6.enabled set to true
+        # ELASTIC6_URI: "http://{{ .Release.Name }}-elasticsearch6-client:9200"
+
+
+# ------- Secrets configuration -------
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "common") | trim }}'
+  secret:
+    enabled: true
+    annotations:
+      "helm.sh/hook": pre-install,pre-upgrade
+      "helm.sh/hook-weight": "-5"
+      "helm.sh/hook-delete-policy": "before-hook-creation"
+    includeTls: "{{ .Values.tls.enabled }}"
+    data: {}
+      # admin-local.py: |-
+      #   ...
+      # api-local.py: |-
+      #   ...
+      # web-local.py: |-
+      #   ...
+      # addons-bitbucket-local.py: |-
+      #   ...
+      # addons-box-local.py: |-
+      #   ...
+      # addons-dataverse-local.py: |-
+      #   ...
+      # addons-dropbox-local.py: |-
+      #   ...
+      # addons-figshare-local.py: |-
+      #   ...
+      # addons-github-local.py: |-
+      #   ...
+      # addons-gitlab-local.py: |-
+      #   ...
+      # addons-googledrive-local.py: |-
+      #   ...
+      # addons-mendeley-local.py: |-
+      #   ...
+      # addons-onedrive-local.py: |-
+      #   ...
+      # addons-osfstorage-local.py: |-
+      #   ...
+      # addons-s3-local.py: |-
+      #   ...
+      # addons-wiki-local.py: |-
+      #   ...
+      # addons-zotero-local.py: |-
+      #   ...
+      # googleAppCreds.json: |-
+      #   ...
+
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "common") | trim }}' + name
+  additionalSecrets:
+    - name: env
+      enabled: true
+      annotations:
+        "helm.sh/hook": pre-install,pre-upgrade
+        "helm.sh/hook-weight": "-5"
+        "helm.sh/hook-delete-policy": "before-hook-creation"
+      data: {}
+        # SENDGRID_API_KEY: ""
+        # RAVEN_DSN: ""
+
+# ------- Network Policy configuration -------
+  networkPolicy:
+    enabled: false
+    componentScoped: false
+    podSelector:
+      matchExpressions:
+        - key: acme.cert-manager.io/http01-solver
+          operator: Exists
+    ingressRules:
+      - from: []
+        
+
+# =============== ADMIN Component ===============
+admin:
+  enabled: true
+
+  component: admin
+
+  replicas: 1
+
+# ------- Configuration follows for containerName: nginx -------
+  nginx:
+    workerCount: 1
+    modules: []
+      # - modules/path/to/dynamic_module.so
+    proxySourceRanges: []
+      # - 130.211.0.0/22
+      # - 35.191.0.0/16
+    realIpHeader: X-Real-IP
+    realIpRecursive: "off"
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
+
   image:
-    repository: redis
-    tag: alpine
-    pullPolicy: IfNotPresent
+    repository: "{{ .Values.nginx.image.repository }}"
+    tag: "{{ .Values.nginx.image.tag }}"
+    pullPolicy: "{{ .Values.nginx.image.pullPolicy }}"
 
-  secretEnvs: {}
-    # REDIS_PASSWORD: ''
+  containerName: nginx
 
-  ## Redis command arguments
-  ##
-  ## Can be used to specify command line arguments, for example:
-  ##
-  ## args:
-  ##  - --maxmemory 200mb
-  ##  - --maxmemory-policy volatile-ttl
-  args:
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
 
-  ## Enable persistence using Persistent Volume Claims
-  ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
-  ##
+  env: []
+
+  extraEnv: []
+
+  envFrom: []
+
+  probes:
+    readiness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.admin.service.internalPort }}"
+      initialDelaySeconds: 10
+
+  ports:
+    - name: http
+      containerPort: "{{ .Values.admin.service.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: static
+      mountPath: /static
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: admin-nginx.conf
+      readOnly: true
+    - name: config
+      mountPath: /etc/nginx/conf.d/default.conf
+      subPath: default.conf
+      readOnly: true
+    - name: config
+      mountPath: /usr/share/nginx/html/robots.txt
+      subPath: admin-robots.txt
+      readOnly: true
+
+  additionalVolumeMounts: []
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: chown
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - chown -R www-data:www-data /log
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - mountPath: /log
+          name: log
+
+    - name: collectstatic
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          if [ "{{ .Values.collectstatic.enabled }}" != "true" ]; then
+            mkdir -p /static/code/admin
+            cp -Rf /code/static_root/* /static/code/admin
+          fi
+      volumeMounts:
+        - mountPath: /static
+          name: static
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    mountToContainer: uwsgi
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Additional containers -------
+  uwsgi:
+    workerCount: 1
+    # maxRequests: 50000
+    # maxRequestsDelta: 50
+    cheaper:
+      enabled: false
+      algo: spare
+      maxWorkerCount: 2
+      step: 1
+    resources: {}
+      # limits:
+      #   cpu: 1
+      #   memory: 512Mi
+      # requests:
+      #   cpu: 0
+      #   memory: 256Mi
+    env:
+      - name: DJANGO_SETTINGS_MODULE
+        value: admin.base.settings
+      - name: ALLOWED_HOSTS
+        value: "*"    
+    volumeMounts:
+      - mountPath: /log
+        name: log
+      - mountPath: /etc/uwsgi/uwsgi.ini
+        name: config
+        subPath: admin-uwsgi.ini
+        readOnly: true
+
+
+  additionalContainers:
+    - name: uwsgi
+      inheritVolumeMountsFrom: uwsgi # <----- gets volume mounts from uwsgi set of vars above
+      inheritResourcesFrom: uwsgi # <----- gets resources from uwsgi set of vars above
+      inheritEnvFrom: uwsgi # <----- gets envs from uwsgi set of vars above
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          set -e
+          su-exec www-data python3 manage.py check_deploy_ready
+          uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.admin.service.externalPort }}
+      env: []
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "admin" "values" .Values.admin) | trim }}-env'
+        - secretRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+      ports:
+        - name: wsgi
+          containerPort: "{{ .Values.admin.service.externalPort }}"
+        - name: stats
+          containerPort: 1717
+      readinessProbe:
+        tcpSocket:
+          port: "{{ .Values.admin.service.externalPort }}"
+        initialDelaySeconds: 10
+      volumeMounts: *commonSecretMounts
+
+  sidecars: []
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: static
+      emptyDir: {}
+
+  additionalVolumes:
+    - name: log
+      emptyDir: {}
+      #### If Enabled persistence < ---------- 
+      # persistentVolumeClaim:
+      #   claimName: '{{ include "cos-common.fullname" (dict "root" . "name" "admin") | trim }}'
+
+  #### If Enabled persistence < ---------- 
   persistence:
     enabled: false
-
-    ## A manually managed Persistent Volume and Claim
-    ## Requires persistence.enabled: true
-    ## If defined, PVC must be created manually before volume will be bound
     # existingClaim:
-
-    ## redis data Persistent Volume Storage Class
-    ## If defined, storageClassName: <storageClass>
-    ## If set to "-", storageClassName: "", which disables dynamic provisioning
-    ## If undefined (the default) or set to null, no storageClassName spec is
-    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-    ##   GKE, AWS & OpenStack)
-    ##
-    # storageClass: "-"
+    # storageClass: ssd
     accessModes:
       - ReadWriteOnce
-    size: 8Gi
+    size: 4Gi
 
-  ## Configure resource requests and limits
-  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
-  ##
-  resources: {}
-    #limits:
-    #  cpu: 100m
-    #  memory: 256Mi
-    #requests:
-    #  cpu: 100m
-    #  memory: 256Mi
 
-  metrics:
-    enabled: false
-    image:
-      repository: oliver006/redis_exporter
-      tag: v0.11
-      pullPolicy: IfNotPresent
-    port: 9121
-    resources: {}
-    annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "9121"
+# ------- Affinity configuration -------
+  affinity: {}
+  #   podAntiAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 1
+  #         podAffinityTerm:
+  #           topologyKey: kubernetes.io/hostname
+  #           labelSelector:
+  #             matchLabels:
+  #               app.kubernetes.io/name: "{{ .Chart.Name }}"
+  #               app.kubernetes.io/instance: "{{ .Release.Name }}"
+  #               app.kubernetes.io/component: "{{ .Values.admin.component }}"
 
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/admin-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "admin-env" "values" .Values.admin "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/common-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "admin") | trim }}'
   service:
+    enabled: true
     type: ClusterIP
-    loadBalancerIP:
-    #annotations: {}
-    # If using type: LoadBalancer
-    #loadBalancerIP: 0.0.0.0
-    #loadBalancerSourceRanges:
-    #  - 0.0.0.0/0
-    port: 6379
-    externalIPs: []
+    externalPort: 8000
+    internalPort: 80
+    ports:
+      - name: http
+        port: "{{ .Values.admin.service.externalPort }}"
+        targetPort: "{{ .Values.admin.service.internalPort }}"
 
-  networkPolicy:
-    ## Enable creation of NetworkPolicy resources.
-    ##
+# ------- HTTP configuration (used by cos-common.ingress default port) -------
+  http:
+    externalPort: "{{ .Values.admin.service.externalPort }}"
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "admin") | trim }}'
+  ingress:
     enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+      # additional:
+      #   - chart-example-2.local
+    rules:
+      - name: admin
+        includeForPrimaryHost: true
+        includeForAdditionalHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "admin" "values" .Values.admin) | trim }}'
+          port: "{{ .Values.admin.service.externalPort }}"
+        paths:
+          - /
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
 
-    ## The Policy model to apply. When set to false, only pods with the correct
-    ## client label will have network access to the port Redis is listening
-    ## on. When true, Redis will accept connections from any source
-    ## (with the correct destination port).
-    ##
-    allowExternal: true
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "admin-cert") | trim }}'
+  certificate:
+    enabled: false
+    # issuerRef:
+    #   name: letsencrypt-prod
+    #   kind: ClusterIssuer
+    # commonName: example.org
+    # dnsNames:
+    #   - example.org
+    #   - subdomain.example.org
+    # acmeConfig:
+    #   http01: {}
+    #   domains:
+    #     - example.org
+    #     - subdomain.example.org
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.admin.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "admin") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== API Component ===============
+api:
+  enabled: true
+
+  component: api
+
+  replicas: 1
+
+# ------- Configuration follows for containerName: nginx -------
+  nginx:
+    workerCount: 1
+    modules: []
+      # - modules/path/to/dynamic_module.so
+    proxySourceRanges: []
+      # - 130.211.0.0/22
+      # - 35.191.0.0/16
+    realIpHeader: X-Real-IP
+    realIpRecursive: "off"
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
+
+  image:
+    repository: "{{ .Values.nginx.image.repository }}"
+    tag: "{{ .Values.nginx.image.tag }}"
+    pullPolicy: "{{ .Values.nginx.image.pullPolicy }}"
+
+  containerName: nginx
+
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
+
+  env: []
+
+  envFrom: []
+
+  probes:
+    readiness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.api.service.internalPort }}"
+      initialDelaySeconds: 10
+
+  ports:
+    - name: http
+      containerPort: "{{ .Values.api.service.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: static
+      mountPath: /static
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: api-nginx.conf
+      readOnly: true
+    - name: config
+      mountPath: /etc/nginx/conf.d/default.conf
+      subPath: default.conf
+      readOnly: true
+    - name: config
+      mountPath: /usr/share/nginx/html/robots.txt
+      subPath: api-robots.txt
+      readOnly: true
+
+  additionalVolumeMounts: []
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: collectstatic
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          if [ "{{ .Values.collectstatic.enabled }}" != "true" ]; then
+            mkdir -p /static/code/api
+            cp -Rf /code/api/static /static/code/api
+          fi
+      volumeMounts:
+        - mountPath: /static
+          name: static
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    mountToContainer: uwsgi
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Additional containers -------
+  uwsgi:
+    workerCount: 1
+    # maxRequests: 50000
+    # maxRequestsDelta: 50
+    cheaper:
+      enabled: false
+      algo: spare
+      maxWorkerCount: 2
+      step: 1
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: 512Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 256Mi
+    env:
+      - name: DJANGO_SETTINGS_MODULE
+        value: api.base.settings
+      - name: ALLOWED_HOSTS
+        value: "*"  
+    volumeMounts:
+      - mountPath: /etc/uwsgi/uwsgi.ini
+        name: config
+        subPath: api-uwsgi.ini
+        readOnly: true
+
+  additionalContainers:
+    - name: uwsgi
+      inheritVolumeMountsFrom: uwsgi # <----- gets volume mounts from uwsgi set of vars above
+      inheritResourcesFrom: uwsgi # <----- gets resources from uwsgi set of vars above
+      inheritEnvFrom: uwsgi # <----- gets envs from uwsgi set of vars above
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          set -e
+          su-exec www-data python3 manage.py check_deploy_ready
+          {{- if .Values.api.uwsgi.listenQueueSize }}
+              POSTFIX='--listen {{ .Values.api.uwsgi.listenQueueSize }}'
+          {{- else }}
+              POSTFIX=''
+          {{- end}}
+          uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.api.service.externalPort }} $POSTFIX
+      env: []
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "api" "values" .Values.api) | trim }}-env'
+        - secretRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+      ports:
+        - name: wsgi
+          containerPort: "{{ .Values.api.service.externalPort }}"
+        - name: stats
+          containerPort: 1717
+      readinessProbe:
+        tcpSocket:
+          port: "{{ .Values.api.service.externalPort }}"
+        initialDelaySeconds: 10
+      volumeMounts: *commonSecretMounts
+
+  sidecars: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: static
+      emptyDir: {}
+
+# ------- Affinity configuration -------
+  affinity: {}
+  #   podAntiAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 1
+  #         podAffinityTerm:
+  #           topologyKey: kubernetes.io/hostname
+  #           labelSelector:
+  #             matchLabels:
+  #               app.kubernetes.io/name: "{{ .Chart.Name }}"
+  #               app.kubernetes.io/instance: "{{ .Release.Name }}"
+  #               app.kubernetes.io/component: "{{ .Values.api.component }}"
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/api-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "api-env" "values" .Values.api "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/common-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "api") | trim }}'
+  service:
+    enabled: true
+    type: ClusterIP
+    externalPort: 8000
+    internalPort: 80
+    ports:
+      - name: http
+        port: "{{ .Values.api.service.externalPort }}"
+        targetPort: "{{ .Values.api.service.internalPort }}"
+
+# ------- HTTP configuration (used by cos-common.ingress default port) -------
+  http:
+    externalPort: "{{ .Values.api.service.externalPort }}"
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "api") | trim }}'
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+      # additional:
+      #   - chart-example-2.local
+    rules:
+      - name: api
+        includeForPrimaryHost: true
+        includeForAdditionalHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "api" "values" .Values.api) | trim }}'
+          port: "{{ .Values.api.service.externalPort }}"
+        paths:
+          - /
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
+
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "api-cert") | trim }}'
+  certificate:
+    enabled: false
+    # issuerRef:
+    #   name: letsencrypt-prod
+    #   kind: ClusterIssuer
+    # commonName: example.org
+    # dnsNames:
+    #   - example.org
+    #   - subdomain.example.org
+    # acmeConfig:
+    #   http01: {}
+    #   domains:
+    #     - example.org
+    #     - subdomain.example.org
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.api.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "api") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== WEB Component ===============
+web:
+  enabled: true
+
+  component: web
+
+  replicas: 1
+
+# ------- Configuration follows for containerName: nginx -------
+  nginx:
+    workerCount: 1
+    modules: []
+      # - modules/path/to/dynamic_module.so
+    cache:
+      enabled: false
+      cookieName: osf_cache_key
+      guids: []
+    proxySourceRanges: []
+      # - 130.211.0.0/22
+      # - 35.191.0.0/16
+    realIpHeader: X-Real-IP
+    realIpRecursive: "off"
+    vts:
+      enabled: false
+      internalPort: 18080
+      statusZoneSize: 10m
+      defaultFilterKey: "$geoip_country_code country::*"
+    preprintRewrites: []
+      # - rewrite ...
+    redirects:
+      enabled: false
+      domains: []
+    readTimeout: 60
+
+  image:
+    repository: "{{ .Values.nginx.image.repository }}"
+    tag: "{{ .Values.nginx.image.tag }}"
+    pullPolicy: "{{ .Values.nginx.image.pullPolicy }}"
+
+  containerName: nginx
+
+  command:
+    - nginx
+    - -c
+    - /etc/nginx/nginx.conf
+    - -g
+    - daemon off;
+
+  env: []
+  
+  envFrom: []
+
+  probes:
+    readiness:
+      httpGet:
+        path: /healthz
+        port: "{{ .Values.web.service.internalPort }}"
+      initialDelaySeconds: 10
+
+  ports:
+    - name: http
+      containerPort: "{{ .Values.web.service.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: static
+      mountPath: /static
+      readOnly: true
+    - name: config
+      mountPath: /etc/nginx/nginx.conf
+      subPath: web-nginx.conf
+      readOnly: true
+    - name: config
+      mountPath: /etc/nginx/conf.d/default.conf
+      subPath: default.conf
+      readOnly: true
+    - name: config
+      mountPath: /usr/share/nginx/html/robots.txt
+      subPath: web-robots.txt
+      readOnly: true
+
+  additionalVolumeMounts: []
+
+  resources: {}
+    # limits:
+    #   cpu: "1"
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: collectstatic
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          if [ "{{ .Values.collectstatic.enabled }}" != "true" ]; then
+            mkdir -p /static/code/website
+            cp -Rf /code/website/static /static/code/website
+            find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
+          fi
+      volumeMounts:
+        - mountPath: /static
+          name: static
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    mountToContainer: uwsgi
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Additional containers -------
+  uwsgi:
+    workerCount: 1
+    # listenQueueSize: 100
+    disableFileWrapper: true
+    # maxRequests: 50000
+    # maxRequestsDelta: 50
+    # maxWorkerLifetime: 0
+    cheaper:
+      enabled: false
+      algo: spare
+      maxWorkerCount: 2
+      step: 1
+    resources: {}
+      # limits:
+      #   cpu: "1"
+      #   memory: 512Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 256Mi
+    env:
+      - name: DJANGO_SETTINGS_MODULE
+        value: api.base.settings
+      - name: OSF_PREPRINTS_URL
+        value: '{{- if (index .Values "osf-preprints").enabled }}http://{{ (index .Values "osf-preprints").service.name }}:{{ (index .Values "osf-preprints").service.externalPort }}/{{- end }}'
+      - name: OSF_REVIEWS_URL
+        value: '{{- if (index .Values "osf-reviews").enabled }}http://{{ (index .Values "osf-reviews").service.name }}:{{ (index .Values "osf-reviews").service.externalPort }}/{{- end }}'
+      - name: OSF_WEB_URL
+        value: '{{- if (index .Values "osf-web").enabled }}http://{{ (index .Values "osf-web").service.name }}:{{ (index .Values "osf-web").service.externalPort }}/{{- end }}'
+    volumeMounts:
+      - mountPath: /etc/uwsgi/uwsgi.ini
+        name: config
+        subPath: web-uwsgi.ini
+        readOnly: true
+
+  additionalContainers:
+    - name: uwsgi
+      inheritVolumeMountsFrom: uwsgi # <----- gets volume mounts from uwsgi set of vars above
+      inheritResourcesFrom: uwsgi # <----- gets resources from uwsgi set of vars above
+      inheritEnvFrom: uwsgi # <----- gets envs from uwsgi set of vars above
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/sh
+        - -c
+        - |-
+          set -e
+          su-exec www-data python3 manage.py check_deploy_ready
+          {{- if .Values.web.uwsgi.listenQueueSize }}
+              POSTFIX='--listen {{ .Values.web.uwsgi.listenQueueSize }}'
+          {{- else }}
+              POSTFIX=''
+          {{- end}}
+          uwsgi --ini /etc/uwsgi/uwsgi.ini --socket :{{ .Values.web.service.externalPort }} $POSTFIX
+      env: []
+      envFrom:
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "web" "values" .Values.web) | trim }}-env'
+        - secretRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+      ports:
+        - name: wsgi
+          containerPort: "{{ .Values.web.service.externalPort }}"
+        - name: stats
+          containerPort: 1717
+      readinessProbe:
+        tcpSocket:
+          port: "{{ .Values.web.service.externalPort }}"
+        initialDelaySeconds: 10
+      volumeMounts: *commonSecretMounts
+
+  sidecars: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: static
+      emptyDir: {}
+    - name: cache
+      emptyDir: {}
+
+# ------- Affinity configuration -------
+  affinity: {}
+  #   podAntiAffinity:
+  #     preferredDuringSchedulingIgnoredDuringExecution:
+  #       - weight: 1
+  #         podAffinityTerm:
+  #           topologyKey: kubernetes.io/hostname
+  #           labelSelector:
+  #             matchLabels:
+  #               app.kubernetes.io/name: "{{ .Chart.Name }}"
+  #               app.kubernetes.io/instance: "{{ .Release.Name }}"
+  #               app.kubernetes.io/component: "{{ .Values.web.component }}"
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/web-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "web-env" "values" .Values.web "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/common-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "web") | trim }}'
+  service:
+    enabled: true
+    type: ClusterIP
+    externalPort: 5000
+    internalPort: 80
+    ports:
+      - name: http
+        port: "{{ .Values.web.service.externalPort }}"
+        targetPort: "{{ .Values.web.service.internalPort }}"
+
+# ------- HTTP configuration (used by cos-common.ingress default port) -------
+  http:
+    externalPort: "{{ .Values.web.service.externalPort }}"
+
+
+# ------- Ingress configuration -------
+# ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "web") | trim }}'
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      primary:
+        - chart-example.local
+      # additional:
+      #   - chart-example-2.local
+    rules:
+      - name: web
+        includeForPrimaryHost: true
+        includeForAdditionalHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: '{{ include "cos-common.fullname" (dict "root" . "name" "web" "values" .Values.web) | trim }}'
+          port: "{{ .Values.web.service.externalPort }}"
+        paths:
+          - /
+
+      - name: sharejs
+        includeForPrimaryHost: true
+        includeForAdditionalHost: false
+        pathType: ImplementationSpecific
+        service:
+          name: sharejs
+          port: 7007
+        paths:
+          - /sharejs
+    tls: []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.domain.com
+
+
+# ------- Certificate configuration ------- (if we want to create Certificate object)
+# certificate name: '{{ include "cos-common.fullname" (dict "root" . "name" "web-cert") | trim }}'
+  certificate:
+    enabled: false
+    # issuerRef:
+    #   name: letsencrypt-prod
+    #   kind: ClusterIssuer
+    # commonName: example.org
+    # dnsNames:
+    #   - example.org
+    #   - subdomain.example.org
+    # acmeConfig:
+    #   http01: {}
+    #   domains:
+    #     - example.org
+    #     - subdomain.example.org
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.web.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "web") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== WORKER Component ===============
+worker:
+  enabled: true
+
+  component: worker
+
+  replicas: 1
+
+# ------- Configuration follows for containerName: "{{ .Values.worker.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.worker.component }}"
+
+  concurrency: 1
+  logLevel: INFO
+  # maxTasksPerChild: 5
+  # queues: non-logged-tasks
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      su-exec www-data celery --app framework.celery_tasks worker \
+        --concurrency "{{ .Values.worker.concurrency }}" --loglevel "{{ .Values.worker.logLevel }}" \
+        --hostname $POD_NAME --without-gossip -Ofair
+        {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}"{{- end }}
+        {{- if .Values.worker.queues }} --queues "{{ .Values.worker.queues }}"{{- end }}
+
+  env: []
+
+  extraEnv:
+    - name: DJANGO_SETTINGS_MODULE
+      value: api.base.settings
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "worker" "values" .Values.worker) | trim }}-env'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+
+  volumeMounts: *commonSecretMounts
+
+  additionalVolumeMounts:
+    - mountPath: /data
+      name: data
+    - mountPath: /log
+      name: log
+
+  resources: {}
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: chown
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/bash
+        - -c
+        - chown -R www-data:www-data /data /log
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - mountPath: /data
+          name: data
+        - mountPath: /log
+          name: log
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Additional containers -------
+  additionalContainers: []
+
+  sidecars: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: data
+      emptyDir: {}
+    - name: log
+      emptyDir: {}
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.worker.component }}"
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/worker-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "worker-env" "values" .Values.worker "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/common-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.worker.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "worker") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== TASK Component ===============
+task:
+  enabled: false
+
+  component: task
+
+  replicas: 1
+
+# ------- Configuration follows for containerName: "{{ .Values.worker.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.task.component }}"
+
+  concurrency: 2
+  logLevel: INFO
+  # maxTasksPerChild: 5
+  # queues: logged-tasks
+  reserve_worker: false
+
+  command:
+    - /bin/bash
+    - -c
+    - |-
+      POSTFIX=''
+      {{- if .Values.task.reserve_worker }}
+      [[ `hostname` =~ -([0-9]+)$ ]]
+      ordinal=${BASH_REMATCH[1]}
+      if [[ $ordinal -eq 0 ]]; then
+        POSTFIX='--exclude-queues low,celery'
+      fi
+      {{- end}}
+      su-exec www-data celery --app framework.celery_tasks worker \
+        --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
+        --hostname $POD_NAME --without-gossip -Ofair
+        {{- if .Values.task.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.task.maxTasksPerChild }}"{{- end }}
+        {{- if .Values.task.queues }} --queues "{{ .Values.task.queues }}"{{- end}} $POSTFIX
+
+  env: []
+
+  extraEnv:
+    - name: DJANGO_SETTINGS_MODULE
+      value: api.base.settings
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "task" "values" .Values.task) | trim }}-env'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+
+  volumeMounts: *commonSecretMounts
+
+  additionalVolumeMounts:
+    - mountPath: /data
+      name: data
+    - mountPath: /log
+      name: log
+
+  resources: {}
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: chown
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/bash
+        - -c
+        - chown -R www-data:www-data /data /log
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - mountPath: /data
+          name: data
+        - mountPath: /log
+          name: log
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Additional containers -------
+  additionalContainers: []
+
+  sidecars: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: data
+      emptyDir: {}
+    # - name: log
+    #   emptyDir: {}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: log
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.task.component }}"
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/task-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "task-env" "values" .Values.task "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/common-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.task.replicas }}"
+    maxReplicas: 3
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 90
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "task") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== BEAT Component ===============
+beat:
+  enabled: true
+
+  component: beat
+
+  replicas: 1
+
+  strategy:
+    type: Recreate
+
+# ------- Configuration follows for containerName: "{{ .Values.beat.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.beat.component }}"
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      set -e
+      su-exec www-data python3 manage.py check_deploy_ready
+      SUFFIX=''
+      if [ -f /beat/celerybeat-schedule ]; then
+        SUFFIX='--schedule=/beat/celerybeat-schedule'
+      fi
+      su-exec www-data celery -A framework.celery_tasks beat -l debug --pidfile= $SUFFIX
+
+  env: []
+
+  extraEnv:
+    - name: DJANGO_SETTINGS_MODULE
+      value: api.base.settings
+    - name: LOG_PATH
+      value: /log
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "beat" "values" .Values.beat) | trim }}-env'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+
+  volumeMounts: *commonSecretMounts
+
+  additionalVolumeMounts:
+    - mountPath: /beat
+      name: beat
+    - mountPath: /log
+      name: log
+
+  resources: {}
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: chown
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/bash
+        - -c
+        - chown -R www-data:www-data /beat /log
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - mountPath: /beat
+          name: beat
+        - mountPath: /log
+          name: log
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Additional containers -------
+  additionalContainers: []
+
+  sidecars: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: log
+      emptyDir: {}
+
+  additionalVolumes:
+    - name: beat
+      emptyDir: {}
+      #### If Enabled persistence < ---------- 
+      # persistentVolumeClaim:
+      #   claimName: '{{ include "cos-common.fullname" (dict "root" . "name" "beat") | trim }}'
+
+  #### If Enabled persistence < ---------- 
+  persistence:
+    enabled: false
+    # existingClaim:
+    # storageClass: ssd
+    accessModes:
+      - ReadWriteOnce
+    size: 4Gi
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Values.beat.component }}"
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/beat-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "beat-env" "values" .Values.beat "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/common-secret-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "secret") }}'
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "beat") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== MIGRATION Component ===============
+migration:
+  enabled: true
+
+  appendReleaseRevisionToName: true
+
+  component: migration
+
+# ------- Configuration follows for containerName: "{{ .Values.migration.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.migration.component }}"
+
+  activeDeadlineSeconds: 900
+
+  workloadAnnotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+
+  restartPolicy: Never
+
+  command:
+    - /bin/sh
+    - -c
+    - python3 manage.py sync_databases
+
+  env: []
+
+  extraEnv:
+    - name: DJANGO_SETTINGS_MODULE
+      value: api.base.settings
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "migration" "values" .Values.migration) | trim }}-env'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "migration" "values" .Values.migration) | trim }}'
+
+  volumeMounts: *commonSecretMounts
+
+  additionalVolumeMounts:
+    - mountPath: /log
+      name: log
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: chown
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/bash
+        - -c
+        - chown -R www-data:www-data /log
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - mountPath: /log
+          name: log
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+
+  additionalVolumes:
+    - name: log
+      emptyDir: {}
+      #### If Enabled persistence < ---------- 
+      # persistentVolumeClaim:
+      #   claimName: '{{ include "cos-common.fullname" (dict "root" . "name" "admin") | trim }}'
+
+  #### If Enabled persistence < ---------- 
+  persistence:
+    enabled: false
+    # existingClaim:
+    # storageClass: ssd
+    accessModes:
+      - ReadWriteOnce
+    size: 4Gi
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/migration-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "migration-env" "values" .Values.migration "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/migration-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "migration" "values" .Values.migration "resource" "secret") }}'
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "migration") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      annotations:
+        "helm.sh/hook": pre-install,pre-upgrade
+        "helm.sh/hook-weight": "-5"
+        "helm.sh/hook-delete-policy": "before-hook-creation"
+      tpl: false
+      data: {}
+
+
+# ------- Secrets configuration -------
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "migration") | trim }}'
+  secret:
+    enabled: true
+    annotations:
+      "helm.sh/hook": pre-install,pre-upgrade
+      "helm.sh/hook-weight": "-5"
+      "helm.sh/hook-delete-policy": "before-hook-creation"
+    includeTls: "{{ .Values.tls.enabled }}"
+    data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []
+
+
+# =============== PURGE Component ===============
+purge:
+  enabled: false
+
+  component: purge
+
+# ------- Configuration follows for containerName: "{{ .Values.purge.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.purge.component }}"
+
+  schedule: "0 22 * * 6"
+  startingDeadlineSeconds: 900
+  activeDeadlineSeconds: 14400
+  concurrencyPolicy: Forbid
+  num_records: ""
+
+  restartPolicy: Never
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      su-exec www-data python3 -m scripts.purge_trashed_files{{- if .Values.purge.num_records }} --num {{ .Values.purge.num_records }}{{- end }}
+
+  env: []
+
+  extraEnv:
+    - name: DJANGO_SETTINGS_MODULE
+      value: api.base.settings
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "purge" "values" .Values.purge) | trim }}-env'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}-env'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "purge" "values" .Values.purge) | trim }}'
+
+  volumeMounts: *commonSecretMounts
+
+  additionalVolumeMounts:
+    - mountPath: /log
+      name: log
+
+
+# ------- Init containers -------
+  initContainers:
+    - name: chown
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+      command:
+        - /bin/bash
+        - -c
+        - chown -R www-data:www-data /log
+      securityContext:
+        runAsUser: 0
+      volumeMounts:
+        - mountPath: /log
+          name: log
+
+  additionalInitContainers: []
+
+  # will add init containers which change permissions for TLS certs and mounts certs to the target container
+  enabledInitContainersCertificate:
+    enabled: "{{ .Values.tls.enabled }}"
+    image:
+      repository: "{{ .Values.image.repository }}"
+      tag: "{{ .Values.image.tag }}"
+      pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "common" "values" .Values.common) | trim }}'
+    - name: purge-secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "purge" "values" .Values.purge) | trim }}'
+
+  additionalVolumes:
+    - name: log
+      emptyDir: {}
+      #### If Enabled persistence < ---------- 
+      # persistentVolumeClaim:
+      #   claimName: '{{ include "cos-common.fullname" (dict "root" . "name" "admin") | trim }}'
+
+  #### If Enabled persistence < ---------- 
+  persistence:
+    enabled: false
+    # existingClaim:
+    # storageClass: ssd
+    accessModes:
+      - ReadWriteOnce
+    size: 4Gi
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/common-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "configmap") }}'
+    checksum/common-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.common "resource" "configmap") }}'
+    checksum/purge-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "purge-env" "values" .Values.purge "resource" "configmap") }}'
+    checksum/common-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common" "values" .Values.common "resource" "secret") }}'
+    checksum/purge-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "purge" "values" .Values.purge "resource" "secret") }}'
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "purge") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data: {}
+
+
+# ------- Secret configuration -------
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "purge") | trim }}'
+  secret:
+    enabled: true
+    annotations:
+      "helm.sh/hook": pre-install,pre-upgrade
+      "helm.sh/hook-weight": "-5"
+      "helm.sh/hook-delete-policy": "before-hook-creation"
+    includeTls: "{{ .Values.tls.enabled }}"
+    data: {}
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
+
+  tolerations: []

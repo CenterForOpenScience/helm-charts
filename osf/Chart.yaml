@@ -1,7 +1,8 @@
-apiVersion: v1
+apiVersion: v2
 description: The Open Science Framework (OSF)
 name: osf
-version: 0.21.0
+version: 1.0.0
+type: application
 keywords:
   - open
   - science
@@ -11,5 +12,21 @@ maintainers:
   - name: Matt Frazier
     email: matt@cos.io
     url: https://github.com/mfraezz
-engine: gotpl
-tillerVersion: '>=2.7.0'
+dependencies:
+  # - name: cos-common
+  #   version: 1.0.2
+  #   repository: "file://../cos-common"
+  - name: cos-common
+    version: 1.0.2
+    repository: https://centerforopenscience.github.io/helm-charts/
+  # WORKAROUND: ElasticSearch chart versions must match due to a bug in helm package, see: https://github.com/helm/helm/issues/3909
+  - name: elasticsearch-old
+    version: 0.5.3
+    repository: https://centerforopenscience.github.io/helm-charts/
+    condition: elasticsearch.enabled, global.elasticsearch.enabled
+    alias: elasticsearch
+  - name: elasticsearch-old
+    version: 0.5.3
+    repository: https://centerforopenscience.github.io/helm-charts/
+    condition: elasticsearch6.enabled, global.elasticsearch6.enabled
+    alias: elasticsearch6
