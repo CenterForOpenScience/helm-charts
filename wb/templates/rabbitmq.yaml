@@ -1,0 +1,6 @@
+{{- include "cos-common.configmap"      (dict "root" . "name" "rabbitmq" "values" .Values.rabbitmq) }}
+{{- include "cos-common.secret"         (dict "root" . "name" "rabbitmq" "values" .Values.rabbitmq) }}
+{{- include "cos-common.statefulset"    (dict "root" . "name" "rabbitmq" "values" .Values.rabbitmq) }}
+{{- include "cos-common.service"        (dict "root" . "name" "rabbitmq" "values" .Values.rabbitmq) }}
+{{- include "cos-common.hpa"            (dict "root" . "name" "rabbitmq" "values" .Values.rabbitmq) }}
+{{- include "cos-common.pdb"            (dict "root" . "name" "rabbitmq" "values" .Values.rabbitmq) }}
