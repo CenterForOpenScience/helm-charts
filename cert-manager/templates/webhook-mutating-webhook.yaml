@@ -9,23 +9,25 @@ metadata:
     app.kubernetes.io/component: "webhook"
     {{- include "labels" . | nindent 4 }}
   annotations:
-    cert-manager.io/inject-ca-from-secret: "{{ .Release.Namespace }}/{{ template "webhook.fullname" . }}-ca"
+    cert-manager.io/inject-ca-from-secret: {{ printf "%s/%s-ca" (include "cert-manager.namespace" .) (include "webhook.fullname" .) | quote }}
     {{- with .Values.webhook.mutatingWebhookConfigurationAnnotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 webhooks:
   - name: webhook.cert-manager.io
+    {{- with .Values.webhook.mutatingWebhookConfiguration.namespaceSelector }}
+    namespaceSelector:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     rules:
       - apiGroups:
           - "cert-manager.io"
-          - "acme.cert-manager.io"
         apiVersions:
           - "v1"
         operations:
           - CREATE
-          - UPDATE
         resources:
-          - "*/*"
+          - "certificaterequests"
     admissionReviewVersions: ["v1"]
     # This webhook only accepts v1 cert-manager resources.
     # Equivalent matchPolicy ensures that non-v1 resource requests are sent to
@@ -41,6 +43,6 @@ webhooks:
       {{- else }}
       service:
         name: {{ template "webhook.fullname" . }}
-        namespace: {{ .Release.Namespace | quote }}
+        namespace: {{ include "cert-manager.namespace" . }}
         path: /mutate
       {{- end }}

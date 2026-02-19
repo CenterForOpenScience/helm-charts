@@ -11,15 +11,6 @@ metadata:
     app.kubernetes.io/component: "controller"
     {{- include "labels" . | nindent 4 }}
 rules:
-  # Used for leader election by the controller
-  # See also: https://github.com/kubernetes-sigs/controller-runtime/pull/1144#discussion_r480173688
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    resourceNames: ["cert-manager-controller"]
-    verbs: ["get", "update", "patch"]
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["create"]
   - apiGroups: ["coordination.k8s.io"]
     resources: ["leases"]
     resourceNames: ["cert-manager-controller"]
@@ -48,10 +39,53 @@ roleRef:
   kind: Role
   name: {{ template "cert-manager.fullname" . }}:leaderelection
 subjects:
-  - apiGroup: ""
-    kind: ServiceAccount
+  - kind: ServiceAccount
     name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace }}
+    namespace: {{ include "cert-manager.namespace" . }}
+
+---
+
+{{- if .Values.serviceAccount.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ template "cert-manager.fullname" . }}-tokenrequest
+  namespace: {{ include "cert-manager.namespace" . }}
+  labels:
+    app: {{ include "cert-manager.name" . }}
+    app.kubernetes.io/name: {{ include "cert-manager.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: "controller"
+    {{- include "labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["serviceaccounts/token"]
+    resourceNames: ["{{ template "cert-manager.serviceAccountName" . }}"]
+    verbs: ["create"]
+
+---
+
+# grant cert-manager permission to create tokens for the serviceaccount
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "cert-manager.fullname" . }}-tokenrequest
+  namespace: {{ include "cert-manager.namespace" . }}
+  labels:
+    app: {{ include "cert-manager.name" . }}
+    app.kubernetes.io/name: {{ include "cert-manager.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: "controller"
+    {{- include "labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "cert-manager.fullname" . }}-tokenrequest
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "cert-manager.serviceAccountName" . }}
+    namespace: {{ include "cert-manager.namespace" . }}
+{{- end }}
 
 ---
 
@@ -69,7 +103,7 @@ metadata:
 rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["issuers", "issuers/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
   - apiGroups: ["cert-manager.io"]
     resources: ["issuers"]
     verbs: ["get", "list", "watch"]
@@ -79,7 +113,6 @@ rules:
   - apiGroups: [""]
     resources: ["events"]
     verbs: ["create", "patch"]
-
 ---
 
 # ClusterIssuer controller role
@@ -96,7 +129,7 @@ metadata:
 rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["clusterissuers", "clusterissuers/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
   - apiGroups: ["cert-manager.io"]
     resources: ["clusterissuers"]
     verbs: ["get", "list", "watch"]
@@ -123,7 +156,7 @@ metadata:
 rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["certificates", "certificates/status", "certificaterequests", "certificaterequests/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
   - apiGroups: ["cert-manager.io"]
     resources: ["certificates", "certificaterequests", "clusterissuers", "issuers"]
     verbs: ["get", "list", "watch"]
@@ -159,7 +192,7 @@ metadata:
 rules:
   - apiGroups: ["acme.cert-manager.io"]
     resources: ["orders", "orders/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
   - apiGroups: ["acme.cert-manager.io"]
     resources: ["orders", "challenges"]
     verbs: ["get", "list", "watch"]
@@ -199,7 +232,7 @@ rules:
   # Use to update challenge resource status
   - apiGroups: ["acme.cert-manager.io"]
     resources: ["challenges", "challenges/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
   # Used to watch challenge resources
   - apiGroups: ["acme.cert-manager.io"]
     resources: ["challenges"]
@@ -223,8 +256,8 @@ rules:
   - apiGroups: ["networking.k8s.io"]
     resources: ["ingresses"]
     verbs: ["get", "list", "watch", "create", "delete", "update"]
-  - apiGroups: [ "networking.x-k8s.io" ]
-    resources: [ "httproutes" ]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["httproutes"]
     verbs: ["get", "list", "watch", "create", "delete", "update"]
   # We require the ability to specify a custom hostname when we are creating
   # new ingress resources.
@@ -272,10 +305,10 @@ rules:
   - apiGroups: ["networking.k8s.io"]
     resources: ["ingresses/finalizers"]
     verbs: ["update"]
-  - apiGroups: ["networking.x-k8s.io"]
+  - apiGroups: ["gateway.networking.k8s.io"]
     resources: ["gateways", "httproutes"]
     verbs: ["get", "list", "watch"]
-  - apiGroups: ["networking.x-k8s.io"]
+  - apiGroups: ["gateway.networking.k8s.io"]
     resources: ["gateways/finalizers", "httproutes/finalizers"]
     verbs: ["update"]
   - apiGroups: [""]
@@ -300,7 +333,7 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-issuers
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 
 ---
@@ -321,7 +354,7 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-clusterissuers
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 
 ---
@@ -342,7 +375,7 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-certificates
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 
 ---
@@ -363,7 +396,7 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-orders
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 
 ---
@@ -384,7 +417,7 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-challenges
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 
 ---
@@ -405,9 +438,29 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-ingress-shim
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 
+{{- if .Values.global.rbac.aggregateClusterRoles }}
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "cert-manager.fullname" . }}-cluster-view
+  labels:
+    app: {{ include "cert-manager.name" . }}
+    app.kubernetes.io/name: {{ include "cert-manager.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: "controller"
+    {{- include "labels" . | nindent 4 }}
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups: ["cert-manager.io"]
+    resources: ["clusterissuers"]
+    verbs: ["get", "list", "watch"]
+
+{{- end }}
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
@@ -420,9 +473,12 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: "controller"
     {{- include "labels" . | nindent 4 }}
+    {{- if .Values.global.rbac.aggregateClusterRoles }}
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+    {{- end }}
 rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["certificates", "certificaterequests", "issuers"]
@@ -444,17 +500,24 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: "controller"
     {{- include "labels" . | nindent 4 }}
+    {{- if .Values.global.rbac.aggregateClusterRoles }}
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    {{- end }}
 rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["certificates", "certificaterequests", "issuers"]
     verbs: ["create", "delete", "deletecollection", "patch", "update"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates/status"]
+    verbs: ["update"]
   - apiGroups: ["acme.cert-manager.io"]
     resources: ["challenges", "orders"]
     verbs: ["create", "delete", "deletecollection", "patch", "update"]
 
 ---
+
+{{- if not .Values.disableAutoApproval -}}
 
 # Permission to approve CertificateRequests referencing cert-manager.io Issuers and ClusterIssuers
 apiVersion: rbac.authorization.k8s.io/v1
@@ -471,7 +534,12 @@ rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["signers"]
     verbs: ["approve"]
-    resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
+    {{- with .Values.approveSignerNames }}
+    resourceNames:
+    {{- range . }}
+    - {{ . | quote }}
+    {{- end  }}
+    {{- end }}
 
 ---
 
@@ -491,13 +559,15 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-approve:cert-manager-io
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 
 ---
 
+{{- end -}}
+
 # Permission to:
-# - Update and sign CertificatSigningeRequests referencing cert-manager.io Issuers and ClusterIssuers
+# - Update and sign CertificateSigningRequests referencing cert-manager.io Issuers and ClusterIssuers
 # - Perform SubjectAccessReviews to test whether users are able to reference Namespaced Issuers
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -515,7 +585,7 @@ rules:
     verbs: ["get", "list", "watch", "update"]
   - apiGroups: ["certificates.k8s.io"]
     resources: ["certificatesigningrequests/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
   - apiGroups: ["certificates.k8s.io"]
     resources: ["signers"]
     resourceNames: ["issuers.cert-manager.io/*", "clusterissuers.cert-manager.io/*"]
@@ -542,6 +612,6 @@ roleRef:
   name: {{ template "cert-manager.fullname" . }}-controller-certificatesigningrequests
 subjects:
   - name: {{ template "cert-manager.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace | quote }}
+    namespace: {{ include "cert-manager.namespace" . }}
     kind: ServiceAccount
 {{- end }}
