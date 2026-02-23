@@ -153,6 +153,7 @@ web:
 # ------- Additional containers -------
   uwsgi:
     resources: {}
+    env: []
     volumeMounts:
       - name: config
         mountPath: /etc/uwsgi/uwsgi.ini
@@ -163,6 +164,7 @@ web:
     - name: uwsgi
       inheritVolumeMountsFrom: uwsgi # <----- gets volume mounts from uwsgi set of vars above
       inheritResourcesFrom: uwsgi # <----- gets resources from uwsgi set of vars above
+      inheritEnvFrom: uwsgi # <----- gets envs from uwsgi set of vars above
       image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
       imagePullPolicy: "{{ .Values.image.pullPolicy }}"
       command:
@@ -641,7 +643,7 @@ beat:
 migration:
   enabled: true
 
-  fullnameOverride: "{{ .Release.Name }}-{{ .Chart.Name }}-migration-{{ .Release.Revision }}"
+  appendReleaseRevisionToName: true
 
   component: migration
 
