@@ -5,6 +5,10 @@ image:
   pullPolicy: IfNotPresent
 
 docker:
+  image:
+    repository: docker
+    tag: "25.0.5"
+    pullPolicy: IfNotPresent
   imageCredentials:
     registry: https://gcr.io
     username: _json_key
@@ -35,9 +39,9 @@ main:
 
 # ------- Configuration follows for containerName: docker -------
   image:
-    repository: docker
-    tag: "25.0.5"
-    pullPolicy: IfNotPresent
+    repository: "{{ .Values.docker.image.repository }}"
+    tag: "{{ .Values.docker.image.tag }}"
+    pullPolicy: "{{ .Values.docker.image.pullPolicy }}"
 
   containerName: docker
 
@@ -165,7 +169,7 @@ main:
         resources:
           requests:
             storage: "10Gi"
-        # storageClassName: "default"
+        # storageClassName: default
 
   volumes:
     - name: secret
