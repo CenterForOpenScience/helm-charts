@@ -16,16 +16,6 @@ nginx:
     defaultFilterKey: "$geoip_country_code country::*"
   readTimeout: 60
 
-rabbitmq:
-  rabbitmqUsername: guest
-  rabbitmqPassword: guest
-  rabbitmqNodePort: 5672
-  rabbitmqNodeType: stats
-  rabbitmqNodeName: rabbit@localhost
-  rabbitmqClusterNodeName: ""
-  rabbitmqVhost: /
-  rabbitmqManagerPort: 15672
-
 redis:
   enabled: false
   image:
@@ -134,34 +124,6 @@ main:
         mountPath: /pickles
     resources: {}
 
-  worker:
-    volumeMounts:
-      - name: secret
-        subPath: settings.json
-        mountPath: /home/.cos/waterbutler-kube.json
-        readOnly: true
-      - name: data
-        mountPath: /data
-      - name: pickles
-        mountPath: /pickles
-    resources: {}
-    concurrency: 2
-    logLevel: INFO
-    maxTasksPerChild: 5
-
-  rabbitmq:
-    image:
-      repository: rabbitmq
-      tag: 3-management
-      pullPolicy: Always
-    volumeMounts:
-      - name: rabbitmq-data
-        mountPath: /bitnami/rabbitmq
-    resources:
-      requests:
-        memory: 256Mi
-        cpu: 100m
-
   additionalContainers:
     - name: tornado
       inheritVolumeMountsFrom: tornado
@@ -184,88 +146,18 @@ main:
         - secretRef:
             name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
       ports:
-        - name: http
+        - name: tornado
           containerPort: "{{ .Values.main.http.containers.nginx.externalPort }}"
       readinessProbe:
         httpGet:
           path: /status
           port: "{{ .Values.main.http.containers.nginx.externalPort }}"
 
-    - name: worker
-      inheritVolumeMountsFrom: worker
-      inheritResourcesFrom: worker
-      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-      imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-      command:
-        - /bin/sh
-        - -c
-        - |-
-          set -e
-          PREFIX=''
-          if [ -f /code/newrelic.ini ]; then
-            PREFIX='newrelic-admin run-program'
-          fi
-          $PREFIX gosu www-data celery -A waterbutler.tasks.app worker \
-            -c "{{ .Values.main.worker.concurrency }}" -l "{{ .Values.main.worker.logLevel }}" \
-            -n worker.%h --without-gossip
-            {{- if .Values.main.worker.maxTasksPerChild }} --maxtasksperchild "{{ .Values.main.worker.maxTasksPerChild }}" {{- end }}
-      envFrom:
-        - configMapRef:
-            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
-        - secretRef:
-            name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
-
-    - name: rabbitmq
-      inheritVolumeMountsFrom: rabbitmq
-      inheritResourcesFrom: rabbitmq
-      image: "{{ .Values.main.rabbitmq.image.repository }}:{{ .Values.main.rabbitmq.image.tag }}"
-      imagePullPolicy: "{{ .Values.main.rabbitmq.image.pullPolicy }}"
-      env:
-        - name: RABBITMQ_USERNAME
-          value: "{{ .Values.rabbitmq.rabbitmqUsername }}"
-        - name: RABBITMQ_PASSWORD
-          value: "{{ .Values.rabbitmq.rabbitmqPassword }}"
-        - name: RABBITMQ_NODE_PORT_NUMBER
-          value: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
-        - name: RABBITMQ_NODE_TYPE
-          value: "{{ .Values.rabbitmq.rabbitmqNodeType }}"
-        - name: RABBITMQ_NODE_NAME
-          value: "{{ printf \"%s@%s\" .Values.rabbitmq.rabbitmqNodeName \"localhost\" }}"
-        - name: RABBITMQ_CLUSTER_NODE_NAME
-          value: "{{ .Values.rabbitmq.rabbitmqClusterNodeName }}"
-        - name: RABBITMQ_VHOST
-          value: "{{ .Values.rabbitmq.rabbitmqVhost }}"
-        - name: RABBITMQ_MANAGER_PORT_NUMBER
-          value: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
-      ports:
-        - name: amqp
-          containerPort: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
-        - name: stats
-          containerPort: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
-      livenessProbe:
-        exec:
-          command:
-            - rabbitmqctl
-            - status
-        initialDelaySeconds: 120
-        timeoutSeconds: 5
-        failureThreshold: 6
-      readinessProbe:
-        exec:
-          command:
-            - rabbitmqctl
-            - status
-        initialDelaySeconds: 10
-        timeoutSeconds: 3
-        periodSeconds: 5
-
   sidecars: []
 
 
 # ------- Volumes configuration for the pod -------
   volumes:
-    - name: rabbitmq-data
-      emptyDir: {}
     - name: data
       emptyDir: {}
     - name: pickles
@@ -318,7 +210,7 @@ main:
 # ------- Ingress configuration -------
 # ingress name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
   ingress:
-    enabled: true
+    enabled: false
     annotations: {}
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
@@ -423,7 +315,7 @@ main:
         ## Uncomment when rateLimiting enabled <----
         # SERVER_CONFIG_ENABLE_RATE_LIMITING: "1"
         ENV: kube
-        TASKS_CONFIG_BROKER_URL: "amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@127.0.0.1:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}"
+        TASKS_CONFIG_BROKER_URL: 'amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@{{ include "cos-common.fullname" (dict "root" . "name" "rabbitmq") | trim }}:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}'
         ## If Redis enabled <----
         # SERVER_CONFIG_REDIS_HOST: "{{ .Release.Name }}-redis.{{ .Release.Namespace }}.svc.cluster.local }}"
         # SERVER_CONFIG_REDIS_PORT: "{{ .Values.redis.service.port }}"
@@ -486,7 +378,7 @@ main:
             "JWT_SECRET": ""
           },
           "TASKS_CONFIG": {
-            "BROKER_URL": "amqp://guest:guest@127.0.0.1:5672//",
+            "BROKER_URL": "amqp://{{ .Values.rabbitmq.rabbitmqUsername }}:{{ .Values.rabbitmq.rabbitmqPassword }}@{{ include "cos-common.fullname" (dict "root" . "name" "rabbitmq") | trim }}:{{ .Values.rabbitmq.rabbitmqNodePort }}/{{ .Values.rabbitmq.rabbitmqVhost }}",
             "ADHOC_BACKEND_PATH": "/pickles"
           },
           "SENTRY_DSN": "",
@@ -534,6 +426,252 @@ main:
       data: {}
         # If Redis enabled <----
         # SERVER_CONFIG_REDIS_PASSWORD: superpass
+
+
+# =============== WORKER Component ===============
+worker:
+  enabled: true
+
+  replicas: 1
+
+  component: worker
+
+# ------- Configuration follows for containerName: "{{ .Values.worker.component }}" -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: "{{ .Values.worker.component }}"
+
+  concurrency: 2
+  logLevel: INFO
+  maxTasksPerChild: 5
+
+  command:
+    - /bin/sh
+    - -c
+    - |-
+      set -e
+      PREFIX=''
+      if [ -f /code/newrelic.ini ]; then
+        PREFIX='newrelic-admin run-program'
+      fi
+      $PREFIX gosu www-data celery -A waterbutler.tasks.app worker \
+        -c "{{ .Values.worker.concurrency }}" -l "{{ .Values.worker.logLevel }}" \
+        -n worker.%h --without-gossip
+        {{- if .Values.worker.maxTasksPerChild }} --maxtasksperchild "{{ .Values.worker.maxTasksPerChild }}" {{- end }}
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+    - secretRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+
+  volumeMounts:
+    - name: secret
+      subPath: settings.json
+      mountPath: /home/.cos/waterbutler-kube.json
+      readOnly: true
+    - name: data
+      mountPath: /data
+    - name: pickles
+      mountPath: /pickles
+
+  resources: {}
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: data
+      emptyDir: {}
+    - name: pickles
+      emptyDir: {}
+    - name: secret
+      secret:
+        secretName: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+
+  additionalVolumes: []
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: false
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.worker.replicas }}"
+    maxReplicas: 3
+    metrics: []
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- ConfigMap configuration -------
+# configmap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  configMap:
+    enabled: false
+
+
+# ------- Secrets configuration -------
+# secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  secret:
+    enabled: false
+
+
+# =============== RABBITMQ Component ===============
+rabbitmq:
+  enabled: true
+
+  replicas: 1
+
+  component: rabbitmq
+
+# ------- Configuration follows for containerName: "{{ .Values.rabbitmq.component }}" -------
+  image:
+    repository: rabbitmq
+    tag: 3-management
+    pullPolicy: Always
+
+  containerName: "{{ .Values.rabbitmq.component }}" 
+
+  rabbitmqUsername: guest
+  rabbitmqPassword: guest
+  rabbitmqNodePort: 5672
+  rabbitmqNodeType: stats
+  rabbitmqNodeName: rabbit@localhost
+  rabbitmqClusterNodeName: ""
+  rabbitmqVhost: ""
+  rabbitmqManagerPort: 15672
+  rabbitmqEpmdPort: 4369
+  rabbitmqDistPort: 25672
+
+  env:
+    - name: RABBITMQ_USERNAME
+      value: "{{ .Values.rabbitmq.rabbitmqUsername }}"
+    - name: RABBITMQ_PASSWORD
+      value: "{{ .Values.rabbitmq.rabbitmqPassword }}"
+    - name: RABBITMQ_NODE_PORT_NUMBER
+      value: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
+    - name: RABBITMQ_NODE_TYPE
+      value: "{{ .Values.rabbitmq.rabbitmqNodeType }}"
+    - name: RABBITMQ_NODE_NAME
+      value: "{{ printf \"%s@%s\" .Values.rabbitmq.rabbitmqNodeName \"localhost\" }}"
+    - name: RABBITMQ_CLUSTER_NODE_NAME
+      value: "{{ .Values.rabbitmq.rabbitmqClusterNodeName }}"
+    - name: RABBITMQ_VHOST
+      value: "{{ .Values.rabbitmq.rabbitmqVhost }}"
+    - name: RABBITMQ_MANAGER_PORT_NUMBER
+      value: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
+
+  ports:
+    - name: amqp
+      containerPort: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
+    - name: stats
+      containerPort: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
+
+  probes:
+    liveness:
+      exec:
+        command:
+          - rabbitmqctl
+          - status
+      initialDelaySeconds: 120
+      timeoutSeconds: 5
+      failureThreshold: 6
+    readiness:
+      exec:
+        command:
+          - rabbitmqctl
+          - status
+      initialDelaySeconds: 10
+      timeoutSeconds: 3
+      periodSeconds: 5
+
+  volumeMounts:
+    - name: rabbitmq-data
+      mountPath: /bitnami/rabbitmq
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+
+
+# ------- Volumes configuration for the pod -------
+  volumeClaimTemplates:
+    - metadata:
+        name: rabbitmq-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+
+  additionalVolumes: []
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      - name: amqp
+        port: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
+        targetPort: "{{ .Values.rabbitmq.rabbitmqNodePort }}"
+      - name: stats
+        port: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
+        targetPort: "{{ .Values.rabbitmq.rabbitmqManagerPort }}"
+
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }} + name'
+  additionalServices:
+    - name: headless
+      enabled: true
+      type: None
+      ports:
+        - name: epmd
+          port: "{{ .Values.rabbitmq.rabbitmqEpmdPort }}"
+          targetPort: "{{ .Values.rabbitmq.rabbitmqEpmdPort }}"
+        - name: dist
+          port: "{{ .Values.rabbitmq.rabbitmqDistPort }}"
+          targetPort: "{{ .Values.rabbitmq.rabbitmqDistPort }}"
+
+
+# ------- HPA configuration -------
+  hpa:
+    enabled: false
+    minReplicas: "{{ .Values.rabbitmq.replicas }}"
+    maxReplicas: 3
+    metrics: []
+    behavior: {}
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 0
+
+
+# ------- ConfigMap configuration -------
+# ConfigMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  configMap:
+    enabled: false
+
+
+# ------- Secrets configuration -------
+# Secret name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  secret:
+    enabled: false
 
 
 # ------- Selectors and etc. -------
