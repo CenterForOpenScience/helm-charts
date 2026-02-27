@@ -208,7 +208,7 @@ main:
           $PREFIX gosu www-data celery -A waterbutler.tasks.app worker \
             -c "{{ .Values.main.worker.concurrency }}" -l "{{ .Values.main.worker.logLevel }}" \
             -n worker.%h --without-gossip
-            {{- if .Values.main.worker.maxTasksPerChild }} --maxtasksperchild "{{ .Values.main.worker.maxTasksPerChild }}" {{- end }}
+            {{- if .Values.main.worker.maxTasksPerChild }} --maxTasksPerChild "{{ .Values.main.worker.maxTasksPerChild }}" {{- end }}
       envFrom:
         - configMapRef:
             name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
