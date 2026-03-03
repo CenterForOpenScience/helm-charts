@@ -27,22 +27,26 @@ rabbitmq:
   rabbitmqManagerPort: 15672
 
 redis:
-  enabled: false
+  enabled: true
   image:
-    repository: redis
-    tag: alpine
+    repository: bitnamilegacy/redis
+    tag: 8.2.1-debian-12-r0
     pullPolicy: IfNotPresent
-  secretEnvs: {}
-  args: []
-  persistence:
-    enabled: false
-    accessMode: ReadWriteOnce
-    size: 8Gi
-  resources: {}
-  service:
-    type: ClusterIP
-    port: 6379
-    externalIPs: []
+  architecture: standalone
+  master:
+    extraEnvVarsSecret: ""
+    args: []
+    persistence:
+      enabled: false
+      accessModes: 
+        - ReadWriteOnce
+      size: 8Gi
+    resources: {}
+    service:
+      type: ClusterIP
+      ports:
+        redis: 6379
+      externalIPs: []
   networkPolicy:
     enabled: false
     allowExternal: true
