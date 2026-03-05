@@ -419,7 +419,7 @@ ssr:
     - -c
     - |-
       set -e
-      {{- if hasKey .Values.main.configMap.data "config.json" }}
+      {{- if hasKey .Values.ssr.configMap.data "config.json" }}
       cp -Rf /config/config.json /app/dist/osf/browser/assets/config/config.json
       {{- end }}
       node dist/osf/server/server.mjs
