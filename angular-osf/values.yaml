@@ -123,6 +123,7 @@ main:
           set -e
           {{- if .Values.ssr.enabled }}
           cp -Rf /app/dist/osf/browser/* /static/
+          mv /static/index.csr.html /static/index.html
           {{- else }}
           cp -Rf /code/dist/osf/browser/* /static/
           {{- end }}
@@ -419,7 +420,7 @@ ssr:
     - -c
     - |-
       set -e
-      {{- if hasKey .Values.ssr.configMap.data "config.json" }}
+      {{- if hasKey .Values.main.configMap.data "config.json" }}
       cp -Rf /config/config.json /app/dist/osf/browser/assets/config/config.json
       {{- end }}
       node dist/osf/server/server.mjs
