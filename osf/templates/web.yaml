@@ -1,0 +1,42 @@
+{{- $web := deepCopy .Values.web -}}
+{{- $autoMounts := list -}}
+
+{{- if (index .Values "prerender").enabled -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "config" "mountPath" "/etc/nginx/prerender.conf" "subPath" "web-nginx-prerender.conf" "readOnly" true) -}}
+{{- end -}}
+
+{{- if (index .Values "osf-preprints").enabled -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "config" "mountPath" "/etc/nginx/conf.d/osf-preprints.conf" "subPath" "web-nginx-osf-preprints.conf" "readOnly" true) -}}
+{{- end -}}
+
+{{- if (index .Values "osf-reviews").enabled -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "config" "mountPath" "/etc/nginx/conf.d/osf-reviews.conf" "subPath" "web-nginx-osf-reviews.conf" "readOnly" true) -}}
+{{- end -}}
+
+{{- if (index .Values "osf-web").enabled -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "config" "mountPath" "/etc/nginx/conf.d/osf-web.conf" "subPath" "web-nginx-osf-web.conf" "readOnly" true) -}}
+{{- end -}}
+
+{{- if and .Values.web.nginx.cache.enabled .Values.redis.enabled -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "config" "mountPath" "/etc/nginx/conf.d/redis.conf" "subPath" "web-nginx-redis.conf" "readOnly" true) -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "config" "mountPath" "/etc/nginx/redis-cache.conf" "subPath" "web-nginx-redis-cache.conf" "readOnly" true) -}}
+{{- end -}}
+
+{{- if and .Values.web.nginx.cache.enabled (not .Values.redis.enabled) -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "config" "mountPath" "/etc/nginx/uwsgi-cache.conf" "subPath" "web-nginx-uwsgi-cache.conf" "readOnly" true) -}}
+  {{- $autoMounts = append $autoMounts (dict "name" "cache" "mountPath" "/cache") -}}
+{{- end -}}
+
+{{- if gt (len $autoMounts) 0 -}}
+  {{- $existing := default (list) $web.additionalVolumeMounts -}}
+  {{- $_ := set $web "additionalVolumeMounts" (concat $existing $autoMounts) -}}
+{{- end -}}
+
+
+{{- include "cos-common.deployment"  (dict "root" . "name" "web" "values" $web) }}
+{{- include "cos-common.configmap"   (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.service"     (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.ingress"     (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.hpa"         (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.pdb"         (dict "root" . "name" "web" "values" .Values.web) }}
+{{- include "cos-common.certificate" (dict "root" . "name" "web-cert" "values" .Values.web) }}

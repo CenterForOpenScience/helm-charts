@@ -1,0 +1,7 @@
+{{- include "cos-common.deployment"  (dict "root" . "name" "api" "values" .Values.api) }}
+{{- include "cos-common.configmap"   (dict "root" . "name" "api" "values" .Values.api) }}
+{{- include "cos-common.service"     (dict "root" . "name" "api" "values" .Values.api) }}
+{{- include "cos-common.ingress"     (dict "root" . "name" "api" "values" .Values.api) }}
+{{- include "cos-common.hpa"         (dict "root" . "name" "api" "values" .Values.api) }}
+{{- include "cos-common.pdb"         (dict "root" . "name" "api" "values" .Values.api) }}
+{{- include "cos-common.certificate" (dict "root" . "name" "api-cert" "values" .Values.api) }}
