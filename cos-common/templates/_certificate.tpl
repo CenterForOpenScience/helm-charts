@@ -149,7 +149,7 @@ spec:
 {{- $cert := default dict $vals.certificate -}}
 
 {{- /* Component-level enable switch. */ -}}
-{{- $componentEnabled := include "cos-common.componentEnabled" (dict "values" $vals) | fromYaml -}}
+{{- $componentEnabled := eq (include "cos-common.componentEnabled" (dict "values" $vals) | trim | lower) "true" -}}
 
 {{/* ============================================================================
    Main certificate
