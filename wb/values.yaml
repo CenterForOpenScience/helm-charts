@@ -460,7 +460,7 @@ worker:
       $PREFIX gosu www-data celery -A waterbutler.tasks.app worker \
         -c "{{ .Values.worker.concurrency }}" -l "{{ .Values.worker.logLevel }}" \
         -n worker.%h --without-gossip
-        {{- if .Values.worker.maxTasksPerChild }} --maxtasksperchild "{{ .Values.worker.maxTasksPerChild }}" {{- end }}
+        {{- if .Values.worker.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.worker.maxTasksPerChild }}" {{- end }}
 
   envFrom:
     - configMapRef:
