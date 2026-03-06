@@ -1,1 +1,7 @@
-TODO
+SHARE chart deployed.
+
+Web service name:
+  {{ include "cos-common.fullname" (dict "root" . "name" "web" "values" .Values.web) | trim }}
+
+Port-forward (web):
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "cos-common.fullname" (dict "root" . "name" "web" "values" .Values.web) | trim }} 8080:{{ .Values.web.http.externalPort }}
