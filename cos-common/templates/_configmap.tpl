@@ -75,7 +75,6 @@ data:
 {{- if eq (len $data) 0 }}
   {}
 {{- else if $cfg.tpl }}
-
   {{- /* tpl=true:
         - Only string values are evaluated with tpl
         - Non-string values (maps, lists) are passed through untouched
@@ -88,17 +87,16 @@ data:
       {{- $_ := set $renderedData $key $value }}
     {{- end }}
   {{- end }}
-{{ toYaml $renderedData | nindent 2 }}
-
+{{ toYaml $renderedData | indent 2 }}
 {{- else }}
   {{- /* tpl disabled: render data verbatim. */ -}}
-{{ toYaml $data | nindent 2 }}
+{{ toYaml $data | indent 2 }}
 {{- end }}
 
 {{- /* Render binaryData only when present. */ -}}
 {{- if gt (len $binaryData) 0 }}
 binaryData:
-{{ toYaml $binaryData | nindent 2 }}
+{{ toYaml $binaryData | indent 2 }}
 {{- end }}
 
 {{- /* Immutable flag (Kubernetes ≥1.19). */ -}}

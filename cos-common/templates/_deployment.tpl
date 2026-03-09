@@ -16,23 +16,23 @@ spec:
   replicas: {{ default 1 $vals.replicas }}
   {{- with $vals.revisionHistoryLimit }}
   revisionHistoryLimit: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $vals.minReadySeconds }}
   minReadySeconds: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $vals.paused }}
   paused: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $vals.progressDeadlineSeconds }}
   progressDeadlineSeconds: {{ . }}
-  {{ end }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "cos-common.selectorLabels" . | nindent 6 }}
   {{- with $vals.strategy }}
   strategy:
     {{- tpl (toYaml .) $.root | nindent 4 }}
-  {{ end }}
+  {{- end }}
   template:
     metadata:
       {{- /* Pod labels/annotations stay aligned with selectors. */}}
@@ -40,5 +40,6 @@ spec:
     spec:
       {{- /* Shared pod spec helper wires containers, volumes, TLS, affinities, etc. */}}
       {{- include "cos-common.podSpec" . | nindent 6 }}
-{{ end }}
-{{ end }}
+{{- printf "\n" -}}
+{{- end }}
+{{- end }}

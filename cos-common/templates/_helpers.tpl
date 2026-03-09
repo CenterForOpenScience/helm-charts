@@ -138,7 +138,7 @@ If .name is empty, fall back to the chart name.
 {{- else -}}
 {{- include "cos-common.chartName" (dict "root" .root) -}}
 {{- end -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Common labels shared across objects.
@@ -150,10 +150,10 @@ app.kubernetes.io/managed-by: {{ .root.Release.Service }}
 app.kubernetes.io/component: {{ include "cos-common.componentName" . }}
 {{- with .root.Chart.AppVersion }}
 app.kubernetes.io/version: {{ quote . }}
-{{ end }}
+{{- end }}
 app.kubernetes.io/part-of: {{ include "cos-common.chartName" (dict "root" .root) }}
 helm.sh/chart: {{ include "cos-common.chartVersion" (dict "root" .root) }}
-{{ end }}
+{{- end }}
 
 {{/*
 Labels applied to selectors.
@@ -162,14 +162,14 @@ Labels applied to selectors.
 app.kubernetes.io/name: {{ include "cos-common.chartName" (dict "root" .root) }}
 app.kubernetes.io/instance: {{ .root.Release.Name }}
 app.kubernetes.io/component: {{ include "cos-common.componentName" . }}
-{{ end }}
+{{- end }}
 
 {{/*
 Labels applied to pods (match selectors).
 */}}
 {{- define "cos-common.podLabels" -}}
 {{- include "cos-common.selectorLabels" . }}
-{{ end }}
+{{- end }}
 
 {{/*
 Compose image reference supporting tag or digest.
@@ -202,14 +202,14 @@ name: {{ include "cos-common.fullname" . | trim }}
 labels:
   {{- include "cos-common.labels" . | nindent 2 }}
   {{- with .values.labels }}
-  {{ tpl (toYaml .) .root | nindent 2 }}
-  {{ end }}
+  {{- tpl (toYaml .) .root | nindent 2 }}
+  {{- end }}
 {{- with .values.annotations }}
 annotations:
   {{- $anns := tpl (toYaml .) .root | trimSuffix "\n" }}
-  {{ $anns | nindent 2 }}
-{{ end }}
-{{ end }}
+  {{- $anns | nindent 2 }}
+{{- end }}
+{{- end }}
 
 {{/*
 Merge component annotations with resource-specific annotations.
@@ -262,7 +262,6 @@ labels:
   {{ $k }}: {{ tpl (printf "%s" $v) $.root | quote }}
   {{- end }}
   {{- end }}
-
 {{- with .values.podAnnotations }}
 annotations:
   {{- range $k, $v := . }}
@@ -278,8 +277,8 @@ Helper to render list values with tpl evaluation.
 {{- define "cos-common.renderList" -}}
 {{- with .list }}
 {{ tpl (toYaml .) $.root }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Helper to render map values with tpl evaluation.
@@ -287,8 +286,8 @@ Helper to render map values with tpl evaluation.
 {{- define "cos-common.renderMap" -}}
 {{- with .map }}
 {{ tpl (toYaml .) $.root }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Normalize a port map by templating values and casting numeric strings to integers.
@@ -884,14 +883,14 @@ data:
       {{- $_ := set $renderedData $key $value }}
     {{- end }}
   {{- end }}
-{{ toYaml $renderedData | nindent 2 }}
+{{ toYaml $renderedData | indent 2 }}
 {{- else }}
-{{ toYaml $data | nindent 2 }}
+{{ toYaml $data | indent 2 }}
 {{- end }}
 
 {{- if gt (len $binaryData) 0 }}
 binaryData:
-{{ toYaml $binaryData | nindent 2 }}
+{{ toYaml $binaryData | indent 2 }}
 {{- end }}
 
 {{- with $item.immutable }}
