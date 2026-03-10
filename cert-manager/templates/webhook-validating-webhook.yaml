@@ -9,22 +9,16 @@ metadata:
     app.kubernetes.io/component: "webhook"
     {{- include "labels" . | nindent 4 }}
   annotations:
-    cert-manager.io/inject-ca-from-secret: "{{ .Release.Namespace }}/{{ template "webhook.fullname" . }}-ca"
+    cert-manager.io/inject-ca-from-secret: {{ printf "%s/%s-ca" (include "cert-manager.namespace" .) (include "webhook.fullname" .) | quote}}
     {{- with .Values.webhook.validatingWebhookConfigurationAnnotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 webhooks:
   - name: webhook.cert-manager.io
+    {{- with .Values.webhook.validatingWebhookConfiguration.namespaceSelector }}
     namespaceSelector:
-      matchExpressions:
-      - key: "cert-manager.io/disable-validation"
-        operator: "NotIn"
-        values:
-        - "true"
-      - key: "name"
-        operator: "NotIn"
-        values:
-        - {{ .Release.Namespace }}
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     rules:
       - apiGroups:
           - "cert-manager.io"
@@ -50,6 +44,6 @@ webhooks:
       {{- else }}
       service:
         name: {{ template "webhook.fullname" . }}
-        namespace: {{ .Release.Namespace | quote }}
+        namespace: {{ include "cert-manager.namespace" . }}
         path: /validate
       {{- end }}
