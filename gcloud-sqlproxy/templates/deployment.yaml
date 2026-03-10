@@ -1,29 +1,164 @@
-{{- if and .Values.serviceAccountKey (ne .Values.cloudsql.instance "PROJECT:REGION:INSTANCE") }}
+{{- if ne (index .Values.cloudsql.instances 0).instance "instance" }}
+{{- $hasCredentials := include "gcloud-sqlproxy.hasCredentials" . -}}
 apiVersion: apps/v1
+{{- if .Values.useStatefulset }}
+kind: StatefulSet
+{{- else }}
 kind: Deployment
+{{- end }}
 metadata:
-  name: {{ template "gcloud-sqlproxy.fullname" . }}
+  name: {{ include "gcloud-sqlproxy.fullname" . }}
   labels:
-    app: {{ template "gcloud-sqlproxy.name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+    {{- include "gcloud-sqlproxy.labels" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
 spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicasCount }}
+{{- end }}
   selector:
     matchLabels:
-      app: {{ template "gcloud-sqlproxy.name" . }}
-      release: {{ .Release.Name }}
-  replicas: {{ .Values.replicasCount }}
-  {{- if .Values.strategy }}
+      {{- include "gcloud-sqlproxy.selectorLabels" . | nindent 6 }}
+  {{- if not .Values.useStatefulset }}
   strategy:
-    {{- toYaml .Values.strategy | nindent 4 }}
+{{ toYaml .Values.deploymentStrategy | indent 4 }}
+  {{- end }}
+  {{- if .Values.useStatefulset }}
+  serviceName: {{ include "gcloud-sqlproxy.fullname" . }}-headless
   {{- end }}
   template:
     metadata:
       labels:
-        app: {{ template "gcloud-sqlproxy.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "gcloud-sqlproxy.selectorLabels" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+      annotations:
+{{ toYaml .Values.podAnnotations | indent 8 }}
     spec:
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{ toYaml .Values.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ template "gcloud-sqlproxy.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: "{{ .Values.priorityClassName }}"
+      {{- end }}
+      containers:
+      - name: sqlproxy
+        image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
+        {{- with .Values.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        args:
+        {{- range .Values.cloudsql.instances }}
+        - {{ .project }}:{{ .region }}:{{ .instance }}?port={{ .port }}&address=0.0.0.0
+        {{- end }}
+        - --http-address=0.0.0.0
+        {{- if or .Values.httpLivenessProbe.enabled .Values.httpReadinessProbe.enabled .Values.httpStartupProbe.enabled  }}
+        - --health-check
+        {{- if ne (int .Values.httpPortProbe) 9090 }}
+        - --http-port={{ .Values.httpPortProbe }}
+        {{- end }}
+        {{- end }}
+        - --unix-socket=/cloudsql
+        {{ if $hasCredentials -}}
+        - --credentials-file=/secrets/cloudsql/{{ include "gcloud-sqlproxy.secretKey" . }}
+        {{ end -}}
+        {{- range $key, $value := .Values.extraArgs }}
+        - --{{ $key }}={{ $value }}
+        {{- end }}
+        {{- range .Values.extraFlags }}
+        - --{{ . }}
+        {{- end }}
+        {{- if .Values.env }}
+        env:
+{{ toYaml .Values.env | indent 10 }}
+        {{- end }}
+        {{- if .Values.lifecycleHooks }}
+        lifecycle:
+{{ toYaml .Values.lifecycleHooks | indent 10 }}
+        {{- end }}
+        ports:
+        {{- range .Values.cloudsql.instances }}
+        {{- $instanceShortName := include "gcloud-sqlproxy.instanceShortName" . }}
+        - name: {{ $instanceShortName }}
+          containerPort: {{ .port }}
+        {{- end }}
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+        {{- if .Values.httpLivenessProbe.enabled }}
+          httpGet:
+            path: /liveness
+            port: {{ .Values.httpPortProbe }}
+        {{- else }}
+          tcpSocket:
+            port: {{ .Values.livenessProbe.port }}
+        {{- end }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+        {{- if .Values.httpReadinessProbe.enabled }}
+          httpGet:
+            path: /readiness
+            port: {{ .Values.httpPortProbe }}
+        {{- else }}
+          tcpSocket:
+            port: {{ .Values.readinessProbe.port }}
+        {{- end }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.startupProbe.enabled }}
+        startupProbe:
+        {{- if .Values.httpStartupProbe.enabled }}
+          httpGet:
+            path: /startup
+            port: {{ .Values.httpPortProbe }}
+        {{- else }}
+          tcpSocket:
+            port: {{ .Values.startupProbe.port }}
+        {{- end }}
+          initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.startupProbe.successThreshold }}
+          failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+        {{- end }}
+        volumeMounts:
+        {{ if $hasCredentials -}}
+        - name: cloudsql-oauth-credentials
+          mountPath: /secrets/cloudsql
+        {{ end -}}
+        - name: cloudsql
+          mountPath: /cloudsql
+      volumes:
+      {{ if $hasCredentials -}}
+      - name: cloudsql-oauth-credentials
+        secret:
+          secretName: {{ include "gcloud-sqlproxy.secretName" . }}
+      {{ end -}}
+      - name: cloudsql
+        emptyDir: {}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
       affinity:
         {{- if .Values.additionalAffinities }}
         {{- toYaml .Values.additionalAffinities | nindent 8 }}
@@ -44,37 +179,9 @@ spec:
                 topologyKey: kubernetes.io/hostname
                 labelSelector:
                   matchLabels:
-                    app: {{ template "gcloud-sqlproxy.name" . }}
-                    release: "{{ .Release.Name }}"
-        {{- end }}
-      containers:
-      - name: sqlproxy
-        image: "{{ .Values.image }}:{{ .Values.imageTag }}"
-        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
-        resources:
-          {{- toYaml .Values.resources | nindent 10 }}
-        command: ["/cloud_sql_proxy", "--dir=/cloudsql",
-                  "-instances={{ .Values.cloudsql.instance }}=tcp:0.0.0.0:{{ .Values.cloudsql.port }}",
-                  "-credential_file=/secrets/cloudsql/credentials.json"]
-        ports:
-        - name: sqlproxy
-          containerPort: {{ .Values.cloudsql.port }}
-        volumeMounts:
-        - name: cloudsql-oauth-credentials
-          mountPath: /secrets/cloudsql
-        - name: ssl-certs
-          mountPath: /etc/ssl/certs
-        - name: cloudsql
-          mountPath: /cloudsql
-      volumes:
-      - name: cloudsql-oauth-credentials
-        secret:
-          secretName: {{ template "gcloud-sqlproxy.fullname" . }}
-      - name: ssl-certs
-        hostPath:
-          path: /etc/ssl/certs
-      - name: cloudsql
-        emptyDir: {}
-      nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+                    app.kubernetes.io/name: {{ template "gcloud-sqlproxy.name" . }}
+                    app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- end }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
 {{- end }}
