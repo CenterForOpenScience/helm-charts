@@ -95,29 +95,6 @@ collectstatic:
   enabled: false
 
 # ----- Other servcies enable/disable
-osf-preprints:
-  enabled: false
-  service:
-    name: preprints
-    externalPort: 80
-
-osf-reviews:
-  enabled: false
-  service:
-    name: reviews
-    externalPort: 80
-
-osf-web:
-  enabled: false
-  service:
-    name: osfweb
-    externalPort: 80
-
-prerender:
-  enabled: false
-  service:
-    name: prerender
-    externalPort: 3000
 
 share:
   url: https://staging-share.osf.io
@@ -169,19 +146,6 @@ tls:
       worker.pem: |-
         
       ca-chain.cert.pem: |-
-        
-
-  mongodb:
-    enabled: false
-    mountPath: /var/www/.mongodb
-    files:
-      ca.pem: |-
-        
-      crl.pem: |-
-        
-      client.pem: |-
-        
-      key.pem: |-
 
 # ------- Dependencies
 
@@ -325,14 +289,6 @@ common:
         {{ tpl (.Files.Get "files/api-nginx.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
       api-uwsgi.ini: |-
         {{ tpl (.Files.Get "files/api-uwsgi.ini") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
-      web-nginx-osf-preprints.conf: |-
-        {{ tpl (.Files.Get "files/web-nginx-osf-preprints.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
-      web-nginx-osf-reviews.conf: |-
-        {{ tpl (.Files.Get "files/web-nginx-osf-reviews.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
-      web-nginx-osf-web.conf: |-
-        {{ tpl (.Files.Get "files/web-nginx-osf-web.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
-      web-nginx-prerender.conf: |-
-        {{ tpl (.Files.Get "files/web-nginx-prerender.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
       web-nginx-redis.conf: |-
         {{ tpl (.Files.Get "files/web-nginx-redis.conf") (dict "Values" .Values "Release" .Release "Chart" .Chart "root" .) }}
       web-nginx-redis-cache.conf: |-
@@ -543,7 +499,7 @@ admin:
         - /bin/sh
         - -c
         - |-
-          if [ "{{ .Values.collectstatic.enabled }}" != "true" ]; then
+          if [ "{{ .Values.collectstatic.enabled }}" = "true" ]; then
             mkdir -p /static/code/admin
             cp -Rf /code/static_root/* /static/code/admin
           fi
@@ -868,7 +824,7 @@ api:
         - /bin/sh
         - -c
         - |-
-          if [ "{{ .Values.collectstatic.enabled }}" != "true" ]; then
+          if [ "{{ .Values.collectstatic.enabled }}" = "true" ]; then
             mkdir -p /static/code/api
             cp -Rf /code/api/static /static/code/api
           fi
@@ -1116,8 +1072,6 @@ web:
       internalPort: 18080
       statusZoneSize: 10m
       defaultFilterKey: "$geoip_country_code country::*"
-    preprintRewrites: []
-      # - rewrite ...
     redirects:
       enabled: false
       domains: []
@@ -1190,7 +1144,7 @@ web:
         - /bin/sh
         - -c
         - |-
-          if [ "{{ .Values.collectstatic.enabled }}" != "true" ]; then
+          if [ "{{ .Values.collectstatic.enabled }}" = "true" ]; then
             mkdir -p /static/code/website
             cp -Rf /code/website/static /static/code/website
             find /code/addons/ -type f | grep -i /static/ | xargs -i cp -f --parents {} /static/
@@ -1231,15 +1185,7 @@ web:
       # requests:
       #   cpu: 100m
       #   memory: 256Mi
-    env:
-      - name: DJANGO_SETTINGS_MODULE
-        value: api.base.settings
-      - name: OSF_PREPRINTS_URL
-        value: '{{- if (index .Values "osf-preprints").enabled }}http://{{ (index .Values "osf-preprints").service.name }}:{{ (index .Values "osf-preprints").service.externalPort }}/{{- end }}'
-      - name: OSF_REVIEWS_URL
-        value: '{{- if (index .Values "osf-reviews").enabled }}http://{{ (index .Values "osf-reviews").service.name }}:{{ (index .Values "osf-reviews").service.externalPort }}/{{- end }}'
-      - name: OSF_WEB_URL
-        value: '{{- if (index .Values "osf-web").enabled }}http://{{ (index .Values "osf-web").service.name }}:{{ (index .Values "osf-web").service.externalPort }}/{{- end }}'
+    env: []
     volumeMounts:
       - mountPath: /etc/uwsgi/uwsgi.ini
         name: config
@@ -1362,16 +1308,6 @@ web:
           port: "{{ .Values.web.service.externalPort }}"
         paths:
           - /
-
-      - name: sharejs
-        includeForPrimaryHost: true
-        includeForAdditionalHost: false
-        pathType: ImplementationSpecific
-        service:
-          name: sharejs
-          port: 7007
-        paths:
-          - /sharejs
     tls: []
       # - secretName: example-tls
       #   hosts:
