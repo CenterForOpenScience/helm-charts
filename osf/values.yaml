@@ -1072,9 +1072,6 @@ web:
       internalPort: 18080
       statusZoneSize: 10m
       defaultFilterKey: "$geoip_country_code country::*"
-    redirects:
-      enabled: false
-      domains: []
     readTimeout: 60
 
   image:
@@ -1185,7 +1182,9 @@ web:
       # requests:
       #   cpu: 100m
       #   memory: 256Mi
-    env: []
+    env:
+      - name: DJANGO_SETTINGS_MODULE
+        value: api.base.settings
     volumeMounts:
       - mountPath: /etc/uwsgi/uwsgi.ini
         name: config
