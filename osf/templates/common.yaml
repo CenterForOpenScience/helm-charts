@@ -1,0 +1,3 @@
+{{- include "cos-common.configmap"     (dict "root" . "name" "common" "values" .Values.common) }}
+{{- include "cos-common.secret"        (dict "root" . "name" "common" "values" .Values.common) }}
+{{- include "cos-common.networkpolicy" (dict "root" . "name" "cert" "values" .Values.common) }}

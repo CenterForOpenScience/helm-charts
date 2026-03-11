@@ -1,0 +1,4 @@
+{{- include "cos-common.secret"     (dict "root" . "name" "purge" "values" .Values.purge) }}
+{{- include "cos-common.configmap"  (dict "root" . "name" "purge" "values" .Values.purge) }}
+{{- include "cos-common.pvc"        (dict "root" . "name" "purge" "values" .Values.purge) }}
+{{- include "cos-common.cronjob"    (dict "root" . "name" "purge" "values" .Values.purge) }}
