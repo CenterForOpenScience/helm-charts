@@ -206,8 +206,10 @@ metadata:
   {{- end }}
 
 type: {{ default "Opaque" $sec.type }}
-{{/* Render data/stringData produced by the helper. */}}
-{{ $dataBlock | nindent 0 }}
+{{- /* Render data/stringData produced by the helper. */ -}}
+{{- with ($dataBlock | trim) }}
+{{ . | indent 0 }}
+{{- end }}
 {{- /* Optional immutability flag. */}}
 {{- with $sec.immutable }}
 immutable: {{ . }}
