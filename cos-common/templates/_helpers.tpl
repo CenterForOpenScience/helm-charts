@@ -826,7 +826,8 @@ Callers provide a renderer template name for the resource body.
 {{- $error := default "additional entry must have either name or fullnameOverride" .error -}}
 {{- $renderer := .renderer -}}
 {{- range $item := $items }}
-  {{- $itemEnabled := or (not (hasKey $item "enabled")) (eq (toString $item.enabled) "true") -}}
+  {{- $enabledRaw := lower (trim (toString $item.enabled)) -}}
+  {{- $itemEnabled := or (not (hasKey $item "enabled")) (eq $enabledRaw "true") -}}
   {{- if $itemEnabled }}
     {{- $name := include "cos-common.resolveAdditionalName" (dict "fullnameOverride" $item.fullnameOverride "name" $item.name "prefix" $namePrefix "error" $error) }}
     {{- $labels := merge (dict) (default (dict) $values.labels) (default (dict) $item.labels) -}}
