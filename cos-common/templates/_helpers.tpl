@@ -76,7 +76,7 @@ Trim any name to <=63 characters and remove trailing hyphen.
 */}}
 {{- define "cos-common.trim63" -}}
 {{- trunc 63 . | trimSuffix "-" -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Resolve the chart name, honoring nameOverride.
@@ -85,7 +85,7 @@ Resolve the chart name, honoring nameOverride.
 {{- $root := .root -}}
 {{- $name := default $root.Chart.Name $root.Values.nameOverride -}}
 {{- include "cos-common.trim63" $name -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Resolve the Helm chart version label.
@@ -95,7 +95,7 @@ Resolve the Helm chart version label.
 {{- $sanitizedVersion := replace "+" "_" $root.Chart.Version -}}
 {{- $label := printf "%s-%s" $root.Chart.Name $sanitizedVersion -}}
 {{- include "cos-common.trim63" $label -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Resolve the release base name, honoring fullnameOverride.
@@ -105,9 +105,9 @@ Resolve the release base name, honoring fullnameOverride.
 {{- $name := $root.Release.Name -}}
 {{- if $root.Values.fullnameOverride }}
 {{- $name = tpl $root.Values.fullnameOverride $root -}}
-{{ end }}
+{{- end }}
 {{- include "cos-common.trim63" $name -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Compute the component fullname (<release>-<chart>-<component>)
@@ -138,7 +138,7 @@ If .name is empty, fall back to the chart name.
 {{- else -}}
 {{- include "cos-common.chartName" (dict "root" .root) -}}
 {{- end -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Common labels shared across objects.
@@ -150,10 +150,10 @@ app.kubernetes.io/managed-by: {{ .root.Release.Service }}
 app.kubernetes.io/component: {{ include "cos-common.componentName" . }}
 {{- with .root.Chart.AppVersion }}
 app.kubernetes.io/version: {{ quote . }}
-{{ end }}
+{{- end }}
 app.kubernetes.io/part-of: {{ include "cos-common.chartName" (dict "root" .root) }}
 helm.sh/chart: {{ include "cos-common.chartVersion" (dict "root" .root) }}
-{{ end }}
+{{- end }}
 
 {{/*
 Labels applied to selectors.
@@ -162,14 +162,14 @@ Labels applied to selectors.
 app.kubernetes.io/name: {{ include "cos-common.chartName" (dict "root" .root) }}
 app.kubernetes.io/instance: {{ .root.Release.Name }}
 app.kubernetes.io/component: {{ include "cos-common.componentName" . }}
-{{ end }}
+{{- end }}
 
 {{/*
 Labels applied to pods (match selectors).
 */}}
 {{- define "cos-common.podLabels" -}}
 {{- include "cos-common.selectorLabels" . }}
-{{ end }}
+{{- end }}
 
 {{/*
 Compose image reference supporting tag or digest.
@@ -179,7 +179,7 @@ Compose image reference supporting tag or digest.
 {{- $root := default dict .root -}}
 {{- if not $img.repository }}
 {{- fail (printf "component %s requires image.repository" .name) -}}
-{{ end }}
+{{- end }}
 {{- $repo := tpl (toString $img.repository) $root -}}
 {{- $tag := "" -}}
 {{- $digest := "" -}}
@@ -191,7 +191,7 @@ Compose image reference supporting tag or digest.
 {{- printf "%s:%s" $repo $tag -}}
 {{- else -}}
 {{- printf "%s:latest" $repo -}}
-{{ end }}
+{{- end }}
 {{- end -}}
 
 {{/*
@@ -202,14 +202,14 @@ name: {{ include "cos-common.fullname" . | trim }}
 labels:
   {{- include "cos-common.labels" . | nindent 2 }}
   {{- with .values.labels }}
-  {{ tpl (toYaml .) .root | nindent 2 }}
-  {{ end }}
+  {{- tpl (toYaml .) .root | nindent 2 }}
+  {{- end }}
 {{- with .values.annotations }}
 annotations:
   {{- $anns := tpl (toYaml .) .root | trimSuffix "\n" }}
-  {{ $anns | nindent 2 }}
-{{ end }}
-{{ end }}
+  {{- $anns | nindent 2 }}
+{{- end }}
+{{- end }}
 
 {{/*
 Merge component annotations with resource-specific annotations.
@@ -262,7 +262,6 @@ labels:
   {{ $k }}: {{ tpl (printf "%s" $v) $.root | quote }}
   {{- end }}
   {{- end }}
-
 {{- with .values.podAnnotations }}
 annotations:
   {{- range $k, $v := . }}
@@ -278,8 +277,8 @@ Helper to render list values with tpl evaluation.
 {{- define "cos-common.renderList" -}}
 {{- with .list }}
 {{ tpl (toYaml .) $.root }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Helper to render map values with tpl evaluation.
@@ -287,8 +286,8 @@ Helper to render map values with tpl evaluation.
 {{- define "cos-common.renderMap" -}}
 {{- with .map }}
 {{ tpl (toYaml .) $.root }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Normalize a port map by templating values and casting numeric strings to integers.
@@ -302,7 +301,7 @@ Normalize a port map by templating values and casting numeric strings to integer
   {{- end }}
 {{- end }}
 {{- $port | toJson -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Normalize a probe map and cast httpGet/tcpSocket port strings of digits to integers.
@@ -323,7 +322,7 @@ Keeps probes usable when values are templated as strings.
   {{- end }}
 {{- end }}
 {{- toYaml $probe -}}
-{{ end }}
+{{- end }}
 
 {{/*
 Render a service port block, templating strings and converting digit-only strings to numbers.
@@ -344,7 +343,7 @@ name: {{ $val }}
 {{- else }}
 number: {{ $port }}
 {{- end }}
-{{ end }}
+{{- end }}
 
 {{/*
 Build copy script for TLS certificates.
@@ -382,25 +381,25 @@ imagePullPolicy: {{ $pullPolicy }}
 {{- with $vals.command }}
 command:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.args }}
 args:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.workingDir }}
 workingDir: {{ tpl . $.root }}
-{{ end }}
+{{- end }}
 {{- $env := default (list) $vals.env -}}
 {{- $extraEnv := default (list) $vals.extraEnv -}}
 {{- $combinedEnv := concat $env $extraEnv -}}
 {{- if gt (len $combinedEnv) 0 }}
 env:
 {{ include "cos-common.renderList" (dict "list" $combinedEnv "root" $.root) | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.envFrom }}
 envFrom:
 {{ include "cos-common.renderList" (dict "list" . "root" $.root) | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.ports }}
   {{- $ports := list }}
   {{- range . }}
@@ -409,30 +408,30 @@ envFrom:
   {{- end }}
 ports:
 {{ $ports | toYaml | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $probes.liveness }}
 livenessProbe:
 {{ include "cos-common.normalizeProbe" (dict "root" $.root "probe" .) | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $probes.readiness }}
 readinessProbe:
 {{ include "cos-common.normalizeProbe" (dict "root" $.root "probe" .) | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $probes.startup }}
 startupProbe:
 {{ include "cos-common.normalizeProbe" (dict "root" $.root "probe" .) | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.lifecycle }}
 lifecycle:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- $volumeMounts := list }}
 {{- with $vals.volumeMounts }}
 {{- $volumeMounts = concat $volumeMounts . }}
-{{ end }}
+{{- end }}
 {{- with $vals.additionalVolumeMounts }}
 {{- $volumeMounts = concat $volumeMounts . }}
-{{ end }}
+{{- end }}
 {{- if $tlsConfigs }}
   {{- range $app, $cfg := $tlsConfigs }}
     {{- if or (not $cfg.mountToContainer) (eq $cfg.mountToContainer $containerName) }}
@@ -443,16 +442,16 @@ lifecycle:
 {{- if gt (len $volumeMounts) 0 }}
 volumeMounts:
 {{ tpl (toYaml $volumeMounts) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.securityContext }}
 securityContext:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.resources }}
 resources:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Render additional containers (sidecars/extra).
@@ -465,10 +464,10 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
 {{- $containers := list -}}
 {{- with $vals.sidecars }}
 {{- $containers = concat $containers . -}}
-{{ end }}
+{{- end }}
 {{- with $vals.additionalContainers }}
 {{- $containers = concat $containers . -}}
-{{ end }}
+{{- end }}
 {{- $rendered := list -}}
 {{- range $containers }}
   {{- $c := deepCopy . -}}
@@ -559,7 +558,7 @@ adds TLS mounts, normalizes ports/probes, and strips helper-only keys before ren
 {{- if gt (len $rendered) 0 }}
 {{ tpl (toYaml $rendered) $.root }}
 {{- end }}
-{{ end }}
+{{- end }}
 
 {{/*
 Render init containers.
@@ -570,10 +569,10 @@ Render init containers.
 {{- $items := list -}}
 {{- with $vals.initContainers }}
 {{- $items = concat $items . -}}
-{{ end }}
+{{- end }}
 {{- with $vals.additionalInitContainers }}
 {{- $items = concat $items . -}}
-{{ end }}
+{{- end }}
 {{- if $tlsConfigs }}
   {{- $initCfg := include "cos-common.initCertConfig" (dict "values" $vals) | fromYaml -}}
   {{- $tlsVolumeMounts := list -}}
@@ -605,8 +604,8 @@ Render init containers.
 {{- if gt (len $items) 0 }}
 initContainers:
 {{ tpl (toYaml $items) $.root | nindent 2 }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Resolve the claim name for persistence (component-level or per-volume).
@@ -646,10 +645,10 @@ Render volumes (including additionalVolumes).
 {{- $items := list -}}
 {{- with $vals.volumes }}
 {{- $items = concat $items . -}}
-{{ end }}
+{{- end }}
 {{- with $vals.additionalVolumes }}
 {{- $items = concat $items . -}}
-{{ end }}
+{{- end }}
 {{- $processed := list -}}
 {{- range $items }}
   {{- $volume := omit . "persistence" -}}
@@ -691,8 +690,8 @@ Render volumes (including additionalVolumes).
 {{- if gt (len $items) 0 }}
 volumes:
 {{ tpl (toYaml $items) $.root | nindent 2 }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Shared pod spec bits.
@@ -702,66 +701,66 @@ Shared pod spec bits.
 {{- $tlsConfigs := (include "cos-common.enabledInitContainersCertificate" (dict "root" $.root "values" $vals)) | fromYaml }}
 {{- with $vals.serviceAccountName }}
 serviceAccountName: {{ tpl . $.root }}
-{{ end }}
+{{- end }}
 {{- with $vals.automountServiceAccountToken }}
 automountServiceAccountToken: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.hostNetwork }}
 hostNetwork: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.hostPID }}
 hostPID: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.hostIPC }}
 hostIPC: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.dnsPolicy }}
 dnsPolicy: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.dnsConfig }}
 dnsConfig:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.hostAliases }}
 hostAliases:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.schedulerName }}
 schedulerName: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.terminationGracePeriodSeconds }}
 terminationGracePeriodSeconds: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.restartPolicy }}
 restartPolicy: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.imagePullSecrets }}
 imagePullSecrets:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.podSecurityContext }}
 securityContext:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.priorityClassName }}
 priorityClassName: {{ tpl . $.root }}
-{{ end }}
+{{- end }}
 {{- with $vals.runtimeClassName }}
 runtimeClassName: {{ tpl . $.root }}
-{{ end }}
+{{- end }}
 {{- with $vals.shareProcessNamespace }}
 shareProcessNamespace: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.enableServiceLinks }}
 enableServiceLinks: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.preemptionPolicy }}
 preemptionPolicy: {{ . }}
-{{ end }}
+{{- end }}
 {{- with $vals.topologySpreadConstraints }}
 topologySpreadConstraints:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- /* Merge the base affinity with additionalAffinities (later entries win). */ -}}
 {{- $affinity := dict -}}
 {{- if $vals.affinity }}
@@ -779,23 +778,23 @@ affinity:
 {{- with $vals.nodeSelector }}
 nodeSelector:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.tolerations }}
 tolerations:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{- with $vals.readinessGates }}
 readinessGates:
 {{ tpl (toYaml .) $.root | nindent 2 }}
-{{ end }}
+{{- end }}
 {{ include "cos-common.initContainers" (dict "root" .root "name" .name "values" $vals "tlsConfigs" $tlsConfigs) }}
 containers:
   - {{- include "cos-common.mainContainer" (dict "root" .root "name" .name "values" $vals "tlsConfigs" $tlsConfigs) | nindent 4 }}
 {{- with (include "cos-common.additionalContainers" (dict "root" .root "name" .name "values" $vals "tlsConfigs" $tlsConfigs)) }}
 {{ . | nindent 2 }}
-{{ end }}
+{{- end }}
 {{ include "cos-common.volumes" (dict "root" .root "name" .name "values" $vals "tlsConfigs" $tlsConfigs) }}
-{{ end }}
+{{- end }}
 
 {{/*
 Resolve a name for additional resources (configmaps/secrets) with either name or fullnameOverride.
@@ -827,7 +826,8 @@ Callers provide a renderer template name for the resource body.
 {{- $error := default "additional entry must have either name or fullnameOverride" .error -}}
 {{- $renderer := .renderer -}}
 {{- range $item := $items }}
-  {{- $itemEnabled := or (not (hasKey $item "enabled")) (eq (toString $item.enabled) "true") -}}
+  {{- $enabledRaw := lower (trim (toString $item.enabled)) -}}
+  {{- $itemEnabled := or (not (hasKey $item "enabled")) (eq $enabledRaw "true") -}}
   {{- if $itemEnabled }}
     {{- $name := include "cos-common.resolveAdditionalName" (dict "fullnameOverride" $item.fullnameOverride "name" $item.name "prefix" $namePrefix "error" $error) }}
     {{- $labels := merge (dict) (default (dict) $values.labels) (default (dict) $item.labels) -}}
@@ -843,6 +843,7 @@ Callers provide a renderer template name for the resource body.
         "fromOverride" (and (hasKey $item "fullnameOverride") $item.fullnameOverride)
       )
     }}
+    {{- print "\n" -}}
   {{- end }}
 {{- end }}
 {{- end }}
@@ -884,20 +885,21 @@ data:
       {{- $_ := set $renderedData $key $value }}
     {{- end }}
   {{- end }}
-{{ toYaml $renderedData | nindent 2 }}
+{{ toYaml $renderedData | indent 2 }}
 {{- else }}
-{{ toYaml $data | nindent 2 }}
+{{ toYaml $data | indent 2 }}
 {{- end }}
 
 {{- if gt (len $binaryData) 0 }}
 binaryData:
-{{ toYaml $binaryData | nindent 2 }}
+{{ toYaml $binaryData | indent 2 }}
 {{- end }}
 
 {{- with $item.immutable }}
 immutable: {{ . }}
 {{- end }}
-{{ end }}
+{{- print "\n" -}}
+{{- end }}
 
 
 {{/*
@@ -924,11 +926,15 @@ metadata:
     {{- tpl (toYaml .) $root | nindent 4 }}
   {{- end }}
 type: {{ default "Opaque" $item.type }}
-{{ $dataBlock | nindent 0 }}
+{{- /* Render data/stringData produced by the helper. */ -}}
+{{- with ($dataBlock | trim) }}
+{{ . | indent 0 }}
+{{- end }}
 {{- with $item.immutable }}
 immutable: {{ . }}
 {{- end }}
-{{ end }}
+{{- print "\n" -}}
+{{- end }}
 
 
 {{/*

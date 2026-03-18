@@ -16,7 +16,7 @@
 {{- $maxReplicas := tpl (toString (default 1 $hpa.maxReplicas)) .root | int -}}
 {{- if not $metrics }}
 {{- $metrics = list (dict "type" "Resource" "resource" (dict "name" "cpu" "target" (dict "type" "Utilization" "averageUtilization" 70))) -}}
-{{ end }}
+{{- end }}
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -34,10 +34,11 @@ spec:
   metrics:
     {{- range $metric := $metrics }}
     - {{ tpl (toYaml $metric) $.root | nindent 6 }}
-    {{ end }}
+    {{- end }}
   {{- with $hpa.behavior }}
   behavior:
     {{- tpl (toYaml .) $.root | nindent 4 }}
-  {{ end }}
-{{ end }}
-{{ end }}
+  {{- end }}
+{{- printf "\n" -}}
+{{- end }}
+{{- end }}

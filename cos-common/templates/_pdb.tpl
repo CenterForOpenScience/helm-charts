@@ -20,12 +20,13 @@ spec:
   {{- /* Choose either minAvailable or maxUnavailable based on caller input. */}}
   {{- with $pdb.minAvailable }}
   minAvailable: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $pdb.maxUnavailable }}
   maxUnavailable: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $pdb.unhealthyPodEvictionPolicy }}
   unhealthyPodEvictionPolicy: {{ . }}
-  {{ end }}
-{{ end }}
-{{ end }}
+  {{- end }}
+{{- printf "\n" -}}
+{{- end }}
+{{- end }}

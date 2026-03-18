@@ -98,12 +98,12 @@
    ============================================================================ */}}
 {{- if gt (len $encoded) 0 }}
 data:
-{{ toYaml $encoded | nindent 2 }}
+{{ toYaml $encoded | indent 2 }}
 {{- end }}
 
 {{- if gt (len $stringData) 0 }}
 stringData:
-{{ tpl (toYaml $stringData) $root | nindent 2 }}
+{{ tpl (toYaml $stringData) $root | indent 2 }}
 {{- end }}
 
 {{- end }}
@@ -206,10 +206,10 @@ metadata:
   {{- end }}
 
 type: {{ default "Opaque" $sec.type }}
-
-{{/* Render data/stringData produced by the helper. */}}
-{{ $dataBlock | nindent 0 }}
-
+{{- /* Render data/stringData produced by the helper. */ -}}
+{{- with ($dataBlock | trim) }}
+{{ . | indent 0 }}
+{{- end }}
 {{- /* Optional immutability flag. */}}
 {{- with $sec.immutable }}
 immutable: {{ . }}

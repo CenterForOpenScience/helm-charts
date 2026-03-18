@@ -18,5 +18,6 @@ metadata:
 spec:
   {{- /* jobSpec helper keeps CronJob and Job behavior consistent. */}}
   {{- include "cos-common.jobSpec" (dict "root" .root "name" .name "values" $vals "suspend" $vals.suspend "includeManualSelector" true) | nindent 2 }}
-{{ end }}
-{{ end }}
+{{- printf "\n" -}}
+{{- end }}
+{{- end }}

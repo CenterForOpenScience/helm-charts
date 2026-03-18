@@ -17,21 +17,21 @@ spec:
   replicas: {{ default 1 $vals.replicas }}
   {{- with $vals.revisionHistoryLimit }}
   revisionHistoryLimit: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $vals.minReadySeconds }}
   minReadySeconds: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $vals.podManagementPolicy }}
   podManagementPolicy: {{ . }}
-  {{ end }}
+  {{- end }}
   {{- with $vals.updateStrategy }}
   updateStrategy:
     {{- tpl (toYaml .) $.root | nindent 4 }}
-  {{ end }}
+  {{- end }}
   {{- with $vals.ordinals }}
   ordinals:
     {{- tpl (toYaml .) $.root | nindent 4 }}
-  {{ end }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "cos-common.selectorLabels" . | nindent 6 }}
@@ -45,11 +45,12 @@ spec:
     {{- range $vct := . }}
     {{- /* Allow templated volume claims so each replica gets its own PVC. */}}
     - {{ tpl (toYaml $vct) $.root | nindent 6 }}
-    {{ end }}
-  {{ end }}
+    {{- end }}
+  {{- end }}
   {{- with $vals.persistentVolumeClaimRetentionPolicy }}
   persistentVolumeClaimRetentionPolicy:
     {{- tpl (toYaml .) $.root | nindent 4 }}
-  {{ end }}
-{{ end }}
-{{ end }}
+  {{- end }}
+{{- printf "\n" -}}
+{{- end }}
+{{- end }}
