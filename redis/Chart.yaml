@@ -1,17 +1,41 @@
-name: redis
-apiVersion: v1
-version: 1.1.3
-appVersion: 4.0.6
-description: Open source, advanced key-value store. It is often referred to as a data structure server since keys can contain strings, hashes, lists, sets and sorted sets.
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+annotations:
+  images: |
+    - name: kubectl
+      image: docker.io/bitnami/kubectl:1.33.4-debian-12-r0
+    - name: os-shell
+      image: docker.io/bitnami/os-shell:12-debian-12-r51
+    - name: redis
+      image: docker.io/bitnamilegacy/redis:8.2.1-debian-12-r0
+    - name: redis-exporter
+      image: docker.io/bitnami/redis-exporter:1.76.0-debian-12-r0
+    - name: redis-sentinel
+      image: docker.io/bitnami/redis-sentinel:8.2.1-debian-12-r0
+  licenses: Apache-2.0
+  tanzuCategory: service
+apiVersion: v2
+appVersion: 8.2.1
+dependencies:
+- name: common
+  version: 2.31.8
+  repository: https://centerforopenscience.github.io/helm-charts/
+  tags:
+  - bitnami-common
+description: Redis(R) is an open source, advanced key-value store. It is often referred
+  to as a data structure server since keys can contain strings, hashes, lists, sets
+  and sorted sets.
+home: https://bitnami.com
+icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/redis/img/redis-stack-220x234.png
 keywords:
 - redis
 - keyvalue
 - database
-home: http://redis.io/
-icon: https://bitnami.com/assets/stacks/redis/img/redis-stack-220x234.png
-sources:
-- https://github.com/bitnami/bitnami-docker-redis
 maintainers:
-- name: bitnami-bot
-  email: containers@bitnami.com
-engine: gotpl
+- name: Broadcom, Inc. All Rights Reserved.
+  url: https://github.com/bitnami/charts
+name: redis
+sources:
+- https://github.com/bitnami/charts/tree/main/bitnami/redis
+version: 23.1.1
