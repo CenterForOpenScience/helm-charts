@@ -2,7 +2,7 @@ apiVersion: v2
 name: wb
 description: WaterButler is a Python web application for interacting with various file storage services via a single RESTful API
 type: application
-version: 1.0.0
+version: 1.0.1
 keywords:
   - files
   - storage
@@ -21,10 +21,10 @@ maintainers:
     url: https://github.com/uditijmehta
 dependencies:
   - name: cos-common
-    version: 1.0.0
+    version: 1.0.2
     repository: https://centerforopenscience.github.io/helm-charts/
   # - name: cos-common
-  #   version: 1.0.0
+  #   version: 1.0.2
   #   repository: "file://../cos-common"
   - name: redis
     version: 1.1.3
