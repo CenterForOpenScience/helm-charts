@@ -14,10 +14,10 @@ maintainers:
     url: https://github.com/mfraezz
 dependencies:
   # - name: cos-common
-  #   version: 1.0.2
+  #   version: 1.0.3
   #   repository: "file://../cos-common"
   - name: cos-common
-    version: 1.0.2
+    version: 1.0.3
     repository: https://centerforopenscience.github.io/helm-charts/
   # WORKAROUND: ElasticSearch chart versions must match due to a bug in helm package, see: https://github.com/helm/helm/issues/3909
   - name: elasticsearch-old
