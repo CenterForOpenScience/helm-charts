@@ -143,6 +143,8 @@ main:
       envFrom:
         - configMapRef:
             name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
+        - configMapRef:
+            name: '{{ include "cos-common.fullname" (dict "root" . "name" "tornado-env") | trim }}'    
         - secretRef:
             name: '{{ include "cos-common.fullname" (dict "root" . "name" "common-env") | trim }}'
       ports:
@@ -192,6 +194,7 @@ main:
   podAnnotations:
     checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
     checksum/main-config-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-tornado-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "tornado-env" "values" .Values.main "resource" "configmap") }}'
     checksum/main-secret: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "secret") }}'
     checksum/main-secret-common-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "common-env" "values" .Values.main "resource" "secret") }}'
 
@@ -319,6 +322,11 @@ main:
         ## If Redis enabled <----
         # SERVER_CONFIG_REDIS_HOST: "{{ .Release.Name }}-redis.{{ .Release.Namespace }}.svc.cluster.local }}"
         # SERVER_CONFIG_REDIS_PORT: "{{ .Values.redis.service.port }}"
+
+    - name: tornado-env
+      enabled: true
+      tpl: false
+      data: {}
 
 
 # ------- Secrets configuration -------
