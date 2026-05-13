@@ -1570,17 +1570,16 @@ task:
       ordinal=${BASH_REMATCH[1]}
       declare -A ord_queue_map
       {{- range $k, $v := $.Values.task.queues_by_ordinal}}
-      ord_queue_map[{{$k}}]={{$v}}
+      ord_queue_map[{{$k}}]="{{$v}}"
       {{- end }}
-      if [[ "$ord_queue_map[$ordinal]" ]]; then
-        POSTFIX="--queues $ord_queue_map[$ordinal]"
+      if [[ ${ord_queue_map[$ordinal]+_} ]]; then
+        POSTFIX="--queues \"${ord_queue_map[$ordinal]}\""
       fi
       {{- end}}
       su-exec www-data celery --app framework.celery_tasks worker \
         --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
-        --hostname $POD_NAME --without-gossip -Ofair \
-        {{- if .Values.task.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.task.maxTasksPerChild }}"{{- end }} \
-        $POSTFIX
+        --hostname $POD_NAME --without-gossip -Ofair
+        {{- if .Values.task.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.task.maxTasksPerChild }}"{{- end }} $POSTFIX
 
   env: []
 
