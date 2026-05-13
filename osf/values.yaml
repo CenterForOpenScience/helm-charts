@@ -1554,25 +1554,33 @@ task:
   logLevel: INFO
   # maxTasksPerChild: 5
   # queues: logged-tasks
-  reserve_worker: false
+  # queues_by_ordinal:
+  #   0: "high"
 
   command:
     - /bin/bash
     - -c
     - |-
-      POSTFIX=''
-      {{- if .Values.task.reserve_worker }}
+      POSTFIX=""
+      {{- if .Values.task.queues }}
+      POSTFIX="--queues {{.Values.task.queues}}"
+      {{- end}}
+      {{- if .Values.task.queues_by_ordinal }}
       [[ `hostname` =~ -([0-9]+)$ ]]
       ordinal=${BASH_REMATCH[1]}
-      if [[ $ordinal -eq 0 ]]; then
-        POSTFIX='--exclude-queues low,celery'
+      declare -A ord_queue_map
+      {{- range $k, $v := $.Values.task.queues_by_ordinal}}
+      ord_queue_map[{{$k}}]={{$v}}
+      {{- end }}
+      if [[ "$ord_queue_map[$ordinal]" ]]; then
+        POSTFIX="--queues $ord_queue_map[$ordinal]"
       fi
       {{- end}}
       su-exec www-data celery --app framework.celery_tasks worker \
         --concurrency "{{ .Values.task.concurrency }}" --loglevel "{{ .Values.task.logLevel }}" \
-        --hostname $POD_NAME --without-gossip -Ofair
-        {{- if .Values.task.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.task.maxTasksPerChild }}"{{- end }}
-        {{- if .Values.task.queues }} --queues "{{ .Values.task.queues }}"{{- end}} $POSTFIX
+        --hostname $POD_NAME --without-gossip -Ofair \
+        {{- if .Values.task.maxTasksPerChild }} --max-tasks-per-child "{{ .Values.task.maxTasksPerChild }}"{{- end }} \
+        $POSTFIX
 
   env: []
 
