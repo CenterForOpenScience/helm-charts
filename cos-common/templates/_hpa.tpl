@@ -9,7 +9,7 @@
 {{- $annotations := include "cos-common.annotations" (dict "values" $vals "resource" $hpa.annotations) | fromJson -}}
 {{- $fullnameOverride := coalesce $hpa.name $hpa.fullnameOverride $vals.fullnameOverride -}}
 {{- $scaleTargetDefaults := dict "apiVersion" "apps/v1" "kind" "Deployment" -}}
-{{- $scaleTarget := merge $scaleTargetDefaults (default (dict) $hpa.scaleTargetRef) -}}
+{{- $scaleTarget := merge (default (dict) $hpa.scaleTargetRef) $scaleTargetDefaults -}}
 {{- $targetName := coalesce $hpa.scaleTargetName $scaleTarget.name (include "cos-common.fullname" (dict "root" .root "name" .name "values" $vals)) -}}
 {{- $metrics := $hpa.metrics -}}
 {{- $minReplicas := tpl (toString (default 1 $hpa.minReplicas)) .root | int -}}
