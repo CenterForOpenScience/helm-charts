@@ -1,0 +1,22 @@
+apiVersion: v2
+name: pgpool
+description: PgPool Application
+type: application
+version: 1.0.0
+keywords:
+  - pgpool
+  - postgresql
+dependencies:
+  # - name: cos-common
+  #   version: 1.0.3
+  #   repository: "file://../cos-common"
+  - name: cos-common
+    version: 1.0.3
+    repository: https://centerforopenscience.github.io/helm-charts/
+maintainers:
+  - name: Matt Frazier
+    email: matt@cos.io
+    url: https://github.com/mfraezz
+  - name: Uditi Mehta
+    email: uditi@cos.io
+    url: https://github.com/uditijmehta

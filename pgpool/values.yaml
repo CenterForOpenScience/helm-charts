@@ -1,0 +1,194 @@
+### ---------- Global or Reusable parts across values.yaml ----------
+image:
+  repository: pgpool/pgpool
+  tag: 4.4.2
+  pullPolicy: Always
+
+## Remember that full name for all objects is '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+## or in other form current naming is Release.Name-Chart.Name
+
+# =============== MAIN Component ===============
+main:
+  enabled: true
+
+  replicas: 1
+
+  http:
+    containers:
+      pgpool:
+        serviceType: NodePort
+        internalPort: 5432
+        externalPort: 5432
+
+  pgpool:
+    config:
+      backend_hostname0: "host0.local" # Required, override
+      # # Defaults:
+      # listen_addresses: "*"
+      # port: 5432
+      # pcp_listen_addresses: "*"
+      # pcp_port: 9898
+      # backend_port0: 5432
+      # backend_weight0: 1
+      # backend_flag0: "ALWAYS_PRIMARY|DISALLOW_TO_FAILOVER"
+      # backend_hostname1: "host1"
+      # backend_port1: 5432
+      # backend_weight1: 2
+      # backend_flag1: "DISALLOW_TO_FAILOVER"
+      # sr_check_period: 0
+      # health_check_period: 0
+      # backend_clustering_mode: "streaming_replication"
+      # num_init_children: 32
+      # max_pool: 4
+      # child_life_time: 300
+      # child_max_connections: 0
+      # connection_life_time: 0
+      # client_idle_limit: 0
+      # log_per_node_statement: "on"
+      # master_slave_sub_mode: "stream"
+      # master_slave_mode: "on"
+      # load_balance_mode: "on"
+      # ssl: "on"
+      # enable_pool_hba: "off"
+      # failover_on_backend_error: "off"
+      # log_min_messages: "warning"
+      # log_statement: "on"
+      # log_destination: "'syslog,stderr'"
+      # ssl_cert: ""
+      # ssl_ca_cert: ""
+
+
+# ------- Configuration follows for containerName: pgpool -------
+  image:
+    repository: "{{ .Values.image.repository }}"
+    tag: "{{ .Values.image.tag }}"
+    pullPolicy: "{{ .Values.image.pullPolicy }}"
+
+  containerName: pgpool
+
+  env: []
+
+  envFrom:
+    - configMapRef:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "env") | trim }}'
+
+  probes:
+    liveness:
+      exec:
+        command:
+        - bash
+        - -c
+        - psql -h /tmp/ -w 2>&1 | grep "no password supplied"
+      failureThreshold: 5
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    readiness:
+      exec:
+        command:
+        - bash
+        - -c
+        - psql -h /tmp/ -w 2>&1 | grep "no password supplied"
+      failureThreshold: 5
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+
+  ports:
+    - name: pgpool
+      containerPort: "{{ .Values.main.http.containers.pgpool.internalPort }}"
+      protocol: TCP
+
+  volumeMounts:
+    - name: config
+      mountPath: /config/pgpool.conf
+      subPath: pgpool.conf
+      readOnly: true
+
+  additionalVolumeMounts: []
+
+  resources: {}
+
+
+# ------- Additional containers -------
+  additionalContainers: []
+
+
+# ------- Volumes configuration for the pod -------
+  volumes:
+    - name: config
+      configMap:
+        name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+
+  additionalVolumes: []
+
+
+# ------- Affitnity configuration -------
+  affinity: {}
+    # podAntiAffinity:
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #       podAffinityTerm:
+    #         topologyKey: kubernetes.io/hostname
+    #         labelSelector:
+    #           matchLabels:
+    #             app.kubernetes.io/name: "{{ .Chart.Name }}"
+    #             app.kubernetes.io/instance: "{{ .Release.Name }}"
+    #             app.kubernetes.io/component: "{{ .Chart.Name }}" # in this case (always for main) component name = chart name, because we leave name in main.yaml empty.
+
+  additionalAffinities: []
+    # - nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #         - matchExpressions:
+    #             - key: cloud.google.com/gke-preemptible
+    #               operator: In
+    #               values:
+    #                 - "true"
+
+
+# ------- Pod Annotations -------
+  podAnnotations:
+    checksum/main-config: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "" "values" .Values.main "resource" "configmap") }}'
+    checksum/main-config-env: '{{ include "cos-common.componentChecksum" (dict "root" . "name" "env" "values" .Values.main "resource" "configmap") }}'
+
+
+# ------- Service configuration -------
+# service name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  service:
+    enabled: true
+    type: "{{ .Values.main.http.containers.pgpool.serviceType }}"
+    ports:
+      - name: pgpool
+        port: "{{ .Values.main.http.containers.pgpool.externalPort }}"
+        targetPort: "{{ .Values.main.http.containers.pgpool.internalPort }}"
+
+
+# ------- PDB configuration -------
+  pdb:
+    enabled: false
+    minAvailable: 1
+
+
+# ------- ConfigMap configuration -------
+# ConfigMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}'
+  configMap:
+    enabled: true
+    tpl: true
+    data:
+      pgpool.conf: |
+        {{ tpl (.Files.Get "files/pgpool.conf") (dict "Values" .Values "root" .) }}
+
+# Additional configMap name: '{{ include "cos-common.fullname" (dict "root" . "name" "") | trim }}' + name
+  additionalConfigMaps:
+    - name: env
+      enabled: true
+      tpl: false
+      data:
+        PGPOOL_CONF_VOLUME: "/config"
+
+
+# ------- Selectors and etc. -------
+  nodeSelector: {}
