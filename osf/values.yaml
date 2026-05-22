@@ -1573,7 +1573,7 @@ task:
       ord_queue_map[{{$k}}]="{{$v}}"
       {{- end }}
       if [[ ${ord_queue_map[$ordinal]+_} ]]; then
-        POSTFIX="--queues \"${ord_queue_map[$ordinal]}\""
+        POSTFIX="--queues ${ord_queue_map[$ordinal]}"
       fi
       {{- end}}
       su-exec www-data celery --app framework.celery_tasks worker \
