@@ -30,6 +30,10 @@ spec:
         {{- if .Values.additionalAffinities }}
         {{- toYaml .Values.additionalAffinities | nindent 8 }}
         {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- end }}
       containers:
         - name: redis
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
