@@ -1,0 +1,56 @@
+version: 0.1
+component: build
+timeoutInSeconds: 3600
+shell: bash
+failImmediatelyOnError: true
+env:
+  variables:
+    HELM_REPOSITORY_STABLE: "https://charts.helm.sh/stable"
+    CHART_BUNDLE: "helm-charts.tgz"
+  # vaultVariables:
+  #   key: "<TODO>"
+  exportedVariables:
+    - ARTIFACT_VERSION
+steps:
+  - type: Command
+    name: "Verify bundled Helm runtime"
+    command: |
+      ARTIFACT_VERSION="${OCI_PRIMARY_SOURCE_COMMIT_HASH}"
+      helm version
+  - type: Command
+    name: "Resolve chart dependencies"
+    command: |
+      cd "${OCI_PRIMARY_SOURCE_DIR}"
+      helm repo add stable "${HELM_REPOSITORY_STABLE}"
+      helm repo update
+
+      while IFS= read -r -d '' requirements_file; do
+        helm dependency build "$(dirname "${requirements_file}")"
+      done < <(find . -name requirements.yaml -print0)
+
+      helm dependency update ./postgresql-ha
+      helm dependency build ./postgresql-ha
+  - type: Command
+    name: "Lint charts"
+    command: |
+      cd "${OCI_PRIMARY_SOURCE_DIR}"
+      for chart in */; do
+        if [ -f "${chart}/Chart.yaml" ]; then
+          helm dependency build "${chart}"
+          helm lint "${chart}"
+        fi
+      done
+  - type: Command
+    name: "Package charts"
+    command: |
+      cd "${OCI_PRIMARY_SOURCE_DIR}"
+      package_dir="${OCI_WORKSPACE_DIR}/helm-packages"
+      rm -rf "${package_dir}"
+      mkdir -p "${package_dir}"
+      helm package -d "${package_dir}" */
+      #tar -C "${package_dir}" -czf "${OCI_WORKSPACE_DIR}/${CHART_BUNDLE}" .
+
+outputArtifacts:
+  - name: helm-chart-angular-osf
+    type: BINARY
+    location: ${OCI_WORKSPACE_DIR}/helm-packages/angular-osf-1.0.1.tgz
