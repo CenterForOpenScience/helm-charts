@@ -22,6 +22,7 @@ steps:
     command: |
       cd "${OCI_PRIMARY_SOURCE_DIR}"
       helm repo add stable "${HELM_REPOSITORY_STABLE}"
+      helm repo add cos https://centerforopenscience.github.io/helm-charts/
       helm repo update
 
       while IFS= read -r -d '' requirements_file; do
