@@ -1,0 +1,83 @@
+version: 0.1
+component: command
+timeoutInSeconds: 1800
+shell: bash
+failImmediatelyOnError: true
+
+env:
+  variables:
+    HELM_PUBLISH_BRANCH: "gh-pages"
+    HELM_PUBLISH_REPOSITORY_URL: "https://github.com/CenterForOpenScience/helm-charts.git"
+    GIT_COMMITTER_NAME: "OCI DevOps Helm Publisher"
+    GIT_COMMITTER_EMAIL: "oci-devops-helm-publisher@example.invalid"
+    GIT_TERMINAL_PROMPT: "0"
+  # Replace these with Vault secret OCIDs for a GitHub account that can push
+  # to HELM_PUBLISH_REPOSITORY_URL.
+  vaultVariables:
+    GITHUB_USERNAME: "<oci-vault-secret-ocid-for-github-username>"
+    GITHUB_TOKEN: "<oci-vault-secret-ocid-for-github-token>"
+
+# Replace artifactId with the Generic Artifact created for the build output
+# named `helm-chart-bundle`. The Deliver Artifacts stage must run first.
+inputArtifacts:
+  - name: helm-chart-bundle
+    type: GENERIC_ARTIFACT
+    artifactId: "<generic-artifact-ocid-for-helm-chart-bundle>"
+    location: /workspace/helm-charts.tgz
+
+steps:
+  - type: Command
+    name: "Verify command-stage prerequisites"
+    command: |
+      command -v git
+      git version
+      command -v helm
+      helm version
+
+  - type: Command
+    name: "Publish Helm charts"
+    command: |
+      package_dir="/workspace/helm-packages"
+      publish_dir="/workspace/helm-repo"
+      askpass_script="/workspace/git-askpass.sh"
+      : "${GITHUB_USERNAME:?GITHUB_USERNAME must be supplied by OCI Vault}"
+      : "${GITHUB_TOKEN:?GITHUB_TOKEN must be supplied by OCI Vault}"
+      : "${HELM_PUBLISH_REPOSITORY_URL:?HELM_PUBLISH_REPOSITORY_URL is required}"
+      test -f /workspace/helm-charts.tgz
+
+      case "${HELM_PUBLISH_REPOSITORY_URL}" in
+        https://github.com/*) ;;
+        *) echo "HELM_PUBLISH_REPOSITORY_URL must be an HTTPS GitHub repository URL" >&2; exit 1 ;;
+      esac
+
+      rm -rf "${package_dir}" "${publish_dir}"
+      mkdir -p "${package_dir}"
+      tar -xzf /workspace/helm-charts.tgz -C "${package_dir}"
+
+      # Git authenticates via this helper rather than attempting terminal input.
+      umask 077
+      printf '%s\n' '#!/usr/bin/env bash' \
+        'case "$1" in' \
+        '  *Username*) printf "%s\\n" "$GITHUB_USERNAME" ;;' \
+        '  *Password*) printf "%s\\n" "$GITHUB_TOKEN" ;;' \
+        '  *) exit 1 ;;' \
+        'esac' > "${askpass_script}"
+      chmod 700 "${askpass_script}"
+      trap 'rm -f "${askpass_script}"' EXIT
+      export GIT_ASKPASS="${askpass_script}"
+      export GIT_ASKPASS_REQUIRE=force
+
+      git clone --branch "${HELM_PUBLISH_BRANCH}" --single-branch \
+        "${HELM_PUBLISH_REPOSITORY_URL}" "${publish_dir}"
+      cp "${package_dir}/"*.tgz "${publish_dir}/"
+      helm repo index "${publish_dir}" --merge "${publish_dir}/index.yaml"
+
+      git -C "${publish_dir}" config user.name "${GIT_COMMITTER_NAME}"
+      git -C "${publish_dir}" config user.email "${GIT_COMMITTER_EMAIL}"
+      git -C "${publish_dir}" add --all
+      if ! git -C "${publish_dir}" diff --cached --quiet; then
+        git -C "${publish_dir}" commit -m "Update from OCI deployment ${OCI_DEPLOYMENT_ID}"
+        git -C "${publish_dir}" push origin "HEAD:refs/heads/${HELM_PUBLISH_BRANCH}"
+      else
+        echo "No Helm repository changes to publish."
+      fi

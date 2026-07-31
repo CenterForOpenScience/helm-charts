@@ -7,15 +7,16 @@ env:
   variables:
     HELM_REPOSITORY_STABLE: "https://charts.helm.sh/stable"
     CHART_BUNDLE: "helm-charts.tgz"
-  # vaultVariables:
+  vaultVariables:
+    OCI_HEML_REPO_AUTH_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqagkpumsibk36bvcfuaxqaqvzvehlyoil2byr5e3tyxczq"
   #   key: "<TODO>"
-  exportedVariables:
-    - ARTIFACT_VERSION
+  # exportedVariables:
+  #   - ARTIFACT_VERSION
 steps:
   - type: Command
     name: "Verify bundled Helm runtime"
     command: |
-      ARTIFACT_VERSION="${OCI_PRIMARY_SOURCE_COMMIT_HASH}"
+      #ARTIFACT_VERSION="${OCI_PRIMARY_SOURCE_COMMIT_HASH}"
       helm version
   - type: Command
     name: "Resolve chart dependencies"
@@ -49,11 +50,17 @@ steps:
       rm -rf "${package_dir}"
       mkdir -p "${package_dir}"
       helm package -d "${package_dir}" */
-      # TODO: extract these sensibly
-      ARTIFACT_VERSION="1.0.1"
+      # TODO: extract these sensibly, maybe
+      # ARTIFACT_VERSION="1.0.1"
       #tar -C "${package_dir}" -czf "${OCI_WORKSPACE_DIR}/${CHART_BUNDLE}" .
+  - type: Command
+    name: "Push Charts to OCI Repo"
+    command:
+      helm registry login iad.ocir.io -u noreply@cos.io -p ${OCI_HEML_REPO_AUTH_TOKEN}
+      cd "${OCI_WORKSPACE_DIR}/helm-packages"
+      helm push *.tgz oci://iad.ocir.io/idvyorynw6xy/test-helm-charts
 
-outputArtifacts:
-  - name: helm-chart-angular-osf
-    type: BINARY
-    location: /workspace/helm-packages/angular-osf-${ARTIFACT_VERSION}.tgz
+# outputArtifacts:
+#   - name: helm-chart-angular-osf
+#     type: BINARY
+#     location: /workspace/helm-packages/angular-osf-${ARTIFACT_VERSION}.tgz
