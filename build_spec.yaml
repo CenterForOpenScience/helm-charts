@@ -49,9 +49,11 @@ steps:
       rm -rf "${package_dir}"
       mkdir -p "${package_dir}"
       helm package -d "${package_dir}" */
+      # TODO: extract these sensibly
+      ARTIFACT_VERSION="1.0.1"
       #tar -C "${package_dir}" -czf "${OCI_WORKSPACE_DIR}/${CHART_BUNDLE}" .
 
 outputArtifacts:
   - name: helm-chart-angular-osf
     type: BINARY
-    location: /workspace/helm-packages/angular-osf-1.0.1.tgz
+    location: /workspace/helm-packages/angular-osf-${ARTIFACT_VERSION}.tgz
