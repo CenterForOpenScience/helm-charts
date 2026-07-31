@@ -56,7 +56,7 @@ steps:
   - type: Command
     name: "Push Charts to OCI Repo"
     command:
-      helm registry login iad.ocir.io -u idvyorynw6xy/noreply@cos.io -p ${OCI_HEML_REPO_AUTH_TOKEN}
+      helm registry login iad.ocir.io -u idvyorynw6xy/nprdregtry -p ${OCI_HEML_REPO_AUTH_TOKEN}
       cd "${OCI_WORKSPACE_DIR}/helm-packages"
       helm push *.tgz oci://iad.ocir.io/idvyorynw6xy/test-helm-charts
 
