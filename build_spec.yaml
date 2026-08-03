@@ -55,7 +55,7 @@ steps:
       #tar -C "${package_dir}" -czf "${OCI_WORKSPACE_DIR}/${CHART_BUNDLE}" .
   - type: Command
     name: "Push Charts to OCI Repo"
-    command:
+    command: |
       helm registry login iad.ocir.io -u idvyorynw6xy/nprdregtry -p ${OCI_HEML_REPO_AUTH_TOKEN}
       cd "${OCI_WORKSPACE_DIR}/helm-packages"
       pwd
