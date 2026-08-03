@@ -48,12 +48,15 @@ steps:
         fi
       done
   - type: Command
-    name: "Package charts"
+    name: "Configure Git Repo and Package charts"
     command: |
       cd "${OCI_PRIMARY_SOURCE_DIR}"
       publish_dir="${OCI_WORKSPACE_DIR}/helm-repo"
       rm -rf "${publish_dir}"
       mkdir -p "${publish_dir}"
+      git -C "${publish_dir}" init
+      git -C "${publish_dir}" remote add -t ${HELM_PUBLISH_BRANCH} -f origin ${HELM_PUBLISH_REPOSITORY_URL}
+      git -C "${publish_dir}" checkout "${HELM_PUBLISH_BRANCH}"
       helm package -d "${publish_dir}" */
   - type: Command
     name: "Push Charts to OCI Repo"
@@ -97,9 +100,9 @@ steps:
 
       #git clone --branch "${HELM_PUBLISH_BRANCH}" --single-branch \
       #  "${HELM_PUBLISH_REPOSITORY_URL}" "${publish_dir}"
-      git -C "${publish_dir}" init
-      git -C "${publish_dir}" remote add -t ${HELM_PUBLISH_BRANCH} -f origin ${HELM_PUBLISH_REPOSITORY_URL}
-      git -C "${publish_dir}" checkout "${HELM_PUBLISH_BRANCH}"
+      # git -C "${publish_dir}" init
+      # git -C "${publish_dir}" remote add -t ${HELM_PUBLISH_BRANCH} -f origin ${HELM_PUBLISH_REPOSITORY_URL}
+      # git -C "${publish_dir}" checkout "${HELM_PUBLISH_BRANCH}"
       helm repo index "${publish_dir}" --merge "${publish_dir}/index.yaml"
 
       git -C "${publish_dir}" config user.name "${GIT_COMMITTER_NAME}"
