@@ -58,9 +58,9 @@ steps:
     command: |
       helm registry login iad.ocir.io -u idvyorynw6xy/nprdregtry -p ${OCI_HEML_REPO_AUTH_TOKEN}
       cd "${OCI_WORKSPACE_DIR}/helm-packages"
-      pwd
-      ls
-      helm push *.tgz oci://iad.ocir.io/idvyorynw6xy/test-helm-charts
+      for chart in *.tgz; do
+        helm push "$chart" oci://iad.ocir.io/idvyorynw6xy/test-helm-charts
+      done
 
 # outputArtifacts:
 #   - name: helm-chart-angular-osf
