@@ -109,7 +109,7 @@ steps:
       git -C "${publish_dir}" config user.email "${GIT_COMMITTER_EMAIL}"
       git -C "${publish_dir}" add .
       if ! git -C "${publish_dir}" diff --cached --quiet; then
-        git -C "${publish_dir}" commit -m "Update from OCI deployment ${OCI_DEPLOYMENT_ID}"
+        git -C "${publish_dir}" commit -m "Update from OCI Build Run\n- ${OCI_BUILD_RUN_ID}"
         git -C "${publish_dir}" push origin "HEAD:refs/heads/${HELM_PUBLISH_BRANCH}"
       else
         echo "No Helm repository changes to publish."
