@@ -15,13 +15,10 @@ env:
     OCI_HEML_REPO_AUTH_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqagkpumsibk36bvcfuaxqaqvzvehlyoil2byr5e3tyxczq"
     GITHUB_USERNAME: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqaf42fdmqha4aa7bmcrs2f43c3r3k7lnqd564z7ljgvflq"
     GITHUB_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqa6a6c4wcfut45rad3xlzyvlnfibtgngqm5crrk4kc2vhq"
-  # exportedVariables:
-  #   - ARTIFACT_VERSION
 steps:
   - type: Command
     name: "Verify bundled Helm runtime"
     command: |
-      #ARTIFACT_VERSION="${OCI_PRIMARY_SOURCE_COMMIT_HASH}"
       helm version
   - type: Command
     name: "Resolve chart dependencies"
@@ -98,20 +95,14 @@ steps:
       export GIT_ASKPASS="${askpass_script}"
       export GIT_ASKPASS_REQUIRE=force
 
-      #git clone --branch "${HELM_PUBLISH_BRANCH}" --single-branch \
-      #  "${HELM_PUBLISH_REPOSITORY_URL}" "${publish_dir}"
-      # git -C "${publish_dir}" init
-      # git -C "${publish_dir}" remote add -t ${HELM_PUBLISH_BRANCH} -f origin ${HELM_PUBLISH_REPOSITORY_URL}
-      # git -C "${publish_dir}" checkout "${HELM_PUBLISH_BRANCH}"
       helm repo index "${publish_dir}" --merge "${publish_dir}/index.yaml"
 
       git -C "${publish_dir}" config user.name "${GIT_COMMITTER_NAME}"
       git -C "${publish_dir}" config user.email "${GIT_COMMITTER_EMAIL}"
       git -C "${publish_dir}" add .
       if ! git -C "${publish_dir}" diff --cached --quiet; then
-        git -C "${publish_dir}" commit -m "Update from OCI Build Run\n- ${OCI_BUILD_RUN_ID}"
+        git -C "${publish_dir}" commit -m "Update from OCI Build Run for ${OCI_PRIMARY_SOURCE_COMMIT_HASH}"
         git -C "${publish_dir}" push origin "HEAD:refs/heads/${HELM_PUBLISH_BRANCH}"
       else
         echo "No Helm repository changes to publish."
       fi
-
