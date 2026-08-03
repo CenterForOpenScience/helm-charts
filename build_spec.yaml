@@ -13,8 +13,8 @@ env:
     GIT_TERMINAL_PROMPT: "0"
   vaultVariables:
     OCI_HEML_REPO_AUTH_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqagkpumsibk36bvcfuaxqaqvzvehlyoil2byr5e3tyxczq"
-    GITHUB_USERNAME: "<oci-vault-secret-ocid-for-github-username>"
-    GITHUB_TOKEN: "<oci-vault-secret-ocid-for-github-token>"
+    GITHUB_USERNAME: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqaf42fdmqha4aa7bmcrs2f43c3r3k7lnqd564z7ljgvflq"
+    GITHUB_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqa6a6c4wcfut45rad3xlzyvlnfibtgngqm5crrk4kc2vhq"
   # exportedVariables:
   #   - ARTIFACT_VERSION
 steps:
@@ -55,8 +55,6 @@ steps:
       rm -rf "${publish_dir}"
       mkdir -p "${publish_dir}"
       helm package -d "${publish_dir}" */
-      cd "${publish_dir}"
-      helm repo index . --merge ./index.yaml
   - type: Command
     name: "Push Charts to OCI Repo"
     command: |
