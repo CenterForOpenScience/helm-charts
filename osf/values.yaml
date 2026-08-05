@@ -402,6 +402,9 @@ admin:
 
   replicas: 1
 
+  # -- Enable if TLS termination happens at, e.g. a Gateway rather than the ingress --
+  # disableHttpsRedirect: true
+
 # ------- Configuration follows for containerName: nginx -------
   nginx:
     workerCount: 1
