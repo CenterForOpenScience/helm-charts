@@ -1,0 +1,109 @@
+version: 0.1
+component: build
+timeoutInSeconds: 3600
+shell: bash
+failImmediatelyOnError: true
+env:
+  variables:
+    GIT_COMMITTER_NAME: "OCI DevOps Helm Publisher"
+    GIT_COMMITTER_EMAIL: "oci-devops-helm-publisher@example.invalid"
+    GIT_TERMINAL_PROMPT: "0"
+    HELM_PUBLISH_BRANCH: "gh-pages"
+    HELM_PUBLISH_REPOSITORY_URL: "https://github.com/CenterForOpenScience/helm-charts.git"
+    HELM_REPOSITORY_STABLE: "https://charts.helm.sh/stable"
+  vaultVariables:
+    GITHUB_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqa6a6c4wcfut45rad3xlzyvlnfibtgngqm5crrk4kc2vhq"
+    GITHUB_USERNAME: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqaf42fdmqha4aa7bmcrs2f43c3r3k7lnqd564z7ljgvflq"
+    OCI_HELM_REPO_AUTH_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqagkpumsibk36bvcfuaxqaqvzvehlyoil2byr5e3tyxczq"
+    OCI_HELM_REPO_USER: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqajfcmgfxk2rfm6vffit22qqqe2ukmf7j24ptxszs5jrsa"
+steps:
+  - type: Command
+    name: "Verify bundled Helm runtime"
+    command: |
+      helm version
+  - type: Command
+    name: "Resolve chart dependencies"
+    command: |
+      cd "${OCI_PRIMARY_SOURCE_DIR}"
+      helm repo add stable "${HELM_REPOSITORY_STABLE}"
+      helm repo add cos https://centerforopenscience.github.io/helm-charts/
+      helm repo update
+
+      while IFS= read -r -d '' requirements_file; do
+        helm dependency build "$(dirname "${requirements_file}")"
+      done < <(find . -name requirements.yaml -print0)
+
+      helm dependency update ./postgresql-ha
+      helm dependency build ./postgresql-ha
+  - type: Command
+    name: "Lint charts"
+    command: |
+      cd "${OCI_PRIMARY_SOURCE_DIR}"
+      for chart in */; do
+        if [ -f "${chart}/Chart.yaml" ]; then
+          helm dependency build "${chart}"
+          helm lint "${chart}"
+        fi
+      done
+  - type: Command
+    name: "Configure Git Repo and Package charts"
+    command: |
+      cd "${OCI_PRIMARY_SOURCE_DIR}"
+      publish_dir="${OCI_WORKSPACE_DIR}/helm-repo"
+      rm -rf "${publish_dir}"
+      mkdir -p "${publish_dir}"
+      git -C "${publish_dir}" init
+      git -C "${publish_dir}" remote add -t ${HELM_PUBLISH_BRANCH} -f origin ${HELM_PUBLISH_REPOSITORY_URL}
+      git -C "${publish_dir}" checkout "${HELM_PUBLISH_BRANCH}"
+      helm package -d "${publish_dir}" */
+  - type: Command
+    name: "Push Charts to OCI Repo"
+    command: |
+      helm registry login iad.ocir.io -u ${OCI_HELM_REPO_USER} -p ${OCI_HELM_REPO_AUTH_TOKEN}
+      cd "${OCI_WORKSPACE_DIR}/helm-repo"
+      for chart in *.tgz; do
+        echo "Pushing $chart"
+        helm push "$chart" oci://iad.ocir.io/idvyorynw6xy/test-helm-charts
+      done
+  - type: Command
+    name: "Push Charts to GitHub"
+    command: |
+      command -v git
+      git version
+      command -v helm
+      helm version
+      publish_dir="${OCI_WORKSPACE_DIR}/helm-repo"
+      askpass_script="${OCI_WORKSPACE_DIR}/git-askpass.sh"
+      : "${GITHUB_USERNAME:?GITHUB_USERNAME must be supplied by OCI Vault}"
+      : "${GITHUB_TOKEN:?GITHUB_TOKEN must be supplied by OCI Vault}"
+      : "${HELM_PUBLISH_REPOSITORY_URL:?HELM_PUBLISH_REPOSITORY_URL is required}"
+
+      case "${HELM_PUBLISH_REPOSITORY_URL}" in
+        https://github.com/*) ;;
+        *) echo "HELM_PUBLISH_REPOSITORY_URL must be an HTTPS GitHub repository URL" >&2; exit 1 ;;
+      esac
+
+      # Git authenticates via this helper rather than attempting terminal input.
+      umask 077
+      printf '%s\n' '#!/usr/bin/env bash' \
+        'case "$1" in' \
+        '  *Username*) printf "%s\\n" "$GITHUB_USERNAME" ;;' \
+        '  *Password*) printf "%s\\n" "$GITHUB_TOKEN" ;;' \
+        '  *) exit 1 ;;' \
+        'esac' > "${askpass_script}"
+      chmod 700 "${askpass_script}"
+      trap 'rm -f "${askpass_script}"' EXIT
+      export GIT_ASKPASS="${askpass_script}"
+      export GIT_ASKPASS_REQUIRE=force
+
+      helm repo index "${publish_dir}" --merge "${publish_dir}/index.yaml"
+
+      git -C "${publish_dir}" config user.name "${GIT_COMMITTER_NAME}"
+      git -C "${publish_dir}" config user.email "${GIT_COMMITTER_EMAIL}"
+      git -C "${publish_dir}" add .
+      if ! git -C "${publish_dir}" diff --cached --quiet; then
+        git -C "${publish_dir}" commit -m "Update from OCI Build Run for ${OCI_PRIMARY_SOURCE_COMMIT_HASH}"
+        git -C "${publish_dir}" push origin "HEAD:refs/heads/${HELM_PUBLISH_BRANCH}"
+      else
+        echo "No Helm repository changes to publish."
+      fi
