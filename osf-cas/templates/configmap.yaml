@@ -468,8 +468,10 @@ config/cas.properties: |-
   cas.authn.osf-postgres.jpa.user=${OSF_DB_USER:postgres}
   cas.authn.osf-postgres.jpa.password=${OSF_DB_PASSWORD:}
   cas.authn.osf-postgres.jpa.driver-class=${OSF_DB_DRIVER_CLASS:org.postgresql.Driver}
-  cas.authn.osf-postgres.jpa.url=${OSF_DB_URL:jdbc:postgresql://192.168.168.167:5432/osf?targetServerType=master&readOnly=true}
+  cas.authn.osf-postgres.jpa.url=${OSF_DB_URL:jdbc:postgresql://192.168.168.167:5432/osf?targetServerType=preferSecondary&readOnly=true&readOnlyMode=always}
   cas.authn.osf-postgres.jpa.dialect=${OSF_DB_HIBERNATE_DIALECT:io.cos.cas.osf.hibernate.dialect.OsfPostgresDialect}
+  cas.authn.osf-postgres.jpa.autocommit=${OSF_DB_AUTOCOMMIT:false}
+  cas.authn.osf-postgres.jpa.ddl-auto=${OSF_DB_DDLAUTO:validate}
   ########################################################################################################################
 
   ########################################################################################################################
@@ -487,7 +489,7 @@ config/cas.properties: |-
   cas.ticket.registry.jpa.user=${CAS_DB_USER:postgres}
   cas.ticket.registry.jpa.password=${CAS_DB_PASSWORD:}
   cas.ticket.registry.jpa.driver-class=${CAS_DB_DRIVER_CLASS:org.postgresql.Driver}
-  cas.ticket.registry.jpa.url=${CAS_DB_URL:jdbc:postgresql://127.0.0.1:5432/osf-cas?targetServerType=master}
+  cas.ticket.registry.jpa.url=${CAS_DB_URL:jdbc:postgresql://127.0.0.1:5432/osf-cas?targetServerType=primary}
   cas.ticket.registry.jpa.dialect=${CAS_DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQL95Dialect}
   cas.ticket.registry.jpa.ddl-auto=update
   cas.ticket.registry.jpa.default-catalog=
