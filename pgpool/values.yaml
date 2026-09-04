@@ -21,6 +21,9 @@ main:
         externalPort: 5432
 
   pgpool:
+    probes:
+      socket_dir: "/tmp/"
+      # Set to "/opt/bitnami/pgpool/tmp" if using Bitnami-based image
     config:
       backend_hostname0: "host0.local" # Required, override
       # # Defaults:
@@ -78,7 +81,7 @@ main:
         command:
         - bash
         - -c
-        - psql -h /tmp/ -w 2>&1 | grep "no password supplied"
+        - psql -h {{ .Values.main.pgpool.probes.socket_dir }} -w 2>&1 | grep "no password supplied"
       failureThreshold: 5
       initialDelaySeconds: 10
       periodSeconds: 10
@@ -89,7 +92,7 @@ main:
         command:
         - bash
         - -c
-        - psql -h /tmp/ -w 2>&1 | grep "no password supplied"
+        - psql -h {{ .Values.main.pgpool.probes.socket_dir }} -w 2>&1 | grep "no password supplied"
       failureThreshold: 5
       initialDelaySeconds: 10
       periodSeconds: 10
