@@ -5,6 +5,8 @@ shell: bash
 failImmediatelyOnError: true
 env:
   variables:
+    BUILD_STATUS: 'STARTED'
+    DEVOPS_PROJECT_OCID: 'ocid1.devopsproject.oc1.iad.amaaaaaa2jd6obqamdc6ad572322gag33f6vpijrxe56k65vgzjimhbtitlq'
     GIT_COMMITTER_NAME: "OCI DevOps Helm Publisher"
     GIT_COMMITTER_EMAIL: "oci-devops-helm-publisher@example.invalid"
     GIT_TERMINAL_PROMPT: "0"
@@ -16,13 +18,50 @@ env:
     GITHUB_USERNAME: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqaf42fdmqha4aa7bmcrs2f43c3r3k7lnqd564z7ljgvflq"
     OCI_HELM_REPO_AUTH_TOKEN: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqagkpumsibk36bvcfuaxqaqvzvehlyoil2byr5e3tyxczq"
     OCI_HELM_REPO_USER: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqajfcmgfxk2rfm6vffit22qqqe2ukmf7j24ptxszs5jrsa"
+    SLACK_WEBHOOK_URL: "ocid1.vaultsecret.oc1.iad.amaaaaaa2jd6obqau6okvwr77n6brcq3ddgbiwnggyffebf76dcf3jamy4jq"
 steps:
   - type: Command
+    name: "Create Slack script and notify"
+    command: |
+      slack_handler=${OCI_WORKSPACE_DIR}/slack_handler.sh
+      self_link=https://cloud.oracle.com/devops-build/projects/$DEVOPS_PROJECT_OCID/build-pipelines/$OCI_PIPELINE_ID/build-runs/$OCI_BUILD_RUN_ID
+      printf '%s\n' '#!/usr/bin/env bash' \
+        'if [ "$BUILD_STATUS" = "SUCCESS" ]; then' \
+        '  PAYLOAD='\''{' \
+        '    "text": "✅ *Build Succeeded*\nProject: helm-charts\nCommit: '\''$OCI_PRIMARY_SOURCE_COMMIT_HASH'\''\n'"$self_link"'"' \
+        '  }'\''' \
+        'elif [ "$BUILD_STATUS" = "STARTED" ]; then' \
+        '  PAYLOAD='\''{' \
+        '    "text": "⏳ *Build Started*\nProject: helm-charts\nCommit: '\''$OCI_PRIMARY_SOURCE_COMMIT_HASH'\''\n'"$self_link"'"' \
+        '  }'\''' \
+        'else' \
+        '  PAYLOAD='\''{' \
+        '    "text": "❌ *Build Failed*\nProject: helm-charts\nCommit: '\''$OCI_PRIMARY_SOURCE_COMMIT_HASH'\''\n'"$self_link"'"' \
+        '  }'\''' \
+        'fi' \
+        'curl -X POST -H '\''Content-type: application/json'\'' \' \
+        '    --data "$PAYLOAD" \' \
+        '    "$SLACK_WEBHOOK_URL"' > "${slack_handler}"
+
+      sh ${slack_handler}
+  - type: Command
     name: "Verify bundled Helm runtime"
+    onFailure:
+      - type: Command
+        name: "Notify Fail"
+        command: |
+          BUILD_STATUS="FAILED"
+          sh ${OCI_WORKSPACE_DIR}/slack_handler.sh
     command: |
       helm version
   - type: Command
     name: "Resolve chart dependencies"
+    onFailure:
+      - type: Command
+        name: "Notify Fail"
+        command: |
+          BUILD_STATUS="FAILED"
+          sh ${OCI_WORKSPACE_DIR}/slack_handler.sh
     command: |
       cd "${OCI_PRIMARY_SOURCE_DIR}"
       helm repo add stable "${HELM_REPOSITORY_STABLE}"
@@ -37,6 +76,12 @@ steps:
       helm dependency build ./postgresql-ha
   - type: Command
     name: "Lint charts"
+    onFailure:
+      - type: Command
+        name: "Notify Fail"
+        command: |
+          BUILD_STATUS="FAILED"
+          sh ${OCI_WORKSPACE_DIR}/slack_handler.sh
     command: |
       cd "${OCI_PRIMARY_SOURCE_DIR}"
       for chart in */; do
@@ -47,6 +92,12 @@ steps:
       done
   - type: Command
     name: "Configure Git Repo and Package charts"
+    onFailure:
+      - type: Command
+        name: "Notify Fail"
+        command: |
+          BUILD_STATUS="FAILED"
+          sh ${OCI_WORKSPACE_DIR}/slack_handler.sh
     command: |
       cd "${OCI_PRIMARY_SOURCE_DIR}"
       publish_dir="${OCI_WORKSPACE_DIR}/helm-repo"
@@ -58,6 +109,12 @@ steps:
       helm package -d "${publish_dir}" */
   - type: Command
     name: "Push Charts to OCI Repo"
+    onFailure:
+      - type: Command
+        name: "Notify Fail"
+        command: |
+          BUILD_STATUS="FAILED"
+          sh ${OCI_WORKSPACE_DIR}/slack_handler.sh
     command: |
       helm registry login iad.ocir.io -u ${OCI_HELM_REPO_USER} -p ${OCI_HELM_REPO_AUTH_TOKEN}
       cd "${OCI_WORKSPACE_DIR}/helm-repo"
@@ -67,6 +124,12 @@ steps:
       done
   - type: Command
     name: "Push Charts to GitHub"
+    onFailure:
+      - type: Command
+        name: "Notify Fail"
+        command: |
+          BUILD_STATUS="FAILED"
+          sh ${OCI_WORKSPACE_DIR}/slack_handler.sh
     command: |
       command -v git
       git version
@@ -107,3 +170,8 @@ steps:
       else
         echo "No Helm repository changes to publish."
       fi
+  - type: Command
+    name: "Notify Success"
+    command: |
+      BUILD_STATUS="SUCCESS"
+      sh ${OCI_WORKSPACE_DIR}/slack_handler.sh
