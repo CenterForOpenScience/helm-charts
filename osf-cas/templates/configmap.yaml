@@ -574,7 +574,7 @@ config/cas.properties: |-
   #
   cas.authn.pac4j.typed-id-used=true
   cas.authn.pac4j.lazy-init=true
-  cas.authn.pac4j.replicate-sessions=false
+  cas.authn.pac4j.replicate-sessions=true
   #
   # Non-institution clients
   cas.authn.osf-postgres.non-institution-clients[0]=${cas.authn.pac4j.orcid.client-name}
