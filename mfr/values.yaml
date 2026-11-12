@@ -180,6 +180,13 @@ main:
         httpGet:
           path: /status
           port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+      livenessProbe:
+        httpGet:
+          path: /status
+          port: "{{ .Values.main.http.containers.nginx.externalPort }}"
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        timeoutSeconds: 2  
 
     - name: unoserver
       inheritVolumeMountsFrom: unoserver # <----- gets volume mounts from unoserver set of vars above
