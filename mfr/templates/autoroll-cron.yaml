@@ -51,6 +51,10 @@ spec:
         spec:
           serviceAccountName: {{ $serviceAccount }}
           restartPolicy: Never
+          {{- with .Values.autoroll.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           containers:
             - name: {{ .Values.autoroll.name }}
               image: "{{ .Values.autoroll.image.repository }}:{{ .Values.autoroll.image.tag }}"
