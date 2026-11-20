@@ -383,3 +383,25 @@ main:
 
 # ------- Selectors and etc. -------
   nodeSelector: {}
+
+
+## ------- VACUUMLO CronJob -------
+vacuumlo:
+  enabled: false
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  name: vacuumlo
+  schedule: "0 7 * * *"
+  startingDeadlineSeconds: 900
+  activeDeadlineSeconds: 14400
+  backoffLimit: 2
+  database: osf-cas
+  # pgpool host, or comma-separated list of every PostgreSQL node; libpq connects to whichever one is the primary
+  host: ""
+  user: ""
+  password: ""
+  # Only report what would be removed (vacuumlo -n)
+  dryRun: false
+  nodeSelector: {}

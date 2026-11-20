@@ -1,0 +1,62 @@
+{{- if .Values.vacuumlo.enabled -}}
+{{- $base := include "cos-common.fullname" (dict "root" . "name" .Values.vacuumlo.name) | trim -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $base }}
+  labels:
+    {{- include "cos-common.labels" (dict "root" . "name" .Values.vacuumlo.name "values" dict) | nindent 4 }}
+type: Opaque
+data:
+  PGUSER: {{ tpl (required "vacuumlo.user is required" .Values.vacuumlo.user) . | b64enc | quote }}
+  PGPASSWORD: {{ tpl (required "vacuumlo.password is required" .Values.vacuumlo.password) . | b64enc | quote }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $base }}
+  labels:
+    {{- include "cos-common.labels" (dict "root" . "name" .Values.vacuumlo.name "values" dict) | nindent 4 }}
+spec:
+  schedule: {{ default "0 7 * * *" .Values.vacuumlo.schedule | quote }}
+  startingDeadlineSeconds: {{ default 900 .Values.vacuumlo.startingDeadlineSeconds }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: {{ default 14400 .Values.vacuumlo.activeDeadlineSeconds }}
+      backoffLimit: {{ default 2 .Values.vacuumlo.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "cos-common.podLabels" (dict "root" . "name" .Values.vacuumlo.name) | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          {{- with .Values.vacuumlo.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: {{ .Values.vacuumlo.name }}
+              image: "{{ .Values.vacuumlo.image.repository }}:{{ .Values.vacuumlo.image.tag }}"
+              imagePullPolicy: {{ .Values.vacuumlo.image.pullPolicy }}
+              command:
+                - vacuumlo
+              args:
+                - -v
+                {{- if .Values.vacuumlo.dryRun }}
+                - -n
+                {{- end }}
+                - {{ .Values.vacuumlo.database | quote }}
+              env:
+                - name: PGHOST
+                  value: {{ tpl (required "vacuumlo.host is required" .Values.vacuumlo.host) . | quote }}
+                - name: PGTARGETSESSIONATTRS
+                  value: read-write
+                - name: PGCONNECT_TIMEOUT
+                  value: "10"
+              envFrom:
+                - secretRef:
+                    name: {{ $base }}
+          nodeSelector:
+            {{- toYaml .Values.vacuumlo.nodeSelector | nindent 12 }}
+{{- end -}}
