@@ -389,7 +389,7 @@ main:
 vacuumlo:
   enabled: false
   image:
-    repository: postgres
+    repository: docker.io/library/postgres
     tag: "15"
     pullPolicy: IfNotPresent
   name: vacuumlo
